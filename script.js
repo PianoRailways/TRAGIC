@@ -103,7 +103,7 @@ async function loadDepartures(refEpoch) {
   }
 
   try {
-    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=12`;
+    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
     if (refEpoch) {
       q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
     }
