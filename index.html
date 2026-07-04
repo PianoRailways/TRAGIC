@@ -125,6 +125,16 @@ function renderError(msg) {
   status.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
 }
 
+function getModeLabel(mode) {
+  if (!mode) return '';
+  const m = mode.toUpperCase();
+  if (m === 'RAIL' || m === 'SUBWAY') return 'Zug';
+  if (m === 'TRAM') return 'Tram';
+  if (m === 'BUS') return 'Bus';
+  if (m === 'FERRY') return 'Schiff';
+  return mode;
+}
+
 function renderDepartures(departures) {
   const tbody = document.getElementById('departureBody');
   tbody.innerHTML = '';
@@ -148,8 +158,11 @@ function renderDepartures(departures) {
       delayCell = `<span class="delay">+${dep.delayMin}′</span>`;
     }
 
+    const modeText = getModeLabel(dep.mode);
+    const modeHtml = modeText ? `<span class="mode-label">${escapeHtml(modeText)}</span> ` : '';
+
     tr.innerHTML = `
-      <td class="col-line"><span class="line">${escapeHtml(dep.line)}</span></td>
+      <td class="col-line">${modeHtml}<span class="line">${escapeHtml(dep.line)}</span></td>
       <td class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '–'}</td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
       <td class="col-time">${timeStr}</td>

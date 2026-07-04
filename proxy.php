@@ -186,6 +186,7 @@ if ($action === 'departures') {
             'track'       => $place['track'] ?? $place['scheduledTrack'] ?? null,
             'cancelled'   => (bool)($entry['cancelled'] ?? false),
             'realTime'    => (bool)($entry['realTime'] ?? false),
+            'mode'        => $entry['mode'] ?? null,
         ];
     }
 
