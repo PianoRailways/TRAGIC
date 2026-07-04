@@ -47,8 +47,16 @@ header.topbar {
 
 #search-box { position: relative; }
 
-.time-picker-box {
+.time-picker-row {
+  display: flex;
+  gap: 0.5rem;
   margin-top: 0.5rem;
+}
+.time-picker-row input[type="date"] {
+  flex: 2;
+}
+.time-picker-row input[type="time"] {
+  flex: 1;
 }
 
 input {
@@ -62,8 +70,9 @@ input {
 }
 input:focus { outline: none; border-color: var(--line-accent); }
 
-/* Verhindert helle Browser-Standard-Overlays beim Datumsfeld */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+/* Icons in nativen Pickern für Dark Mode invertieren */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }

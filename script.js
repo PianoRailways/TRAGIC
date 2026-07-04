@@ -3,17 +3,14 @@ let currentStopId = null;
 let refreshTimer = null;
 
 const params = new URLSearchParams(location.search);
+const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
 
 if (params.get('stopId')) {
   currentStopId = params.get('stopId');
   const initialTime = params.get('time') ? Number(params.get('time')) : null;
   if (initialTime) {
-    // Wandelt den Epoch-Wert in das passende Format für datetime-local um (lokale Zeit)
-    const date = new Date(initialTime * 1000);
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    const localISOTime = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
-    timePicker.value = localISOTime;
+    setPickersFromEpoch(initialTime);
   }
   loadDepartures(initialTime);
 }
@@ -39,19 +36,40 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   }
 }, 350));
 
-timePicker.addEventListener('change', () => {
-  if (!currentStopId) return;
-  let refEpoch = null;
-  if (timePicker.value) {
-    refEpoch = Math.floor(new Date(timePicker.value).getTime() / 1000);
+function getSelectedEpoch() {
+  if (!datePicker.value || !timePicker.value) return null;
+  // Kombiniert Datum und Uhrzeit zu einem lokalen JS-Date-Objekt
+  const dt = new Date(`${datePicker.value}T${timePicker.value}`);
+  return isNaN(dt.getTime()) ? null : Math.floor(dt.getTime() / 1000);
+}
+
+function setPickersFromEpoch(epoch) {
+  if (!epoch) {
+    datePicker.value = '';
+    timePicker.value = '';
+    return;
   }
+  const date = new Date(epoch * 1000);
+  const tzOffset = date.getTimezoneOffset() * 60000;
+  const localISO = new Date(date.getTime() - tzOffset).toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
+  
+  datePicker.value = localISO.slice(0, 10);
+  timePicker.value = localISO.slice(11, 16);
+}
+
+const triggerTimeChange = () => {
+  if (!currentStopId) return;
+  const refEpoch = getSelectedEpoch();
   
   const url = new URL(location.href);
   if (refEpoch) url.searchParams.set('time', refEpoch); else url.searchParams.delete('time');
   history.pushState({}, '', url);
   
   loadDepartures(refEpoch);
-});
+};
+
+datePicker.addEventListener('change', triggerTimeChange);
+timePicker.addEventListener('change', triggerTimeChange);
 
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#search-box')) {
@@ -65,13 +83,7 @@ function selectStation(stopId, name, refEpoch) {
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
 
-  if (refEpoch) {
-    const date = new Date(refEpoch * 1000);
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    timePicker.value = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
-  } else {
-    timePicker.value = '';
-  }
+  setPickersFromEpoch(refEpoch);
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
@@ -86,9 +98,8 @@ async function loadDepartures(refEpoch) {
   if (!currentStopId) return;
   setStatus('Lade Abfahrten…');
 
-  // Falls kein refEpoch übergeben wurde, aber das Zeitfeld befüllt ist, nutzen wir diesen Wert
-  if (!refEpoch && timePicker.value) {
-    refEpoch = Math.floor(new Date(timePicker.value).getTime() / 1000);
+  if (!refEpoch) {
+    refEpoch = getSelectedEpoch();
   }
 
   try {
