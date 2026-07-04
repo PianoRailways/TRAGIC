@@ -137,13 +137,8 @@ function renderError(msg) {
 function getModeIcon(mode) {
   if (!mode) return '';
   const m = mode.toUpperCase();
-  
-  if (m === 'RAIL' || m === 'SUBWAY') { return `<span class="mode-icon">🚇</span>`; }
-  if (m === 'TRAM' || m === 'METRO') { return `<span class="mode-icon">🚋</span>`; }
-  if (m === 'REGIONAL_RAIL') { return `<span class="mode-icon">🚉</span>`; }
-  if (m === 'BUS') { return `<span class="mode-icon">🚎</span>`; }
-  if (m === 'LONG_DISTANCE' || m === 'HIGHSPEED_RAIL') { return `<span class="mode-icon">🚄</span>`; }
-  if (m === 'FERRY') { return `<span class="mode-icon">🚢</span>`; }
+  if (m === 'TRAM' ) { return `T`; }
+  if (m === 'BUS') { return `B`; }
   return '';
 }
 
@@ -175,11 +170,11 @@ function renderDepartures(departures) {
     const iconHtml = getModeIcon(dep.mode);
 
     tr.innerHTML = `
-      <td class="col-time">${timeStr}</td>
-      <td class="col-delay">${delayCell}</td>
-      <td class="col-line"><div class="line-container">${iconHtml}<span class="line">${escapeHtml(dep.line)}</span></div></td>
-      <td class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '–'}</td>
+      <td class="col-time">${timeStr}<br><span class="delay-badge">${delayCell}</span></td>
+      <td class="col-line"><div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div><br>
+      <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '???'}</div></td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
+      <td class="col-platform">${escapeHtml(dep.track)}</td>
     `;
     tr.onclick = () => toggleChain(tr, dep);
     tbody.appendChild(tr);
@@ -226,7 +221,7 @@ function renderChain(data) {
   const stopsHtml = (data.stops || []).map(stop => {
     const arr = fmtTime(stop.arrivalLive);
     const dep = fmtTime(stop.departureLive);
-    const times = [arr !== '–' ? 'an ' + arr : null, dep !== '–' ? 'ab ' + dep : null].filter(Boolean).join(' · ');
+    const times = [arr !== '–' ? 'An ' + arr : null, dep !== '–' ? 'Ab ' + dep : null].filter(Boolean).join(' · ');
 
     const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
     const delayHtml = stop.cancelled

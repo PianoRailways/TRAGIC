@@ -16,14 +16,20 @@
   <!-- ═══════════════ HEADER ═══════════════ -->
   <header id="app-header">
     <div id="header-left">
-      <button id="btn-home" onClick="window.location = './'" title="Startseite">⌂ Home</button>
+      <button id="btn-home" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A82597'" title="Startseite">⌂ Home</button>
     </div>
     <div id="header-center"><span id="live-clock" onClick="window.location = './'">00:00:00</span></div>
     <div id="header-right">
       <span id="app-title" style="text-decoration: none;" onclick="toggleArrival()">öV TRAGIC</span>
     </div>
   </header>
-
+    <nav id="fav-bar">
+        <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A8100'">LTH</btn>
+        <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A5000'">LZ</btn>
+        <button class="fav-btn" onClick="window.location = './?stopId=de-DELFI_ch%3A23005%3A6'">BAD</btn>
+        <button class="fav-btn" onClick="window.location = './?stopId=fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF%3AOCETrainTER87182063'">MUL</btn>
+        <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parent8721202'">STRS</btn>
+    </nav>
   <div class="topbar">
     <h1 id="stationTitle">Station wählen</h1>
     <div id="search-box">
@@ -41,10 +47,9 @@
   <thead>
     <tr>
       <th class="col-time">Ab</th>
-      <th class="col-delay">Verspätung</th>
       <th class="col-line">Linie</th>
-      <th class="col-nr">Fahrtnummer</th>
       <th class="col-dest">Ziel</th>
+      <th class="col-platform">Gl./Kante</th>
     </tr>
   </thead>
   <tbody id="departureBody"></tbody>
