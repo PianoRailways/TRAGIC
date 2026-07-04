@@ -47,6 +47,10 @@ header.topbar {
 
 #search-box { position: relative; }
 
+.time-picker-box {
+  margin-top: 0.5rem;
+}
+
 input {
   width: 100%;
   padding: 0.55rem 0.7rem;
@@ -57,6 +61,12 @@ input {
   color: var(--text-main);
 }
 input:focus { outline: none; border-color: var(--line-accent); }
+
+/* Verhindert helle Browser-Standard-Overlays beim Datumsfeld */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
 
 #suggestions {
   list-style: none;

@@ -3,9 +3,19 @@ let currentStopId = null;
 let refreshTimer = null;
 
 const params = new URLSearchParams(location.search);
+const timePicker = document.getElementById('timePicker');
+
 if (params.get('stopId')) {
   currentStopId = params.get('stopId');
-  loadDepartures(params.get('time') ? Number(params.get('time')) : null);
+  const initialTime = params.get('time') ? Number(params.get('time')) : null;
+  if (initialTime) {
+    // Wandelt den Epoch-Wert in das passende Format für datetime-local um (lokale Zeit)
+    const date = new Date(initialTime * 1000);
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+    timePicker.value = localISOTime;
+  }
+  loadDepartures(initialTime);
 }
 
 document.getElementById('query').addEventListener('input', debounce(async (e) => {
@@ -29,6 +39,20 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   }
 }, 350));
 
+timePicker.addEventListener('change', () => {
+  if (!currentStopId) return;
+  let refEpoch = null;
+  if (timePicker.value) {
+    refEpoch = Math.floor(new Date(timePicker.value).getTime() / 1000);
+  }
+  
+  const url = new URL(location.href);
+  if (refEpoch) url.searchParams.set('time', refEpoch); else url.searchParams.delete('time');
+  history.pushState({}, '', url);
+  
+  loadDepartures(refEpoch);
+});
+
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#search-box')) {
     document.getElementById('suggestions').innerHTML = '';
@@ -40,6 +64,14 @@ function selectStation(stopId, name, refEpoch) {
   document.getElementById('stationTitle').textContent = name;
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
+
+  if (refEpoch) {
+    const date = new Date(refEpoch * 1000);
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    timePicker.value = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+  } else {
+    timePicker.value = '';
+  }
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
@@ -53,6 +85,11 @@ function selectStation(stopId, name, refEpoch) {
 async function loadDepartures(refEpoch) {
   if (!currentStopId) return;
   setStatus('Lade Abfahrten…');
+
+  // Falls kein refEpoch übergeben wurde, aber das Zeitfeld befüllt ist, nutzen wir diesen Wert
+  if (!refEpoch && timePicker.value) {
+    refEpoch = Math.floor(new Date(timePicker.value).getTime() / 1000);
+  }
 
   try {
     let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=12`;
@@ -70,7 +107,7 @@ async function loadDepartures(refEpoch) {
 
     renderDepartures(data.departures || []);
     setStatus(refEpoch
-      ? 'Abfahrten ab Ankunft der vorherigen Fahrt · ' + new Date().toLocaleTimeString('de-CH')
+      ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + new Date().toLocaleTimeString('de-CH')
       : 'Aktualisiert ' + new Date().toLocaleTimeString('de-CH'));
   } catch (err) {
     renderError(err.message);
@@ -90,18 +127,11 @@ function getModeIcon(mode) {
   if (!mode) return '';
   const m = mode.toUpperCase();
   
-  // Zug / Metro
   if (m === 'RAIL' || m === 'SUBWAY') { return `<span class="mode-icon">🚇</span>`; }
-  // Tram / Strassenbahn
   if (m === 'TRAM' || m === 'METRO') { return `<span class="mode-icon">🚋</span>`; }
-  if (m === 'METRO') { return `<span class="mode-icon">🚋</span>`; }
-  // Regional
   if (m === 'REGIONAL_RAIL') { return `<span class="mode-icon">🚉</span>`; }
-  // Bus
   if (m === 'BUS') { return `<span class="mode-icon">🚎</span>`; }
-  // ICE etc.
   if (m === 'LONG_DISTANCE' || m === 'HIGHSPEED_RAIL') { return `<span class="mode-icon">🚄</span>`; }
-  // Schiff
   if (m === 'FERRY') { return `<span class="mode-icon">🚢</span>`; }
   return '';
 }
