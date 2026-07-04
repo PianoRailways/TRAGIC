@@ -14,7 +14,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *'); // bei Bedarf auf deine Domain einschränken
 
 const BASE_URL   = 'https://api.transitous.org';
-const USER_AGENT = 'NOWE-Transitous/0.1 (+https://DEINE-DOMAIN.tld; DEINE-EMAIL@example.com)';
+const USER_AGENT = 'NOWE-TRAGIC/0.1 (+https://tragic.stellwerksim.ch; piano@stellwerksim.ch)';
 
 function callTransitous(string $path, array $params): array {
     $url = BASE_URL . $path . '?' . http_build_query($params);
