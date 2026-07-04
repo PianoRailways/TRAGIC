@@ -125,14 +125,27 @@ function renderError(msg) {
   status.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
 }
 
-function getModeLabel(mode) {
+function getModeIcon(mode) {
   if (!mode) return '';
   const m = mode.toUpperCase();
-  if (m === 'RAIL' || m === 'SUBWAY') return 'Zug';
-  if (m === 'TRAM') return 'Tram';
-  if (m === 'BUS') return 'Bus';
-  if (m === 'FERRY') return 'Schiff';
-  return mode;
+  
+  // Zug / Metro
+  if (m === 'RAIL' || m === 'SUBWAY') {
+    return `<svg class="mode-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M18 10h-3V5h3v5M9 5h3v5H9V5m9 11H6v-4h12v4m-6-15C6.5 1 2 5.5 2 11v8c0 1.7 1.3 3 3 3h14c1.7 0 3-1.3 3-3v-8c0-5.5-4.5-10-10-10m4.5 18c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7 1.5-1.5 1.5M7.5 19c-.8 0-1.5-.7-1.5-1.5S6.7 16 7.5 16s1.5.7 1.5 1.5-.7 1.5-1.5 1.5Z"/></svg>`;
+  }
+  // Tram / Strassenbahn
+  if (m === 'TRAM') {
+    return `<svg class="mode-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19 14H5v-4h14v4m-6-9h4l1.2-2H17l-1.2 2H8.2L7 3H5.2l1.2 2H11v3h8c1.7 0 3 1.3 3 3v6c0 1.7-1.3 3-3 3l1 1v1H4v-1l1-1c-1.7 0-3-1.3-3-3v-6c0-1.7 1.3-3 3-3h1V5m12 14c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7 1.5-1.5 1.5M6.5 19c-.8 0-1.5-.7-1.5-1.5S5.7 16 6.5 16s1.5.7 1.5 1.5-.7 1.5-1.5 1.5Z"/></svg>`;
+  }
+  // Bus
+  if (m === 'BUS') {
+    return `<svg class="mode-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M18 11H6V6h12v5m0 5H6v-3h12v3m-2.5 2c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7 1.5-1.5 1.5M8.5 18c-.8 0-1.5-.7-1.5-1.5S7.7 15 8.5 15s1.5.7 1.5 1.5-.7 1.5-1.5 1.5M4 16c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4V4c0-2.2-1.8-4-4-4H8C5.8 0 4 1.8 4 4v12Z"/></svg>`;
+  }
+  // Schiff
+  if (m === 'FERRY') {
+    return `<svg class="mode-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M20 17.5c-.7 0-1.4-.3-1.9-.8-.9-1-2.4-1-3.3 0-.5.5-1.2.8-1.9.8s-1.4-.3-1.9-.8c-.9-1-2.4-1-3.3 0-.5.5-1.2.8-1.9.8s-1.4-.3-1.9-.8c-.5-.5-1-.7-1.7-.7V15h19.6l-.8-2.7H13V9h4.5V6H13V3h-2v3H6.5v3H11v3.3H4.7L2 15v1.1c.7 0 1.4.3 1.9.8.9 1 2.4 1 3.3 0 .5-.5 1.2-.8 1.9-.8s1.4.3 1.9.8c.9 1 2.4 1 3.3 0 .5-.5 1.2-.8 1.9-.8s1.4.3 1.9.8c.4.5 1 .8 1.8.8v-2Z"/></svg>`;
+  }
+  return '';
 }
 
 function renderDepartures(departures) {
@@ -158,11 +171,10 @@ function renderDepartures(departures) {
       delayCell = `<span class="delay">+${dep.delayMin}′</span>`;
     }
 
-    const modeText = getModeLabel(dep.mode);
-    const modeHtml = modeText ? `<span class="mode-label">${escapeHtml(modeText)}</span> ` : '';
+    const iconHtml = getModeIcon(dep.mode);
 
     tr.innerHTML = `
-      <td class="col-line">${modeHtml}<span class="line">${escapeHtml(dep.line)}</span></td>
+      <td class="col-line"><div class="line-container">${iconHtml}<span class="line">${escapeHtml(dep.line)}</span></div></td>
       <td class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '–'}</td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
       <td class="col-time">${timeStr}</td>

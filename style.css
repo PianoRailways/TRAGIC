@@ -92,19 +92,23 @@ th, td {
 }
 th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
-.col-line  { width: 24%; }
-.col-nr    { width: 14%; }
-.col-dest  { width: 32%; white-space: normal; }
+.col-line  { width: 22%; }
+.col-nr    { width: 15%; }
+.col-dest  { width: 33%; white-space: normal; }
 .col-time  { width: 15%; }
 .col-delay { width: 15%; }
 
-.mode-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-right: 0.3rem;
-  text-transform: uppercase;
-  display: inline-block;
-  vertical-align: middle;
+.line-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mode-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--text-soft);
+  flex-shrink: 0;
 }
 
 .line {
@@ -115,7 +119,6 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   border-radius: 4px;
   display: inline-block;
   font-size: 0.85rem;
-  vertical-align: middle;
 }
 .tripnr { color: var(--text-subtle); font-size: 0.8rem; }
 .delay { color: var(--error); font-weight: bold; }
