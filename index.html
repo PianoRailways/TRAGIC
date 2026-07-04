@@ -5,244 +5,158 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NOWE Weltweit – Abfahrten</title>
 <style>
-  :root {
-    color-scheme: dark;
-    --bg: #0d0d0f;
-    --card: #17171a;
-    --card-hover: #1f1f23;
-    --border: #2a2a2e;
-    --accent: #0eb37a;
-    --accent-text: #06251c;
-    --delay: #ff5a5a;
-    --ontime: #4ade80;
-    --muted: #8a8a90;
-    --text: #f0f0f2;
-  }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  html, body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  }
-
   body {
-    padding-bottom: 2rem;
-    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #111;
+    color: #eee;
+    margin: 0;
+    padding: 0.8rem;
   }
 
-  /* -------- Kopfbereich / Suche -------- */
+  h1 {
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    margin: 0 0 0.6rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   header.topbar {
     position: sticky;
     top: 0;
-    z-index: 20;
-    background: rgba(13,13,15,0.92);
-    backdrop-filter: blur(8px);
-    padding: env(safe-area-inset-top, 0.8rem) 1rem 0.8rem;
-    padding-top: max(0.8rem, env(safe-area-inset-top));
-    border-bottom: 1px solid var(--border);
+    background: #111;
+    padding-top: env(safe-area-inset-top, 0);
+    z-index: 10;
+    margin: -0.8rem -0.8rem 0.8rem;
+    padding: 0.8rem 0.8rem 0.6rem;
   }
 
-  h1#stationTitle {
-    font-size: clamp(1.1rem, 4vw, 1.5rem);
-    margin: 0 0 0.6rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  #search-box { position: relative; }
 
-  .search-wrap { position: relative; }
-
-  #query {
+  input {
     width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem; /* >=16px verhindert Auto-Zoom auf iOS */
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--card);
-    color: var(--text);
+    padding: 0.55rem 0.7rem;
+    font-size: 1rem; /* verhindert Auto-Zoom auf iOS */
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #eee;
   }
-  #query:focus { outline: none; border-color: var(--accent); }
+  input:focus { outline: none; border-color: #0a5; }
 
   #suggestions {
     list-style: none;
-    margin: 0.3rem 0 0;
+    margin: 0.2rem 0 0;
     padding: 0;
     position: absolute;
     left: 0; right: 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    z-index: 30;
-    max-height: 60vh;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    z-index: 20;
+    max-height: 55vh;
     overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   }
   #suggestions li {
-    padding: 0.85rem 1rem;
+    padding: 0.6rem 0.7rem;
     cursor: pointer;
-    border-bottom: 1px solid var(--border);
-    font-size: 1rem;
+    border-bottom: 1px solid #2a2a2a;
+    font-size: 0.95rem;
   }
   #suggestions li:last-child { border-bottom: none; }
-  #suggestions li:active, #suggestions li:hover { background: var(--card-hover); }
+  #suggestions li:active, #suggestions li:hover { background: #262626; }
 
-  /* -------- Content -------- */
-  main {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 0.8rem 0.7rem 0;
-  }
-
-  #status {
-    color: var(--muted);
-    font-size: 0.85rem;
-    padding: 0.6rem 0.5rem 0;
-    text-align: center;
-  }
-
-  /* -------- Abfahrtskarten -------- */
-  .departures { display: flex; flex-direction: column; gap: 0.5rem; }
-
-  .dep-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .dep-main {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.9rem 1rem;
-    cursor: pointer;
-    min-height: 44px;
-  }
-  .dep-main:active, .dep-main:hover { background: var(--card-hover); }
-
-  .line-badge {
-    background: var(--accent);
-    color: var(--accent-text);
-    font-weight: 700;
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.4rem;
+    border-bottom: 1px solid #2a2a2a;
     font-size: 0.95rem;
-    padding: 0.35rem 0.6rem;
-    border-radius: 8px;
-    min-width: 2.4rem;
-    text-align: center;
-    line-height: 1;
-  }
-
-  .dep-info { overflow: hidden; }
-  .destination {
-    font-size: 1.05rem;
-    font-weight: 600;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .tripnr { color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+  th { color: #888; font-weight: normal; font-size: 0.75rem; }
 
-  .dep-right { text-align: right; white-space: nowrap; }
-  .dep-time { font-size: 1.15rem; font-weight: 600; }
-  .dep-delay { font-size: 0.8rem; margin-top: 0.15rem; }
-  .dep-track { color: var(--muted); font-size: 0.75rem; margin-top: 0.1rem; }
+  /* Spaltenbreiten so verteilt, dass es auf schmalen Screens nicht bricht */
+  .col-line  { width: 18%; }
+  .col-nr    { width: 16%; }
+  .col-dest  { width: 34%; white-space: normal; }
+  .col-time  { width: 16%; }
+  .col-delay { width: 16%; }
 
-  .delay { color: var(--delay); font-weight: 700; }
-  .ontime { color: var(--ontime); }
-  .cancelled { color: var(--delay); text-decoration: line-through; }
-
-  .chevron {
+  .line {
+    font-weight: bold;
+    background: #0a5;
+    color: #041b12;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
     display: inline-block;
-    margin-left: 0.3rem;
-    transition: transform 0.2s ease;
-    color: var(--muted);
+    font-size: 0.85rem;
   }
-  .dep-card.open .chevron { transform: rotate(90deg); }
+  .tripnr { color: #999; font-size: 0.8rem; }
+  .delay { color: #f55; font-weight: bold; }
+  .ontime { color: #5f5; }
+  .cancelled { color: #f55; text-decoration: line-through; }
 
-  /* -------- Fahrtverlauf (Timeline) -------- */
-  .chain-wrap {
-    padding: 0.4rem 1rem 1.1rem;
-    border-top: 1px solid var(--border);
-    animation: fadeIn 0.15s ease;
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  #status { color: #888; font-size: 0.8rem; margin-top: 0.6rem; text-align: center; }
 
-  .chain-header {
-    color: var(--muted);
-    font-size: 0.82rem;
-    line-height: 1.4;
-    padding: 0.7rem 0 0.4rem;
-  }
-  .chain-header b { color: var(--text); }
+  tr.dep-row { cursor: pointer; min-height: 44px; }
+  tr.dep-row:active, tr.dep-row:hover { background: #1a1a1a; }
 
-  .timeline {
-    position: relative;
-    padding-left: 1.1rem;
-    margin-top: 0.3rem;
-  }
+  tr.chain-row td { background: #0a0a0a; padding: 0; }
+  .chain-wrap { padding: 0.5rem 0.4rem 0.8rem; }
+
+  .chain-header { color: #aaa; font-size: 0.78rem; line-height: 1.4; margin-bottom: 0.4rem; }
+  .chain-header b { color: #eee; }
+
+  .timeline { position: relative; padding-left: 0.9rem; }
   .timeline::before {
     content: '';
     position: absolute;
-    left: 0.28rem;
-    top: 0.55rem;
-    bottom: 0.55rem;
-    width: 2px;
-    background: var(--border);
+    left: 0.22rem; top: 0.5rem; bottom: 0.5rem;
+    width: 2px; background: #2a2a2a;
   }
-
   .stop {
     position: relative;
-    padding: 0.55rem 0 0.55rem 0.9rem;
+    padding: 0.4rem 0 0.4rem 0.7rem;
     display: flex;
     justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 38px;
     align-items: flex-start;
-    gap: 0.6rem;
-    min-height: 44px;
   }
   .stop-dot {
     position: absolute;
-    left: -0.88rem;
-    top: 1.05rem;
-    width: 0.6rem;
-    height: 0.6rem;
+    left: -0.68rem; top: 0.85rem;
+    width: 0.5rem; height: 0.5rem;
     border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0 3px var(--bg);
+    background: #0a5;
+    box-shadow: 0 0 0 3px #0a0a0a;
   }
-  .stop.cancelled-stop .stop-dot { background: var(--delay); }
-
+  .stop.cancelled-stop .stop-dot { background: #f55; }
   .stop-name {
-    font-size: 0.98rem;
-    text-decoration: underline dotted;
-    text-decoration-color: var(--muted);
-    text-underline-offset: 3px;
+    font-size: 0.92rem;
+    text-decoration: underline dotted #666;
+    text-underline-offset: 2px;
     cursor: pointer;
   }
+  .stop-name.no-link { text-decoration: none; cursor: default; }
   .stop-name:active, .stop-name:hover { color: #5cf; }
-  .stop-name.no-link { text-decoration: none; cursor: default; color: var(--text); }
-
-  .stop-times { color: var(--muted); font-size: 0.78rem; margin-top: 0.15rem; }
-  .stop-right { text-align: right; white-space: nowrap; font-size: 0.85rem; }
-  .stop-track { color: var(--muted); font-size: 0.75rem; margin-top: 0.15rem; }
+  .stop-times { color: #888; font-size: 0.72rem; margin-top: 0.1rem; }
+  .stop-right { text-align: right; white-space: nowrap; font-size: 0.8rem; }
+  .stop-track { color: #888; font-size: 0.7rem; margin-top: 0.1rem; }
 
   .empty-hint, .error-hint {
-    text-align: center;
-    color: var(--muted);
-    padding: 2.5rem 1rem;
-    font-size: 0.95rem;
+    text-align: center; color: #888; padding: 2rem 1rem; font-size: 0.9rem;
   }
-  .error-hint { color: var(--delay); }
+  .error-hint { color: #f55; }
 
-  /* -------- Etwas grosszügiger auf breiteren Screens -------- */
-  @media (min-width: 480px) {
-    .dep-main { padding: 1rem 1.2rem; }
-    .destination { font-size: 1.1rem; }
+  /* Auf sehr schmalen Screens Gleis-Info in der Hauptzeile weglassen, steht eh im Fahrtverlauf */
+  @media (max-width: 360px) {
+    th, td { font-size: 0.88rem; padding: 0.45rem 0.3rem; }
   }
 </style>
 </head>
@@ -250,22 +164,31 @@
 
 <header class="topbar">
   <h1 id="stationTitle">Station wählen</h1>
-  <div class="search-wrap">
+  <div id="search-box">
     <input type="text" id="query" placeholder="Station suchen…" autocomplete="off" inputmode="search">
     <ul id="suggestions"></ul>
   </div>
 </header>
 
-<main>
-  <div id="departureList" class="departures"></div>
-  <div id="status"></div>
-</main>
+<table id="departureTable" style="display:none">
+  <thead>
+    <tr>
+      <th class="col-line">Linie</th>
+      <th class="col-nr">Nr.</th>
+      <th class="col-dest">Ziel</th>
+      <th class="col-time">Ab</th>
+      <th class="col-delay">Verspätung</th>
+    </tr>
+  </thead>
+  <tbody id="departureBody"></tbody>
+</table>
+
+<div id="status"></div>
 
 <script>
 const PROXY = 'proxy.php';
 let currentStopId = null;
 let refreshTimer = null;
-let openTripId = null;
 
 const params = new URLSearchParams(location.search);
 if (params.get('stopId')) {
@@ -294,16 +217,14 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   }
 }, 350));
 
-// Vorschlagsliste schliessen, wenn daneben getippt wird
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.search-wrap')) {
+  if (!e.target.closest('#search-box')) {
     document.getElementById('suggestions').innerHTML = '';
   }
 });
 
 function selectStation(stopId, name, refEpoch) {
   currentStopId = stopId;
-  openTripId = null;
   document.getElementById('stationTitle').textContent = name;
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
@@ -348,22 +269,24 @@ async function loadDepartures(refEpoch) {
 }
 
 function renderError(msg) {
-  document.getElementById('departureList').innerHTML =
-    `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
+  document.getElementById('departureTable').style.display = 'none';
+  const status = document.getElementById('status');
+  status.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
 }
 
 function renderDepartures(departures) {
-  const list = document.getElementById('departureList');
-  list.innerHTML = '';
+  const tbody = document.getElementById('departureBody');
+  tbody.innerHTML = '';
+  document.getElementById('departureTable').style.display = departures.length ? 'table' : 'none';
 
   if (!departures.length) {
-    list.innerHTML = '<div class="empty-hint">Keine Abfahrten gefunden.</div>';
+    document.getElementById('status').innerHTML = '<div class="empty-hint">Keine Abfahrten gefunden.</div>';
     return;
   }
 
   departures.forEach(dep => {
-    const card = document.createElement('div');
-    card.className = 'dep-card';
+    const tr = document.createElement('tr');
+    tr.className = 'dep-row';
 
     const timeStr = dep.live ? new Date(dep.live * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'}) : '–';
 
@@ -371,68 +294,54 @@ function renderDepartures(departures) {
     if (dep.cancelled) {
       delayCell = '<span class="cancelled">ausgefallen</span>';
     } else if (dep.delayMin !== null && dep.delayMin > 0) {
-      delayCell = `<span class="delay">+${dep.delayMin} min</span>`;
+      delayCell = `<span class="delay">+${dep.delayMin}′</span>`;
     }
 
-    card.innerHTML = `
-      <div class="dep-main">
-        <span class="line-badge">${escapeHtml(dep.line)}</span>
-        <div class="dep-info">
-          <div class="destination">${escapeHtml(dep.destination)}</div>
-          <div class="tripnr">${dep.tripNumber ? 'Nr. ' + escapeHtml(dep.tripNumber) : ''}</div>
-        </div>
-        <div class="dep-right">
-          <div class="dep-time">${timeStr}<span class="chevron">›</span></div>
-          <div class="dep-delay">${delayCell}</div>
-          <div class="dep-track">${dep.track ? 'Gl. ' + escapeHtml(dep.track) : ''}</div>
-        </div>
-      </div>
+    tr.innerHTML = `
+      <td class="col-line"><span class="line">${escapeHtml(dep.line)}</span></td>
+      <td class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '–'}</td>
+      <td class="col-dest">${escapeHtml(dep.destination)}</td>
+      <td class="col-time">${timeStr}</td>
+      <td class="col-delay">${delayCell}</td>
     `;
-    card.querySelector('.dep-main').onclick = () => toggleChain(card, dep);
-    list.appendChild(card);
+    tr.onclick = () => toggleChain(tr, dep);
+    tbody.appendChild(tr);
   });
 }
 
-async function toggleChain(card, dep) {
-  const already = card.querySelector('.chain-wrap');
-  if (already) {
-    already.remove();
-    card.classList.remove('open');
-    openTripId = null;
+async function toggleChain(tr, dep) {
+  const existing = tr.nextElementSibling;
+  if (existing && existing.classList.contains('chain-row')) {
+    existing.remove();
     return;
   }
-
-  document.querySelectorAll('.chain-wrap').forEach(el => el.remove());
-  document.querySelectorAll('.dep-card.open').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.chain-row').forEach(r => r.remove());
 
   if (!dep.tripId) {
-    const wrap = document.createElement('div');
-    wrap.className = 'chain-wrap';
-    wrap.innerHTML = '<div class="chain-header">Keine Fahrtnummer vorhanden – Fahrtverlauf nicht möglich.</div>';
-    card.appendChild(wrap);
+    alert('Keine Fahrtnummer (tripId) vorhanden – Fahrtverlauf nicht möglich.');
     return;
   }
 
-  card.classList.add('open');
-  openTripId = dep.tripId;
-
-  const wrap = document.createElement('div');
-  wrap.className = 'chain-wrap';
-  wrap.innerHTML = '<div class="chain-header">Lade Fahrtverlauf…</div>';
-  card.appendChild(wrap);
+  const chainTr = document.createElement('tr');
+  chainTr.className = 'chain-row';
+  const td = document.createElement('td');
+  td.colSpan = 5;
+  td.innerHTML = '<div class="chain-wrap"><div class="chain-header">Lade Fahrtverlauf…</div></div>';
+  chainTr.appendChild(td);
+  tr.after(chainTr);
 
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
     const data = await res.json();
 
     if (data.error) {
-      wrap.innerHTML = `<div class="chain-header">Fehler: ${escapeHtml(data.error)}</div>`;
+      td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler: ${escapeHtml(data.error)}</div></div>`;
       return;
     }
 
-    wrap.innerHTML = renderChain(data);
+    td.innerHTML = `<div class="chain-wrap">${renderChain(data)}</div>`;
   } catch (err) {
-    wrap.innerHTML = `<div class="chain-header">Fehler beim Laden: ${escapeHtml(err.message)}</div>`;
+    td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler beim Laden: ${escapeHtml(err.message)}</div></div>`;
   }
 }
 
@@ -470,7 +379,7 @@ function renderChain(data) {
   return `
     <div class="chain-header">
       <b>${escapeHtml(data.line || '?')}</b>${data.tripNumber ? ' · Nr. ' + escapeHtml(data.tripNumber) : ''}
-      ${data.destination ? '→ ' + escapeHtml(data.destination) : ''}
+      ${data.destination ? ' → ' + escapeHtml(data.destination) : ''}
       <br>Tippe auf eine Station für die Abfahrtstafel ab dort.
     </div>
     <div class="timeline">${stopsHtml}</div>`;
