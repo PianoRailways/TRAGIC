@@ -12,7 +12,19 @@
     <title>TRAGIC (NOWE)</title>
 </head>
 <body>
-  <header class="topbar">
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header id="app-header">
+    <div id="header-left">
+      <button id="btn-home" onClick="window.location = './'" title="Startseite">⌂ Home</button>
+    </div>
+    <div id="header-center"><span id="live-clock" onClick="window.location = './'">00:00:00</span></div>
+    <div id="header-right">
+      <span id="app-title" style="text-decoration: none;" onclick="toggleArrival()">öV TRAGIC</span>
+    </div>
+  </header>
+
+  <div class="topbar">
     <h1 id="stationTitle">Station wählen</h1>
     <div id="search-box">
       <input type="text" id="query" placeholder="Station suchen…" autocomplete="off" inputmode="search">
@@ -22,25 +34,27 @@
       <input type="date" id="datePicker">
       <input type="time" id="timePicker">
     </div>
-</header>
+  </div>
 
+<div id="status"></div>
 <table id="departureTable" style="display:none">
   <thead>
     <tr>
+      <th class="col-time">Ab</th>
+      <th class="col-delay">Verspätung</th>
       <th class="col-line">Linie</th>
       <th class="col-nr">Fahrtnummer</th>
       <th class="col-dest">Ziel</th>
-      <th class="col-time">Ab</th>
-      <th class="col-delay">Verspätung</th>
     </tr>
   </thead>
   <tbody id="departureBody"></tbody>
 </table>
-
-<div id="status"></div>
 <script src="script.js"></script>
 </body>
-<footer>
-  <p>Verwendete API:<a href="https://transitous.org/sources/">Transitous</a></p>
+
+<footer class="page-footer">
+  <p>Verwendete API: <a href="https://transitous.org/sources/" style="color: var(--sob-green); font-weight: bold;">Transitous</a></p>
+  <p>Diese Web-App wurde unter anderem mit Hilfe von KI gemacht. Der Code ist auf  <a href="https://github.com/PianoRailways/TRAGIC" style="color: var(--sob-green); font-weight: bold;">GitHub</a>.</p>
 </footer>
+
 </html>

@@ -119,7 +119,7 @@ async function loadDepartures(refEpoch) {
     renderDepartures(data.departures || []);
     setStatus(refEpoch
       ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + new Date().toLocaleTimeString('de-CH')
-      : 'Aktualisiert ' + new Date().toLocaleTimeString('de-CH'));
+      : 'Aktualisiert: ' + new Date().toLocaleTimeString('de-CH'));
   } catch (err) {
     renderError(err.message);
   }
@@ -163,9 +163,9 @@ function renderDepartures(departures) {
 
     const timeStr = dep.live ? new Date(dep.live * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'}) : '–';
 
-    let delayCell = '<span class="ontime">pünktlich</span>';
+    let delayCell = '<span class="ontime"></span>';
     if (dep.cancelled) {
-      delayCell = '<span class="cancelled">ausgefallen</span>';
+      delayCell = '<span class="cancelled">Ausfall</span>';
     } else if (dep.delayMin !== null && dep.delayMin > 0) {
       delayCell = `<span class="delay">+${dep.delayMin}′</span>`;
     } else if (dep.delayMin !== null && dep.delayMin < 0) {
@@ -175,11 +175,11 @@ function renderDepartures(departures) {
     const iconHtml = getModeIcon(dep.mode);
 
     tr.innerHTML = `
+      <td class="col-time">${timeStr}</td>
+      <td class="col-delay">${delayCell}</td>
       <td class="col-line"><div class="line-container">${iconHtml}<span class="line">${escapeHtml(dep.line)}</span></div></td>
       <td class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '–'}</td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
-      <td class="col-time">${timeStr}</td>
-      <td class="col-delay">${delayCell}</td>
     `;
     tr.onclick = () => toggleChain(tr, dep);
     tbody.appendChild(tr);
@@ -230,8 +230,8 @@ function renderChain(data) {
 
     const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
     const delayHtml = stop.cancelled
-      ? '<span class="cancelled">ausgefallen</span>'
-      : (delaySec ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '<span class="ontime">pünktlich</span>');
+      ? '<span class="cancelled">Ausfall</span>'
+      : (delaySec ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '<span class="ontime"></span>');
 
     const refEpoch = stop.arrivalLive || stop.arrivalSched;
     const isLink = !!stop.stopId;
@@ -288,3 +288,20 @@ function debounce(fn, delay) {
   let t;
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
 }
+
+  // ─── Uhr ──────────────────────────────────────────────────────────────────────
+
+function updateClock() {
+    const el = document.getElementById('live-clock');
+    if (!el) return;
+    const now = new Date();
+    el.textContent =
+        String(now.getHours()).padStart(2,'0') + ':' +
+        String(now.getMinutes()).padStart(2,'0') + ':' +
+        String(now.getSeconds()).padStart(2,'0');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateClock();
+    setInterval(updateClock, 1000);
+});
