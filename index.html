@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>NOWE Weltweit – Abfahrten</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; background:#111; color:#eee; margin:0; padding:1rem; }
+  h1 { font-size:1.2rem; margin-bottom:0.5rem; }
+  #search-box { margin-bottom:1rem; }
+  input { padding:0.5rem; font-size:1rem; width:280px; }
+  #suggestions { list-style:none; margin:0; padding:0; max-width:400px; }
+  #suggestions li { padding:0.4rem; cursor:pointer; background:#222; border-bottom:1px solid #333; }
+  #suggestions li:hover { background:#333; }
+  table { width:100%; border-collapse:collapse; margin-top:1rem; }
+  th, td { text-align:left; padding:0.5rem 0.8rem; border-bottom:1px solid #333; font-size:1.1rem; }
+  th { color:#888; font-weight:normal; font-size:0.9rem; }
+  .line { font-weight:bold; background:#0a5; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block; min-width:2.2rem; text-align:center; }
+  .delay { color:#f55; font-weight:bold; }
+  .ontime { color:#5f5; }
+  .cancelled { color:#f55; text-decoration:line-through; }
+  #status { color:#888; font-size:0.9rem; margin-top:0.5rem; }
+</style>
+</head>
+<body>
+
+<h1 id="stationTitle">Station wählen</h1>
+
+<div id="search-box">
+  <input type="text" id="query" placeholder="Station suchen…" autocomplete="off">
+  <ul id="suggestions"></ul>
+</div>
+
+<table id="departureTable" style="display:none">
+  <thead>
+    <tr><th>Linie</th><th>Ziel</th><th>Abfahrt</th><th>Verspätung</th><th>Gleis</th></tr>
+  </thead>
+  <tbody id="departureBody"></tbody>
+</table>
+
+<div id="status"></div>
+
+<script>
+const PROXY = 'proxy.php';
+let currentStopId = null;
+let refreshTimer = null;
+
+const params = new URLSearchParams(location.search);
+if (params.get('stopId')) {
+  currentStopId = params.get('stopId');
+  loadDepartures();
+}
+
+document.getElementById('query').addEventListener('input', debounce(async (e) => {
+  const q = e.target.value.trim();
+  const list = document.getElementById('suggestions');
+  list.innerHTML = '';
+  if (q.length < 2) return;
+
+  try {
+    const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    (data.stations || []).forEach(st => {
+      if (!st.id) return;
+      const li = document.createElement('li');
+      li.textContent = st.name;
+      li.onclick = () => selectStation(st);
+      list.appendChild(li);
+    });
+  } catch (err) {
+    setStatus('Fehler bei der Stationssuche: ' + err.message);
+  }
+}, 350));
+
+function selectStation(station) {
+  currentStopId = station.id;
+  document.getElementById('stationTitle').textContent = station.name;
+  document.getElementById('suggestions').innerHTML = '';
+  document.getElementById('query').value = station.name;
+
+  const url = new URL(location.href);
+  url.searchParams.set('stopId', station.id);
+  history.pushState({}, '', url);
+
+  loadDepartures();
+}
+
+async function loadDepartures() {
+  if (!currentStopId) return;
+  setStatus('Lade Abfahrten…');
+
+  try {
+    const res = await fetch(`${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=12`);
+    const data = await res.json();
+
+    if (data.error) {
+      setStatus('Fehler: ' + data.error);
+      return;
+    }
+
+    renderDepartures(data.departures || []);
+    setStatus('Aktualisiert: ' + new Date().toLocaleTimeString('de-CH'));
+  } catch (err) {
+    setStatus('Fehler beim Laden: ' + err.message);
+  }
+
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(loadDepartures, 30000); // alle 30s aktualisieren
+}
+
+function renderDepartures(departures) {
+  const tbody = document.getElementById('departureBody');
+  tbody.innerHTML = '';
+  document.getElementById('departureTable').style.display = departures.length ? 'table' : 'none';
+
+  departures.forEach(dep => {
+    const tr = document.createElement('tr');
+
+    const time = dep.live ? new Date(dep.live * 1000) : null;
+    const timeStr = time ? time.toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'}) : '–';
+
+    let delayCell = '<span class="ontime">pünktlich</span>';
+    if (dep.cancelled) {
+      delayCell = '<span class="cancelled">ausgefallen</span>';
+    } else if (dep.delayMin !== null && dep.delayMin > 0) {
+      delayCell = `<span class="delay">+${dep.delayMin} min</span>`;
+    }
+
+    tr.innerHTML = `
+      <td><span class="line">${escapeHtml(dep.line)}</span></td>
+      <td>${escapeHtml(dep.destination)}</td>
+      <td>${timeStr}</td>
+      <td>${delayCell}</td>
+      <td>${dep.track ? escapeHtml(dep.track) : '–'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function debounce(fn, delay) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+</script>
+
+</body>
+</html>
