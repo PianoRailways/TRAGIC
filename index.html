@@ -133,6 +133,7 @@ function getModeIcon(mode) {
   if (m === 'RAIL' || m === 'SUBWAY') { return `<span class="mode-icon">🚇</span>`; }
   // Tram / Strassenbahn
   if (m === 'TRAM' || m === 'METRO') { return `<span class="mode-icon">🚋</span>`; }
+  if (m === 'METRO') { return `<span class="mode-icon">🚋</span>`; }
   // Regional
   if (m === 'REGIONAL_RAIL') { return `<span class="mode-icon">🚉</span>`; }
   // Bus
@@ -252,9 +253,8 @@ function renderChain(data) {
 
   return `
     <div class="chain-header">
-      <b>${escapeHtml(data.line || '?')}</b>${data.tripNumber ? ' · Nr. ' + escapeHtml(data.tripNumber) : ''}
-      ${data.destination ? ' → ' + escapeHtml(data.destination) : ''}
-      <br>Tippe auf eine Station für die Abfahrtstafel ab dort.
+      <b>Linie ${escapeHtml(data.line || '?')} ${data.destination ? ' Richtung → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrtnummer: ' + escapeHtml(data.tripNumber) : ''}
+      
     </div>
     <div class="timeline">${stopsHtml}</div>`;
 }
