@@ -2,63 +2,275 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NOWE Weltweit – Abfahrten</title>
 <style>
-  body { font-family: Arial, Helvetica, sans-serif; background:#111; color:#eee; margin:0; padding:1rem; }
-  h1 { font-size:1.2rem; margin-bottom:0.5rem; }
-  #search-box { margin-bottom:1rem; }
-  input { padding:0.5rem; font-size:1rem; width:280px; }
-  #suggestions { list-style:none; margin:0; padding:0; max-width:400px; position:relative; z-index:5; }
-  #suggestions li { padding:0.4rem; cursor:pointer; background:#222; border-bottom:1px solid #333; }
-  #suggestions li:hover { background:#333; }
-  table { width:100%; border-collapse:collapse; margin-top:1rem; }
-  th, td { text-align:left; padding:0.5rem 0.8rem; border-bottom:1px solid #333; font-size:1.05rem; }
-  th { color:#888; font-weight:normal; font-size:0.85rem; }
-  .line { font-weight:bold; background:#0a5; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block; min-width:2.2rem; text-align:center; }
-  .tripnr { color:#999; font-size:0.85rem; }
-  .delay { color:#f55; font-weight:bold; }
-  .ontime { color:#5f5; }
-  .cancelled { color:#f55; text-decoration:line-through; }
-  #status { color:#888; font-size:0.9rem; margin-top:0.5rem; }
-  tr.dep-row { cursor:pointer; }
-  tr.dep-row:hover { background:#1a1a1a; }
-  tr.chain-row td { background:#0a0a0a; padding:0; }
-  .chain-wrap { padding:0.6rem 1rem 1rem 2rem; }
-  .chain-wrap table { margin-top:0.3rem; }
-  .chain-wrap th, .chain-wrap td { font-size:0.95rem; padding:0.3rem 0.6rem; }
-  .stop-link { cursor:pointer; text-decoration:underline dotted; }
-  .stop-link:hover { color:#5cf; }
-  .chain-header { color:#aaa; font-size:0.9rem; margin-bottom:0.2rem; }
+  :root {
+    color-scheme: dark;
+    --bg: #0d0d0f;
+    --card: #17171a;
+    --card-hover: #1f1f23;
+    --border: #2a2a2e;
+    --accent: #0eb37a;
+    --accent-text: #06251c;
+    --delay: #ff5a5a;
+    --ontime: #4ade80;
+    --muted: #8a8a90;
+    --text: #f0f0f2;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  body {
+    padding-bottom: 2rem;
+    min-height: 100vh;
+  }
+
+  /* -------- Kopfbereich / Suche -------- */
+  header.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(13,13,15,0.92);
+    backdrop-filter: blur(8px);
+    padding: env(safe-area-inset-top, 0.8rem) 1rem 0.8rem;
+    padding-top: max(0.8rem, env(safe-area-inset-top));
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1#stationTitle {
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    margin: 0 0 0.6rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .search-wrap { position: relative; }
+
+  #query {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem; /* >=16px verhindert Auto-Zoom auf iOS */
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--text);
+  }
+  #query:focus { outline: none; border-color: var(--accent); }
+
+  #suggestions {
+    list-style: none;
+    margin: 0.3rem 0 0;
+    padding: 0;
+    position: absolute;
+    left: 0; right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 30;
+    max-height: 60vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  #suggestions li {
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+  }
+  #suggestions li:last-child { border-bottom: none; }
+  #suggestions li:active, #suggestions li:hover { background: var(--card-hover); }
+
+  /* -------- Content -------- */
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0.8rem 0.7rem 0;
+  }
+
+  #status {
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding: 0.6rem 0.5rem 0;
+    text-align: center;
+  }
+
+  /* -------- Abfahrtskarten -------- */
+  .departures { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .dep-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .dep-main {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .dep-main:active, .dep-main:hover { background: var(--card-hover); }
+
+  .line-badge {
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    min-width: 2.4rem;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .dep-info { overflow: hidden; }
+  .destination {
+    font-size: 1.05rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tripnr { color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+
+  .dep-right { text-align: right; white-space: nowrap; }
+  .dep-time { font-size: 1.15rem; font-weight: 600; }
+  .dep-delay { font-size: 0.8rem; margin-top: 0.15rem; }
+  .dep-track { color: var(--muted); font-size: 0.75rem; margin-top: 0.1rem; }
+
+  .delay { color: var(--delay); font-weight: 700; }
+  .ontime { color: var(--ontime); }
+  .cancelled { color: var(--delay); text-decoration: line-through; }
+
+  .chevron {
+    display: inline-block;
+    margin-left: 0.3rem;
+    transition: transform 0.2s ease;
+    color: var(--muted);
+  }
+  .dep-card.open .chevron { transform: rotate(90deg); }
+
+  /* -------- Fahrtverlauf (Timeline) -------- */
+  .chain-wrap {
+    padding: 0.4rem 1rem 1.1rem;
+    border-top: 1px solid var(--border);
+    animation: fadeIn 0.15s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .chain-header {
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    padding: 0.7rem 0 0.4rem;
+  }
+  .chain-header b { color: var(--text); }
+
+  .timeline {
+    position: relative;
+    padding-left: 1.1rem;
+    margin-top: 0.3rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.28rem;
+    top: 0.55rem;
+    bottom: 0.55rem;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .stop {
+    position: relative;
+    padding: 0.55rem 0 0.55rem 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.6rem;
+    min-height: 44px;
+  }
+  .stop-dot {
+    position: absolute;
+    left: -0.88rem;
+    top: 1.05rem;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--bg);
+  }
+  .stop.cancelled-stop .stop-dot { background: var(--delay); }
+
+  .stop-name {
+    font-size: 0.98rem;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--muted);
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .stop-name:active, .stop-name:hover { color: #5cf; }
+  .stop-name.no-link { text-decoration: none; cursor: default; color: var(--text); }
+
+  .stop-times { color: var(--muted); font-size: 0.78rem; margin-top: 0.15rem; }
+  .stop-right { text-align: right; white-space: nowrap; font-size: 0.85rem; }
+  .stop-track { color: var(--muted); font-size: 0.75rem; margin-top: 0.15rem; }
+
+  .empty-hint, .error-hint {
+    text-align: center;
+    color: var(--muted);
+    padding: 2.5rem 1rem;
+    font-size: 0.95rem;
+  }
+  .error-hint { color: var(--delay); }
+
+  /* -------- Etwas grosszügiger auf breiteren Screens -------- */
+  @media (min-width: 480px) {
+    .dep-main { padding: 1rem 1.2rem; }
+    .destination { font-size: 1.1rem; }
+  }
 </style>
 </head>
 <body>
 
-<h1 id="stationTitle">Station wählen</h1>
+<header class="topbar">
+  <h1 id="stationTitle">Station wählen</h1>
+  <div class="search-wrap">
+    <input type="text" id="query" placeholder="Station suchen…" autocomplete="off" inputmode="search">
+    <ul id="suggestions"></ul>
+  </div>
+</header>
 
-<div id="search-box">
-  <input type="text" id="query" placeholder="Station suchen…" autocomplete="off">
-  <ul id="suggestions"></ul>
-</div>
-
-<table id="departureTable" style="display:none">
-  <thead>
-    <tr><th>Linie</th><th>Nr.</th><th>Ziel</th><th>Abfahrt</th><th>Verspätung</th><th>Gleis</th></tr>
-  </thead>
-  <tbody id="departureBody"></tbody>
-</table>
-
-<div id="status"></div>
+<main>
+  <div id="departureList" class="departures"></div>
+  <div id="status"></div>
+</main>
 
 <script>
 const PROXY = 'proxy.php';
 let currentStopId = null;
 let refreshTimer = null;
-let openChainRow = null; // welche Abfahrt ist aktuell aufgeklappt
+let openTripId = null;
 
 const params = new URLSearchParams(location.search);
 if (params.get('stopId')) {
   currentStopId = params.get('stopId');
-  loadDepartures();
+  loadDepartures(params.get('time') ? Number(params.get('time')) : null);
 }
 
 document.getElementById('query').addEventListener('input', debounce(async (e) => {
@@ -82,13 +294,19 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   }
 }, 350));
 
-// stationId + optional Referenzzeit (Epoch Sekunden), z.B. Ankunft der vorherigen Fahrt
+// Vorschlagsliste schliessen, wenn daneben getippt wird
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrap')) {
+    document.getElementById('suggestions').innerHTML = '';
+  }
+});
+
 function selectStation(stopId, name, refEpoch) {
   currentStopId = stopId;
-  openChainRow = null;
+  openTripId = null;
   document.getElementById('stationTitle').textContent = name;
   document.getElementById('suggestions').innerHTML = '';
-  document.getElementById('query').value = name;
+  document.getElementById('query').value = '';
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
@@ -96,6 +314,7 @@ function selectStation(stopId, name, refEpoch) {
   history.pushState({}, '', url);
 
   loadDepartures(refEpoch);
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 async function loadDepartures(refEpoch) {
@@ -105,41 +324,48 @@ async function loadDepartures(refEpoch) {
   try {
     let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=12`;
     if (refEpoch) {
-      const iso = new Date(refEpoch * 1000).toISOString();
-      q += `&time=${encodeURIComponent(iso)}`;
+      q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
     }
     const res = await fetch(q);
     const data = await res.json();
 
     if (data.error) {
-      setStatus('Fehler: ' + data.error);
+      renderError(data.error);
+      setStatus('');
       return;
     }
 
     renderDepartures(data.departures || []);
     setStatus(refEpoch
-      ? 'Abfahrten ab Ankunft der vorherigen Fahrt · aktualisiert ' + new Date().toLocaleTimeString('de-CH')
-      : 'Aktualisiert: ' + new Date().toLocaleTimeString('de-CH'));
+      ? 'Abfahrten ab Ankunft der vorherigen Fahrt · ' + new Date().toLocaleTimeString('de-CH')
+      : 'Aktualisiert ' + new Date().toLocaleTimeString('de-CH'));
   } catch (err) {
-    setStatus('Fehler beim Laden: ' + err.message);
+    renderError(err.message);
   }
 
   clearTimeout(refreshTimer);
-  // Nur automatisch neu laden, wenn wir im "Live"-Modus sind (keine feste Referenzzeit)
   if (!refEpoch) refreshTimer = setTimeout(() => loadDepartures(), 30000);
 }
 
+function renderError(msg) {
+  document.getElementById('departureList').innerHTML =
+    `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
+}
+
 function renderDepartures(departures) {
-  const tbody = document.getElementById('departureBody');
-  tbody.innerHTML = '';
-  document.getElementById('departureTable').style.display = departures.length ? 'table' : 'none';
+  const list = document.getElementById('departureList');
+  list.innerHTML = '';
 
-  departures.forEach((dep, idx) => {
-    const tr = document.createElement('tr');
-    tr.className = 'dep-row';
+  if (!departures.length) {
+    list.innerHTML = '<div class="empty-hint">Keine Abfahrten gefunden.</div>';
+    return;
+  }
 
-    const time = dep.live ? new Date(dep.live * 1000) : null;
-    const timeStr = time ? time.toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'}) : '–';
+  departures.forEach(dep => {
+    const card = document.createElement('div');
+    card.className = 'dep-card';
+
+    const timeStr = dep.live ? new Date(dep.live * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'}) : '–';
 
     let delayCell = '<span class="ontime">pünktlich</span>';
     if (dep.cancelled) {
@@ -148,92 +374,106 @@ function renderDepartures(departures) {
       delayCell = `<span class="delay">+${dep.delayMin} min</span>`;
     }
 
-    tr.innerHTML = `
-      <td><span class="line">${escapeHtml(dep.line)}</span></td>
-      <td class="tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '–'}</td>
-      <td>${escapeHtml(dep.destination)}</td>
-      <td>${timeStr}</td>
-      <td>${delayCell}</td>
-      <td>${dep.track ? escapeHtml(dep.track) : '–'}</td>
+    card.innerHTML = `
+      <div class="dep-main">
+        <span class="line-badge">${escapeHtml(dep.line)}</span>
+        <div class="dep-info">
+          <div class="destination">${escapeHtml(dep.destination)}</div>
+          <div class="tripnr">${dep.tripNumber ? 'Nr. ' + escapeHtml(dep.tripNumber) : ''}</div>
+        </div>
+        <div class="dep-right">
+          <div class="dep-time">${timeStr}<span class="chevron">›</span></div>
+          <div class="dep-delay">${delayCell}</div>
+          <div class="dep-track">${dep.track ? 'Gl. ' + escapeHtml(dep.track) : ''}</div>
+        </div>
+      </div>
     `;
-    tr.onclick = () => toggleChain(tr, dep);
-    tbody.appendChild(tr);
+    card.querySelector('.dep-main').onclick = () => toggleChain(card, dep);
+    list.appendChild(card);
   });
 }
 
-async function toggleChain(tr, dep) {
-  // Bereits aufgeklappte Chain schliessen, wenn dieselbe Zeile erneut angeklickt wird
-  const existing = tr.nextElementSibling;
-  if (existing && existing.classList.contains('chain-row')) {
-    existing.remove();
+async function toggleChain(card, dep) {
+  const already = card.querySelector('.chain-wrap');
+  if (already) {
+    already.remove();
+    card.classList.remove('open');
+    openTripId = null;
     return;
   }
-  // Andere offene Chain schliessen
-  document.querySelectorAll('.chain-row').forEach(r => r.remove());
+
+  document.querySelectorAll('.chain-wrap').forEach(el => el.remove());
+  document.querySelectorAll('.dep-card.open').forEach(el => el.classList.remove('open'));
 
   if (!dep.tripId) {
-    alert('Keine Fahrtnummer (tripId) für diese Verbindung vorhanden – Fahrtverlauf nicht möglich.');
+    const wrap = document.createElement('div');
+    wrap.className = 'chain-wrap';
+    wrap.innerHTML = '<div class="chain-header">Keine Fahrtnummer vorhanden – Fahrtverlauf nicht möglich.</div>';
+    card.appendChild(wrap);
     return;
   }
 
-  const chainTr = document.createElement('tr');
-  chainTr.className = 'chain-row';
-  const td = document.createElement('td');
-  td.colSpan = 6;
-  td.innerHTML = '<div class="chain-wrap">Lade Fahrtverlauf…</div>';
-  chainTr.appendChild(td);
-  tr.after(chainTr);
+  card.classList.add('open');
+  openTripId = dep.tripId;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'chain-wrap';
+  wrap.innerHTML = '<div class="chain-header">Lade Fahrtverlauf…</div>';
+  card.appendChild(wrap);
 
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
     const data = await res.json();
 
     if (data.error) {
-      td.innerHTML = `<div class="chain-wrap">Fehler: ${escapeHtml(data.error)}</div>`;
+      wrap.innerHTML = `<div class="chain-header">Fehler: ${escapeHtml(data.error)}</div>`;
       return;
     }
 
-    td.innerHTML = renderChain(data);
+    wrap.innerHTML = renderChain(data);
   } catch (err) {
-    td.innerHTML = `<div class="chain-wrap">Fehler beim Laden des Fahrtverlaufs: ${escapeHtml(err.message)}</div>`;
+    wrap.innerHTML = `<div class="chain-header">Fehler beim Laden: ${escapeHtml(err.message)}</div>`;
   }
 }
 
 function renderChain(data) {
-  const rows = (data.stops || []).map(stop => {
+  const stopsHtml = (data.stops || []).map(stop => {
     const arr = fmtTime(stop.arrivalLive);
     const dep = fmtTime(stop.departureLive);
+    const times = [arr !== '–' ? 'an ' + arr : null, dep !== '–' ? 'ab ' + dep : null].filter(Boolean).join(' · ');
+
     const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
-    const delayStr = stop.cancelled
+    const delayHtml = stop.cancelled
       ? '<span class="cancelled">ausgefallen</span>'
       : (delaySec ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '<span class="ontime">pünktlich</span>');
 
     const refEpoch = stop.arrivalLive || stop.arrivalSched;
-    const clickable = stop.stopId
-      ? `onclick="selectStation('${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpoch || 'null'})"`
+    const isLink = !!stop.stopId;
+    const nameAttrs = isLink
+      ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
       : '';
 
     return `
-      <tr>
-        <td class="${stop.stopId ? 'stop-link' : ''}" ${clickable}>${escapeHtml(stop.name)}</td>
-        <td>${arr}</td>
-        <td>${dep}</td>
-        <td>${delayStr}</td>
-        <td>${stop.track ? escapeHtml(stop.track) : '–'}</td>
-      </tr>`;
+      <div class="stop${stop.cancelled ? ' cancelled-stop' : ''}">
+        <div class="stop-dot"></div>
+        <div>
+          <div class="stop-name${isLink ? '' : ' no-link'}" ${nameAttrs}>${escapeHtml(stop.name)}</div>
+          <div class="stop-times">${escapeHtml(times || '–')}</div>
+        </div>
+        <div class="stop-right">
+          ${delayHtml}
+          ${stop.track ? `<div class="stop-track">Gl. ${escapeHtml(stop.track)}</div>` : ''}
+        </div>
+      </div>`;
   }).join('');
 
   return `
     <div class="chain-header">
-      Fahrtverlauf – Linie <b>${escapeHtml(data.line || '?')}</b>
-      ${data.tripNumber ? '· Nr. ' + escapeHtml(data.tripNumber) : ''}
+      <b>${escapeHtml(data.line || '?')}</b>${data.tripNumber ? ' · Nr. ' + escapeHtml(data.tripNumber) : ''}
       ${data.destination ? '→ ' + escapeHtml(data.destination) : ''}
-      <br><small>Klick auf eine Station lädt deren Abfahrtstafel, ab der Ankunftszeit dieser Fahrt dort.</small>
+      <br>Tippe auf eine Station für die Abfahrtstafel ab dort.
     </div>
-    <table>
-      <thead><tr><th>Station</th><th>an</th><th>ab</th><th>Verspätung</th><th>Gleis</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+    <div class="timeline">${stopsHtml}</div>`;
 }
 
 function fmtTime(epoch) {
@@ -241,7 +481,6 @@ function fmtTime(epoch) {
   return new Date(epoch * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 }
 
-// Sekundengenaue Verspätung als +mm:ss darstellen
 function fmtDelay(sec) {
   const sign = sec < 0 ? '-' : '+';
   const abs = Math.abs(sec);
@@ -250,28 +489,19 @@ function fmtDelay(sec) {
   return `${sign}${m}:${String(s).padStart(2,'0')}`;
 }
 
-function setStatus(msg) {
-  document.getElementById('status').textContent = msg;
-}
+function setStatus(msg) { document.getElementById('status').textContent = msg; }
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
-  return String(str).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 function escapeAttr(str) {
   if (str === null || str === undefined) return '';
   return String(str).replace(/[\\'"]/g, c => '\\' + c);
 }
-
 function debounce(fn, delay) {
   let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), delay);
-  };
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
 }
 </script>
 
