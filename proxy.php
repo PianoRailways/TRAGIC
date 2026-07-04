@@ -129,7 +129,7 @@ if ($action === 'search') {
 // ------------------------------------------------------------ departures --
 if ($action === 'departures') {
     $stopId = trim($_GET['stopId'] ?? '');
-    $n      = (int)($_GET['n'] ?? 12);
+    $n      = (int)($_GET['n'] ?? 25);
     $time   = trim($_GET['time'] ?? ''); // optional: ISO-Zeit als Referenzpunkt
 
     if ($stopId === '') {
