@@ -122,6 +122,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 }
 .tripnr { color: var(--text-subtle); font-size: 0.8rem; }
 .delay { color: var(--error); font-weight: bold; }
+.vbz-delay { color: var(--link-hover); font-weight: bold; }
 .ontime { color: var(--on-time); }
 .cancelled { color: var(--error); text-decoration: line-through; }
 
