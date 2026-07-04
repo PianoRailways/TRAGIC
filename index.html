@@ -166,7 +166,7 @@ function renderDepartures(departures) {
     } else if (dep.delayMin !== null && dep.delayMin > 0) {
       delayCell = `<span class="delay">+${dep.delayMin}′</span>`;
     } else if (dep.delayMin !== null && dep.delayMin < 0) {
-      delayCell = `<span class="vbz-delay">-${dep.delayMin}′</span>`;
+      delayCell = `<span class="vbz-delay">${dep.delayMin}′</span>`;
     }
 
     const iconHtml = getModeIcon(dep.mode);
