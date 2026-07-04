@@ -201,3 +201,10 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
 @media (max-width: 360px) {
   th, td { font-size: 0.88rem; padding: 0.45rem 0.3rem; }
 }
+a {
+  color: none;
+  text-decoration: none;
+}
+footer {
+  padding: 10px;
+}
