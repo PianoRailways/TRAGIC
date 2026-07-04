@@ -2,9 +2,10 @@
 /**
  * Transitous-Proxy für NOWE-Weltweit
  * -----------------------------------
- * Zwei Aktionen:
- *   ?action=search&query=Zuerich          -> Stationssuche (Geocoding)
- *   ?action=departures&stopId=XYZ&n=12     -> Abfahrtstabelle
+ * Aktionen:
+ *   ?action=search&query=Zuerich
+ *   ?action=departures&stopId=XYZ&n=12&time=2026-07-04T14:23:00Z
+ *   ?action=trip&tripId=XYZ
  *
  * WICHTIG: Trage unten Kontaktinfos ein (User-Agent-Pflicht laut Transitous Usage Policy).
  */
@@ -43,13 +44,15 @@ function callTransitous(string $path, array $params): array {
 }
 
 /**
- * Extrahiert robust einen Zeitwert aus einer Place-Struktur, egal ob als
- * ISO-String oder als Unix-Timestamp geliefert, und egal unter welchem
- * Feldnamen (verschiedene MOTIS-Versionen benennen das leicht unterschiedlich).
+ * Holt robust einen Zeitwert aus einer Place-Struktur. Verschiedene MOTIS-
+ * Versionen/Endpoints benennen das leicht unterschiedlich, und manche
+ * verschachteln arrival/departure als eigenes Objekt mit scheduledTime/time.
+ * Wir probieren mehrere Varianten durch, bis eine passt.
  */
-function extractTime(array $place, array $candidates): ?string {
+function extractTime($place, array $candidates): ?string {
+    if (!is_array($place)) return null;
     foreach ($candidates as $key) {
-        if (isset($place[$key])) {
+        if (isset($place[$key]) && !is_array($place[$key])) {
             return (string)$place[$key];
         }
     }
@@ -63,8 +66,40 @@ function toEpoch(?string $value): ?int {
     return $ts === false ? null : $ts;
 }
 
+/**
+ * Liefert [scheduledEpoch, liveEpoch] für arrival ODER departure an einer
+ * Place-Struktur, egal ob flach (place.arrival = "...") oder verschachtelt
+ * (place.arrival = {scheduledTime, time}) geliefert wird.
+ */
+function extractPair($place, string $type): array {
+    if (!is_array($place)) return [null, null];
+
+    // Variante A: verschachteltes Objekt, z.B. place['arrival']['scheduledTime']
+    if (isset($place[$type]) && is_array($place[$type])) {
+        $obj = $place[$type];
+        $sched = $obj['scheduledTime'] ?? $obj['scheduled'] ?? null;
+        $live  = $obj['time'] ?? $obj['estimated']['time'] ?? $obj['actualTime'] ?? $sched;
+        return [toEpoch($sched !== null ? (string)$sched : null), toEpoch($live !== null ? (string)$live : null)];
+    }
+
+    // Variante B: flache Felder, z.B. place['scheduledArrival'], place['arrival']
+    $prefix = $type; // 'arrival' oder 'departure'
+    $sched = extractTime($place, [
+        $prefix . 'Scheduled', 'scheduled' . ucfirst($prefix), $prefix . 'ScheduledTime',
+    ]);
+    $live = extractTime($place, [$prefix, $prefix . 'Time', 'real' . ucfirst($prefix)]);
+
+    return [toEpoch($sched), toEpoch($live) ?? toEpoch($sched)];
+}
+
+function delaySeconds(?int $sched, ?int $live): ?int {
+    if ($sched === null || $live === null) return null;
+    return $live - $sched;
+}
+
 $action = $_GET['action'] ?? '';
 
+// ---------------------------------------------------------------- search --
 if ($action === 'search') {
     $query = trim($_GET['query'] ?? '');
     if ($query === '') {
@@ -75,7 +110,6 @@ if ($action === 'search') {
 
     $result = callTransitous('/api/v1/geocode', ['text' => $query]);
 
-    // Antwort ist typischerweise ein Array von Locations mit "name", "id"/"stopId", "lat", "lon"
     $stations = [];
     $list = is_array($result) ? $result : [];
     foreach ($list as $entry) {
@@ -92,9 +126,11 @@ if ($action === 'search') {
     exit;
 }
 
+// ------------------------------------------------------------ departures --
 if ($action === 'departures') {
     $stopId = trim($_GET['stopId'] ?? '');
     $n      = (int)($_GET['n'] ?? 12);
+    $time   = trim($_GET['time'] ?? ''); // optional: ISO-Zeit als Referenzpunkt
 
     if ($stopId === '') {
         http_response_code(400);
@@ -102,10 +138,16 @@ if ($action === 'departures') {
         exit;
     }
 
-    $result = callTransitous('/api/v1/stoptimes', [
+    $params = [
         'stopId' => $stopId,
         'n'      => max(1, min($n, 50)),
-    ]);
+    ];
+    if ($time !== '') {
+        $params['time'] = $time;
+        $params['arriveBy'] = 'false'; // wir wollen Abfahrten NACH diesem Zeitpunkt
+    }
+
+    $result = callTransitous('/api/v1/stoptimes', $params);
 
     if (isset($result['error'])) {
         echo json_encode($result);
@@ -120,23 +162,27 @@ if ($action === 'departures') {
 
         $place = $entry['place'] ?? $entry;
 
-        $scheduled = extractTime($place, ['scheduledTime', 'scheduledDeparture', 'departureScheduled']);
-        $live      = extractTime($place, ['time', 'departure', 'realTimeDeparture']);
-
-        $schedEpoch = toEpoch($scheduled);
-        $liveEpoch  = toEpoch($live) ?? $schedEpoch;
-
-        $delayMin = null;
-        if ($schedEpoch !== null && $liveEpoch !== null) {
-            $delayMin = (int)round(($liveEpoch - $schedEpoch) / 60);
+        [$schedEpoch, $liveEpoch] = extractPair($place, 'departure');
+        // Fallback: manche Stoptimes-Antworten liefern die Zeit direkt am Place
+        // ohne "departure"-Verschachtelung (siehe extractTime-Kandidaten).
+        if ($schedEpoch === null) {
+            $sched = extractTime($place, ['scheduledTime', 'scheduledDeparture']);
+            $live  = extractTime($place, ['time', 'realTimeDeparture']);
+            $schedEpoch = toEpoch($sched);
+            $liveEpoch  = toEpoch($live) ?? $schedEpoch;
         }
 
+        $delaySec = delaySeconds($schedEpoch, $liveEpoch);
+
         $departures[] = [
-            'line'        => $entry['routeShortName'] ?? $entry['tripShortName'] ?? '?',
+            'tripId'      => $entry['tripId'] ?? null,
+            'line'        => $entry['routeShortName'] ?? '?',
+            'tripNumber'  => $entry['tripShortName'] ?? $entry['displayName'] ?? null,
             'destination' => $entry['headsign'] ?? $entry['tripTo'] ?? '',
             'scheduled'   => $schedEpoch,
             'live'        => $liveEpoch,
-            'delayMin'    => $delayMin,
+            'delayMin'    => $delaySec !== null ? (int)round($delaySec / 60) : null,
+            'delaySec'    => $delaySec,
             'track'       => $place['track'] ?? $place['scheduledTrack'] ?? null,
             'cancelled'   => (bool)($entry['cancelled'] ?? false),
             'realTime'    => (bool)($entry['realTime'] ?? false),
@@ -151,5 +197,63 @@ if ($action === 'departures') {
     exit;
 }
 
+// ------------------------------------------------------------------ trip --
+if ($action === 'trip') {
+    $tripId = trim($_GET['tripId'] ?? '');
+    if ($tripId === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Parameter "tripId" fehlt']);
+        exit;
+    }
+
+    $result = callTransitous('/api/v1/trip', ['tripId' => $tripId]);
+
+    if (isset($result['error'])) {
+        echo json_encode($result);
+        exit;
+    }
+
+    // Antwort ist eine Itinerary-Struktur mit "legs". Bei einer einzelnen
+    // Fahrt (kein Umstieg) erwarten wir genau ein Leg.
+    $legs = $result['legs'] ?? [$result];
+    $leg  = $legs[0] ?? [];
+
+    $placesRaw = [];
+    if (isset($leg['from'])) $placesRaw[] = $leg['from'];
+    foreach (($leg['intermediateStops'] ?? []) as $stop) $placesRaw[] = $stop;
+    if (isset($leg['to'])) $placesRaw[] = $leg['to'];
+
+    $stops = [];
+    foreach ($placesRaw as $place) {
+        if (!is_array($place)) continue;
+
+        [$arrSched, $arrLive] = extractPair($place, 'arrival');
+        [$depSched, $depLive] = extractPair($place, 'departure');
+
+        $stops[] = [
+            'stopId'         => $place['stopId'] ?? $place['id'] ?? null,
+            'name'           => $place['name'] ?? '(unbenannt)',
+            'arrivalSched'   => $arrSched,
+            'arrivalLive'    => $arrLive,
+            'arrivalDelaySec'   => delaySeconds($arrSched, $arrLive),
+            'departureSched' => $depSched,
+            'departureLive'  => $depLive,
+            'departureDelaySec' => delaySeconds($depSched, $depLive),
+            'track'          => $place['track'] ?? $place['scheduledTrack'] ?? null,
+            'cancelled'      => (bool)($place['cancelled'] ?? false),
+        ];
+    }
+
+    echo json_encode([
+        'tripId'      => $tripId,
+        'line'        => $leg['routeShortName'] ?? '?',
+        'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
+        'destination' => $leg['headsign'] ?? null,
+        'stops'       => $stops,
+        '_raw_leg_count' => count($legs),
+    ]);
+    exit;
+}
+
 http_response_code(400);
-echo json_encode(['error' => 'Unbekannte oder fehlende "action". Nutze "search" oder "departures".']);
+echo json_encode(['error' => 'Unbekannte oder fehlende "action". Nutze "search", "departures" oder "trip".']);
