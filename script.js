@@ -50,20 +50,51 @@ function saveModesToStorage() {
   localStorage.setItem('tragic_mode_filter', JSON.stringify([...activeModes]));
 }
 
-// Buttons initialisieren
-document.querySelectorAll('.mode-btn').forEach(btn => {
+function updateModeButtons() {
+  const btnAll = document.getElementById('btn-mode-all');
+  const allModes = Object.keys(MODE_GROUPS);
+  const allActive = allModes.every(m => activeModes.has(m));
+  
+  btnAll.classList.toggle('active', allActive);
+  
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+    const mode = btn.dataset.mode;
+    btn.classList.toggle('active', activeModes.has(mode));
+  });
+}
+
+// "Alle" Button Logik
+document.addEventListener('DOMContentLoaded', () => {
+  const btnAll = document.getElementById('btn-mode-all');
+  const allModes = Object.keys(MODE_GROUPS);
+  
+  btnAll.addEventListener('click', () => {
+    if (activeModes.size === allModes.length) {
+      // Alle sind aktiv → deaktiviere alle
+      activeModes.clear();
+    } else {
+      // Nicht alle sind aktiv → aktiviere alle
+      allModes.forEach(m => activeModes.add(m));
+    }
+    saveModesToStorage();
+    updateModeButtons();
+    applyFilters();
+  });
+});
+
+// Einzelne Mode-Buttons
+document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
   const mode = btn.dataset.mode;
   if (!activeModes.has(mode)) btn.classList.remove('active');
 
   btn.addEventListener('click', () => {
     if (activeModes.has(mode)) {
       activeModes.delete(mode);
-      btn.classList.remove('active');
     } else {
       activeModes.add(mode);
-      btn.classList.add('active');
     }
     saveModesToStorage();
+    updateModeButtons();
     applyFilters();
   });
 });

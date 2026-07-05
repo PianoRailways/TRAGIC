@@ -176,6 +176,17 @@ body {
   color: var(--text-main);
 }
 
+/* "Alle" Button mit separater Stilisierung */
+#btn-mode-all {
+  font-weight: 500;
+  margin-right: 3px;
+}
+#btn-mode-all.active {
+  background: rgba(0, 170, 85, 0.18);
+  color: var(--on-time);
+  border-color: rgba(0, 170, 85, 0.45);
+}
+
 /* ── TOPBAR ────────────────────────────────────────────────── */
 h1 {
   font-size: clamp(1rem, 4vw, 1.3rem);
