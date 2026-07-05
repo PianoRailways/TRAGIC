@@ -23,13 +23,29 @@
       <span id="app-title" style="text-decoration: none;" onclick="toggleArrival()">öV TRAGIC</span>
     </div>
   </header>
-    <nav id="fav-bar">
-        <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A8100'">LTH</btn>
-        <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A5000'">LZ</btn>
-        <button class="fav-btn" onClick="window.location = './?stopId=de-DELFI_ch%3A23005%3A6'">BAD</btn>
-        <button class="fav-btn" onClick="window.location = './?stopId=fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF%3AOCETrainTER87182063'">MUL</btn>
-        <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parent8721202'">STRS</btn>
-    </nav>
+
+  <!-- ═══════════════ FAVORITEN ═══════════════ -->
+  <nav id="fav-bar">
+    <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A8100'">LTH</button>
+    <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A5000'">LZ</button>
+    <button class="fav-btn" onClick="window.location = './?stopId=de-DELFI_ch%3A23005%3A6'">BAD</button>
+    <button class="fav-btn" onClick="window.location = './?stopId=fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF%3AOCETrainTER87182063'">MUL</button>
+    <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parent8721202'">STRS</button>
+  </nav>
+
+  <!-- ═══════════════ VERKEHRSMITTEL-FILTER ═══════════════ -->
+  <nav id="mode-filter-bar">
+    <span class="mode-filter-label">Filter:</span>
+    <button class="mode-btn active" data-mode="RAIL"     title="Bahn">🚆 Bahn</button>
+    <button class="mode-btn active" data-mode="SUBWAY"   title="U-Bahn">🚇 U</button>
+    <button class="mode-btn active" data-mode="TRAM"     title="Tram">🚊 Tram</button>
+    <button class="mode-btn active" data-mode="BUS"      title="Bus">🚌 Bus</button>
+    <button class="mode-btn active" data-mode="FERRY"    title="Schiff">⛴ Schiff</button>
+    <button class="mode-btn active" data-mode="GONDOLA"  title="Seilbahn">🚡 Seilbahn</button>
+    <button class="mode-btn active" data-mode="OTHER"    title="Andere">🚐 Andere</button>
+  </nav>
+
+  <!-- ═══════════════ TOPBAR ═══════════════ -->
   <div class="topbar">
     <h1 id="stationTitle">Station wählen</h1>
     <div id="search-box">
@@ -40,26 +56,31 @@
       <input type="date" id="datePicker">
       <input type="time" id="timePicker">
     </div>
+    <!-- Ziel-Filter -->
+    <div id="dest-filter-row">
+      <input type="text" id="destFilter" placeholder="Ziel filtern…" autocomplete="off">
+    </div>
   </div>
 
-<div id="status"></div>
-<table id="departureTable" style="display:none">
-  <thead>
-    <tr>
-      <th class="col-time">Ab</th>
-      <th class="col-line">Linie</th>
-      <th class="col-dest">Ziel</th>
-      <th class="col-platform">Gl./Kante</th>
-    </tr>
-  </thead>
-  <tbody id="departureBody"></tbody>
-</table>
-<script src="script.js"></script>
+  <div id="status"></div>
+  <table id="departureTable" style="display:none">
+    <thead>
+      <tr>
+        <th class="col-time">Ab</th>
+        <th class="col-line">Linie</th>
+        <th class="col-dest">Ziel</th>
+        <th class="col-platform">Gl./Kante</th>
+      </tr>
+    </thead>
+    <tbody id="departureBody"></tbody>
+  </table>
+
+  <script src="script.js"></script>
 </body>
 
 <footer class="page-footer">
   <p>Verwendete API: <a href="https://transitous.org/sources/" style="color: var(--sob-green); font-weight: bold;">Transitous</a></p>
-  <p>Diese Web-App wurde unter anderem mit Hilfe von KI gemacht. Der Code ist auf  <a href="https://github.com/PianoRailways/TRAGIC" style="color: var(--sob-green); font-weight: bold;">GitHub</a>.</p>
+  <p>Diese Web-App wurde unter anderem mit Hilfe von KI gemacht. Der Code ist auf <a href="https://github.com/PianoRailways/TRAGIC" style="color: var(--sob-green); font-weight: bold;">GitHub</a>.</p>
 </footer>
 
 </html>

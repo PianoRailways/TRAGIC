@@ -1,19 +1,134 @@
 const PROXY = 'proxy.php';
 let currentStopId = null;
 let refreshTimer = null;
+let allDepartures = []; // alle geladenen Abfahrten im Speicher
 
 const params = new URLSearchParams(location.search);
 const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
+const destFilter = document.getElementById('destFilter');
 
-if (params.get('stopId')) {
-  currentStopId = params.get('stopId');
-  const initialTime = params.get('time') ? Number(params.get('time')) : null;
-  if (initialTime) {
-    setPickersFromEpoch(initialTime);
+// ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
+
+// Kanonische Gruppen: welche API-modes gehören zu welchem Button
+const MODE_GROUPS = {
+  TRAIN:  ['TRAIN', 'RAIL', 'HIGHSPEEDRAIL', 'INTERCITYRAIL', 'LONGDISTANCERAIL', 'NIGHTRAIL', 'COACHRAILWAY', 'LOCALTRAIN'],
+  SUBWAY: ['SUBWAY', 'METRO', 'URBAN_RAIL'],
+  TRAM:   ['TRAM', 'TROLLEYBUS', 'STREETCAR'],
+  BUS:    ['BUS', 'COACH', 'REGIONALBUS', 'EXPRESBUS'],
+  FERRY:  ['FERRY', 'WATER', 'BOAT'],
+  OTHER:  [], // alles was nicht in obigen passt
+};
+
+function canonicalMode(rawMode) {
+  if (!rawMode) return 'OTHER';
+  const m = rawMode.toUpperCase();
+  for (const [group, variants] of Object.entries(MODE_GROUPS)) {
+    if (group === 'OTHER') continue;
+    if (variants.includes(m)) return group;
   }
-  loadDepartures(initialTime);
+  return 'OTHER';
 }
+
+// Geladene Einstellungen aus localStorage, Default: alle aktiv
+function loadActiveModesFromStorage() {
+  try {
+    const stored = localStorage.getItem('tragic_mode_filter');
+    if (stored) return new Set(JSON.parse(stored));
+  } catch (_) {}
+  return new Set(Object.keys(MODE_GROUPS));
+}
+
+let activeModes = loadActiveModesFromStorage();
+
+function saveModesToStorage() {
+  localStorage.setItem('tragic_mode_filter', JSON.stringify([...activeModes]));
+}
+
+// Buttons initialisieren
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  const mode = btn.dataset.mode;
+  if (!activeModes.has(mode)) btn.classList.remove('active');
+
+  btn.addEventListener('click', () => {
+    if (activeModes.has(mode)) {
+      activeModes.delete(mode);
+      btn.classList.remove('active');
+    } else {
+      activeModes.add(mode);
+      btn.classList.add('active');
+    }
+    saveModesToStorage();
+    applyFilters();
+  });
+});
+
+// ─── Ziel-Filter ────────────────────────────────────────────────────────────
+
+destFilter.addEventListener('input', () => applyFilters());
+
+// ─── Filter anwenden (lokal, kein Netz) ─────────────────────────────────────
+
+function applyFilters() {
+  const destQuery = destFilter.value.trim().toLowerCase();
+
+  document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
+    const mode   = tr.dataset.mode   || 'OTHER';
+    const dest   = (tr.dataset.dest  || '').toLowerCase();
+
+    const modeOk = activeModes.has(mode);  // data-mode ist bereits kanonisch
+    const destOk = !destQuery || dest.includes(destQuery);
+
+    tr.classList.toggle('hidden-row', !(modeOk && destOk));
+
+    // zugehörige Chain-Row ebenfalls ausblenden wenn Dep-Row hidden
+    const next = tr.nextElementSibling;
+    if (next && next.classList.contains('chain-row')) {
+      next.classList.toggle('hidden-row', !(modeOk && destOk));
+    }
+  });
+}
+
+// ─── Datum / Zeit (URL ↔ Picker) ────────────────────────────────────────────
+
+function getSelectedEpoch() {
+  if (!datePicker.value || !timePicker.value) return null;
+  const dt = new Date(`${datePicker.value}T${timePicker.value}`);
+  return isNaN(dt.getTime()) ? null : Math.floor(dt.getTime() / 1000);
+}
+
+function setPickersFromEpoch(epoch) {
+  if (!epoch) {
+    datePicker.value = '';
+    timePicker.value = '';
+    return;
+  }
+  const date = new Date(epoch * 1000);
+  const pad2 = n => String(n).padStart(2, '0');
+  // Lokale Zeit verwenden, nicht UTC
+  datePicker.value = `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
+  timePicker.value = `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+function syncPickersToUrl() {
+  const refEpoch = getSelectedEpoch();
+  const url = new URL(location.href);
+  if (refEpoch) url.searchParams.set('time', refEpoch);
+  else          url.searchParams.delete('time');
+  history.replaceState({}, '', url);
+  return refEpoch;
+}
+
+const triggerTimeChange = () => {
+  if (!currentStopId) return;
+  const refEpoch = syncPickersToUrl();
+  loadDepartures(refEpoch);
+};
+
+datePicker.addEventListener('change', triggerTimeChange);
+timePicker.addEventListener('change', triggerTimeChange);
+
+// ─── Stationssuche ──────────────────────────────────────────────────────────
 
 document.getElementById('query').addEventListener('input', debounce(async (e) => {
   const q = e.target.value.trim();
@@ -27,7 +142,7 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
     (data.stations || []).forEach(st => {
       if (!st.id) return;
       const li = document.createElement('li');
-      li.textContent = st.name;
+      li.innerHTML = `${escapeHtml(st.name)} <span class="suggestion-id">(${escapeHtml(st.id)})</span>`;
       li.onclick = () => selectStation(st.id, st.name);
       list.appendChild(li);
     });
@@ -36,46 +151,25 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   }
 }, 350));
 
-function getSelectedEpoch() {
-  if (!datePicker.value || !timePicker.value) return null;
-  // Kombiniert Datum und Uhrzeit zu einem lokalen JS-Date-Objekt
-  const dt = new Date(`${datePicker.value}T${timePicker.value}`);
-  return isNaN(dt.getTime()) ? null : Math.floor(dt.getTime() / 1000);
-}
-
-function setPickersFromEpoch(epoch) {
-  if (!epoch) {
-    datePicker.value = '';
-    timePicker.value = '';
-    return;
-  }
-  const date = new Date(epoch * 1000);
-  const tzOffset = date.getTimezoneOffset() * 60000;
-  const localISO = new Date(date.getTime() - tzOffset).toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
-  
-  datePicker.value = localISO.slice(0, 10);
-  timePicker.value = localISO.slice(11, 16);
-}
-
-const triggerTimeChange = () => {
-  if (!currentStopId) return;
-  const refEpoch = getSelectedEpoch();
-  
-  const url = new URL(location.href);
-  if (refEpoch) url.searchParams.set('time', refEpoch); else url.searchParams.delete('time');
-  history.pushState({}, '', url);
-  
-  loadDepartures(refEpoch);
-};
-
-datePicker.addEventListener('change', triggerTimeChange);
-timePicker.addEventListener('change', triggerTimeChange);
-
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#search-box')) {
     document.getElementById('suggestions').innerHTML = '';
   }
 });
+
+// ─── Init aus URL ────────────────────────────────────────────────────────────
+
+// Zeit aus URL lesen und sofort in Picker setzen
+const urlTimeRaw = params.get('time');
+const urlEpoch   = urlTimeRaw && !isNaN(Number(urlTimeRaw)) ? Number(urlTimeRaw) : null;
+if (urlEpoch) setPickersFromEpoch(urlEpoch);
+
+if (params.get('stopId')) {
+  currentStopId = params.get('stopId');
+  loadDepartures(urlEpoch);
+}
+
+// ─── Station auswählen ───────────────────────────────────────────────────────
 
 function selectStation(stopId, name, refEpoch) {
   currentStopId = stopId;
@@ -83,22 +177,25 @@ function selectStation(stopId, name, refEpoch) {
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
 
-  setPickersFromEpoch(refEpoch);
+  setPickersFromEpoch(refEpoch ?? null);
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
-  if (refEpoch) url.searchParams.set('time', refEpoch); else url.searchParams.delete('time');
+  if (refEpoch) url.searchParams.set('time', refEpoch);
+  else          url.searchParams.delete('time');
   history.pushState({}, '', url);
 
-  loadDepartures(refEpoch);
+  loadDepartures(refEpoch ?? null);
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
+
+// ─── Abfahrten laden ─────────────────────────────────────────────────────────
 
 async function loadDepartures(refEpoch) {
   if (!currentStopId) return;
   setStatus('Lade Abfahrten…');
 
-  if (!refEpoch) {
+  if (refEpoch === undefined) {
     refEpoch = getSelectedEpoch();
   }
 
@@ -116,7 +213,8 @@ async function loadDepartures(refEpoch) {
       return;
     }
 
-    renderDepartures(data.departures || []);
+    allDepartures = data.departures || [];
+    renderDepartures(allDepartures);
     setStatus(refEpoch
       ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + new Date().toLocaleTimeString('de-CH')
       : 'Aktualisiert: ' + new Date().toLocaleTimeString('de-CH'));
@@ -125,20 +223,21 @@ async function loadDepartures(refEpoch) {
   }
 
   clearTimeout(refreshTimer);
-  if (!refEpoch) refreshTimer = setTimeout(() => loadDepartures(), 30000);
+  if (!refEpoch) refreshTimer = setTimeout(() => loadDepartures(null), 30000);
 }
+
+// ─── Rendern ─────────────────────────────────────────────────────────────────
 
 function renderError(msg) {
   document.getElementById('departureTable').style.display = 'none';
-  const status = document.getElementById('status');
-  status.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
+  document.getElementById('status').innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
 }
 
 function getModeIcon(mode) {
   if (!mode) return '';
   const m = mode.toUpperCase();
-  if (m === 'TRAM' ) { return `T`; }
-  if (m === 'BUS') { return `B`; }
+  if (m === 'TRAM') return 'T';
+  if (m === 'BUS')  return 'B';
   return '';
 }
 
@@ -156,30 +255,45 @@ function renderDepartures(departures) {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
-    const timeStr = dep.live ? new Date(dep.live * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'}) : '–';
+    // SOLL-Zeit anzeigen (scheduled), NICHT live
+    const timeStr = dep.scheduled
+      ? new Date(dep.scheduled * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'})
+      : '–';
 
-    let delayCell = '<span class="ontime"></span>';
+    // Verspätungs-Badge
+    let delayHtml = '';
     if (dep.cancelled) {
-      delayCell = '<span class="cancelled">Ausfall</span>';
-    } else if (dep.delayMin !== null && dep.delayMin > 0) {
-      delayCell = `<span class="delay">+${dep.delayMin}′</span>`;
-    } else if (dep.delayMin !== null && dep.delayMin < 0) {
-      delayCell = `<span class="vbz-delay">${dep.delayMin}′</span>`;
+      delayHtml = '<span class="cancelled">Ausfall</span>';
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec > 30) {
+      delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < -30) {
+      delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
     }
 
     const iconHtml = getModeIcon(dep.mode);
 
+    // data-Attribute für Filter — kanonischen Mode speichern, nicht Rohwert
+    tr.dataset.mode = canonicalMode(dep.mode);
+    tr.dataset.dest = dep.destination || '';
+
     tr.innerHTML = `
-      <td class="col-time">${timeStr}<br><span class="delay-badge">${delayCell}</span></td>
-      <td class="col-line"><div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div><br>
-      <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '???'}</div></td>
+      <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
+      <td class="col-line">
+        <div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
+        <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : ''}</div>
+      </td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
     `;
     tr.onclick = () => toggleChain(tr, dep);
     tbody.appendChild(tr);
   });
+
+  // Filter nach dem Rendern sofort anwenden
+  applyFilters();
 }
+
+// ─── Fahrt-Chain ─────────────────────────────────────────────────────────────
 
 async function toggleChain(tr, dep) {
   const existing = tr.nextElementSibling;
@@ -219,16 +333,21 @@ async function toggleChain(tr, dep) {
 
 function renderChain(data) {
   const stopsHtml = (data.stops || []).map(stop => {
-    const arr = fmtTime(stop.arrivalLive);
-    const dep = fmtTime(stop.departureLive);
-    const times = [arr !== '–' ? 'An ' + arr : null, dep !== '–' ? 'Ab ' + dep : null].filter(Boolean).join(' · ');
+    // SOLL-Zeiten im Chain: scheduled, mit live-Delay als Badge
+    const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
+    const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
+    const times = [
+      arrDisp ? 'An ' + arrDisp : null,
+      depDisp ? 'Ab ' + depDisp : null,
+    ].filter(Boolean).join(' · ');
 
     const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
     const delayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (delaySec ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '<span class="ontime"></span>');
+      : (delaySec && Math.abs(delaySec) > 30 ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '');
 
-    const refEpoch = stop.arrivalLive || stop.arrivalSched;
+    // Referenzzeit für "klick auf Stop" = SOLL-Ankunft (damit die Abfahrtstafel korrekt startet)
+    const refEpoch = stop.arrivalSched || stop.arrivalLive;
     const isLink = !!stop.stopId;
     const nameAttrs = isLink
       ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
@@ -250,11 +369,12 @@ function renderChain(data) {
 
   return `
     <div class="chain-header">
-      <b>Linie ${escapeHtml(data.line || '?')} ${data.destination ? ' Richtung → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrtnummer: ' + escapeHtml(data.tripNumber) : ''}
-      
+      <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrt: ' + escapeHtml(data.tripNumber) : ''}
     </div>
     <div class="timeline">${stopsHtml}</div>`;
 }
+
+// ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 function fmtTime(epoch) {
   if (!epoch) return '–';
@@ -263,7 +383,7 @@ function fmtTime(epoch) {
 
 function fmtDelay(sec) {
   const sign = sec < 0 ? '-' : '+';
-  const abs = Math.abs(sec);
+  const abs  = Math.abs(sec);
   const m = Math.floor(abs / 60);
   const s = abs % 60;
   return `${sign}${m}:${String(s).padStart(2,'0')}`;
@@ -284,19 +404,19 @@ function debounce(fn, delay) {
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
 }
 
-  // ─── Uhr ──────────────────────────────────────────────────────────────────────
+// ─── Uhr ─────────────────────────────────────────────────────────────────────
 
 function updateClock() {
-    const el = document.getElementById('live-clock');
-    if (!el) return;
-    const now = new Date();
-    el.textContent =
-        String(now.getHours()).padStart(2,'0') + ':' +
-        String(now.getMinutes()).padStart(2,'0') + ':' +
-        String(now.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('live-clock');
+  if (!el) return;
+  const now = new Date();
+  el.textContent =
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0') + ':' +
+    String(now.getSeconds()).padStart(2,'0');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    updateClock();
-    setInterval(updateClock, 1000);
+  updateClock();
+  setInterval(updateClock, 1000);
 });
