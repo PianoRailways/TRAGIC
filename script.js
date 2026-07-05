@@ -12,12 +12,17 @@ const destFilter = document.getElementById('destFilter');
 
 // Kanonische Gruppen: welche API-modes gehören zu welchem Button
 const MODE_GROUPS = {
-  TRAIN:  ['TRAIN', 'RAIL', 'HIGHSPEEDRAIL', 'INTERCITYRAIL', 'LONGDISTANCERAIL', 'NIGHTRAIL', 'COACHRAILWAY', 'LOCALTRAIN'],
-  SUBWAY: ['SUBWAY', 'METRO', 'URBAN_RAIL'],
-  TRAM:   ['TRAM', 'TROLLEYBUS', 'STREETCAR'],
-  BUS:    ['BUS', 'COACH', 'REGIONALBUS', 'EXPRESBUS'],
-  FERRY:  ['FERRY', 'WATER', 'BOAT'],
-  OTHER:  [], // alles was nicht in obigen passt
+  RAIL: [
+    'TRAIN', 'RAIL', 'HIGHSPEEDRAIL', 'HIGHSPEED_RAIL', 'INTERCITYRAIL', 
+    'LONGDISTANCERAIL', 'LONG_DISTANCE', 'NIGHTRAIL', 'NIGHT_RAIL', 
+    'COACHRAILWAY', 'LOCALTRAIN', 'REGIONAL_FAST_RAIL', 'REGIONAL_RAIL', 'SUBURBAN'
+  ],
+  SUBWAY:  ['SUBWAY', 'METRO', 'URBAN_RAIL'],
+  TRAM:    ['TRAM', 'TROLLEYBUS', 'STREETCAR'],
+  BUS:     ['BUS', 'COACH', 'REGIONALBUS', 'EXPRESBUS', 'DEBUG_BUS_ROUTE'],
+  FERRY:   ['FERRY', 'WATER', 'BOAT', 'DEBUG_FERRY_ROUTE'],
+  GONDOLA: ['GONDOLA', 'CHAIRLIFT', 'CABLEWAY', 'FUNICULAR', 'AERIAL_LIFT', 'AREAL_LIFT', 'CABLE_CAR'],
+  OTHER:   ['WALK', 'BIKE', 'RENTAL', 'CAR', 'CAR_PARKING', 'CAR_DROPOFF', 'ODM', 'RIDE_SHARING', 'FLEX', 'AIRPLANE', 'OTHER']
 };
 
 function canonicalMode(rawMode) {
@@ -76,16 +81,12 @@ function applyFilters() {
     const mode   = tr.dataset.mode   || 'OTHER';
     const dest   = (tr.dataset.dest  || '').toLowerCase();
 
-    const modeOk = activeModes.has(mode);  // data-mode ist bereits kanonisch
-    const destOk = !destQuery || dest.includes(destQuery);
+    const modeHide = !activeModes.has(mode);  // data-mode ist bereits kanonisch
+    const destHide = destQuery && !dest.includes(destQuery);
 
-    tr.classList.toggle('hidden-row', !(modeOk && destOk));
-
-    // zugehörige Chain-Row ebenfalls ausblenden wenn Dep-Row hidden
-    const next = tr.nextElementSibling;
-    if (next && next.classList.contains('chain-row')) {
-      next.classList.toggle('hidden-row', !(modeOk && destOk));
-    }
+    // Nutzen der exakten CSS-Klassen aus style.css
+    tr.classList.toggle('filtered-mode', modeHide);
+    tr.classList.toggle('filtered-dest', destHide);
   });
 }
 
