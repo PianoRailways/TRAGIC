@@ -129,6 +129,67 @@ const triggerTimeChange = () => {
 datePicker.addEventListener('change', triggerTimeChange);
 timePicker.addEventListener('change', triggerTimeChange);
 
+// ─── Navigation Buttons (Früher / Später) ──────────────────────────────────
+
+function setupNavigationButtons() {
+  const handleEarlier = () => {
+    const currentEpoch = getSelectedEpoch();
+    if (!currentEpoch) return;
+    const earlierEpoch = currentEpoch - (20 * 60); // 20 Minuten zurück
+    setPickersFromEpoch(earlierEpoch);
+    triggerTimeChange();
+  };
+
+  const handleLater = () => {
+    if (allDepartures.length === 0) {
+      console.log('Keine Abfahrten vorhanden');
+      return;
+    }
+    // Letzte Fahrt finden
+    const lastDep = allDepartures[allDepartures.length - 1];
+    console.log('Last departure:', lastDep);
+    if (!lastDep) {
+      console.log('Keine letzte Fahrt gefunden');
+      return;
+    }
+    
+    // scheduled oder live Zeit verwenden
+    const lastTime = lastDep.scheduled || lastDep.live;
+    if (!lastTime) {
+      console.log('Keine Zeit bei letzter Fahrt gefunden');
+      return;
+    }
+    
+    // Neue Zeit = letzte Abfahrt - 1 Minute
+    const laterEpoch = lastTime - 60;
+    console.log('Setting later epoch to:', laterEpoch, 'from:', lastTime);
+    setPickersFromEpoch(laterEpoch);
+    triggerTimeChange();
+  };
+
+  // Beide Button-Paare (oben und unten) registrieren
+  const btnEarlierTop = document.getElementById('btn-earlier-top');
+  const btnLaterTop = document.getElementById('btn-later-top');
+  const btnEarlierBottom = document.getElementById('btn-earlier-bottom');
+  const btnLaterBottom = document.getElementById('btn-later-bottom');
+  
+  if (btnEarlierTop) btnEarlierTop.addEventListener('click', handleEarlier);
+  if (btnLaterTop) btnLaterTop.addEventListener('click', handleLater);
+  if (btnEarlierBottom) btnEarlierBottom.addEventListener('click', handleEarlier);
+  if (btnLaterBottom) btnLaterBottom.addEventListener('click', handleLater);
+}
+
+// Nach DOMContentLoaded Buttons setup
+document.addEventListener('DOMContentLoaded', () => {
+  // Warte kurz, bis alle Elemente geladen sind
+  setTimeout(() => {
+    setupNavigationButtons();
+  }, 100);
+  
+  updateClock();
+  setInterval(updateClock, 1000);
+});
+
 // ─── Stationssuche ──────────────────────────────────────────────────────────
 
 document.getElementById('query').addEventListener('input', debounce(async (e) => {
@@ -211,6 +272,7 @@ async function loadDepartures(refEpoch) {
     if (data.error) {
       renderError(data.error);
       setStatus('');
+      updateNavButtonsVisibility();
       return;
     }
 
@@ -219,12 +281,23 @@ async function loadDepartures(refEpoch) {
     setStatus(refEpoch
       ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + new Date().toLocaleTimeString('de-CH')
       : 'Aktualisiert: ' + new Date().toLocaleTimeString('de-CH'));
+    
+    updateNavButtonsVisibility();
   } catch (err) {
     renderError(err.message);
+    updateNavButtonsVisibility();
   }
 
   clearTimeout(refreshTimer);
   if (!refEpoch) refreshTimer = setTimeout(() => loadDepartures(null), 30000);
+}
+
+// ─── Navigation Buttons anzeigen/verstecken ────────────────────────────────
+
+function updateNavButtonsVisibility() {
+  const isVisible = allDepartures.length > 0;
+  document.getElementById('nav-buttons-top').style.display = isVisible ? 'flex' : 'none';
+  document.getElementById('nav-buttons-bottom').style.display = isVisible ? 'flex' : 'none';
 }
 
 // ─── Rendern ─────────────────────────────────────────────────────────────────
@@ -416,8 +489,3 @@ function updateClock() {
     String(now.getMinutes()).padStart(2,'0') + ':' +
     String(now.getSeconds()).padStart(2,'0');
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  updateClock();
-  setInterval(updateClock, 1000);
-});
