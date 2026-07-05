@@ -224,11 +224,21 @@ document.addEventListener('click', (e) => {
 // Zeit aus URL lesen und sofort in Picker setzen
 const urlTimeRaw = params.get('time');
 const urlEpoch   = urlTimeRaw && !isNaN(Number(urlTimeRaw)) ? Number(urlTimeRaw) : null;
-if (urlEpoch) setPickersFromEpoch(urlEpoch);
+
+// Wenn keine Zeit in URL vorhanden ist, aktuelle Zeit verwenden
+let initialEpoch = urlEpoch;
+if (!initialEpoch) {
+  const now = new Date();
+  // Lokale Zeit in Epoch umrechnen (timezone-robust)
+  initialEpoch = Math.floor(now.getTime() / 1000);
+  setPickersFromEpoch(initialEpoch);
+} else {
+  setPickersFromEpoch(initialEpoch);
+}
 
 if (params.get('stopId')) {
   currentStopId = params.get('stopId');
-  loadDepartures(urlEpoch);
+  loadDepartures(initialEpoch);
 }
 
 // ─── Station auswählen ───────────────────────────────────────────────────────
