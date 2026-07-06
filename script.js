@@ -1,5 +1,6 @@
 const PROXY = 'proxy.php';
 let currentStopId = null;
+let currentStationName = null; // neu: aktueller Stationsname speichern
 let refreshTimer = null;
 let allDepartures = []; // alle geladenen Abfahrten im Speicher
 
@@ -156,7 +157,8 @@ function syncPickersToUrl() {
   const url = new URL(location.href);
   if (refEpoch) url.searchParams.set('time', refEpoch);
   else          url.searchParams.delete('time');
-  history.replaceState({}, '', url);
+  // pushState statt replaceState — damit Browser-Zurück funktioniert
+  history.pushState({stopId: currentStopId, stationName: currentStationName, epoch: refEpoch}, '', url);
   return refEpoch;
 }
 
@@ -228,6 +230,18 @@ document.addEventListener('DOMContentLoaded', () => {
   
   updateClock();
   setInterval(updateClock, 1000);
+
+  // Popstate-Event für Browser-Navigation (Zurück/Vorwärts)
+  window.addEventListener('popstate', (event) => {
+    const state = event.state;
+    if (state && state.stopId) {
+      currentStopId = state.stopId;
+      currentStationName = state.stationName || 'Station wählen';
+      updateStationTitle(currentStationName);
+      setPickersFromEpoch(state.epoch);
+      loadDepartures(state.epoch);
+    }
+  });
 });
 
 // ─── Stationssuche ──────────────────────────────────────────────────────────
@@ -278,14 +292,27 @@ if (!initialEpoch) {
 
 if (params.get('stopId')) {
   currentStopId = params.get('stopId');
+  // currentStationName wird von loadDepartures gesetzt, oder als default
+  currentStationName = 'Station wählen';
+  updateStationTitle(currentStationName);
   loadDepartures(initialEpoch);
+}
+
+// ─── Station Title aktualisieren (in zwei Orten) ────────────────────────────
+
+function updateStationTitle(name) {
+  currentStationName = name;
+  document.getElementById('stationTitle').textContent = name;
+  // Optional: auch im Browser-Tab-Titel anzeigen
+  document.title = name + ' | TRAGIC (NOWE)';
 }
 
 // ─── Station auswählen ───────────────────────────────────────────────────────
 
 function selectStation(stopId, name, refEpoch) {
   currentStopId = stopId;
-  document.getElementById('stationTitle').textContent = name;
+  currentStationName = name;
+  updateStationTitle(name);
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
 
@@ -295,7 +322,8 @@ function selectStation(stopId, name, refEpoch) {
   url.searchParams.set('stopId', stopId);
   if (refEpoch) url.searchParams.set('time', refEpoch);
   else          url.searchParams.delete('time');
-  history.pushState({}, '', url);
+  // pushState für History — ermöglicht Browser-Zurück
+  history.pushState({stopId, stationName: name, epoch: refEpoch}, '', url);
 
   loadDepartures(refEpoch ?? null);
   window.scrollTo({top: 0, behavior: 'smooth'});

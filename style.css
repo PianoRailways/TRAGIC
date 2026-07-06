@@ -313,6 +313,17 @@ th, td {
 }
 th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
+/* Stationsname im Tabellen-Header */
+.table-header-station {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 0.8rem 0.4rem;
+  text-align: left;
+  white-space: normal;
+  border-bottom: 2px solid var(--border-main);
+}
+
 .col-time { width: 55px; white-space: nowrap; }
 .delay-badge {
   display: inline-block;
