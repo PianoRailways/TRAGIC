@@ -104,6 +104,9 @@ document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
   });
 });
 
+// Initial updateModeButtons aufrufen, damit am Start nur "Alle" leuchtet
+updateModeButtons();
+
 // ─── Ziel-Filter ────────────────────────────────────────────────────────────
 
 destFilter.addEventListener('input', () => applyFilters());
