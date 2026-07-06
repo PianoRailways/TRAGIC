@@ -35,47 +35,48 @@ function canonicalMode(rawMode) {
   return 'OTHER';
 }
 
-// Geladene Einstellungen aus localStorage, Default: alle aktiv
+// Geladene Einstellungen aus localStorage
+// Default: "alleModeActive" = true (nur "Alle" leuchtet, alle Modi sind sichtbar)
 function loadActiveModesFromStorage() {
   try {
     const stored = localStorage.getItem('tragic_mode_filter');
-    if (stored) return new Set(JSON.parse(stored));
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        alleModeActive: parsed.alleModeActive ?? true,
+        selectedModes: new Set(parsed.selectedModes || [])
+      };
+    }
   } catch (_) {}
-  return new Set(Object.keys(MODE_GROUPS));
+  return { alleModeActive: true, selectedModes: new Set() };
 }
 
-let activeModes = loadActiveModesFromStorage();
+let filterState = loadActiveModesFromStorage();
 
 function saveModesToStorage() {
-  localStorage.setItem('tragic_mode_filter', JSON.stringify([...activeModes]));
+  localStorage.setItem('tragic_mode_filter', JSON.stringify({
+    alleModeActive: filterState.alleModeActive,
+    selectedModes: [...filterState.selectedModes]
+  }));
 }
 
 function updateModeButtons() {
   const btnAll = document.getElementById('btn-mode-all');
-  const allModes = Object.keys(MODE_GROUPS);
-  const allActive = allModes.every(m => activeModes.has(m));
-  
-  btnAll.classList.toggle('active', allActive);
+  btnAll.classList.toggle('active', filterState.alleModeActive);
   
   document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
     const mode = btn.dataset.mode;
-    btn.classList.toggle('active', activeModes.has(mode));
+    btn.classList.toggle('active', filterState.selectedModes.has(mode));
   });
 }
 
 // "Alle" Button Logik
 document.addEventListener('DOMContentLoaded', () => {
   const btnAll = document.getElementById('btn-mode-all');
-  const allModes = Object.keys(MODE_GROUPS);
   
   btnAll.addEventListener('click', () => {
-    if (activeModes.size === allModes.length) {
-      // Alle sind aktiv → deaktiviere alle
-      activeModes.clear();
-    } else {
-      // Nicht alle sind aktiv → aktiviere alle
-      allModes.forEach(m => activeModes.add(m));
-    }
+    filterState.alleModeActive = true;
+    filterState.selectedModes.clear();
     saveModesToStorage();
     updateModeButtons();
     applyFilters();
@@ -85,14 +86,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // Einzelne Mode-Buttons
 document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
   const mode = btn.dataset.mode;
-  if (!activeModes.has(mode)) btn.classList.remove('active');
 
   btn.addEventListener('click', () => {
-    if (activeModes.has(mode)) {
-      activeModes.delete(mode);
+    // Klick auf einzelnen Modus → "Alle" deaktivieren
+    filterState.alleModeActive = false;
+    
+    // Toggle diesen Modus
+    if (filterState.selectedModes.has(mode)) {
+      filterState.selectedModes.delete(mode);
     } else {
-      activeModes.add(mode);
+      filterState.selectedModes.add(mode);
     }
+    
     saveModesToStorage();
     updateModeButtons();
     applyFilters();
@@ -112,7 +117,8 @@ function applyFilters() {
     const mode   = tr.dataset.mode   || 'OTHER';
     const dest   = (tr.dataset.dest  || '').toLowerCase();
 
-    const modeHide = !activeModes.has(mode);  // data-mode ist bereits kanonisch
+    // Mode-Filter: wenn "Alle" aktiv, alles zeigen; sonst nur wenn in selectedModes
+    const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
     const destHide = destQuery && !dest.includes(destQuery);
 
     // Nutzen der exakten CSS-Klassen aus style.css
