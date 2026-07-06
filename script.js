@@ -316,16 +316,22 @@ function selectStation(stopId, name, refEpoch) {
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
 
-  setPickersFromEpoch(refEpoch ?? null);
+  // Nur wenn refEpoch explizit übergeben wurde, die Picker setzen.
+  // Sonst: aktuelle Picker-Werte bewahren (der Benutzer hat sie ja gerade gesetzt)
+  if (refEpoch !== undefined) {
+    setPickersFromEpoch(refEpoch);
+  }
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
-  if (refEpoch) url.searchParams.set('time', refEpoch);
-  else          url.searchParams.delete('time');
+  // Aktuelle Picker-Werte in die URL schreiben
+  const currentEpoch = getSelectedEpoch();
+  if (currentEpoch) url.searchParams.set('time', currentEpoch);
+  else              url.searchParams.delete('time');
   // pushState für History — ermöglicht Browser-Zurück
-  history.pushState({stopId, stationName: name, epoch: refEpoch}, '', url);
+  history.pushState({stopId, stationName: name, epoch: currentEpoch}, '', url);
 
-  loadDepartures(refEpoch ?? null);
+  loadDepartures(currentEpoch);
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
