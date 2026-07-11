@@ -1,19 +1,248 @@
 const PROXY = 'proxy.php';
 let currentStopId = null;
+let currentStationName = null; // neu: aktueller Stationsname speichern
 let refreshTimer = null;
+let allDepartures = []; // alle geladenen Abfahrten im Speicher
 
 const params = new URLSearchParams(location.search);
 const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
+const destFilter = document.getElementById('destFilter');
 
-if (params.get('stopId')) {
-  currentStopId = params.get('stopId');
-  const initialTime = params.get('time') ? Number(params.get('time')) : null;
-  if (initialTime) {
-    setPickersFromEpoch(initialTime);
+// ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
+
+// Kanonische Gruppen: welche API-modes gehören zu welchem Button
+const MODE_GROUPS = {
+  HIGHSPEED: ['HIGHSPEEDRAIL', 'HIGHSPEED_RAIL', 'INTERCITYRAIL', 'LONGDISTANCERAIL', 'LONG_DISTANCE'],
+  RAIL: [ 'TRAIN', 'RAIL', 'COACHRAILWAY', 'LOCALTRAIN', 'REGIONAL_FAST_RAIL', 'REGIONAL_RAIL', 'SUBURBAN'],
+  NIGHT: ['NIGHTRAIL', 'NIGHT_RAIL', ],
+  SUBWAY:  ['SUBWAY', 'METRO', 'URBAN_RAIL'],
+  TRAM:    ['TRAM', 'TROLLEYBUS', 'STREETCAR'],
+  BUS:     ['BUS', 'COACH', 'REGIONALBUS', 'EXPRESBUS', 'DEBUG_BUS_ROUTE'],
+  FERRY:   ['FERRY', 'WATER', 'BOAT', 'DEBUG_FERRY_ROUTE'],
+  GONDOLA: ['GONDOLA', 'CHAIRLIFT', 'CABLEWAY', 'FUNICULAR', 'AERIAL_LIFT', 'AREAL_LIFT', 'CABLE_CAR'],
+  OTHER:   ['WALK', 'BIKE', 'RENTAL', 'CAR', 'CAR_PARKING', 'CAR_DROPOFF', 'ODM', 'RIDE_SHARING', 'FLEX', 'AIRPLANE', 'OTHER']
+};
+
+function canonicalMode(rawMode) {
+  if (!rawMode) return 'OTHER';
+  const m = rawMode.toUpperCase();
+  for (const [group, variants] of Object.entries(MODE_GROUPS)) {
+    if (group === 'OTHER') continue;
+    if (variants.includes(m)) return group;
   }
-  loadDepartures(initialTime);
+  return 'OTHER';
 }
+
+// Geladene Einstellungen aus localStorage
+// Default: "alleModeActive" = true (nur "Alle" leuchtet, alle Modi sind sichtbar)
+function loadActiveModesFromStorage() {
+  try {
+    const stored = localStorage.getItem('tragic_mode_filter');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        alleModeActive: parsed.alleModeActive ?? true,
+        selectedModes: new Set(parsed.selectedModes || [])
+      };
+    }
+  } catch (_) {}
+  return { alleModeActive: true, selectedModes: new Set() };
+}
+
+let filterState = loadActiveModesFromStorage();
+
+function saveModesToStorage() {
+  localStorage.setItem('tragic_mode_filter', JSON.stringify({
+    alleModeActive: filterState.alleModeActive,
+    selectedModes: [...filterState.selectedModes]
+  }));
+}
+
+function updateModeButtons() {
+  const btnAll = document.getElementById('btn-mode-all');
+  btnAll.classList.toggle('active', filterState.alleModeActive);
+  
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+    const mode = btn.dataset.mode;
+    btn.classList.toggle('active', filterState.selectedModes.has(mode));
+  });
+}
+
+// "Alle" Button Logik
+document.addEventListener('DOMContentLoaded', () => {
+  const btnAll = document.getElementById('btn-mode-all');
+  
+  btnAll.addEventListener('click', () => {
+    filterState.alleModeActive = true;
+    filterState.selectedModes.clear();
+    saveModesToStorage();
+    updateModeButtons();
+    applyFilters();
+  });
+});
+
+// Einzelne Mode-Buttons
+document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+  const mode = btn.dataset.mode;
+
+  btn.addEventListener('click', () => {
+    // Klick auf einzelnen Modus → "Alle" deaktivieren
+    filterState.alleModeActive = false;
+    
+    // Toggle diesen Modus
+    if (filterState.selectedModes.has(mode)) {
+      filterState.selectedModes.delete(mode);
+    } else {
+      filterState.selectedModes.add(mode);
+    }
+    
+    saveModesToStorage();
+    updateModeButtons();
+    applyFilters();
+  });
+});
+
+// Initial updateModeButtons aufrufen, damit am Start nur "Alle" leuchtet
+updateModeButtons();
+
+// ─── Ziel-Filter ────────────────────────────────────────────────────────────
+
+destFilter.addEventListener('input', () => applyFilters());
+
+// ─── Filter anwenden (lokal, kein Netz) ─────────────────────────────────────
+
+function applyFilters() {
+  const destQuery = destFilter.value.trim().toLowerCase();
+
+  document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
+    const mode   = tr.dataset.mode   || 'OTHER';
+    const dest   = (tr.dataset.dest  || '').toLowerCase();
+
+    // Mode-Filter: wenn "Alle" aktiv, alles zeigen; sonst nur wenn in selectedModes
+    const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
+    const destHide = destQuery && !dest.includes(destQuery);
+
+    // Nutzen der exakten CSS-Klassen aus style.css
+    tr.classList.toggle('filtered-mode', modeHide);
+    tr.classList.toggle('filtered-dest', destHide);
+  });
+}
+
+// ─── Datum / Zeit (URL ↔ Picker) ────────────────────────────────────────────
+
+function getSelectedEpoch() {
+  if (!datePicker.value || !timePicker.value) return null;
+  const dt = new Date(`${datePicker.value}T${timePicker.value}`);
+  return isNaN(dt.getTime()) ? null : Math.floor(dt.getTime() / 1000);
+}
+
+function setPickersFromEpoch(epoch) {
+  if (!epoch) {
+    datePicker.value = '';
+    timePicker.value = '';
+    return;
+  }
+  const date = new Date(epoch * 1000);
+  const pad2 = n => String(n).padStart(2, '0');
+  // Lokale Zeit verwenden, nicht UTC
+  datePicker.value = `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
+  timePicker.value = `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+function syncPickersToUrl() {
+  const refEpoch = getSelectedEpoch();
+  const url = new URL(location.href);
+  if (refEpoch) url.searchParams.set('time', refEpoch);
+  else          url.searchParams.delete('time');
+  // pushState statt replaceState — damit Browser-Zurück funktioniert
+  history.pushState({stopId: currentStopId, stationName: currentStationName, epoch: refEpoch}, '', url);
+  return refEpoch;
+}
+
+const triggerTimeChange = () => {
+  if (!currentStopId) return;
+  const refEpoch = syncPickersToUrl();
+  loadDepartures(refEpoch);
+};
+
+datePicker.addEventListener('change', triggerTimeChange);
+timePicker.addEventListener('change', triggerTimeChange);
+
+// ─── Navigation Buttons (Früher / Später) ──────────────────────────────────
+
+function setupNavigationButtons() {
+  const handleEarlier = () => {
+    const currentEpoch = getSelectedEpoch();
+    if (!currentEpoch) return;
+    const earlierEpoch = currentEpoch - (20 * 60); // 20 Minuten zurück
+    setPickersFromEpoch(earlierEpoch);
+    triggerTimeChange();
+  };
+
+  const handleLater = () => {
+    if (allDepartures.length === 0) {
+      console.log('Keine Abfahrten vorhanden');
+      return;
+    }
+    // Letzte Fahrt finden
+    const lastDep = allDepartures[allDepartures.length - 1];
+    console.log('Last departure:', lastDep);
+    if (!lastDep) {
+      console.log('Keine letzte Fahrt gefunden');
+      return;
+    }
+    
+    // scheduled oder live Zeit verwenden
+    const lastTime = lastDep.scheduled || lastDep.live;
+    if (!lastTime) {
+      console.log('Keine Zeit bei letzter Fahrt gefunden');
+      return;
+    }
+    
+    // Neue Zeit = letzte Abfahrt - 1 Minute
+    const laterEpoch = lastTime - 60;
+    console.log('Setting later epoch to:', laterEpoch, 'from:', lastTime);
+    setPickersFromEpoch(laterEpoch);
+    triggerTimeChange();
+  };
+
+  // Beide Button-Paare (oben und unten) registrieren
+  const btnEarlierTop = document.getElementById('btn-earlier-top');
+  const btnLaterTop = document.getElementById('btn-later-top');
+  const btnEarlierBottom = document.getElementById('btn-earlier-bottom');
+  const btnLaterBottom = document.getElementById('btn-later-bottom');
+  
+  if (btnEarlierTop) btnEarlierTop.addEventListener('click', handleEarlier);
+  if (btnLaterTop) btnLaterTop.addEventListener('click', handleLater);
+  if (btnEarlierBottom) btnEarlierBottom.addEventListener('click', handleEarlier);
+  if (btnLaterBottom) btnLaterBottom.addEventListener('click', handleLater);
+}
+
+// Nach DOMContentLoaded Buttons setup
+document.addEventListener('DOMContentLoaded', () => {
+  // Warte kurz, bis alle Elemente geladen sind
+  setTimeout(() => {
+    setupNavigationButtons();
+  }, 100);
+  
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Popstate-Event für Browser-Navigation (Zurück/Vorwärts)
+  window.addEventListener('popstate', (event) => {
+    const state = event.state;
+    if (state && state.stopId) {
+      currentStopId = state.stopId;
+      currentStationName = state.stationName || 'Station wählen';
+      updateStationTitle(currentStationName);
+      setPickersFromEpoch(state.epoch);
+      loadDepartures(state.epoch);
+    }
+  });
+});
+
+// ─── Stationssuche ──────────────────────────────────────────────────────────
 
 document.getElementById('query').addEventListener('input', debounce(async (e) => {
   const q = e.target.value.trim();
@@ -27,7 +256,7 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
     (data.stations || []).forEach(st => {
       if (!st.id) return;
       const li = document.createElement('li');
-      li.textContent = st.name;
+      li.innerHTML = `${escapeHtml(st.name)} <span class="suggestion-id">(${escapeHtml(st.id)})</span>`;
       li.onclick = () => selectStation(st.id, st.name);
       list.appendChild(li);
     });
@@ -36,69 +265,81 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   }
 }, 350));
 
-function getSelectedEpoch() {
-  if (!datePicker.value || !timePicker.value) return null;
-  // Kombiniert Datum und Uhrzeit zu einem lokalen JS-Date-Objekt
-  const dt = new Date(`${datePicker.value}T${timePicker.value}`);
-  return isNaN(dt.getTime()) ? null : Math.floor(dt.getTime() / 1000);
-}
-
-function setPickersFromEpoch(epoch) {
-  if (!epoch) {
-    datePicker.value = '';
-    timePicker.value = '';
-    return;
-  }
-  const date = new Date(epoch * 1000);
-  const tzOffset = date.getTimezoneOffset() * 60000;
-  const localISO = new Date(date.getTime() - tzOffset).toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
-  
-  datePicker.value = localISO.slice(0, 10);
-  timePicker.value = localISO.slice(11, 16);
-}
-
-const triggerTimeChange = () => {
-  if (!currentStopId) return;
-  const refEpoch = getSelectedEpoch();
-  
-  const url = new URL(location.href);
-  if (refEpoch) url.searchParams.set('time', refEpoch); else url.searchParams.delete('time');
-  history.pushState({}, '', url);
-  
-  loadDepartures(refEpoch);
-};
-
-datePicker.addEventListener('change', triggerTimeChange);
-timePicker.addEventListener('change', triggerTimeChange);
-
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#search-box')) {
     document.getElementById('suggestions').innerHTML = '';
   }
 });
 
+// ─── Init aus URL ────────────────────────────────────────────────────────────
+
+// Zeit aus URL lesen und sofort in Picker setzen
+const urlTimeRaw = params.get('time');
+const urlEpoch   = urlTimeRaw && !isNaN(Number(urlTimeRaw)) ? Number(urlTimeRaw) : null;
+
+// Wenn keine Zeit in URL vorhanden ist, aktuelle Zeit verwenden
+let initialEpoch = urlEpoch;
+if (!initialEpoch) {
+  const now = new Date();
+  // Lokale Zeit in Epoch umrechnen (timezone-robust)
+  initialEpoch = Math.floor(now.getTime() / 1000);
+  setPickersFromEpoch(initialEpoch);
+} else {
+  setPickersFromEpoch(initialEpoch);
+}
+
+if (params.get('stopId')) {
+  currentStopId = params.get('stopId');
+  // currentStationName wird von loadDepartures gesetzt, oder als default
+  currentStationName = 'Station wählen';
+  updateStationTitle(currentStationName);
+  loadDepartures(initialEpoch);
+}
+
+// ─── Station Title aktualisieren (in zwei Orten) ────────────────────────────
+
+function updateStationTitle(name) {
+  currentStationName = name;
+  document.getElementById('stationTitle').textContent = name;
+  // Optional: auch im Browser-Tab-Titel anzeigen
+  document.title = name + ' | TRAGIC (NOWE)';
+}
+
+// ─── Station auswählen ───────────────────────────────────────────────────────
+
 function selectStation(stopId, name, refEpoch) {
   currentStopId = stopId;
-  document.getElementById('stationTitle').textContent = name;
+  currentStationName = name;
+  updateStationTitle(name);
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
 
-  setPickersFromEpoch(refEpoch);
+  // Nur wenn refEpoch explizit übergeben wurde, die Picker setzen.
+  // Sonst: aktuelle Picker-Werte bewahren (der Benutzer hat sie ja gerade gesetzt)
+  if (refEpoch !== undefined) {
+    setPickersFromEpoch(refEpoch);
+  }
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
-  if (refEpoch) url.searchParams.set('time', refEpoch); else url.searchParams.delete('time');
-  history.pushState({}, '', url);
+  // Aktuelle Picker-Werte in die URL schreiben
+  const currentEpoch = getSelectedEpoch();
+  if (currentEpoch) url.searchParams.set('time', currentEpoch);
+  else              url.searchParams.delete('time');
+  // pushState für History — ermöglicht Browser-Zurück
+  history.pushState({stopId, stationName: name, epoch: currentEpoch}, '', url);
 
-  loadDepartures(refEpoch);
+  loadDepartures(currentEpoch);
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
+
+// ─── Abfahrten laden ─────────────────────────────────────────────────────────
 
 async function loadDepartures(refEpoch) {
   if (!currentStopId) return;
   setStatus('Lade Abfahrten…');
 
-  if (!refEpoch) {
+  if (refEpoch === undefined) {
     refEpoch = getSelectedEpoch();
   }
 
@@ -113,32 +354,46 @@ async function loadDepartures(refEpoch) {
     if (data.error) {
       renderError(data.error);
       setStatus('');
+      updateNavButtonsVisibility();
       return;
     }
 
-    renderDepartures(data.departures || []);
+    allDepartures = data.departures || [];
+    renderDepartures(allDepartures);
     setStatus(refEpoch
       ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + new Date().toLocaleTimeString('de-CH')
       : 'Aktualisiert: ' + new Date().toLocaleTimeString('de-CH'));
+    
+    updateNavButtonsVisibility();
   } catch (err) {
     renderError(err.message);
+    updateNavButtonsVisibility();
   }
 
   clearTimeout(refreshTimer);
-  if (!refEpoch) refreshTimer = setTimeout(() => loadDepartures(), 30000);
+  if (!refEpoch) refreshTimer = setTimeout(() => loadDepartures(null), 30000);
 }
+
+// ─── Navigation Buttons anzeigen/verstecken ────────────────────────────────
+
+function updateNavButtonsVisibility() {
+  const isVisible = allDepartures.length > 0;
+  document.getElementById('nav-buttons-top').style.display = isVisible ? 'flex' : 'none';
+  document.getElementById('nav-buttons-bottom').style.display = isVisible ? 'flex' : 'none';
+}
+
+// ─── Rendern ─────────────────────────────────────────────────────────────────
 
 function renderError(msg) {
   document.getElementById('departureTable').style.display = 'none';
-  const status = document.getElementById('status');
-  status.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
+  document.getElementById('status').innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(msg)}</div>`;
 }
 
 function getModeIcon(mode) {
   if (!mode) return '';
   const m = mode.toUpperCase();
-  if (m === 'TRAM' ) { return `T`; }
-  if (m === 'BUS') { return `B`; }
+  if (m === 'TRAM') return 'T';
+  if (m === 'BUS')  return 'B';
   return '';
 }
 
@@ -156,30 +411,45 @@ function renderDepartures(departures) {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
-    const timeStr = dep.live ? new Date(dep.live * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'}) : '–';
+    // SOLL-Zeit anzeigen (scheduled), NICHT live
+    const timeStr = dep.scheduled
+      ? new Date(dep.scheduled * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'})
+      : '–';
 
-    let delayCell = '<span class="ontime"></span>';
+    // Verspätungs-Badge
+    let delayHtml = '';
     if (dep.cancelled) {
-      delayCell = '<span class="cancelled">Ausfall</span>';
-    } else if (dep.delayMin !== null && dep.delayMin > 0) {
-      delayCell = `<span class="delay">+${dep.delayMin}′</span>`;
-    } else if (dep.delayMin !== null && dep.delayMin < 0) {
-      delayCell = `<span class="vbz-delay">${dep.delayMin}′</span>`;
+      delayHtml = '<span class="cancelled">Ausfall</span>';
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec > 30) {
+      delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < -30) {
+      delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
     }
 
     const iconHtml = getModeIcon(dep.mode);
 
+    // data-Attribute für Filter — kanonischen Mode speichern, nicht Rohwert
+    tr.dataset.mode = canonicalMode(dep.mode);
+    tr.dataset.dest = dep.destination || '';
+
     tr.innerHTML = `
-      <td class="col-time">${timeStr}<br><span class="delay-badge">${delayCell}</span></td>
-      <td class="col-line"><div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div><br>
-      <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : '???'}</div></td>
+      <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
+      <td class="col-line">
+        <div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
+        <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : ''}</div>
+      </td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
     `;
     tr.onclick = () => toggleChain(tr, dep);
     tbody.appendChild(tr);
   });
+
+  // Filter nach dem Rendern sofort anwenden
+  applyFilters();
 }
+
+// ─── Fahrt-Chain ─────────────────────────────────────────────────────────────
 
 async function toggleChain(tr, dep) {
   const existing = tr.nextElementSibling;
@@ -219,16 +489,21 @@ async function toggleChain(tr, dep) {
 
 function renderChain(data) {
   const stopsHtml = (data.stops || []).map(stop => {
-    const arr = fmtTime(stop.arrivalLive);
-    const dep = fmtTime(stop.departureLive);
-    const times = [arr !== '–' ? 'An ' + arr : null, dep !== '–' ? 'Ab ' + dep : null].filter(Boolean).join(' · ');
+    // SOLL-Zeiten im Chain: scheduled, mit live-Delay als Badge
+    const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
+    const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
+    const times = [
+      arrDisp ? 'An ' + arrDisp : null,
+      depDisp ? 'Ab ' + depDisp : null,
+    ].filter(Boolean).join(' · ');
 
     const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
     const delayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (delaySec ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '<span class="ontime"></span>');
+      : (delaySec && Math.abs(delaySec) > 30 ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '');
 
-    const refEpoch = stop.arrivalLive || stop.arrivalSched;
+    // Referenzzeit für "klick auf Stop" = SOLL-Ankunft (damit die Abfahrtstafel korrekt startet)
+    const refEpoch = stop.arrivalSched || stop.arrivalLive;
     const isLink = !!stop.stopId;
     const nameAttrs = isLink
       ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
@@ -250,11 +525,12 @@ function renderChain(data) {
 
   return `
     <div class="chain-header">
-      <b>Linie ${escapeHtml(data.line || '?')} ${data.destination ? ' Richtung → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrtnummer: ' + escapeHtml(data.tripNumber) : ''}
-      
+      <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrt: ' + escapeHtml(data.tripNumber) : ''}
     </div>
     <div class="timeline">${stopsHtml}</div>`;
 }
+
+// ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 function fmtTime(epoch) {
   if (!epoch) return '–';
@@ -263,7 +539,7 @@ function fmtTime(epoch) {
 
 function fmtDelay(sec) {
   const sign = sec < 0 ? '-' : '+';
-  const abs = Math.abs(sec);
+  const abs  = Math.abs(sec);
   const m = Math.floor(abs / 60);
   const s = abs % 60;
   return `${sign}${m}:${String(s).padStart(2,'0')}`;
@@ -284,19 +560,14 @@ function debounce(fn, delay) {
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
 }
 
-  // ─── Uhr ──────────────────────────────────────────────────────────────────────
+// ─── Uhr ─────────────────────────────────────────────────────────────────────
 
 function updateClock() {
-    const el = document.getElementById('live-clock');
-    if (!el) return;
-    const now = new Date();
-    el.textContent =
-        String(now.getHours()).padStart(2,'0') + ':' +
-        String(now.getMinutes()).padStart(2,'0') + ':' +
-        String(now.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('live-clock');
+  if (!el) return;
+  const now = new Date();
+  el.textContent =
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0') + ':' +
+    String(now.getSeconds()).padStart(2,'0');
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    updateClock();
-    setInterval(updateClock, 1000);
-});
