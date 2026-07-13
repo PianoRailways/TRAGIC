@@ -39,18 +39,18 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html {
-  scrollbar-gutter: stable;
-}
+html { scrollbar-gutter: stable; }
 body {
   background: var(--bg-main);
   color: var(--text-main);
   margin: 0;
-  padding: 8px 14px;
   font-family: "SBB Web", "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+.panel {
+  padding: 8px 14px;
 }
 
 /* ── HEADER ────────────────────────────────────────────────── */
@@ -202,9 +202,10 @@ h1 {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  font-size: small;
 }
-.time-picker-row input[type="date"] { flex: 2; }
-.time-picker-row input[type="time"] { flex: 1; }
+.time-picker-row input[type="date"] { flex: 2; font-size: small; }
+.time-picker-row input[type="time"] { flex: 1; font-size: small; }
 
 /* Ziel-Filter */
 #dest-filter-row {
