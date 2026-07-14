@@ -113,7 +113,24 @@ body {
   flex-wrap: wrap;
   justify-content: flex-end;
 }
-
+/* Refresh-Button */
+#btn-refresh {
+    background: var(--sbb-red);
+    border: 1px solid var(--sbb-red);
+    color: white;
+	  font-weight: bold;
+    padding: 8px;
+	  max-width: 110px;
+	  flex: auto;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+#btn-refresh:hover {
+	background: var(--sbb-blue);
+	border: 1px solid var(--sbb-blue);
+}
 /* ── FAVORITEN-BAR ─────────────────────────────────────────── */
 #fav-bar {
   display: flex;
