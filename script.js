@@ -517,9 +517,9 @@ function renderChain(data) {
           ${arrDisp ? `<div class="stop-times">An ${escapeHtml(arrDisp)}</div>` : ''}
           ${depDisp ? `<div class="stop-times">Ab ${escapeHtml(depDisp)}</div>` : ''}
           ${!arrDisp && !depDisp ? `<div class="stop-times">–</div>` : ''}
+          ${delayHtml}
         </div>
         <div class="stop-right">
-          ${delayHtml}
           ${stop.track ? `<div class="stop-track">Gl. ${escapeHtml(stop.track)}</div>` : ''}
         </div>
       </div>`;
