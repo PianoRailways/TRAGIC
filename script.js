@@ -302,7 +302,7 @@ function updateStationTitle(name) {
   currentStationName = name;
   document.getElementById('stationTitle').textContent = name;
   // Optional: auch im Browser-Tab-Titel anzeigen
-  document.title = name + ' | TRAGIC (NOWE)';
+  document.title = name + ' | OMNI (NOWE)';
 }
 
 // ─── Station auswählen ───────────────────────────────────────────────────────
