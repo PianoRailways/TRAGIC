@@ -454,9 +454,14 @@ a {
   color: none;
   text-decoration: none;
 }
+
+p {
+  margin: 3px;
+}
+
 .page-footer {
   text-decoration: none;
-  padding: 8px 14px;
+  padding: 3px 14px;
   margin-top: auto;
   border-top: 1px solid var(--border);
   background: var(--header-bg);
