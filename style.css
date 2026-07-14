@@ -227,7 +227,7 @@ h1 {
 
 input {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  padding: 0.4rem 0.5rem;
   font-size: 1rem;
   background: var(--bg-surface);
   border: 1px solid var(--border-main);
