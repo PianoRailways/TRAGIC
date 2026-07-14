@@ -526,11 +526,9 @@ function renderChain(data) {
         <div class="stop-dot"></div>
         <div>
           <div class="stop-name${isLink ? '' : ' no-link'}" ${nameAttrs}>${escapeHtml(stop.name)}</div>
-          ${arrDisp ? `<div class="stop-times">An ${escapeHtml(arrDisp)}</div>` : ''}
-          ${depDisp ? `<div class="stop-times">Ab ${escapeHtml(depDisp)}</div>` : ''}
-          ${!arrDisp && !depDisp ? `<div class="stop-times">–</div>` : ''}
-          ${arrDelayHtml}
-          ${depDelayHtml}
+          ${arrDisp ? `<div class="stop-times">An ${escapeHtml(arrDisp)}${arrDelayHtml}</div>` : ''}
+          ${depDisp ? `<div class="stop-times">Ab ${escapeHtml(depDisp)}${depDelayHtml}</div>` : ''}
+          ${!arrDisp && !depDisp ? `<div class="stop-times">–</div>` : ''}   
         </div>
         <div class="stop-right">
           ${stop.track ? `<div class="stop-track">Gl. ${escapeHtml(stop.track)}</div>` : ''}
