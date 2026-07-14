@@ -431,6 +431,7 @@ function renderDepartures(departures) {
     // data-Attribute für Filter — kanonischen Mode speichern, nicht Rohwert
     tr.dataset.mode = canonicalMode(dep.mode);
     tr.dataset.dest = dep.destination || '';
+    tr.dataset.trip = dep.tripNumber || '';
 
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
