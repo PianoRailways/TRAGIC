@@ -195,6 +195,9 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.station-title {
+  font-weight: bold;
+}
 
 #search-box { position: relative; }
 
