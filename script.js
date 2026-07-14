@@ -498,6 +498,18 @@ function renderChain(data) {
     ].filter(Boolean).join('\n');
 
     const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
+
+        // Verspätung für die Ankunft ermitteln (nur wenn kein Ausfall vorliegt)
+    const arrDelayHtml = stop.cancelled
+      ? '<span class="cancelled">Ausfall</span>'
+      : (stop.arrivalDelaySec && Math.abs(stop.arrivalDelaySec) > 30 ? ` <span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>` : '');
+
+    // Verspätung für die Abfahrt ermitteln
+    const depDelayHtml = stop.cancelled
+      ? '<span class="cancelled">Ausfall</span>'
+      : (stop.departureDelaySec && Math.abs(stop.departureDelaySec) > 30 ? ` <span class="delay">${fmtDelay(stop.departureDelaySec)}</span>` : '');
+
+      
     const delayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
       : (delaySec && Math.abs(delaySec) > 30 ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '');
@@ -517,7 +529,8 @@ function renderChain(data) {
           ${arrDisp ? `<div class="stop-times">An ${escapeHtml(arrDisp)}</div>` : ''}
           ${depDisp ? `<div class="stop-times">Ab ${escapeHtml(depDisp)}</div>` : ''}
           ${!arrDisp && !depDisp ? `<div class="stop-times">–</div>` : ''}
-          ${delayHtml}
+          ${arrDelayHtml}
+          ${depDelayHtml}
         </div>
         <div class="stop-right">
           ${stop.track ? `<div class="stop-track">Gl. ${escapeHtml(stop.track)}</div>` : ''}
