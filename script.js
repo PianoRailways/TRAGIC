@@ -495,7 +495,7 @@ function renderChain(data) {
     const times = [
       arrDisp ? 'An ' + arrDisp : null,
       depDisp ? 'Ab ' + depDisp : null,
-    ].filter(Boolean).join(' · ');
+    ].filter(Boolean).join('\n');
 
     const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
     const delayHtml = stop.cancelled
@@ -514,7 +514,9 @@ function renderChain(data) {
         <div class="stop-dot"></div>
         <div>
           <div class="stop-name${isLink ? '' : ' no-link'}" ${nameAttrs}>${escapeHtml(stop.name)}</div>
-          <div class="stop-times">${escapeHtml(times || '–')}</div>
+          ${arrDisp ? `<div class="stop-times">An ${escapeHtml(arrDisp)}</div>` : ''}
+          ${depDisp ? `<div class="stop-times">Ab ${escapeHtml(depDisp)}</div>` : ''}
+          ${!arrDisp && !depDisp ? `<div class="stop-times">–</div>` : ''}
         </div>
         <div class="stop-right">
           ${delayHtml}
