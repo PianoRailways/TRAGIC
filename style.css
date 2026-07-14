@@ -137,7 +137,6 @@ body {
   gap: 6px;
   flex-wrap: wrap;
   padding: 6px 0 2px;
-  border-bottom: 1px solid var(--border);
   margin-bottom: 2px;
 }
 .fav-btn {
@@ -162,7 +161,6 @@ body {
   flex-wrap: wrap;
   align-items: center;
   padding: 5px 0 5px;
-  border-bottom: 1px solid var(--border);
   margin-bottom: 4px;
 }
 .mode-filter-label {
@@ -267,8 +265,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   position: absolute;
   left: 0; right: 0;
   background: var(--bg-surface);
-  border: 1px solid var(--border-main);
-  border-radius: 6px;
   z-index: 20;
   max-height: 55vh;
   overflow-y: auto;
