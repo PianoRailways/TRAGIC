@@ -537,7 +537,7 @@ function renderChain(data) {
       </div>`;
   }).join('');
 
-  const tripIdHtml = data.tripId ? `<div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border-soft); font-size: 0.7rem; color: var(--text-muted); font-family: monospace; word-break: break-all; cursor: pointer; user-select: all;" onclick="copyTripId('${escapeAttr(data.tripId)}')" title="Klick zum Kopieren">Trip-ID: ${escapeHtml(data.tripId)}</div>` : '';
+  const tripIdHtml = data.tripId ? `<div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border-soft); font-size: 0.7rem; color: var(--text-muted);">Trip-ID: <span style="cursor:pointer; font-family:monospace;" onclick="navigator.clipboard.writeText('${escapeAttr(data.tripId)}'); const t=this; const o=t.innerText; t.innerText='✅ Kopiert!'; setTimeout(() => t.innerText=o, 1000);">${escapeHtml(data.tripId)}</span></div>` : '';
 
   return `
     <div class="chain-header">
@@ -548,14 +548,6 @@ function renderChain(data) {
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
-
-function copyTripId(tripId) {
-  navigator.clipboard.writeText(tripId).then(() => {
-    console.log('Trip-ID kopiert:', tripId);
-  }).catch(err => {
-    console.error('Fehler beim Kopieren:', err);
-  });
-}
 
 function fmtTime(epoch) {
   if (!epoch) return '–';
