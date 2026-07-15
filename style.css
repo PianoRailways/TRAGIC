@@ -437,7 +437,7 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
 .stop.cancelled-stop .stop-dot { background: var(--error); }
 .stop-name {
   font-size: 0.92rem;
-  text-decoration: underline dotted var(--underline);
+  text-decoration: none;
   text-underline-offset: 2px;
   cursor: pointer;
 }
