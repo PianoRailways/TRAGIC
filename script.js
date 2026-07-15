@@ -537,11 +537,14 @@ function renderChain(data) {
       </div>`;
   }).join('');
 
+  const tripIdHtml = data.tripId ? `<div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border-soft); font-size: 0.7rem; color: var(--text-muted); font-family: monospace; word-break: break-all;">Trip-ID: ${escapeHtml(data.tripId)}</div>` : '';
+
   return `
     <div class="chain-header">
       <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrt: ' + escapeHtml(data.tripNumber) : ''}
     </div>
-    <div class="timeline">${stopsHtml}</div>`;
+    <div class="timeline">${stopsHtml}</div>
+    ${tripIdHtml}`;
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
