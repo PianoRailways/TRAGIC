@@ -378,6 +378,11 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   flex-shrink: 0;
 }
 
+.line-container[data-mode="T"] { background: #e84e10; }
+.line-container[data-mode="B"] { background: #2d7d54; }
+.line-container[data-mode=""]  { background: #2d327d; }  /* Default */
+
+
 .line {
   font-weight: bold;
   color: white;
