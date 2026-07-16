@@ -558,8 +558,8 @@ function fmtDelay(sec) {
   const sign = sec < 0 ? '-' : '+';
   const abs  = Math.abs(sec);
   const m = Math.floor(abs / 60);
-  const s = abs % 60;
-  return `${sign}${m}:${String(s).padStart(2,'0')}`;
+  //const s = abs % 60;
+  return `${sign}${m}`;
 }
 
 function setStatus(msg) { document.getElementById('status').textContent = msg; }
