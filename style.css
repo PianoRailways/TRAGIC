@@ -432,7 +432,7 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
 }
 .stop-dot {
   position: absolute;
-  left: -0.68rem; top: 0.85rem;
+  left: -0.85rem; top: 0.85rem;
   width: 0.5rem; height: 0.5rem;
   border-radius: 50%;
   background: var(--line-accent);
