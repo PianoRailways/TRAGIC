@@ -537,7 +537,7 @@ function renderChain(data) {
       </div>`;
   }).join('');
 
-  const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${data.tripId.substring(0, 16)}${data.tripId.length > 16 ? '…' : ''}', 1500);">${escapeHtml(data.tripId.substring(0, 16))}${data.tripId.length > 16 ? '…' : ''}</code></div>` : '';
+  const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
 
   return `
     <div class="chain-header">

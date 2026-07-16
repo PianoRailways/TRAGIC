@@ -463,6 +463,37 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   margin-top: 0.6rem;
   text-align: left;
 }
+.trip-id-row {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  word-break: break-all;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.trip-id-row code {
+  font-family: monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  color: var(--text-soft);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background 0.2s, color 0.2s;
+  
+  /* Umbruch erzwingen */
+  display: block;
+  width: 100%;
+  word-break: break-all;
+  white-space: normal;
+  overflow-wrap: break-word;
+  
+  /* Kein Overflow */
+  box-sizing: border-box;
+}
 
 @media (max-width: 360px) {
   th, td { font-size: 0.88rem; padding: 0.45rem 0.3rem; }
