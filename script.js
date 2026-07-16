@@ -422,7 +422,7 @@ function renderDepartures(departures) {
       delayHtml = '<span class="cancelled">Ausfall</span>';
     } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec > 30) {
       delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
-    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < -30) {
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < 0) {
       delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
     }
 
