@@ -427,7 +427,7 @@ function renderDepartures(departures) {
       delayHtml = '<span class="cancelled">Ausfall</span>';
     } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec > 30) {
       delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
-    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < 0) {
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < -30) {
       delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
     }
 
@@ -441,7 +441,7 @@ function renderDepartures(departures) {
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
-        <div class="line-container" data-mode="${canonicalMode(dep.mode)}"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
+        <div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
         <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : ''}</div>
       </td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
@@ -494,77 +494,110 @@ async function toggleChain(tr, dep) {
 }
 
 function renderChain(data) {
-  const stopsHtml = (data.stops || []).map(stop => {
-    // SOLL-Zeiten im Chain: scheduled, mit live-Delay als Badge
+  const stopsHtml = (data.stops || []).map((stop, i) => {
+    const isLast = i === (data.stops.length - 1);
+    const isFirst = i === 0;
+    
+    // Zeiten formatieren (SOLL-Zeit, wie in der Haupttafel)
     const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
     const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
-    const times = [
-      arrDisp ? 'An ' + arrDisp : null,
-      depDisp ? 'Ab ' + depDisp : null,
-    ].filter(Boolean).join('\n');
-
-    const delaySec = stop.departureDelaySec ?? stop.arrivalDelaySec;
-
-        // Verspätung für die Ankunft ermitteln (nur wenn kein Ausfall vorliegt)
+    
+    // Verspätungs-Badges
     const arrDelayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (stop.arrivalDelaySec && Math.abs(stop.arrivalDelaySec) > 30 ? ` <span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>` : '');
-
-    // Verspätung für die Abfahrt ermitteln
+      : (stop.arrivalDelaySec && Math.abs(stop.arrivalDelaySec) > 30 
+          ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>` 
+          : '');
+    
     const depDelayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (stop.departureDelaySec && Math.abs(stop.departureDelaySec) > 30 ? ` <span class="delay">${fmtDelay(stop.departureDelaySec)}</span>` : '');
-
-      
-    const delayHtml = stop.cancelled
-      ? '<span class="cancelled">Ausfall</span>'
-      : (delaySec && Math.abs(delaySec) > 30 ? `<span class="delay">${fmtDelay(delaySec)}</span>` : '');
-
-    // Referenzzeit für "klick auf Stop" = SOLL-Ankunft (damit die Abfahrtstafel korrekt startet)
+      : (stop.departureDelaySec && Math.abs(stop.departureDelaySec) > 30 
+          ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>` 
+          : '');
+    
+    // Gleis
+    let platHtml = '';
+    if (stop.track) {
+      platHtml = `Gl. ${escapeHtml(stop.track)}`;
+    }
+    
+    // Ausfall-Status
+    const stopNameStyle = stop.cancelled 
+      ? 'text-decoration: line-through; color: #555;' 
+      : '';
+    
+    // Dot-Styling (ausgefallene Halte grau)
+    const dotStyle = stop.cancelled 
+      ? ' style="background:#555;"' 
+      : '';
+    
+    // Referenzpunkt für "klick auf Stop" = SOLL-Ankunft
     const refEpoch = stop.arrivalSched || stop.arrivalLive;
-    const isLink = !!stop.stopId;
-    const nameAttrs = isLink
+    const isClickable = !!stop.stopId;
+    const clickAttrs = isClickable
       ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
       : '';
-
+    
     return `
-      <div class="stop${stop.cancelled ? ' cancelled-stop' : ''}">
-        <div class="stop-dot"></div>
-        <div>
-          <div class="stop-name${isLink ? '' : ' no-link'}" ${nameAttrs}>${escapeHtml(stop.name)}</div>
-          ${arrDisp ? `<div class="stop-times">An ${escapeHtml(arrDisp)}${arrDelayHtml}</div>` : ''}
-          ${depDisp ? `<div class="stop-times">Ab ${escapeHtml(depDisp)}${depDelayHtml}</div>` : ''}
-          ${!arrDisp && !depDisp ? `<div class="stop-times">–</div>` : ''}   
+      <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
+        
+        <!-- Dot-Spalte mit Linie -->
+        <div class="chain-dot-col">
+          <div class="chain-dot-wrapper">
+            <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
+          </div>
+          ${!isLast ? `
+            <div class="chain-line-wrapper">
+              <div class="chain-line"${stop.cancelled ? ' style="background:rgba(255,255,255,0.05);"' : ''}></div>
+            </div>
+          ` : ''}
         </div>
-        <div class="stop-right">
-          ${stop.track ? `<div class="stop-track">Gl. ${escapeHtml(stop.track)}</div>` : ''}
+        
+        <!-- Zeit-Spalte -->
+        <div class="chain-times">
+          ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
+          ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
         </div>
-      </div>`;
+        
+        <!-- Info-Spalte (Halte + Gleis) -->
+        <div class="chain-info">
+          <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}</div>
+          ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
+        </div>
+      </div>
+    `;
   }).join('');
-
-  const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
-
+  
+  const tripIdHtml = data.tripId ? `
+    <div class="chain-meta-footer">
+      <span class="meta-journeyref" style="cursor:pointer; font-family:monospace;" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); const t=this; const o=t.innerText; t.innerText='✅ Kopiert!'; setTimeout(() => t.innerText=o, 1000);">${escapeHtml(data.tripId)}</span>
+    </div>
+  ` : '';
+  
   return `
     <div class="chain-header">
-      <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrt: ' + escapeHtml(data.tripNumber) : ''}
+      <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · ' + escapeHtml(data.tripNumber) : ''}
     </div>
-    <div class="timeline">${stopsHtml}</div>
-    ${tripIdHtml}`;
+    <div class="chain">
+      ${stopsHtml}
+    </div>
+    ${tripIdHtml}
+  `;
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 function fmtTime(epoch) {
   if (!epoch) return '–';
-  return new Date(epoch * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
+  return new Date(epoch * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 }
 
 function fmtDelay(sec) {
   const sign = sec < 0 ? '-' : '+';
   const abs  = Math.abs(sec);
   const m = Math.floor(abs / 60);
-  //const s = abs % 60;
-  return `${sign}${m}`;
+  const s = abs % 60;
+  return `${sign}${m}:${String(s).padStart(2,'0')}`;
 }
 
 function setStatus(msg) { document.getElementById('status').textContent = msg; }
