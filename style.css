@@ -561,9 +561,9 @@ p {
  
 .chain-stop {
   display: flex;
-  gap: 12px;
+  gap: 5px;
   align-items: stretch;
-  padding: 0.6rem 0;
+  padding: 0.4rem 0;
   position: relative;
 }
  
@@ -655,7 +655,7 @@ p {
   color: var(--text-muted);
   font-size: 0.8em;
   flex-shrink: 0;
-  width: 14px;
+  width: 10px;
 }
  
 .time-row .time-val {
@@ -667,6 +667,7 @@ p {
   display: flex;
   flex-direction: column;
   flex: 1;
+	padding-left: 25px;
 }
  
 .chain-name {
