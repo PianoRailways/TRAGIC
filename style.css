@@ -641,8 +641,6 @@ p {
   flex-shrink: 0;
   font-size: 1em;
   color: var(--text-soft);
-  padding-top: 2px;
-  line-height: 1.55;
 }
  
 .time-row {
@@ -668,8 +666,6 @@ p {
 .chain-info {
   display: flex;
   flex-direction: column;
-  padding-bottom: 10px;
-  margin-left: 1px;
   flex: 1;
 }
  
