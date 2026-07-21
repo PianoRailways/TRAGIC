@@ -131,6 +131,27 @@ body {
 	background: var(--sbb-blue);
 	border: 1px solid var(--sbb-blue);
 }
+
+#btn-jetzt {
+    background: #444;
+    border: 1px solid #444;
+	border-radius: 4px;
+    color: var(--text-main);
+    padding: 8px;
+	width: 25%;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 0.9em;
+    line-height: 1;
+    transition: background 0.15s;
+	font-weight: bold;
+}
+
+#btn-jetzt:hover {
+	background: var(--sob-green);
+}
+
+
 /* ── FAVORITEN-BAR ─────────────────────────────────────────── */
 #fav-bar {
   display: flex;

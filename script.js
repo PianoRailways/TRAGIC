@@ -240,6 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
       loadDepartures(state.epoch);
     }
   });
+
+  const btnJetzt = document.getElementById('btn-jetzt');
+  if (btnJetzt) btnJetzt.addEventListener('click', setCurrentTime);
+  // btn-refresh ist bereits vorhanden, aber ändere seinen Handler:
+  document.getElementById('btn-refresh').addEventListener('click', reloadDepartures);
 });
 
 // ─── Stationssuche ──────────────────────────────────────────────────────────
@@ -572,6 +577,28 @@ function escapeAttr(str) {
 function debounce(fn, delay) {
   let t;
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+}
+
+// ─── JETZT Button: Aktuelle Zeit setzen ────────────────────────────────────
+
+function setCurrentTime() {
+  const now = new Date();
+  const pad2 = n => String(n).padStart(2, '0');
+  
+  // Lokale Zeit in Picker setzen
+  datePicker.value = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+  timePicker.value = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  
+  // URL aktualisieren und Abfahrten laden
+  triggerTimeChange();
+}
+
+// ─── GO Button: Abfahrten neu laden ────────────────────────────────────────
+
+function reloadDepartures() {
+  const currentEpoch = getSelectedEpoch();
+  if (!currentStopId) return;
+  loadDepartures(currentEpoch);
 }
 
 // ─── Uhr ─────────────────────────────────────────────────────────────────────
