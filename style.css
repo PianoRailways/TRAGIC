@@ -385,6 +385,10 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   padding-right: 18px;
 }
 
+.line-container[data-mode="TRAM"] { background: #e84e10; }
+.line-container[data-mode="BUS"] { background: #2d7d54; }
+.line-container[data-mode="SUBWAY"] { background: white; color: black; }
+
 .line-container {
   display: flex;
   align-items: center;
@@ -399,9 +403,9 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   flex-shrink: 0;
 }
 
+
 .line {
   font-weight: bold;
-  color: white;
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   display: inline-block;
@@ -449,7 +453,7 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
 }
 .stop-dot {
   position: absolute;
-  left: -0.68rem; top: 0.85rem;
+  left: -0.85rem; top: 0.85rem;
   width: 0.5rem; height: 0.5rem;
   border-radius: 50%;
   background: var(--line-accent);
@@ -458,7 +462,7 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
 .stop.cancelled-stop .stop-dot { background: var(--error); }
 .stop-name {
   font-size: 0.92rem;
-  text-decoration: underline dotted var(--underline);
+  text-decoration: none;
   text-underline-offset: 2px;
   cursor: pointer;
 }
@@ -479,6 +483,37 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   font-size: 0.8rem;
   margin-top: 0.6rem;
   text-align: left;
+}
+.trip-id-row {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  word-break: break-all;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.trip-id-row code {
+  font-family: monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  color: var(--text-soft);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background 0.2s, color 0.2s;
+  
+  /* Umbruch erzwingen */
+  display: block;
+  width: 100%;
+  word-break: break-all;
+  white-space: normal;
+  overflow-wrap: break-word;
+  
+  /* Kein Overflow */
+  box-sizing: border-box;
 }
 
 @media (max-width: 360px) {

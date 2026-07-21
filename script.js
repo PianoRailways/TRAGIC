@@ -427,7 +427,7 @@ function renderDepartures(departures) {
       delayHtml = '<span class="cancelled">Ausfall</span>';
     } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec > 30) {
       delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
-    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < -30) {
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < 0) {
       delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
     }
 
@@ -441,7 +441,7 @@ function renderDepartures(departures) {
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
-        <div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
+        <div class="line-container" data-mode="${canonicalMode(dep.mode)}"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
         <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : ''}</div>
       </td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
@@ -542,26 +542,29 @@ function renderChain(data) {
       </div>`;
   }).join('');
 
+  const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
+
   return `
     <div class="chain-header">
       <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · Fahrt: ' + escapeHtml(data.tripNumber) : ''}
     </div>
-    <div class="timeline">${stopsHtml}</div>`;
+    <div class="timeline">${stopsHtml}</div>
+    ${tripIdHtml}`;
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 function fmtTime(epoch) {
   if (!epoch) return '–';
-  return new Date(epoch * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  return new Date(epoch * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
 }
 
 function fmtDelay(sec) {
   const sign = sec < 0 ? '-' : '+';
   const abs  = Math.abs(sec);
   const m = Math.floor(abs / 60);
-  const s = abs % 60;
-  return `${sign}${m}:${String(s).padStart(2,'0')}`;
+  //const s = abs % 60;
+  return `${sign}${m}`;
 }
 
 function setStatus(msg) { document.getElementById('status').textContent = msg; }
