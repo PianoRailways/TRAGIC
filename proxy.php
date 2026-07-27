@@ -207,15 +207,23 @@ if ($action === 'trip') {
         exit;
     }
 
-    $result = callTransitous('/api/v1/trip', ['tripId' => $tripId]);
+    // Sicherstellen, dass bereits enkodierte Zeichen nicht doppelt maskiert werden
+    $decodedTripId = urldecode($tripId);
+
+    $params = [
+        'tripId'             => $decodedTripId,
+        'joinInterlinedLegs' => 'false',
+        'language'           => 'de',
+    ];
+
+    $result = callTransitous('/api/v1/trip', $params);
 
     if (isset($result['error'])) {
         echo json_encode($result);
         exit;
     }
 
-    // Antwort ist eine Itinerary-Struktur mit "legs". Bei einer einzelnen
-    // Fahrt (kein Umstieg) erwarten wir genau ein Leg.
+    // Antwort ist eine Itinerary-Struktur mit "legs"
     $legs = $result['legs'] ?? [$result];
     $leg  = $legs[0] ?? [];
 
@@ -231,22 +239,32 @@ if ($action === 'trip') {
         [$arrSched, $arrLive] = extractPair($place, 'arrival');
         [$depSched, $depLive] = extractPair($place, 'departure');
 
+        // Erkennen von ausserordentlichen / zusätzlichen Halten
+        $isAdditional = (bool)($place['additional'] ?? false) ||
+                        (($place['scheduleRelationship'] ?? '') === 'ADDED') ||
+                        ($arrSched === null && $depSched === null && ($arrLive !== null || $depLive !== null));
+
+        // Fallback für Zusatzhalte ohne Soll-Zeit: Live-Zeit nutzen
+        $arrSchedDisplay = $arrSched ?? $arrLive;
+        $depSchedDisplay = $depSched ?? $depLive;
+
         $stops[] = [
-            'stopId'         => $place['stopId'] ?? $place['id'] ?? null,
-            'name'           => $place['name'] ?? '(unbenannt)',
-            'arrivalSched'   => $arrSched,
-            'arrivalLive'    => $arrLive,
-            'arrivalDelaySec'   => delaySeconds($arrSched, $arrLive),
-            'departureSched' => $depSched,
-            'departureLive'  => $depLive,
-            'departureDelaySec' => delaySeconds($depSched, $depLive),
-            'track'          => $place['track'] ?? $place['scheduledTrack'] ?? null,
-            'cancelled'      => (bool)($place['cancelled'] ?? false),
+            'stopId'            => $place['stopId'] ?? $place['id'] ?? null,
+            'name'              => $place['name'] ?? '(unbenannt)',
+            'arrivalSched'      => $arrSchedDisplay,
+            'arrivalLive'       => $arrLive,
+            'arrivalDelaySec'   => $arrSched !== null ? delaySeconds($arrSched, $arrLive) : 0,
+            'departureSched'    => $depSchedDisplay,
+            'departureLive'     => $depLive,
+            'departureDelaySec' => $depSched !== null ? delaySeconds($depSched, $depLive) : 0,
+            'track'             => $place['track'] ?? $place['scheduledTrack'] ?? null,
+            'cancelled'         => (bool)($place['cancelled'] ?? false),
+            'additional'        => $isAdditional,
         ];
     }
 
     echo json_encode([
-        'tripId'      => $tripId,
+        'tripId'      => $decodedTripId,
         'line'        => $leg['routeShortName'] ?? '?',
         'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
         'destination' => $leg['headsign'] ?? null,
