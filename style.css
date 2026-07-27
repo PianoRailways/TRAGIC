@@ -669,7 +669,7 @@ p {
   display: flex;
   flex-direction: column;
   flex: 1;
-	padding-left: 25px;
+  padding-left: 25px;
 }
  
 .chain-name {
