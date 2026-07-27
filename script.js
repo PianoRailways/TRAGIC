@@ -580,6 +580,13 @@ function renderChain(data) {
   }).join('');
   
   const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
+  const BetreiberHTML = (data.agency && (data.agency.name || data.agency.id))
+  ? `<div class="agency-row">Betreiber: ${
+      data.agency.url 
+        ? `<a href="${escapeHtml(data.agency.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}</a>`
+        : `${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}`
+    }</div>`
+  : '';
   
   return `
     <div class="chain-header">
@@ -589,6 +596,7 @@ function renderChain(data) {
       ${stopsHtml}
     </div>
     ${tripIdHtml}
+    ${BetreiberHTML}
   `;
 }
 
