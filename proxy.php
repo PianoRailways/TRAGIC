@@ -207,7 +207,6 @@ if ($action === 'trip') {
         exit;
     }
 
-    // Sicherstellen, dass bereits enkodierte Zeichen nicht doppelt maskiert werden
     $decodedTripId = urldecode($tripId);
 
     $params = [
@@ -223,7 +222,6 @@ if ($action === 'trip') {
         exit;
     }
 
-    // Antwort ist eine Itinerary-Struktur mit "legs"
     $legs = $result['legs'] ?? [$result];
     $leg  = $legs[0] ?? [];
 
@@ -239,12 +237,10 @@ if ($action === 'trip') {
         [$arrSched, $arrLive] = extractPair($place, 'arrival');
         [$depSched, $depLive] = extractPair($place, 'departure');
 
-        // Erkennen von ausserordentlichen / zusätzlichen Halten
         $isAdditional = (bool)($place['additional'] ?? false) ||
                         (($place['scheduleRelationship'] ?? '') === 'ADDED') ||
                         ($arrSched === null && $depSched === null && ($arrLive !== null || $depLive !== null));
 
-        // Fallback für Zusatzhalte ohne Soll-Zeit: Live-Zeit nutzen
         $arrSchedDisplay = $arrSched ?? $arrLive;
         $depSchedDisplay = $depSched ?? $depLive;
 
@@ -260,6 +256,9 @@ if ($action === 'trip') {
             'track'             => $place['track'] ?? $place['scheduledTrack'] ?? null,
             'cancelled'         => (bool)($place['cancelled'] ?? false),
             'additional'        => $isAdditional,
+            // Neu aus dem API-Antwortobjekt ausgelesen:
+            'pickupType'        => $place['pickupType'] ?? 'NORMAL',
+            'dropoffType'       => $place['dropoffType'] ?? 'NORMAL',
         ];
     }
 
@@ -268,6 +267,12 @@ if ($action === 'trip') {
         'line'        => $leg['routeShortName'] ?? '?',
         'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
         'destination' => $leg['headsign'] ?? null,
+        // Neu extrahierte Betreiberdaten:
+        'agency'      => [
+            'id'   => $leg['agencyId'] ?? null,
+            'name' => $leg['agencyName'] ?? null,
+            'url'  => $leg['agencyUrl'] ?? null,
+        ],
         'stops'       => $stops,
         '_raw_leg_count' => count($legs),
     ]);
