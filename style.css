@@ -486,7 +486,7 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   margin-top: 0.6rem;
   text-align: left;
 }
-.trip-id-row {
+.trip-id-row, .agency-row {
   margin-top: 0.6rem;
   padding-top: 0.6rem;
   border-top: 1px solid var(--border-soft);
