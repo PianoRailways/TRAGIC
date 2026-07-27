@@ -138,6 +138,18 @@ if ($action === 'departures') {
         exit;
     }
 
+    // Reine OSM-Elemente (node/..., way/..., relation/...) besitzen keine Fahrpläne.
+    // Sie würden bei Transitous zu einem HTTP-Fehler führen und HTML zurückgeben.
+    if (preg_match('/^(node|way|relation)\//i', $stopId)) {
+        echo json_encode([
+            'stopId'     => $stopId,
+            'departures' => [],
+            '_raw_count' => 0,
+            'note'       => 'OSM-Elemente besitzen keine Fahrplandaten'
+        ]);
+        exit;
+    }
+
     $params = [
         'stopId' => $stopId,
         'n'      => max(1, min($n, 50)),
