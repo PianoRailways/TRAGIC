@@ -585,7 +585,7 @@ function renderChain(data) {
 
 function fmtTime(epoch) {
   if (!epoch) return '–';
-  return new Date(epoch * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  return new Date(epoch * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
 }
 
 function fmtDelay(sec) {
