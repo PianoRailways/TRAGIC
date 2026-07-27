@@ -496,10 +496,6 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   overflow-wrap: break-word;
   max-width: 100%;
 }
-.agency-row a {
-  color: var(--link-hover);
-  text-decoration: none;
-}
 
 .trip-id-row code {
   font-family: monospace;
@@ -703,4 +699,17 @@ p {
  
 .meta-journeyref {
   color: rgba(255,255,255,0.45);
+}
+
+.boarding-badge {
+  color: #91a7bd;
+  font-size: 0.72em;
+  margin-left: 6px;
+  font-weight: bold;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(145, 167, 189, 0.3);
+  letter-spacing: 0.03em;
+  display: inline-block;
+  vertical-align: middle;
 }

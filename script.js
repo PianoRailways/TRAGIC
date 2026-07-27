@@ -501,7 +501,7 @@ function renderChain(data) {
     const isLast = i === (data.stops.length - 1);
     const isFirst = i === 0;
     
-    // Zeiten formatieren (SOLL-Zeit, wie in der Haupttafel)
+    // Zeiten formatieren
     const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
     const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
     
@@ -531,18 +531,30 @@ function renderChain(data) {
     if (stop.track) {
       platHtml = `Gl. ${escapeHtml(stop.track)}`;
     }
+
+    // ─── NEU: Boarding Badges (SD / SM) basierend auf pickupType / dropoffType ───
+    let boardingBadge = '';
+    const noPickup  = stop.pickupType === 'NOT_ALLOWED' || stop.pickupType === 'MUST_PHONE' || stop.pickupType === 'COORDINATE_WITH_DRIVER';
+    const noDropoff = stop.dropoffType === 'NOT_ALLOWED' || stop.dropoffType === 'MUST_PHONE' || stop.dropoffType === 'COORDINATE_WITH_DRIVER';
+
+    if (noPickup && !noDropoff) {
+      // Nur Aussteigen erlaubt (Senken / SD)
+      boardingBadge = '<span class="boarding-badge badge-sd" title="Halt nur zum Aussteigen">SD</span>';
+    } else if (noDropoff && !noPickup) {
+      // Nur Einsteigen erlaubt (Sammeln / SM)
+      boardingBadge = '<span class="boarding-badge badge-sm" title="Halt nur zum Einsteigen">SM</span>';
+    }
     
     // Ausfall-Status
     const stopNameStyle = stop.cancelled 
       ? 'text-decoration: line-through; color: #555;' 
       : '';
     
-    // Dot-Styling (ausgefallene Halte grau)
+    // Dot-Styling
     const dotStyle = stop.cancelled 
       ? ' style="background:#555;"' 
       : '';
     
-    // Referenzpunkt für "klick auf Stop" = SOLL-Ankunft
     const refEpoch = stop.arrivalSched || stop.arrivalLive;
     const isClickable = !!stop.stopId;
     const clickAttrs = isClickable
@@ -552,7 +564,6 @@ function renderChain(data) {
     return `
       <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
         
-        <!-- Dot-Spalte mit Linie -->
         <div class="chain-dot-col">
           <div class="chain-dot-wrapper">
             <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
@@ -564,15 +575,15 @@ function renderChain(data) {
           ` : ''}
         </div>
         
-        <!-- Zeit-Spalte -->
         <div class="chain-times">
           ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
           ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
         </div>
         
-        <!-- Info-Spalte (Halte + Gleis) -->
         <div class="chain-info">
-          <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}</div>
+          <div class="chain-name" style="${stopNameStyle}">
+            ${escapeHtml(stop.name)}${boardingBadge}
+          </div>
           ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
         </div>
       </div>
