@@ -425,10 +425,13 @@ function renderDepartures(departures) {
     let delayHtml = '';
     if (dep.cancelled) {
       delayHtml = '<span class="cancelled">Ausfall</span>';
-    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec > 30) {
-      delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
-    } else if (dep.delaySec !== null && dep.delaySec !== undefined && dep.delaySec < -30) {
-      delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined) {
+      const delayMin = Math.floor(dep.delaySec / 60);
+      if (delayMin < 0) {
+        delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
+      } else if (delayMin > 0) {
+        delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
+      }
     }
 
     const iconHtml = getModeIcon(dep.mode);
@@ -505,14 +508,22 @@ function renderChain(data) {
     // Verspätungs-Badges
     const arrDelayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (stop.arrivalDelaySec && Math.abs(stop.arrivalDelaySec) > 30 
-          ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>` 
+      : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
+          ? (Math.floor(stop.arrivalDelaySec / 60) < 0
+              ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+              : Math.abs(stop.arrivalDelaySec) > 30
+                ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+                : '')
           : '');
     
     const depDelayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (stop.departureDelaySec && Math.abs(stop.departureDelaySec) > 30 
-          ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>` 
+      : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
+          ? (Math.floor(stop.departureDelaySec / 60) < 0
+              ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
+              : Math.abs(stop.departureDelaySec) > 30
+                ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>`
+                : '')
           : '');
     
     // Gleis
