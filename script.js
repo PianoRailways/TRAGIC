@@ -508,14 +508,22 @@ function renderChain(data) {
     // Verspätungs-Badges
     const arrDelayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (stop.arrivalDelaySec && Math.abs(stop.arrivalDelaySec) > 30 
-          ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>` 
+      : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
+          ? (Math.floor(stop.arrivalDelaySec / 60) < 0
+              ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+              : Math.abs(stop.arrivalDelaySec) > 30
+                ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+                : '')
           : '');
     
     const depDelayHtml = stop.cancelled
       ? '<span class="cancelled">Ausfall</span>'
-      : (stop.departureDelaySec && Math.abs(stop.departureDelaySec) > 30 
-          ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>` 
+      : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
+          ? (Math.floor(stop.departureDelaySec / 60) < 0
+              ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
+              : Math.abs(stop.departureDelaySec) > 30
+                ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>`
+                : '')
           : '');
     
     // Gleis
