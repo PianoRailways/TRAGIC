@@ -114,8 +114,17 @@ if ($action === 'search') {
     $list = is_array($result) ? $result : [];
     foreach ($list as $entry) {
         if (!is_array($entry)) continue;
+
+        $id = $entry['id'] ?? $entry['stopId'] ?? null;
+        if (!$id) continue;
+
+        // Einträge verwürfen, die mit node/, way/ oder relation/ beginnen
+        if (preg_match('/^(node|way|relation)\//i', $id)) {
+            continue;
+        }
+
         $stations[] = [
-            'id'   => $entry['id'] ?? $entry['stopId'] ?? null,
+            'id'   => $id,
             'name' => $entry['name'] ?? '(unbenannt)',
             'lat'  => $entry['lat'] ?? null,
             'lon'  => $entry['lon'] ?? null,
