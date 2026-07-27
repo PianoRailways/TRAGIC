@@ -568,11 +568,7 @@ function renderChain(data) {
     `;
   }).join('');
   
-  const tripIdHtml = data.tripId ? `
-    <div class="chain-meta-footer">
-      <span class="meta-journeyref" style="cursor:pointer; font-family:monospace;" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); const t=this; const o=t.innerText; t.innerText='✅ Kopiert!'; setTimeout(() => t.innerText=o, 1000);">${escapeHtml(data.tripId)}</span>
-    </div>
-  ` : '';
+  const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
   
   return `
     <div class="chain-header">
