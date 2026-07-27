@@ -267,6 +267,9 @@ if ($action === 'trip') {
         'line'        => $leg['routeShortName'] ?? '?',
         'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
         'destination' => $leg['headsign'] ?? null,
+        'routeType'            => $leg['routeType'] ?? null,
+        'bikesAllowed'         => $leg['bikesAllowed'] ?? null,
+        'wheelchairAccessible' => $leg['wheelchairAccessible'] ?? null,
         // Neu extrahierte Betreiberdaten:
         'agency'      => [
             'id'   => $leg['agencyId'] ?? null,
