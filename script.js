@@ -445,7 +445,7 @@ function renderDepartures(departures) {
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
         <div class="line-container"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
-        <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber) : ''}</div>
+        <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber.replace(/^0+(?=\d)/, '')) : ''}</div>
       </td>
       <td class="col-dest">${escapeHtml(dep.destination)}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
