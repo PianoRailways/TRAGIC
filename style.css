@@ -385,12 +385,12 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   padding-right: 18px;
 }
 
-.line-container[data-mode="HIGHSPEED"] { background: var(--sbb-red); }
-.line-container[data-mode="RAIL"] { background: var(--pifas-bg); }
-.line-container[data-mode="TRAM"] { background: #e84e10; }
-.line-container[data-mode="BUS"] { background: #2d7d54; }
-.line-container[data-mode="SUBWAY"] { background: white; color: black; }
-.line-container[data-mode="FERRY"] { background: #1a6ea8; }
+.line-container[data-mode="HIGHSPEED"]  { background: var(--sbb-red); }
+.line-container[data-mode="RAIL"]       { background: var(--pifas-bg); }
+.line-container[data-mode="TRAM"]       { background: #e84e10; }
+.line-container[data-mode="BUS"]        { background: #2d7d54; }
+.line-container[data-mode="SUBWAY"]     { background: white; color: black; }
+.line-container[data-mode="FERRY"]      { background: #1a6ea8; }
 
 .line-container {
   display: flex;
