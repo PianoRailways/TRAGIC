@@ -498,96 +498,96 @@ async function toggleChain(tr, dep) {
 
 function renderChain(data) {
   const stopsHtml = (data.stops || []).map((stop, i) => {
-    const isLast = i === (data.stops.length - 1);
-    const isFirst = i === 0;
-    
-    // Zeiten formatieren
-    const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
-    const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
-    
-    // Verspätungs-Badges
-    const arrDelayHtml = stop.cancelled
-      ? '<span class="cancelled">Ausfall</span>'
-      : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
-          ? (Math.floor(stop.arrivalDelaySec / 60) < 0
-              ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
-              : Math.abs(stop.arrivalDelaySec) > 30
-                ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
-                : '')
-          : '');
-    
-    const depDelayHtml = stop.cancelled
-      ? '<span class="cancelled">Ausfall</span>'
-      : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
-          ? (Math.floor(stop.departureDelaySec / 60) < 0
-              ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
-              : Math.abs(stop.departureDelaySec) > 30
-                ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>`
-                : '')
-          : '');
-    
-    // Gleis
-    let platHtml = '';
-    if (stop.track) {
-      platHtml = `Gl. ${escapeHtml(stop.track)}`;
-    }
+  const isLast = i === (data.stops.length - 1);
+  const isFirst = i === 0;
+  
+  // Zeiten formatieren
+  const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
+  const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
+  
+  // Verspätungs-Badges
+  const arrDelayHtml = stop.cancelled
+    ? '<span class="cancelled">Ausfall</span>'
+    : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
+        ? (Math.floor(stop.arrivalDelaySec / 60) < 0
+            ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+            : Math.abs(stop.arrivalDelaySec) > 30
+              ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+              : '')
+        : '');
+  
+  const depDelayHtml = stop.cancelled
+    ? '<span class="cancelled">Ausfall</span>'
+    : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
+        ? (Math.floor(stop.departureDelaySec / 60) < 0
+            ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
+            : Math.abs(stop.departureDelaySec) > 30
+              ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>`
+              : '')
+        : '');
+  
+  // Gleis
+  let platHtml = '';
+  if (stop.track) {
+    platHtml = `Gl. ${escapeHtml(stop.track)}`;
+  }
 
-    // ─── NEU: Boarding Badges (SD / SM) basierend auf pickupType / dropoffType ───
-    let boardingBadge = '';
-    const noPickup  = stop.pickupType === 'NOT_ALLOWED' || stop.pickupType === 'MUST_PHONE' || stop.pickupType === 'COORDINATE_WITH_DRIVER';
-    const noDropoff = stop.dropoffType === 'NOT_ALLOWED' || stop.dropoffType === 'MUST_PHONE' || stop.dropoffType === 'COORDINATE_WITH_DRIVER';
+  // ─── NEU: Boarding Badges (SD / SM) basierend auf pickupType / dropoffType ───
+  let boardingBadge = '';
+  const noPickup  = stop.pickupType === 'NOT_ALLOWED' || stop.pickupType === 'MUST_PHONE' || stop.pickupType === 'COORDINATE_WITH_DRIVER';
+  const noDropoff = stop.dropoffType === 'NOT_ALLOWED' || stop.dropoffType === 'MUST_PHONE' || stop.dropoffType === 'COORDINATE_WITH_DRIVER';
 
-    if (noPickup && !noDropoff) {
-      // Nur Aussteigen erlaubt (Senken / SD)
-      boardingBadge = '<span class="boarding-badge badge-sd" title="Halt nur zum Aussteigen">SD</span>';
-    } else if (noDropoff && !noPickup) {
-      // Nur Einsteigen erlaubt (Sammeln / SM)
-      boardingBadge = '<span class="boarding-badge badge-sm" title="Halt nur zum Einsteigen">SM</span>';
-    }
-    
-    // Ausfall-Status
-    const stopNameStyle = stop.cancelled 
-      ? 'text-decoration: line-through; color: #555;' 
-      : '';
-    
-    // Dot-Styling
-    const dotStyle = stop.cancelled 
-      ? ' style="background:#555;"' 
-      : '';
-    
-    const refEpoch = stop.arrivalSched || stop.arrivalLive;
-    const isClickable = !!stop.stopId;
-    const clickAttrs = isClickable
-      ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
-      : '';
-    
-    return `
-      <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
-        
-        <div class="chain-dot-col">
-          <div class="chain-dot-wrapper">
-            <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
+  if (noPickup && !noDropoff) {
+    // Nur Aussteigen erlaubt (Senken / SD)
+    boardingBadge = '<span class="boarding-badge badge-sd" title="Halt nur zum Aussteigen">SD</span>';
+  } else if (noDropoff && !noPickup) {
+    // Nur Einsteigen erlaubt (Sammeln / SM)
+    boardingBadge = '<span class="boarding-badge badge-sm" title="Halt nur zum Einsteigen">SM</span>';
+  }
+  
+  // Ausfall-Status
+  const stopNameStyle = stop.cancelled 
+    ? 'text-decoration: line-through; color: #555;' 
+    : '';
+  
+  // Dot-Styling
+  const dotStyle = stop.cancelled 
+    ? ' style="background:#555;"' 
+    : '';
+  
+  const refEpoch = stop.arrivalSched || stop.arrivalLive;
+  const isClickable = !!stop.stopId;
+  const clickAttrs = isClickable
+    ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
+    : '';
+  
+  return `
+    <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
+      
+      <div class="chain-dot-col">
+        <div class="chain-dot-wrapper">
+          <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
+        </div>
+        ${!isLast ? `
+          <div class="chain-line-wrapper">
+            <div class="chain-line"${stop.cancelled ? ' style="background:rgba(255,255,255,0.05);"' : ''}></div>
           </div>
-          ${!isLast ? `
-            <div class="chain-line-wrapper">
-              <div class="chain-line"${stop.cancelled ? ' style="background:rgba(255,255,255,0.05);"' : ''}></div>
-            </div>
-          ` : ''}
-        </div>
-        
-        <div class="chain-times">
-          ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
-          ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
-        </div>
-        
-        <div class="chain-info">
-          <div class="chain-name" style="${stopNameStyle}">
-            ${escapeHtml(stop.name)}${boardingBadge}
-          </div>
-          ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
-        </div>
+        ` : ''}
       </div>
-    `;
+      
+      <div class="chain-times">
+        ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
+        ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
+      </div>
+      
+      <div class="chain-info">
+        <div class="chain-name" style="${stopNameStyle}">
+          ${escapeHtml(stop.name)}${boardingBadge}
+        </div>
+        ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
+      </div>
+    </div>
+  `;
   }).join('');
   
   const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
