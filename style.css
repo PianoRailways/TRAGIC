@@ -413,8 +413,20 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   border-radius: 4px;
   display: inline-block;
   font-size: 0.85rem;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.tripnr { color: var(--text-subtle); font-size: 0.8rem; }
+.tripnr { 
+  color: var(--text-subtle); 
+  font-size: 0.8rem;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
 .delay { color: var(--error); font-weight: bold; }
 .vbz-delay { color: var(--link-hover); font-weight: bold; }
 .ontime { color: var(--on-time); }
@@ -522,7 +534,14 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   /* Kein Overflow */
   box-sizing: border-box;
 }
-
+@media (max-width: 480px) {
+  .line {
+    max-width: 60px;
+  }
+  .tripnr {
+    max-width: 90px;
+  }
+}
 @media (max-width: 360px) {
   th, td { font-size: 0.88rem; padding: 0.45rem 0.3rem; }
 }
