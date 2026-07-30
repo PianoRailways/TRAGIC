@@ -1,13 +1,47 @@
 const PROXY = 'proxy.php';
 let currentStopId = null;
-let currentStationName = null; // neu: aktueller Stationsname speichern
+let currentStationName = null;
 let refreshTimer = null;
-let allDepartures = []; // alle geladenen Abfahrten im Speicher
+let allDepartures = [];
+let abbrevMap = {}; // Abkürzungs-Mapping (alle Länder kombiniert)
 
 const params = new URLSearchParams(location.search);
 const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
 const destFilter = document.getElementById('destFilter');
+
+// ─── Abkürzungs-Mappings laden ──────────────────────────────────────────────
+
+async function loadAbbreviations() {
+  const countries = ['ch', 'de', 'at', 'fr'];
+  try {
+    for (const country of countries) {
+      try {
+        const res = await fetch(`/didok/${country}.json`);
+        if (res.ok) {
+          const data = await res.json();
+          // Merge ins globale Map (mit Prefix um Konflikte zu tracken)
+          Object.entries(data).forEach(([abbrev, name]) => {
+            if (!abbrevMap[abbrev]) {
+              abbrevMap[abbrev] = [];
+            }
+            abbrevMap[abbrev].push({ name, country: country.toUpperCase() });
+          });
+        }
+      } catch (e) {
+        console.warn(`Konnte /didok/${country}.json nicht laden:`, e);
+      }
+    }
+    console.log('Abkürzungs-Mappings geladen:', Object.keys(abbrevMap).length, 'Abkürzungen');
+  } catch (err) {
+    console.error('Fehler beim Laden der Abkürzungs-Mappings:', err);
+  }
+}
+
+// Beim Start laden
+document.addEventListener('DOMContentLoaded', () => {
+  loadAbbreviations();
+});
 
 // ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
 
@@ -185,7 +219,7 @@ function setupNavigationButtons() {
       console.log('Keine Abfahrten vorhanden');
       return;
     }
-    // Letzte Fahrt finden (nach scheduled sortiert)
+    // Letzte Fahrt finden
     const lastDep = allDepartures[allDepartures.length - 1];
     console.log('Last departure:', lastDep);
     if (!lastDep) {
@@ -247,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-refresh').addEventListener('click', reloadDepartures);
 });
 
-// ─── Stationssuche ──────────────────────────────────────────────────────────
+// ─── Stationssuche mit Abkürzungs-Mapping ──────────────────────────────────
 
 document.getElementById('query').addEventListener('input', debounce(async (e) => {
   const q = e.target.value.trim();
@@ -256,13 +290,58 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   if (q.length < 2) return;
 
   try {
+    // 1. Abkürzungs-Matches sammeln (exakt, großgeschrieben)
+    const abbrevMatches = [];
+    const qUpper = q.toUpperCase();
+    if (abbrevMap[qUpper]) {
+      abbrevMap[qUpper].forEach(match => {
+        abbrevMatches.push({
+          id: null,
+          name: match.name,
+          abbrev: qUpper,
+          country: match.country,
+          source: 'abbrev'
+        });
+      });
+    }
+
+    // 2. API-Call
     const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
     const data = await res.json();
-    (data.stations || []).forEach(st => {
-      if (!st.id) return;
+    const apiMatches = (data.stations || []).map(st => ({
+      id: st.id,
+      name: st.name,
+      abbrev: null,
+      country: null,
+      source: 'api'
+    }));
+
+    // 3. Abkürzungs-Matches zuerst, dann API-Matches (Duplikate raus)
+    const seen = new Set();
+    const allMatches = [...abbrevMatches, ...apiMatches];
+    
+    allMatches.forEach(match => {
+      const key = (match.id || match.name).toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+
       const li = document.createElement('li');
-      li.innerHTML = `${escapeHtml(st.name)} <span class="suggestion-id">(${escapeHtml(st.id)})</span>`;
-      li.onclick = () => selectStation(st.id, st.name);
+      let html = escapeHtml(match.name);
+      
+      // Abkürzungs-Label anhängen
+      if (match.abbrev) {
+        html += ` <span class="abbrev-label">*${escapeHtml(match.abbrev)}* [${escapeHtml(match.country)}]</span>`;
+      }
+      
+      li.innerHTML = html;
+      
+      // Onclick: wenn es eine Abkürzungs-Match ist, nimm den Namen; sonst die ID
+      if (match.source === 'abbrev') {
+        li.onclick = () => selectStation(null, match.name, null);
+      } else {
+        li.onclick = () => selectStation(match.id, match.name, null);
+      }
+      
       list.appendChild(li);
     });
   } catch (err) {
@@ -313,6 +392,13 @@ function updateStationTitle(name) {
 // ─── Station auswählen ───────────────────────────────────────────────────────
 
 function selectStation(stopId, name, refEpoch) {
+  // Wenn stopId null ist (Abkürzungs-Match), suche die Station über die API
+  if (stopId === null) {
+    // Versuche, die Station zu finden
+    selectStationByName(name, refEpoch);
+    return;
+  }
+
   currentStopId = stopId;
   currentStationName = name;
   updateStationTitle(name);
@@ -336,6 +422,26 @@ function selectStation(stopId, name, refEpoch) {
 
   loadDepartures(currentEpoch);
   window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// Hilfsfunktion: Suche Station nach Name über API
+async function selectStationByName(name, refEpoch) {
+  try {
+    const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(name)}`);
+    const data = await res.json();
+    const stations = data.stations || [];
+    
+    if (stations.length === 0) {
+      alert(`Station "${name}" nicht gefunden.`);
+      return;
+    }
+    
+    // Nimm die erste exakte Übereinstimmung oder die erste Option
+    const match = stations.find(s => s.name.toLowerCase() === name.toLowerCase()) || stations[0];
+    selectStation(match.id, match.name, refEpoch);
+  } catch (err) {
+    alert('Fehler bei der Stationssuche: ' + err.message);
+  }
 }
 
 // ─── Abfahrten laden ─────────────────────────────────────────────────────────
@@ -412,14 +518,7 @@ function renderDepartures(departures) {
     return;
   }
 
-  // Sortiere nach Fahrplanzeit (scheduled), nicht nach Live-Zeit
-  const sorted = [...departures].sort((a, b) => {
-    const timeA = a.scheduled || Infinity;
-    const timeB = b.scheduled || Infinity;
-    return timeA - timeB;
-  });
-
-  sorted.forEach(dep => {
+  departures.forEach(dep => {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
@@ -610,7 +709,6 @@ function fmtDelay(sec) {
   const sign = sec < 0 ? '-' : '+';
   const abs  = Math.abs(sec);
   const m = Math.floor(abs / 60);
-  //const s = abs % 60;
   return `${sign}${m}`;
 }
 
