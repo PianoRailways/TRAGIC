@@ -306,7 +306,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   margin-left: 0.4em;
   font-weight: normal;
 }
-
+.abbrev-label {
+  font-family: monospace;
+  color:var(--text-muted);
+  font-weight: bold;
+  font-size: xx-small;
+}
 /* ── NAVIGATION BUTTONS ────────────────────────────────────── */
 .nav-buttons {
   display: flex;

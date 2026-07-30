@@ -340,7 +340,7 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
       
       // Abkürzungs-Label anhängen
       if (match.abbrev) {
-        html += ` <span class="abbrev-label">*${escapeHtml(match.abbrev)}* [${escapeHtml(match.country)}]</span>`;
+        html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)} [${escapeHtml(match.country)}]</span>`;
       }
       
       // Station ID anhängen
