@@ -248,44 +248,62 @@ if ($action === 'trip') {
     }
 
     $legs = $result['legs'] ?? [$result];
-    $leg  = $legs[0] ?? [];
 
-    $placesRaw = [];
-    if (isset($leg['from'])) $placesRaw[] = $leg['from'];
-    foreach (($leg['intermediateStops'] ?? []) as $stop) $placesRaw[] = $stop;
-    if (isset($leg['to'])) $placesRaw[] = $leg['to'];
-
+    // Sammle alle Stops aus ALLEN Legs (für Durchbindungen, Ersatzzüge, etc.)
     $stops = [];
-    foreach ($placesRaw as $place) {
-        if (!is_array($place)) continue;
+    $seenStopIds = []; // Um Duplikate zu vermeiden (wenn ein Stop in mehreren Legs vorkommt)
+    
+    foreach ($legs as $legIdx => $leg) {
+        if (!is_array($leg)) continue;
 
-        [$arrSched, $arrLive] = extractPair($place, 'arrival');
-        [$depSched, $depLive] = extractPair($place, 'departure');
+        $placesRaw = [];
+        if (isset($leg['from'])) $placesRaw[] = $leg['from'];
+        foreach (($leg['intermediateStops'] ?? []) as $stop) $placesRaw[] = $stop;
+        if (isset($leg['to'])) $placesRaw[] = $leg['to'];
 
-        $isAdditional = (bool)($place['additional'] ?? false) ||
-                        (($place['scheduleRelationship'] ?? '') === 'ADDED') ||
-                        ($arrSched === null && $depSched === null && ($arrLive !== null || $depLive !== null));
+        foreach ($placesRaw as $placeIdx => $place) {
+            if (!is_array($place)) continue;
 
-        $arrSchedDisplay = $arrSched ?? $arrLive;
-        $depSchedDisplay = $depSched ?? $depLive;
+            // Duplikat-Check: wenn wir einen Stop schon hatten, skippen wir ihn
+            $stopIdKey = $place['stopId'] ?? $place['id'] ?? null;
+            if ($stopIdKey && isset($seenStopIds[$stopIdKey])) {
+                continue;
+            }
+            if ($stopIdKey) {
+                $seenStopIds[$stopIdKey] = true;
+            }
 
-        $stops[] = [
-            'stopId'            => $place['stopId'] ?? $place['id'] ?? null,
-            'name'              => $place['name'] ?? '(unbenannt)',
-            'arrivalSched'      => $arrSchedDisplay,
-            'arrivalLive'       => $arrLive,
-            'arrivalDelaySec'   => $arrSched !== null ? delaySeconds($arrSched, $arrLive) : 0,
-            'departureSched'    => $depSchedDisplay,
-            'departureLive'     => $depLive,
-            'departureDelaySec' => $depSched !== null ? delaySeconds($depSched, $depLive) : 0,
-            'track'             => $place['track'] ?? $place['scheduledTrack'] ?? null,
-            'cancelled'         => (bool)($place['cancelled'] ?? false),
-            'additional'        => $isAdditional,
-            // Neu aus dem API-Antwortobjekt ausgelesen:
-            'pickupType'        => $place['pickupType'] ?? 'NORMAL',
-            'dropoffType'       => $place['dropoffType'] ?? 'NORMAL',
-        ];
+            [$arrSched, $arrLive] = extractPair($place, 'arrival');
+            [$depSched, $depLive] = extractPair($place, 'departure');
+
+            $isAdditional = (bool)($place['additional'] ?? false) ||
+                            (($place['scheduleRelationship'] ?? '') === 'ADDED') ||
+                            ($arrSched === null && $depSched === null && ($arrLive !== null || $depLive !== null));
+
+            $arrSchedDisplay = $arrSched ?? $arrLive;
+            $depSchedDisplay = $depSched ?? $depLive;
+
+            $stops[] = [
+                'stopId'            => $place['stopId'] ?? $place['id'] ?? null,
+                'name'              => $place['name'] ?? '(unbenannt)',
+                'arrivalSched'      => $arrSchedDisplay,
+                'arrivalLive'       => $arrLive,
+                'arrivalDelaySec'   => $arrSched !== null ? delaySeconds($arrSched, $arrLive) : 0,
+                'departureSched'    => $depSchedDisplay,
+                'departureLive'     => $depLive,
+                'departureDelaySec' => $depSched !== null ? delaySeconds($depSched, $depLive) : 0,
+                'track'             => $place['track'] ?? $place['scheduledTrack'] ?? null,
+                'cancelled'         => (bool)($place['cancelled'] ?? false),
+                'additional'        => $isAdditional,
+                'pickupType'        => $place['pickupType'] ?? 'NORMAL',
+                'dropoffType'       => $place['dropoffType'] ?? 'NORMAL',
+                'legIndex'          => $legIdx, // Kennzeichne welches Leg dieser Stop angehört
+            ];
+        }
     }
+
+    // Verwende das erste Leg für Meta-Info (oder baue Multi-Leg-Info auf)
+    $leg = $legs[0] ?? [];
 
     echo json_encode([
         'tripId'      => $decodedTripId,
@@ -302,6 +320,7 @@ if ($action === 'trip') {
             'url'  => $leg['agencyUrl'] ?? null,
         ],
         'stops'       => $stops,
+        'legCount'    => count($legs),
         '_raw_leg_count' => count($legs),
     ]);
     exit;
