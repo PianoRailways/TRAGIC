@@ -466,16 +466,18 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 /* Aare Seeland Mobil ASM */
 .line-container[data-agency-id="870"][data-line="63"] { background: #dc3545; color: white; }
+
 .line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
 
+/* === SOB === */
 .line-container[data-agency-id="82"] { background: #e10e23; color: white; } /* SOB */
-
+/* SOB - X */
 .line-container[data-agency-id="82"][data-line^="IR"],
 .line-container[data-agency-id="82"][data-line^="VAE"],
 .line-container[data-agency-id="82"][data-line="S81"] {
   background: #85553a;
   color: white;
-} /* SOB - X */
+}
 
 /* SBB */
 .line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
@@ -494,6 +496,23 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 /* Polen */
 .line-container[data-agency-id="12617"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
+
+/* === Frankreich === */
+
+/* SNCF (TER) */
+.line-container[data-agency-id="SNCF"],
+.line-container[data-agency-id="1187"],
+.line-container[data-agency-id="87_LEX"] { background: linear-gradient( 90deg, #822266 0%, #AF1173 25%, #DC0E0E 81%, #DC0E0E 100 ); }
+
+
+.line-container[data-agency-id="1187"][data-line^="C"],
+.line-container[data-agency-id="1187"][data-line^="P"],
+.line-container[data-agency-id="1187"][data-line^="K"],
+.line-container[data-agency-id="87_LEX"][data-line^="C"],
+.line-container[data-agency-id="87_LEX"][data-line^="P"],
+.line-container[data-agency-id="87_LEX"][data-line^="K"] {
+  background: #004b87; color: white;
+}
 
 /* Österreich */
 .line-container[data-agency-id="02"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
