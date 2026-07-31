@@ -219,7 +219,7 @@ function setupNavigationButtons() {
       console.log('Keine Abfahrten vorhanden');
       return;
     }
-    // Letzte Fahrt finden
+    // Letzte Fahrt finden (nach scheduled sortiert)
     const lastDep = allDepartures[allDepartures.length - 1];
     console.log('Last departure:', lastDep);
     if (!lastDep) {
@@ -525,8 +525,14 @@ function renderDepartures(departures) {
     document.getElementById('status').innerHTML = '<div class="empty-hint">Keine Abfahrten gefunden.</div>';
     return;
   }
+  // Sortiere nach Fahrplanzeit (scheduled), nicht nach Live-Zeit
+  const sorted = [...departures].sort((a, b) => {
+    const timeA = a.scheduled || Infinity;
+    const timeB = b.scheduled || Infinity;
+    return timeA - timeB;
+  });
 
-  departures.forEach(dep => {
+  sorted.forEach(dep => {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
@@ -611,11 +617,11 @@ async function toggleChain(tr, dep) {
 }
 
 function renderChain(data) {
-  const stopsHtml = (data.stops || []).map((stop, i) => {
+const stopsHtml = (data.stops || []).map((stop, i) => {
   const isLast = i === (data.stops.length - 1);
   const isFirst = i === 0;
   
-  // Zeiten formatieren (SOLL-Zeit)
+  // Zeiten formatieren (SOLL-Zeit, wie in der Haupttafel)
   const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
   const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
   
@@ -662,11 +668,12 @@ function renderChain(data) {
     ? 'text-decoration: line-through; color: #555;' 
     : '';
   
-  // Dot-Styling
+  // Dot-Styling (ausgefallene Halte grau)
   const dotStyle = stop.cancelled 
     ? ' style="background:#555;"' 
     : '';
   
+  // Referenzpunkt für "klick auf Stop" = SOLL-Ankunft
   const refEpoch = stop.arrivalSched || stop.arrivalLive;
   const isClickable = !!stop.stopId;
   const clickAttrs = isClickable
@@ -676,6 +683,7 @@ function renderChain(data) {
   return `
     <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
       
+      <!-- Dot-Spalte mit Linie -->
       <div class="chain-dot-col">
         <div class="chain-dot-wrapper">
           <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
@@ -687,15 +695,15 @@ function renderChain(data) {
         ` : ''}
       </div>
       
+      <!-- Zeit-Spalte -->
       <div class="chain-times">
         ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
         ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
       </div>
       
+      <!-- Info-Spalte (Halte + Gleis) -->
       <div class="chain-info">
-        <div class="chain-name" style="${stopNameStyle}">
-          ${escapeHtml(stop.name)}${boardingBadge}
-        </div>
+        <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}</div>
         ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
       </div>
     </div>
