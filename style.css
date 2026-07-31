@@ -419,7 +419,6 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 /* 3. Agency + Line (sehr spezifisch - gewinnt immer) */
 /* VBZ */
-.line-container[data-agency-id="3849"][data-line="8"] { background: #A6C700; color: black; }
 .line-container[data-agency-id="3849"][data-line="50"], .line-container[data-agency-id="3849"][data-line="51"] { background: black; color: white; }
 .line-container[data-agency-id="3849"][data-line="2"] { background: #e7000e; color: white; }
 .line-container[data-agency-id="3849"][data-line="3"] { background: #009A38; color: white; }
