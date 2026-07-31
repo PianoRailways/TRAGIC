@@ -511,7 +511,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT */
 
 /* Polen */
-.line-container[data-agency-id="12617"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
+.line-container[data-agency-id="12617"], .line-container[data-agency-id="0"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
 
 /* === Frankreich === */
 
