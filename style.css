@@ -464,8 +464,39 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 .line-container[data-agency-id="849"], .line-container[data-agency-id="3849"] { background: white; color: black; }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
-/* Weitere */
+/* Aare Seeland Mobil ASM */
 .line-container[data-agency-id="870"][data-line="63"] { background: #dc3545; color: white; }
+.line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
+
+.line-container[data-agency-id="82"] { background: #e10e23; color: white; } /* SOB */
+
+.line-container[data-agency-id="82"][data-line^="IR"],
+.line-container[data-agency-id="82"][data-line^="VAE"],
+.line-container[data-agency-id="82"][data-line="S81"] {
+  background: #85553a;
+  color: white;
+} /* SOB - X */
+
+/* SBB */
+.line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: #white; }
+.line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: #white; }
+.line-container[data-agency-id="11"][data-line^="EC"] { font-style: italic; background: #eb0000; color: #white; }
+.line-container[data-agency-id="11"][data-line^="ICE"] { font-style: italic; background: #eb0000; color: #white;}
+
+/* Berlin */
+.line-container[data-agency-id="1"] { background: #008d4f; color: white; } /* S-Bahn */
+.line-container[data-agency-id="796"][data-mode="SUBWAY"] { background: #115D91; color: white; } /* U-Bahn */
+.line-container[data-agency-id="796"][data-mode="TRAM"] { background: #BE1414; color: white; } /* Tram */
+.line-container[data-agency-id="796"][data-mode="BUS"] { background: #95276E; color: white; } /* Bus */
+.line-container[data-agency-id="796"][data-mode="FERRY"] { background: #528DBA; color: white; } /* Fähre */
+
+.line-container[data-agency-id="13796"], .line-container[data-agency-id="FLIXTRAIN-eu"] { background: #97d700; color: #353535; } /* Flixtrain */
+
+/* Polen */
+.line-container[data-agency-id="12617"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
+
+/* Österreich */
+.line-container[data-agency-id="02"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
 
 /* Base-Stil am Ende */
 .line-container {
