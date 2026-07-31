@@ -11,25 +11,50 @@ const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
 const destFilter = document.getElementById('destFilter');
 
-// ─── Combined Stations laden ────────────────────────────────────────────────
+// ─── Combined Stations laden (mehrere Quellen) ──────────────────────────────
 
 async function loadCombinedStations() {
-  try {
-    const script = document.createElement('script');
-    script.src = 'https://nowe.stellwerksim.ch/combinedstations.js';
-    script.onload = () => {
-      console.log('combinedStations loaded from NOWE');
-      window.combinedStationsReady = true;
-    };
-    script.onerror = () => {
-      console.warn('Failed to load combinedStations from NOWE');
-      window.combinedStationsReady = false;
-    };
-    document.head.appendChild(script);
-  } catch (err) {
-    console.error('Error loading combinedStations:', err);
-    window.combinedStationsReady = false;
+  const urls = [
+    'https://nowe.stellwerksim.ch/combinedstations.js',
+    //'https://tragic.stellwerksim.ch/combinedstationsTRAGIC.js',
+  ];
+  
+  // Temp object um alle Daten zu sammeln
+  const tempMerged = {};
+  let loadedCount = 0;
+  
+  for (const url of urls) {
+    try {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = () => {
+          console.log(`combinedStations loaded from ${url}`);
+          
+          // Merge die geladenen Daten ins temp object
+          if (window.combinedStations && typeof window.combinedStations === 'object') {
+            Object.assign(tempMerged, window.combinedStations);
+            loadedCount++;
+          }
+          
+          resolve();
+        };
+        script.onerror = () => {
+          console.warn(`Failed to load combinedStations from ${url}`);
+          resolve(); // Weiterfahren auch bei Fehler
+        };
+        document.head.appendChild(script);
+      });
+    } catch (err) {
+      console.error(`Error loading combinedStations from ${url}:`, err);
+    }
   }
+  
+  // Setze das finale merged object
+  window.combinedStations = tempMerged;
+  window.combinedStationsReady = loadedCount > 0;
+  
+  console.log(`Loaded combinedStations from ${loadedCount}/${urls.length} sources, total entries: ${Object.keys(window.combinedStations).length}`);
 }
 
 // Get all related stations for a given station (by name, not ID)
