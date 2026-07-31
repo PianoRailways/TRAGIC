@@ -375,6 +375,12 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   border-bottom: 2px solid var(--border-main);
 }
 
+.station-hint {
+  font-size: 0.6rem !important;
+  color:var(--text-subtle);
+  margin-top: 2px;
+}
+
 .col-time { width: 55px; white-space: nowrap; }
 .delay-badge {
   display: inline-block;

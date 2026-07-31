@@ -1,6 +1,7 @@
 const PROXY = 'proxy.php';
 let currentStopId = null;
 let currentStationName = null;
+let currentMainStationId = null; // Merke die echte Haupt-Station für Labeling
 let refreshTimer = null;
 let allDepartures = [];
 let abbrevMap = {}; // Abkürzungs-Mapping (alle Länder kombiniert)
@@ -9,6 +10,108 @@ const params = new URLSearchParams(location.search);
 const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
 const destFilter = document.getElementById('destFilter');
+
+// ─── Combined Stations laden ────────────────────────────────────────────────
+
+async function loadCombinedStations() {
+  try {
+    const script = document.createElement('script');
+    script.src = 'https://nowe.stellwerksim.ch/combinedstations.js';
+    script.onload = () => {
+      console.log('combinedStations loaded from NOWE');
+      window.combinedStationsReady = true;
+    };
+    script.onerror = () => {
+      console.warn('Failed to load combinedStations from NOWE');
+      window.combinedStationsReady = false;
+    };
+    document.head.appendChild(script);
+  } catch (err) {
+    console.error('Error loading combinedStations:', err);
+    window.combinedStationsReady = false;
+  }
+}
+
+// Get all related stations for a given station (by name, not ID)
+function getRelatedStations(stationName) {
+  if (!window.combinedStations || !window.combinedStations[stationName]) {
+    return [stationName]; // Return only the station itself if not in combinedStations
+  }
+  return window.combinedStations[stationName];
+}
+
+// Resolve a station name to its stopId via search
+async function resolveStationNameToId(stationName) {
+  try {
+    const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(stationName)}`);
+    const data = await res.json();
+    const stations = data.stations || [];
+    
+    // Find exact match or first result
+    const match = stations.find(s => s.name.toLowerCase() === stationName.toLowerCase()) || stations[0];
+    return match ? match.id : null;
+  } catch (err) {
+    console.error(`Error resolving station "${stationName}":`, err);
+    return null;
+  }
+}
+
+// Fetch departures for multiple stations and merge them
+async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults = 25) {
+  const relatedStationNames = getRelatedStations(stationName);
+  
+  console.log(`Fetching departures for ${relatedStationNames.length} station(s):`, relatedStationNames);
+  
+  const allDeps = [];
+  
+  // Fetch departures for each related station
+  for (const station of relatedStationNames) {
+    try {
+      // First resolve station name to stopId
+      const stationStopId = await resolveStationNameToId(station);
+      
+      if (!stationStopId) {
+        console.warn(`Could not resolve stopId for station: ${station}`);
+        continue;
+      }
+      
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stationStopId)}&n=${numResults}`;
+      if (refEpoch) {
+        q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+      }
+      
+      const res = await fetch(q);
+      const data = await res.json();
+      
+      if (data.error) {
+        console.warn(`Failed to fetch departures for ${station}:`, data.error);
+        continue;
+      }
+      
+      if (data.departures && Array.isArray(data.departures)) {
+        // Add the actual station name to each departure for later labeling
+        const departuresWithStation = data.departures.map(dep => ({
+          ...dep,
+          _fromStation: station,
+          _isMainStation: station === stationName
+        }));
+        allDeps.push(...departuresWithStation);
+      }
+    } catch (err) {
+      console.error(`Error fetching departures for ${station}:`, err);
+    }
+  }
+  
+  // Sort all departures by scheduled time
+  allDeps.sort((a, b) => {
+    const timeA = a.scheduled || Infinity;
+    const timeB = b.scheduled || Infinity;
+    return timeA - timeB;
+  });
+  
+  // Limit to numResults
+  return allDeps.slice(0, numResults);
+}
 
 // ─── Abkürzungs-Mappings laden ──────────────────────────────────────────────
 
@@ -41,6 +144,7 @@ async function loadAbbreviations() {
 // Beim Start laden
 document.addEventListener('DOMContentLoaded', () => {
   loadAbbreviations();
+  loadCombinedStations();
 });
 
 // ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
@@ -409,6 +513,7 @@ function selectStation(stopId, name, refEpoch) {
 
   currentStopId = stopId;
   currentStationName = name;
+  currentMainStationId = stopId; // Merke die Haupt-Station für Combined-Labeling
   updateStationTitle(name);
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
@@ -452,7 +557,7 @@ async function selectStationByName(name, refEpoch) {
   }
 }
 
-// ─── Abfahrten laden ─────────────────────────────────────────────────────────
+// ─── Abfahrten laden (mit Combined Stations) ────────────────────────────────
 
 async function loadDepartures(refEpoch) {
   if (!currentStopId) return;
@@ -463,21 +568,40 @@ async function loadDepartures(refEpoch) {
   }
 
   try {
-    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
-    if (refEpoch) {
-      q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
-    }
-    const res = await fetch(q);
-    const data = await res.json();
+    // Use fetchCombinedDepartures if combinedStations are available
+    // Falls nicht: fallback auf alte Methode mit stopId
+    let departures;
+    
+    if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
+      console.log('Using combined departures for:', currentStationName);
+      departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
+    } else {
+      // Fallback: Nur von der Haupt-Station laden (alte Methode)
+      console.log('Using single station departures for:', currentStationName);
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
+      if (refEpoch) {
+        q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+      }
+      const res = await fetch(q);
+      const data = await res.json();
 
-    if (data.error) {
-      renderError(data.error);
-      setStatus('');
-      updateNavButtonsVisibility();
-      return;
+      if (data.error) {
+        renderError(data.error);
+        setStatus('');
+        updateNavButtonsVisibility();
+        return;
+      }
+
+      departures = data.departures || [];
+      // Markiere als von Haupt-Station (für Labeling)
+      departures = departures.map(dep => ({
+        ...dep,
+        _fromStation: currentStationName,
+        _isMainStation: true
+      }));
     }
 
-    allDepartures = data.departures || [];
+    allDepartures = departures;
     renderDepartures(allDepartures);
     setStatus(refEpoch
       ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + timePicker.value
@@ -561,13 +685,19 @@ function renderDepartures(departures) {
     tr.dataset.dest = dep.destination || '';
     tr.dataset.trip = dep.tripNumber || '';
 
+    // "ab xyz" Label nur wenn nicht von Haupt-Station
+    let stationLabelHtml = '';
+    if (dep._fromStation && !dep._isMainStation) {
+      stationLabelHtml = `<div class="station-hint">ab ${escapeHtml(dep._fromStation)}</div>`;
+    }
+
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
         <div class="line-container" data-mode="${canonicalMode(dep.mode)}"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
         <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber.replace(/^0+(?=\d)/, '')) : ''}</div>
       </td>
-      <td class="col-dest">${escapeHtml(dep.destination)}</td>
+      <td class="col-dest">${escapeHtml(dep.destination)}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
     `;
     tr.onclick = () => toggleChain(tr, dep);
