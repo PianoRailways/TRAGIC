@@ -837,7 +837,26 @@ const stopsHtml = (data.stops || []).map((stop, i) => {
     ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
     : '';
   
-  return `
+  // Leg-Wechsel prüfen: wenn diesen Stop ein anderes Leg hat als der vorherige
+  let legSeparatorHtml = '';
+  if (i > 0) {
+    const prevStop = data.stops[i - 1];
+    const currentLegIndex = stop.legIndex ?? 0;
+    const prevLegIndex = prevStop.legIndex ?? 0;
+    
+    if (currentLegIndex !== prevLegIndex) {
+      // Leg-Wechsel! Separator vor diesem Stop einfügen
+      legSeparatorHtml = `
+        <div class="chain-leg-separator">
+          <div class="separator-text">
+            ↓ Fährt weiter von <strong>${escapeHtml(prevStop.name)}</strong> nach <strong>${escapeHtml(stop.name)}</strong>
+          </div>
+        </div>
+      `;
+    }
+  }
+  
+  return legSeparatorHtml + `
     <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
       
       <!-- Dot-Spalte mit Linie -->
