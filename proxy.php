@@ -208,6 +208,10 @@ if ($action === 'departures') {
             'cancelled'   => (bool)($entry['cancelled'] ?? false),
             'realTime'    => (bool)($entry['realTime'] ?? false),
             'mode'        => $entry['mode'] ?? null,
+            'agencyId'    => $entry['agencyId'] ?? null,
+            'agencyName'  => $entry['agencyName'] ?? null,
+            'agencyUrl'   => $entry['agencyUrl'] ?? null,
+            'routeId'     => $entry['routeId'] ?? null,
         ];
     }
 
