@@ -849,7 +849,7 @@ const stopsHtml = (data.stops || []).map((stop, i) => {
       legSeparatorHtml = `
         <div class="chain-leg-separator">
           <div class="separator-text">
-            ↓ Fährt weiter von <strong>${escapeHtml(prevStop.name)}</strong> nach <strong>${escapeHtml(stop.name)}</strong>
+            ↓ Fährt weiter von <strong>${escapeHtml(prevStop.name)}</strong> via <strong>${escapeHtml(stop.name)}</strong>
           </div>
         </div>
       `;

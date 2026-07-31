@@ -812,3 +812,19 @@ p {
   display: inline-block;
   vertical-align: middle;
 }
+
+.chain-leg-separator {
+  padding: 0.25rem 1rem;
+  background: rgba(255, 165, 0, 0.15);
+  text-align: center;
+}
+
+.chain-leg-separator .separator-text {
+  font-size: 0.65rem;
+  color: var(--text-via);
+  font-weight: 500;
+}
+
+.chain-leg-separator strong {
+  color: var(--color-text);
+}
