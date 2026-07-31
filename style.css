@@ -509,6 +509,12 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 .line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
 
+/* RBS Bahn */
+.line-container[data-agency-id="88"][data-line="S7"] { background: rgb(227,141,67); color: white; }
+.line-container[data-agency-id="88"][data-line="S8"] { background: black; color: white; }
+.line-container[data-agency-id="88"][data-line="S9"] { background: rgb(208,46,38); color: white; }
+.line-container[data-agency-id="88"][data-line="RE5"] { background: rgb(55,126,34); color: white; }
+
 /* === SOB === */
 .line-container[data-agency-id="82"] { background: #e10e23; color: white; } /* SOB */
 /* SOB - X */
