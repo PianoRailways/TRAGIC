@@ -480,8 +480,8 @@ async function loadDepartures(refEpoch) {
     allDepartures = data.departures || [];
     renderDepartures(allDepartures);
     setStatus(refEpoch
-      ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + new Date().toLocaleTimeString('de-CH')
-      : 'Aktualisiert: ' + new Date().toLocaleTimeString('de-CH'));
+      ? 'Abfahrten ab ausgewähltem Zeitpunkt · ' + timePicker.value
+      : 'Aktualisiert um: ' + new Date().toLocaleTimeString('de-CH'));
     
     updateNavButtonsVisibility();
   } catch (err) {
