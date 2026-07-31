@@ -512,6 +512,8 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 /* Polen */
 .line-container[data-agency-id="12617"], .line-container[data-agency-id="0"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
+/* Dänemark */
+.line-container[data-agency-id="318"], .line-container[data-agency-id="203"] { background: #c2122b; color: white; } /* DSB */
 
 /* === Frankreich === */
 
