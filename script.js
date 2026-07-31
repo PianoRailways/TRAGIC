@@ -561,7 +561,7 @@ function selectStation(stopId, name, refEpoch) {
   history.pushState({stopId, stationName: name, epoch: currentEpoch}, '', url);
 
   loadDepartures(currentEpoch);
-  window.scrollTo({top: 0, behavior: 'smooth'});
+  window.scrollTo({top: 250, behavior: 'smooth'});
 }
 
 // Hilfsfunktion: Suche Station nach Name über API
