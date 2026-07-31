@@ -406,21 +406,13 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 
 /* Beispiel: Alle Linien von Agentur "870" in Blau */
-.line-container[data-agency-id="870"] {
-  background-color: #0056b3;
-  color: white;
-}
+.line-container[data-agency-id="870"] { background-color: #0056b3; color: white; }
 
 /* Beispiel: Linie "63" der Agentur "870" in Rot */
-.line-container[data-agency-id="870"][data-line="63"] {
-  background-color: #dc3545;
-  color: white;
-}
+.line-container[data-agency-id="870"][data-line="63"] { background-color: #dc3545; color: white; }
 
 /* Oder nach Linie allein */
-.line-container[data-line="1"] {
-  background-color: #ffc107;
-}
+.line-container[data-line="1"] { background-color: #ffc107; }
 
 
 .line-container[data-mode="HIGHSPEED"]  { background: var(--sbb-red); }
