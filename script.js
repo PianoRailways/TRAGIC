@@ -879,7 +879,7 @@ const stopsHtml = (data.stops || []).map((stop, i) => {
       
       <!-- Info-Spalte (Halte + Gleis) -->
       <div class="chain-info">
-        <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}</div>
+        <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}${boardingBadge}</div>
         ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
       </div>
     </div>
