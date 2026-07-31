@@ -484,6 +484,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line^="EC"] { font-style: italic; background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line^="ICE"] { font-style: italic; background: #eb0000; color: white;}
+.line-container[data-line^="EV"] { background-color: var(--sbb-orange); color: #000; }
 
 /* Berlin */
 .line-container[data-agency-id="1"] { background: #008d4f; color: white; } /* S-Bahn */
