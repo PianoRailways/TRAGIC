@@ -419,6 +419,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 /* 3. Agency + Line (sehr spezifisch - gewinnt immer) */
 /* VBZ */
+
 .line-container[data-agency-id="3849"][data-line="50"], .line-container[data-agency-id="3849"][data-line="51"] { background: black; color: white; }
 .line-container[data-agency-id="3849"][data-line="2"] { background: #e7000e; color: white; }
 .line-container[data-agency-id="3849"][data-line="3"] { background: #009A38; color: white; }
@@ -438,30 +439,30 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="3849"][data-line="17"] { background: #9e1762; color: white; }
 .line-container[data-agency-id="3849"][data-line="20"] { background: rgb(142,34,77); color: white; }
 
-.line-container[data-agency-id="3849"][data-line="31"] { background: #9fa3cd; color: white; }
-.line-container[data-agency-id="3849"][data-line="32"] { background: #dab2d2; color: black; }
-.line-container[data-agency-id="3849"][data-line="33"] { background: #e9e6a5; color: black; }
-.line-container[data-agency-id="3849"][data-line="46"] { background: #c5dfa5; color: black; }
-.line-container[data-agency-id="3849"][data-line="61"] { background: #98908A; color: white; }
-.line-container[data-agency-id="3849"][data-line="62"] { background: #D0C4B6; color: black; }
-.line-container[data-agency-id="3849"][data-line="72"] { background: #D8AA99; color: black; }
-.line-container[data-agency-id="3849"][data-line="80"] { background: #CDD7BB; color: black; }
-.line-container[data-agency-id="3849"][data-line="89"] { background: #D0C4B6; color: black; }
+.line-container[data-agency-id="849"][data-line="31"] { background: #9fa3cd; color: white; }
+.line-container[data-agency-id="849"][data-line="32"] { background: #dab2d2; color: black; }
+.line-container[data-agency-id="849"][data-line="33"] { background: #e9e6a5; color: black; }
+.line-container[data-agency-id="849"][data-line="46"] { background: #c5dfa5; color: black; }
+.line-container[data-agency-id="849"][data-line="61"] { background: #98908A; color: white; }
+.line-container[data-agency-id="849"][data-line="62"] { background: #D0C4B6; color: black; }
+.line-container[data-agency-id="849"][data-line="72"] { background: #D8AA99; color: black; }
+.line-container[data-agency-id="849"][data-line="80"] { background: #CDD7BB; color: black; }
+.line-container[data-agency-id="849"][data-line="89"] { background: #D0C4B6; color: black; }
 
-.line-container[data-agency-id="3849"][data-line="301"] { background: #A6C700; color: black; }
-.line-container[data-agency-id="3849"][data-line="302"] { background: #009A38; color: white; }
-.line-container[data-agency-id="3849"][data-line="303"] { background: #46398e; color: white; }
-.line-container[data-agency-id="3849"][data-line="304"] { background: #e7000e; color: white; }
-.line-container[data-agency-id="3849"][data-line="305"] { background: #955b29; color: white; }
-.line-container[data-agency-id="3849"][data-line="306"] { background: #ffd200; color: black; }
-.line-container[data-agency-id="3849"][data-line="307"] { background: #d89d3e; color: white; }
-.line-container[data-agency-id="3849"][data-line="308"] { background: #e82788; color: white; }
-.line-container[data-agency-id="3849"][data-line="309"] { background: #00A1E5; color: white; }
-.line-container[data-agency-id="3849"][data-line="314"] { background: #f37b72; color: white; }
-.line-container[data-agency-id="3849"][data-line="317"] { background: #46398e; color: white; }
-.line-container[data-agency-id="3849"][data-line="325"] { background: #e82788; color: white; }
+.line-container[data-agency-id="849"][data-line="301"] { background: #A6C700; color: black; }
+.line-container[data-agency-id="849"][data-line="302"] { background: #009A38; color: white; }
+.line-container[data-agency-id="849"][data-line="303"] { background: #46398e; color: white; }
+.line-container[data-agency-id="849"][data-line="304"] { background: #e7000e; color: white; }
+.line-container[data-agency-id="849"][data-line="305"] { background: #955b29; color: white; }
+.line-container[data-agency-id="849"][data-line="306"] { background: #ffd200; color: black; }
+.line-container[data-agency-id="849"][data-line="307"] { background: #d89d3e; color: white; }
+.line-container[data-agency-id="849"][data-line="308"] { background: #e82788; color: white; }
+.line-container[data-agency-id="849"][data-line="309"] { background: #00A1E5; color: white; }
+.line-container[data-agency-id="849"][data-line="314"] { background: #f37b72; color: white; }
+.line-container[data-agency-id="849"][data-line="317"] { background: #46398e; color: white; }
+.line-container[data-agency-id="849"][data-line="325"] { background: #e82788; color: white; }
 
-.line-container[data-agency-id="3849"] { background: white; color: black; }
+.line-container[data-agency-id="849"], .line-container[data-agency-id="3849"] { background: white; color: black; }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 /* Weitere */
 .line-container[data-agency-id="870"][data-line="63"] { background: #dc3545; color: white; }
