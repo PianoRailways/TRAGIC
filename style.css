@@ -494,6 +494,22 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 .line-container[data-agency-id="13796"], .line-container[data-agency-id="FLIXTRAIN-eu"] { background: #97d700; color: #353535; } /* Flixtrain */
 
+/* Basel */
+/* BVB */
+.line-container[data-agency-id="823"][data-line="1"] { background: rgb(121,75,47); color: white; }
+.line-container[data-agency-id="823"][data-line="2"] { background: rgb(138,111,65); color: white; }
+.line-container[data-agency-id="823"][data-line="3"] { background: rgb(56,77,156); color: white; }
+.line-container[data-agency-id="823"][data-line="6"] { background: rgb(48,112,183); color: white; }
+.line-container[data-agency-id="823"][data-line="8"] { background: rgb(225,121,169); color: white; }
+.line-container[data-agency-id="37"][data-line="10"] { background: rgb(246,204,71); color: black; } /* BLT */
+.line-container[data-agency-id="37"][data-line="11"] { background: rgb(219,57,49); color: black; } /* BLT */
+.line-container[data-agency-id="823"][data-line="12"] { background: rgb(134,113,170); color: white; }
+.line-container[data-agency-id="823"][data-line="14"] { background: rgb(230,136,60); color: white; }
+.line-container[data-agency-id="823"][data-line="15"] { background: rgb(73,163,89); color: white; }
+.line-container[data-agency-id="823"][data-line="16"] { background: rgb(174,205,84); color: white; }
+.line-container[data-agency-id="823"][data-line="17"] { background: rgb(78,172,233); color: white; }
+.line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT */
+
 /* Polen */
 .line-container[data-agency-id="12617"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
 
