@@ -523,6 +523,9 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="82"][data-line="S81"] { background: #85553a; color: white; }
 
 /* SBB */
+.line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; }
+.line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line^="EC"] { font-style: italic; background: #eb0000; color: white; }
@@ -574,7 +577,8 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="1187"][data-line^="K"],
 .line-container[data-agency-id="87_LEX"][data-line^="C"],
 .line-container[data-agency-id="87_LEX"][data-line^="P"],
-.line-container[data-agency-id="87_LEX"][data-line^="K"] {
+.line-container[data-agency-id="87_LEX"][data-line^="K"],
+.line-container[data-agency-id="1187"][data-line^="L"] {
   background: #004b87; color: white;
 }
 
