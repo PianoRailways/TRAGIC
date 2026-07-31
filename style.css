@@ -474,10 +474,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 /* SOB - X */
 .line-container[data-agency-id="82"][data-line^="IR"],
 .line-container[data-agency-id="82"][data-line^="VAE"],
-.line-container[data-agency-id="82"][data-line="S81"] {
-  background: #85553a;
-  color: white;
-}
+.line-container[data-agency-id="82"][data-line="S81"] { background: #85553a; color: white; }
 
 /* SBB */
 .line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
