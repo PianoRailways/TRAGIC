@@ -465,6 +465,15 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="849"], .line-container[data-agency-id="3849"] { background: white; color: black; }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 
+/* Bus Aarau */
+.line-container[data-agency-id="840"][data-line="1"] { background: rgb(219,57,49); color: white; }
+.line-container[data-agency-id="840"][data-line="2"] { background: rgb(86,176,88); color: white; }
+.line-container[data-agency-id="840"][data-line="3"] { background: rgb(37,89,165); color: white; }
+.line-container[data-agency-id="840"][data-line="4"] { background: rgb(118,47,139); color: white; }
+.line-container[data-agency-id="840"][data-line="5"] { background: rgb(246,204,71); color: black; }
+.line-container[data-agency-id="840"][data-line="6"] { background: rgb(229,136,70); color: white; }
+.line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
+
 /* Bernmobil */
 .line-container[data-agency-id="827"][data-line="6"] { background: rgb(56,127,196); color: white; }
 .line-container[data-agency-id="827"][data-line="7"] { background: rgb(208,46,38); color: white; }
