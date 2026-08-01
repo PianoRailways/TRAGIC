@@ -598,6 +598,18 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
 .line-container[data-agency-id="13796"], .line-container[data-agency-id="FLIXTRAIN-eu"] { background: #97d700; color: #353535; } /* Flixtrain */
 
+/* Halle Saale Tram */
+.line-container[data-agency-id="8896"][data-line="1"] { background: rgb(242,187,68); color: white; }
+.line-container[data-agency-id="8896"][data-line="2"] { background: rgb(230,136,60); color: white; }
+.line-container[data-agency-id="8896"][data-line="3"] { background: rgb(66,147,212); color: white; }
+.line-container[data-agency-id="8896"][data-line="5"] { background: rgb(35,76,156); color: white; }
+.line-container[data-agency-id="8896"][data-line="7"] { background: rgb(222,99,159); color: white; }
+.line-container[data-agency-id="8896"][data-line="8"] { background: rgb(122,74,25); color: white; }
+.line-container[data-agency-id="8896"][data-line="9"] { background: rgb(169,175,77); color: white; }
+.line-container[data-agency-id="8896"][data-line="10"] { background: rgb(53,109,48); color: white; }
+.line-container[data-agency-id="8896"][data-line="12"] { background: rgb(152,197,84); color: white; }
+.line-container[data-agency-id="8896"][data-line="16"] { background: rgb(159,49,111); color: white; }
+
 /* Basel */
 /* BVB */
 .line-container[data-agency-id="823"][data-line="1"] { background: rgb(121,75,47); color: white; }
