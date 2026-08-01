@@ -509,7 +509,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="840"][data-line="6"] { background: rgb(229,136,70); color: white; }
 .line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
-/* Bernmobil */
+/* Bernmobil + RBS */
 .line-container[data-agency-id="827"][data-line="6"] { background: rgb(56,127,196); color: white; }
 .line-container[data-agency-id="827"][data-line="7"] { background: rgb(208,46,38); color: white; }
 .line-container[data-agency-id="827"][data-line="8"] { background: rgb(221,118,165); color: white; }
