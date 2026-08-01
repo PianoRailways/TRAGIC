@@ -491,6 +491,17 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .line-container[data-agency-id="146"][data-line="55"] { background: rgb(115,188,57); color: white; }
 .line-container[data-agency-id="146"][data-line="252"] { background: rgb(123,22,67); color: white; }
 
+/* STI Bus Grindelwald */
+.line-container[data-agency-id="859"][data-line="120"] { background: rgb(230,143,52); color: white; }
+.line-container[data-agency-id="859"][data-line="121"] { background: rgb(56,77,157); color: white; }
+.line-container[data-agency-id="859"][data-line="122"] { background: rgb(170,42,41); color: white; }
+.line-container[data-agency-id="859"][data-line="123"] { background: rgb(215,183,68); color: white; }
+.line-container[data-agency-id="859"][data-line="124"] { background: rgb(124,169,77); color: white; }
+.line-container[data-agency-id="859"][data-line="125"] { background: rgb(140,187,231); color: white; }
+.line-container[data-agency-id="859"][data-line="126"] { background: rgb(186,116,168); color: white; }
+.line-container[data-agency-id="859"][data-line="127"] { background: rgb(106,80,143); color: white; }
+.line-container[data-agency-id="859"][data-line="128"] { background: rgb(123,174,82); color: white; }
+
 /* FART Bus */
 .line-container[data-agency-id="817"] { background: rgb(155,155,154); color: white; }
 
