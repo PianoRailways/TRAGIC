@@ -63,7 +63,57 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLiveClock();
   setupAutocompletes();
   setupEventListeners();
+  restoreStateFromUrl();
 });
+
+function restoreStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+
+  const fromName = params.get('from');
+  const fromId = params.get('fromId');
+  const toName = params.get('to');
+  const toId = params.get('toId');
+  const time = params.get('time');
+
+  if (fromName && fromId) {
+    state.fromStop = { name: fromName, id: fromId };
+    const input = document.getElementById('route-from-input');
+    if (input) input.value = fromName;
+  }
+
+  if (toName && toId) {
+    state.toStop = { name: toName, id: toId };
+    const input = document.getElementById('route-to-input');
+    if (input) input.value = toName;
+  }
+
+  if (time) {
+    const input = document.getElementById('route-time');
+    if (input) input.value = time;
+  }
+
+  // Vias wiederherstellen
+  let i = 1;
+  while (params.has(`viaId${i}`)) {
+    const viaName = params.get(`via${i}`) || '';
+    const viaId = params.get(`viaId${i}`);
+
+    // Via-Feld über die bestehende Logik erzeugen
+    createViaInput();
+    const currentViaObj = state.vias[state.vias.length - 1];
+    if (currentViaObj) {
+      currentViaObj.stop = { name: viaName, id: viaId };
+      const wrapper = document.querySelector(`#via-list-container .via-item:last-child input`);
+      if (wrapper) wrapper.value = viaName;
+    }
+    i++;
+  }
+
+  // Wenn Start und Ziel vorhanden sind, direkt suchen
+  if (state.fromStop && state.toStop) {
+    handleRouteSearch();
+  }
+}
 
 function setupLiveClock() {
   const clock = document.getElementById('live-clock');
@@ -327,18 +377,36 @@ async function handleRouteSearch() {
   try {
     const fromId = state.fromStop.id || state.fromStop.stopId;
     const toId = state.toStop.id || state.toStop.stopId;
+
+    // URL-Parameter für den Browser-Zustand aufbauen
+    const paramsObj = new URLSearchParams();
+    paramsObj.set('from', state.fromStop.name);
+    paramsObj.set('fromId', fromId);
+    paramsObj.set('to', state.toStop.name);
+    paramsObj.set('toId', toId);
+
+    if (timeInput) {
+      paramsObj.set('time', timeInput);
+    }
+
     let url = `${PROXY}?action=plan&fromPlace=${encodeURIComponent(fromId)}&toPlace=${encodeURIComponent(toId)}`;
     
     if (formattedTime) {
       url += `&time=${encodeURIComponent(formattedTime)}`;
     }
 
-    state.vias.forEach(v => {
+    state.vias.forEach((v, idx) => {
       if (v && v.stop && (v.stop.id || v.stop.stopId)) {
         const stopId = v.stop.id || v.stop.stopId;
         url += `&via=${encodeURIComponent(stopId)}`;
+        paramsObj.append(`via${idx + 1}`, v.stop.name);
+        paramsObj.append(`viaId${idx + 1}`, stopId);
       }
     });
+
+    // URL ohne Neuladen aktualisieren
+    const newUrl = `${window.location.pathname}?${paramsObj.toString()}`;
+    window.history.replaceState({}, '', newUrl);
 
     const res = await fetch(url);
     const data = await res.json();
