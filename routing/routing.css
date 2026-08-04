@@ -126,7 +126,7 @@ body {
 
 @media (max-width: 500px) {
     .form-grid {
-    grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
     }
 }
 
@@ -245,6 +245,7 @@ td {
 .col-bar { width: auto; }
 .col-chg { width: 35px; text-align: center; color: var(--text-muted); }
 
+/* Timeline Bar Layout */
 .timeline-bar {
     display: flex;
     align-items: center;
@@ -262,20 +263,6 @@ td {
     min-width: 4px;
     border-radius: 2px;
 }
-
-.line-badge[data-mode="HIGHSPEED"], .line-badge[data-mode="HIGHSPEED_RAIL"], .line-badge[data-mode="RAIL"], .line-badge[data-mode="LONG_DISTANCE"]
-    { background: var(--sbb-red); }
-.line-badge[data-mode="COACH"] { background: var(--sbb-red) }
-.line-badge[data-mode="TRAM"] { background: #e84e10; }
-.line-badge[data-mode="BUS"] { background: #2d7d54; }
-.line-badge[data-mode="WALK"] { background: #555; }
-
-.timeline-segment[data-mode="HIGHSPEED"], .timeline-segment[data-mode="HIGHSPEED_RAIL"],.timeline-segment[data-mode="RAIL"], .timeline-segment[data-mode="LONG_DISTANCE"]
-    { background: var(--sbb-red); }
-.timeline-segment[data-mode="COACH"] { background: var(--sbb-red) }
-.timeline-segment[data-mode="TRAM"] { background: #e84e10; }
-.timeline-segment[data-mode="BUS"] { background: #2d7d54; }
-.timeline-segment[data-mode="WALK"] { background: #555; }
 
 .timeline-dot {
     width: 6px;
@@ -310,6 +297,7 @@ td {
     font-weight: 600;
 }
 
+/* Standard Badge Layout (Einfärbung erfolgt über line-container.css) */
 .line-badge {
     padding: 2px 6px;
     border-radius: 3px;

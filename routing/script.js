@@ -269,7 +269,7 @@ function renderTimelineBar(legs, totalDurationSec) {
     const line = escapeHtml(leg.line || leg.routeShortName || '');
     const routeId = escapeHtml(leg.routeId || '');
 
-    html += `<div class="timeline-segment line-badge" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
+    html += `<div class="timeline-segment line-container" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
 
     if (idx < legs.length - 1) {
       html += `<div class="timeline-dot"></div>`;
@@ -312,7 +312,7 @@ function renderLegDetails(container, legs) {
       legDiv.innerHTML = `
         <div class="leg-header">
           <div class="line-container">
-            <span class="line-badge line" data-mode="OTHER" data-raw-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
+            <span class="line-badge line-container" data-mode="OTHER" data-raw-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
           </div>
           <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
         </div>
@@ -329,7 +329,7 @@ function renderLegDetails(container, legs) {
       legDiv.innerHTML = `
         <div class="leg-header">
           <div class="line-container">
-            <span class="line-badge line" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
+            <span class="line-badge line-container" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
           </div>
           <span>${headsign}</span>
           ${tripBtnHtml}
@@ -473,7 +473,7 @@ async function handleBoardLoad() {
         <td class="col-time"><strong>${timeStr}</strong>${delayHtml}</td>
         <td style="width:70px;">
           <div class="line-container">
-            <span class="line-badge line" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${escapeHtml(line)}" data-route-id="${routeId}">${escapeHtml(line)}</span>
+            <span class="line-badge line-container" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${escapeHtml(line)}" data-route-id="${routeId}">${escapeHtml(line)}</span>
           </div>
         </td>
         <td style="white-space:normal;">${escapeHtml(destination)}</td>
