@@ -325,7 +325,6 @@ if ($action === 'plan') {
         $params['time'] = $time;
     }
 
-    // Vias flexibel aus 'via' oder 'viaPlace' lesen
     $viaPlaces = [];
     $rawViasInput = $_GET['via'] ?? $_GET['viaPlace'] ?? null;
 
@@ -339,29 +338,38 @@ if ($action === 'plan') {
         }
     }
 
-    // Basisfeld bauen
     $queryString = http_build_query($params);
 
-    // Vias als 'via=' an die Transitous API anhängen
     foreach ($viaPlaces as $via) {
-        $queryString .= '&via=' . urlencode($via);
+        // rawurlencode verhindert Probleme mit Sonderzeichen in IDs
+        $queryString .= '&via=' . rawurlencode($via);
     }
 
     $url = BASE_URL . '/api/v1/plan?' . $queryString;
 
-    $ctx = stream_context_create([
-        'http' => [
-            'method'  => 'GET',
-            'header'  => "User-Agent: " . USER_AGENT . "\r\n",
-            'timeout' => 8,
-        ],
+    // cURL statt file_get_contents für stabileres Connection Handling & höheres Timeout
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_USERAGENT      => USER_AGENT,
+        CURLOPT_TIMEOUT        => 15, // Timeout für komplexe Routing-Anfragen auf 15s erhöht
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_FOLLOWLOCATION => true,
     ]);
 
-    $raw = @file_get_contents($url, false, $ctx);
+    $raw = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
 
-    if ($raw === false) {
+    if ($raw === false || $httpCode >= 500) {
         http_response_code(502);
-        echo json_encode(['error' => 'Transitous nicht erreichbar', 'url' => $url]);
+        echo json_encode([
+            'error'     => 'Transitous Routing-Backend nicht erreichbar oder überlastet',
+            'details'   => $curlError ?: "HTTP Status $httpCode",
+            'target_url'=> $url
+        ]);
         exit;
     }
 
