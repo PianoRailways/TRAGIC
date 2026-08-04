@@ -384,7 +384,7 @@ function renderLegDetails(container, legs) {
       legDiv.innerHTML = `
         <div class="leg-header">
           <div class="line-container">
-            <span class="line-badge line-container" data-mode="OTHER" data-raw-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
+            <span class="line-badge line-container" data-mode="OTHER" data-raw-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fussweg</span>
           </div>
           <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
         </div>
@@ -480,7 +480,7 @@ async function toggleTripStops(tripId, container, button, legFrom = null, legTo 
     });
 
     container.appendChild(listDiv);
-    button.textContent = 'Schließen';
+    button.textContent = 'Schliessen';
   } catch (err) {
     button.textContent = 'Fehler';
   }
