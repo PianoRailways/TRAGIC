@@ -318,9 +318,6 @@ td {
     background: var(--sbb-blue);
 }
 
-.line-badge[data-mode="WALK"] { background: #444; }
-.line-badge[data-mode="BUS"] { background: #2d7d54; }
-
 .transfer-info {
     background: var(--bg-hover);
     color: var(--text-subtle);
