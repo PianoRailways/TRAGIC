@@ -1,3 +1,42 @@
+:root {
+  --bg-main: #111;
+  --bg-surface: #1a1a1a;
+  --bg-hover: #262626;
+  --bg-chain: #0a0a0a;
+  --text-main: #eee;
+  --text-muted: #888;
+  --text-subtle: #999;
+  --text-soft: #aaa;
+  --border-main: #333;
+  --border-soft: #2a2a2a;
+  --line-accent: #0a5;
+  --line-text: #041b12;
+  --on-time: #5f5;
+  --error: #f55;
+  --link-hover: #5cf;
+  --underline: #666;
+  --header-bg:  #061030;
+  --sbb-red:    #eb0000;
+  --sbb-blue:   #2d327d;
+  --sbb-orange: #E84E10;
+  --sob-green:  #7BA55B;
+  --sob-blue:   #1A527F;
+  --board-bg:   #0a1a4a;
+  --board-row:  #0d2060;
+  --board-alt:  #0a1a4a;
+  --board-head: #0d2060;
+  --text-main:  #ffffff;
+  --text-via:   #a0b8d8;
+  --text-dim:   #6080a0;
+  --night-gold: #d4af37;
+  --border:     rgba(200,200,200,0.09);
+  --header-bg:  #061030;
+  --pifas-bg:   #ED702D;
+  --pifas-searchbar: #d7d7d7;
+  --pifas-timenav: #eef;
+  --live-red:   #ff3b30;
+  --plat-change:#fcbb00;
+}
 /* 1. Mode-basiert (niedrig spezifisch) */
 .line-container[data-mode="HIGHSPEED"]  { background: var(--sbb-red); }
 .line-container[data-mode="RAIL"]       { background: var(--pifas-bg); }
