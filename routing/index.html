@@ -27,6 +27,17 @@
           <input type="text" id="route-from-input" placeholder="Start..." autocomplete="off">
           <div id="from-suggestions" class="suggestions"></div>
         </div>
+
+        <!-- Hier werden die Vias dynamisch eingefügt -->
+        <div id="via-list-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+        <!-- Dieser Button muss die ID "btn-add-via" haben -->
+        <div class="form-group" style="margin-top: 4px; margin-bottom: 4px;">
+          <button type="button" id="btn-add-via" class="btn" style="background: var(--bg-hover); border: 1px solid var(--border-main); color: var(--text-main);">
+            + Via hinzufügen
+          </button>
+        </div>
+
         <div class="form-group">
           <label for="route-to-input">Nach</label>
           <input type="text" id="route-to-input" placeholder="Ziel..." autocomplete="off">

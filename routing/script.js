@@ -26,7 +26,8 @@ const PROXY = 'proxy.php';
 const state = {
   fromStop: null,
   toStop: null,
-  boardStop: null
+  boardStop: null,
+  vias: []
 };
 
 let abbrevMap = {};
@@ -77,15 +78,77 @@ function setupLiveClock() {
 function setupEventListeners() {
   document.getElementById('btn-search-route').addEventListener('click', handleRouteSearch);
   document.getElementById('btn-load-board').addEventListener('click', handleBoardLoad);
+
+  // Klick-Event für den Via-Button
+  const addViaBtn = document.getElementById('btn-add-via');
+  if (addViaBtn) {
+    addViaBtn.addEventListener('click', createViaInput);
+  } else {
+    console.warn('Button #btn-add-via wurde im HTML nicht gefunden.');
+  }
+
   document.getElementById('btn-refresh').addEventListener('click', () => {
     document.getElementById('route-from-input').value = '';
     document.getElementById('route-to-input').value = '';
     document.getElementById('route-time').value = '';
     document.getElementById('board-station-input').value = '';
+    
+    // Via-Container leeren
+    const viaContainer = document.getElementById('via-list-container');
+    if (viaContainer) viaContainer.innerHTML = '';
+    
     state.fromStop = state.toStop = state.boardStop = null;
+    state.vias = [];
   });
+
   document.getElementById('btn-home').addEventListener('click', () => {
     window.location.href = '/';
+  });
+}
+
+function createViaInput() {
+  const viaId = Date.now() + Math.random().toString(36).substr(2, 4);
+  const container = document.getElementById('via-list-container');
+  if (!container) return;
+
+  const viaIndex = state.vias.length + 1;
+  const wrapper = document.createElement('div');
+  wrapper.className = 'form-group via-item';
+  wrapper.dataset.viaId = viaId;
+
+  const inputId = `via-input-${viaId}`;
+  const suggestionsId = `via-suggestions-${viaId}`;
+
+  wrapper.innerHTML = `
+    <label>Via ${viaIndex}</label>
+    <div style="display: flex; gap: 6px;">
+      <input type="text" id="${inputId}" placeholder="Via-Haltestelle" style="flex: 1;">
+      <button type="button" class="btn-remove-via" style="background: var(--error); color: white; border: none; border-radius: 6px; padding: 0 10px; cursor: pointer;">✕</button>
+    </div>
+    <div id="${suggestionsId}" class="suggestions"></div>
+  `;
+
+  container.appendChild(wrapper);
+
+  const viaEntry = { id: viaId, stop: null };
+  state.vias.push(viaEntry);
+
+  initAutocomplete(inputId, suggestionsId, (stop) => {
+    viaEntry.stop = stop;
+  });
+
+  wrapper.querySelector('.btn-remove-via').addEventListener('click', () => {
+    wrapper.remove();
+    state.vias = state.vias.filter(v => v.id !== viaId);
+    renumberViaLabels();
+  });
+}
+
+function renumberViaLabels() {
+  const items = document.querySelectorAll('#via-list-container .via-item');
+  items.forEach((item, idx) => {
+    const label = item.querySelector('label');
+    if (label) label.textContent = `Via ${idx + 1}`;
   });
 }
 
@@ -244,6 +307,7 @@ function initAutocomplete(inputId, suggestionsId, onSelect) {
   });
 }
 
+// 4. URL-Erstellung in handleRouteSearch() anpassen
 async function handleRouteSearch() {
   const hintsContainer = document.getElementById('routing-hint');
   const resultsContainer = document.getElementById('routing-results');
@@ -263,7 +327,17 @@ async function handleRouteSearch() {
 
   try {
     let url = `${PROXY}?action=plan&fromPlace=${encodeURIComponent(state.fromStop.id)}&toPlace=${encodeURIComponent(state.toStop.id)}`;
-    if (formattedTime) url += `&time=${encodeURIComponent(formattedTime)}`;
+    
+    if (formattedTime) {
+      url += `&time=${encodeURIComponent(formattedTime)}`;
+    }
+
+    // Aktive, ausgewählte Vias an die URL anhängen
+    state.vias.forEach(v => {
+      if (v.stop && v.stop.id) {
+        url += `&viaPlace[]=${encodeURIComponent(v.stop.id)}`;
+      }
+    });
 
     const res = await fetch(url);
     const data = await res.json();

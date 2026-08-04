@@ -325,6 +325,15 @@ if ($action === 'plan') {
         $params['time'] = $time;
     }
 
+    // Vias verarbeiten (Array oder Einzelwert)
+    if (isset($_GET['viaPlace'])) {
+        $vias = is_array($_GET['viaPlace']) ? $_GET['viaPlace'] : [$_GET['viaPlace']];
+        $cleanVias = array_filter(array_map('trim', $vias));
+        if (!empty($cleanVias)) {
+            $params['viaPlace'] = array_values($cleanVias);
+        }
+    }
+
     $result = callTransitous('/api/v1/plan', $params);
 
     if (isset($result['error'])) {
