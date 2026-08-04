@@ -243,23 +243,33 @@ td {
 .col-bar { width: auto; }
 .col-chg { width: 35px; text-align: center; color: var(--text-muted); }
 
-/* Timeline Bar Layout */
+/* Container für den Gesamtbalken */
 .timeline-bar {
-    display: flex;
-    align-items: center;
-    height: 14px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 7px;
-    padding: 0 2px;
-    width: 100%;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
+/* Einzelne Fahrt-Segmente */
 .timeline-segment {
-    height: 6px;
-    position: relative;
-    min-width: 4px;
-    border-radius: 2px;
+  height: 100%;
+  transition: opacity 0.2s ease;
+}
+
+.timeline-segment:hover {
+  opacity: 0.8;
+}
+
+/* Umsteige- und Wartebereiche */
+.timeline-wait {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .timeline-dot {

@@ -333,7 +333,6 @@ async function handleRouteSearch() {
       url += `&time=${encodeURIComponent(formattedTime)}`;
     }
 
-    // --- Via-Haltestellen exakt auslesen ---
     state.vias.forEach(v => {
       if (v && v.stop && (v.stop.id || v.stop.stopId)) {
         const stopId = v.stop.id || v.stop.stopId;
@@ -351,6 +350,15 @@ async function handleRouteSearch() {
       return;
     }
 
+    // Globalen Zeitrahmen für alle gefundenen Verbindungen ermitteln
+    let globalMinTime = Infinity;
+    let globalMaxTime = -Infinity;
+
+    connections.forEach(conn => {
+      if (conn.startTime < globalMinTime) globalMinTime = conn.startTime;
+      if (conn.endTime > globalMaxTime) globalMaxTime = conn.endTime;
+    });
+
     tbody.innerHTML = '';
     connections.forEach((conn) => {
       const startTime = formatTime(conn.startTime);
@@ -364,7 +372,7 @@ async function handleRouteSearch() {
         <td class="col-time">${startTime}</td>
         <td class="col-time">${endTime}</td>
         <td class="col-dur">${durationFormatted}</td>
-        <td class="col-bar">${renderTimelineBar(conn.legs, conn.duration)}</td>
+        <td class="col-bar">${renderTimelineBar(conn.legs, conn.duration, globalMinTime, globalMaxTime)}</td>
         <td class="col-chg">${transfers}</td>
       `;
 
@@ -399,17 +407,39 @@ async function handleRouteSearch() {
   }
 }
 
-function renderTimelineBar(legs, totalDurationSec) {
-  if (!legs || legs.length === 0 || !totalDurationSec) return '';
+function renderTimelineBar(legs, totalDurationSec, globalMinTime, globalMaxTime) {
+  if (!legs || legs.length === 0 || !globalMaxTime || globalMaxTime <= globalMinTime) {
+    return '';
+  }
 
-  let html = '<div class="timeline-bar">';
+  const globalSpan = globalMaxTime - globalMinTime;
+
+  let html = '<div class="timeline-bar" style="display: flex; width: 100%; height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; align-items: center; position: relative;">';
+
+  const connStart = legs[0].from.departure;
+  const connEnd = legs[legs.length - 1].to.arrival;
+
+  if (!connStart || !connEnd) return '';
+
+  // Versatz am Anfang (Leerraum, falls die Verbindung später startet als die früheste gefundene Verbindung)
+  const startOffsetPct = ((connStart - globalMinTime) / globalSpan) * 100;
+  // Tatsächliche Dauer der Verbindung im globalen Kontext
+  const connSpanPct = ((connEnd - connStart) / globalSpan) * 100;
+
+  if (startOffsetPct > 0) {
+    html += `<div style="width: ${startOffsetPct.toFixed(2)}%; height: 100%;"></div>`;
+  }
+
+  let innerHtml = '';
+  const connDuration = connEnd - connStart;
+
   legs.forEach((leg, idx) => {
     const legDuration = (leg.to.arrival && leg.from.departure)
       ? (leg.to.arrival - leg.from.departure)
       : 0;
 
-    let pct = (legDuration / totalDurationSec) * 100;
-    if (pct < 3) pct = 3;
+    let pct = (legDuration / connDuration) * connSpanPct;
+    if (pct < 2 && legDuration > 0) pct = 2;
 
     const rawMode = leg.mode || 'RAIL';
     const mode = canonicalMode(rawMode);
@@ -417,12 +447,34 @@ function renderTimelineBar(legs, totalDurationSec) {
     const line = escapeHtml(leg.line || leg.routeShortName || '');
     const routeId = escapeHtml(leg.routeId || '');
 
-    html += `<div class="timeline-segment line-container" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
+    innerHtml += `<div class="timeline-segment line-container" 
+                  data-mode="${mode}" 
+                  data-raw-mode="${escapeHtml(rawMode)}" 
+                  data-agency-id="${agencyId}" 
+                  data-line="${line}" 
+                  data-route-id="${routeId}" 
+                  title="${line}: ${Math.round(legDuration / 60)} min"
+                  style="width: ${pct.toFixed(2)}%; height: 100%;"></div>`;
 
     if (idx < legs.length - 1) {
-      html += `<div class="timeline-dot"></div>`;
+      const nextLeg = legs[idx + 1];
+      if (leg.to.arrival && nextLeg.from.departure) {
+        const waitDuration = nextLeg.from.departure - leg.to.arrival;
+        if (waitDuration > 0) {
+          let waitPct = (waitDuration / connDuration) * connSpanPct;
+          if (waitPct < 1) waitPct = 1;
+
+          innerHtml += `<div class="timeline-wait" 
+                        title="Umstieg: ${Math.round(waitDuration / 60)} min"
+                        style="width: ${waitPct.toFixed(2)}%; height: 100%; background: transparent; position: relative;">
+                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted, #888);"></span>
+                   </div>`;
+        }
+      }
     }
   });
+
+  html += `<div style="display: flex; width: ${connSpanPct.toFixed(2)}%; height: 100%;">${innerHtml}</div>`;
   html += '</div>';
   return html;
 }
