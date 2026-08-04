@@ -16,10 +16,7 @@ function setupLiveClock() {
   const clock = document.getElementById('live-clock');
   const updateTime = () => {
     const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    clock.textContent = `${h}:${m}:${s}`;
+    clock.textContent = now.toTimeString().split(' ')[0];
   };
   updateTime();
   setInterval(updateTime, 1000);
@@ -29,15 +26,18 @@ function setupEventListeners() {
   document.getElementById('btn-search-route').addEventListener('click', handleRouteSearch);
   document.getElementById('btn-load-board').addEventListener('click', handleBoardLoad);
   document.getElementById('btn-refresh').addEventListener('click', () => {
+    document.getElementById('route-from-input').value = '';
+    document.getElementById('route-to-input').value = '';
     document.getElementById('route-time').value = '';
     document.getElementById('board-station-input').value = '';
+    state.fromStop = state.toStop = state.boardStop = null;
   });
   document.getElementById('btn-home').addEventListener('click', () => {
     window.location.href = '/';
   });
 }
 
-function debounce(func, delay = 300) {
+function debounce(func, delay = 250) {
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -47,13 +47,21 @@ function debounce(func, delay = 300) {
 
 function setupAutocompletes() {
   initAutocomplete('route-from-input', 'from-suggestions', (stop) => { state.fromStop = stop; });
-  initAutocomplete('route-to-input', 'to-suggestions', (stop) => { state.toStop = stop; });
-  initAutocomplete('board-station-input', 'board-suggestions', (stop) => { state.boardStop = stop; });
+  initAutocomplete('route-to-input', 'to-suggestions', (stop) => {
+    state.toStop = stop;
+    handleRouteSearch();
+  });
+  initAutocomplete('board-station-input', 'board-suggestions', (stop) => {
+    state.boardStop = stop;
+    handleBoardLoad();
+  });
 }
 
 function initAutocomplete(inputId, suggestionsId, onSelect) {
   const input = document.getElementById(inputId);
   const container = document.getElementById(suggestionsId);
+  let activeIndex = -1;
+  let currentItems = [];
 
   const fetchSuggestions = debounce(async (query) => {
     if (query.length < 2) {
@@ -64,33 +72,75 @@ function initAutocomplete(inputId, suggestionsId, onSelect) {
     try {
       const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(query)}`);
       const data = await res.json();
+      currentItems = data.stations || data.results || [];
 
       container.innerHTML = '';
-      const list = data.stations || data.results || [];
-      if (!Array.isArray(list) || list.length === 0) {
+      activeIndex = -1;
+
+      if (!Array.isArray(currentItems) || currentItems.length === 0) {
         container.style.display = 'none';
         return;
       }
 
-      list.forEach(item => {
+      currentItems.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
         div.textContent = item.name;
-        div.addEventListener('click', () => {
-          input.value = item.name;
-          onSelect(item);
-          container.style.display = 'none';
-        });
+        div.addEventListener('click', () => selectItem(index));
         container.appendChild(div);
       });
 
       container.style.display = 'block';
     } catch (err) {
-      console.error('Autocomplete error:', err);
+      console.error(err);
     }
-  }, 250);
+  }, 200);
+
+  function selectItem(index) {
+    if (index >= 0 && index < currentItems.length) {
+      const item = currentItems[index];
+      input.value = item.name;
+      onSelect(item);
+      container.style.display = 'none';
+      activeIndex = -1;
+    }
+  }
+
+  function updateActiveHighlight() {
+    const children = container.querySelectorAll('.suggestion-item');
+    children.forEach((child, idx) => {
+      child.classList.toggle('selected', idx === activeIndex);
+      if (idx === activeIndex) child.scrollIntoView({ block: 'nearest' });
+    });
+  }
 
   input.addEventListener('input', (e) => fetchSuggestions(e.target.value.trim()));
+
+  input.addEventListener('keydown', (e) => {
+    const isVisible = container.style.display === 'block';
+
+    if (e.key === 'ArrowDown') {
+      if (!isVisible) return;
+      e.preventDefault();
+      activeIndex = Math.min(activeIndex + 1, currentItems.length - 1);
+      updateActiveHighlight();
+    } else if (e.key === 'ArrowUp') {
+      if (!isVisible) return;
+      e.preventDefault();
+      activeIndex = Math.max(activeIndex - 1, 0);
+      updateActiveHighlight();
+    } else if (e.key === 'Enter') {
+      if (isVisible && activeIndex >= 0) {
+        e.preventDefault();
+        selectItem(activeIndex);
+      } else if (!isVisible && inputId === 'route-to-input') {
+        handleRouteSearch();
+      }
+    } else if (e.key === 'Escape') {
+      container.style.display = 'none';
+      activeIndex = -1;
+    }
+  });
 
   document.addEventListener('click', (e) => {
     if (!input.contains(e.target) && !container.contains(e.target)) {
@@ -105,25 +155,20 @@ async function handleRouteSearch() {
   const tbody = document.getElementById('routing-tbody');
 
   if (!state.fromStop || !state.toStop) {
-    hintsContainer.innerHTML = '<div class="error-hint">Bitte Start- und Zielstation wählen.</div>';
+    hintsContainer.innerHTML = '<div class="error-hint">Bitte Start und Ziel wählen.</div>';
     resultsContainer.style.display = 'none';
     return;
   }
 
-  hintsContainer.innerHTML = '<div class="loading">Verbindungen werden geladen…</div>';
+  hintsContainer.innerHTML = '<div class="loading">Suche läuft…</div>';
   resultsContainer.style.display = 'none';
 
   const timeInput = document.getElementById('route-time').value;
-  let formattedTime = '';
-  if (timeInput) {
-    formattedTime = new Date(timeInput).toISOString();
-  }
+  let formattedTime = timeInput ? new Date(timeInput).toISOString() : '';
 
   try {
     let url = `${PROXY}?action=plan&fromPlace=${encodeURIComponent(state.fromStop.id)}&toPlace=${encodeURIComponent(state.toStop.id)}`;
-    if (formattedTime) {
-      url += `&time=${encodeURIComponent(formattedTime)}`;
-    }
+    if (formattedTime) url += `&time=${encodeURIComponent(formattedTime)}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -139,21 +184,17 @@ async function handleRouteSearch() {
     connections.forEach((conn) => {
       const startTime = formatTime(conn.startTime);
       const endTime = formatTime(conn.endTime);
-      const duration = conn.duration ? Math.round(conn.duration / 60) : '--';
+      const durationFormatted = formatDurationHHMM(conn.duration);
       const transfers = conn.transfers || 0;
-
-      const legsSummary = conn.legs
-        .map(leg => leg.line || leg.routeShortName || leg.mode || '?')
-        .join(' → ');
 
       const mainRow = document.createElement('tr');
       mainRow.className = 'summary-row';
       mainRow.innerHTML = `
         <td class="col-time">${startTime}</td>
         <td class="col-time">${endTime}</td>
-        <td>${duration} min</td>
-        <td><small>${escapeHtml(legsSummary)}</small></td>
-        <td>${transfers}</td>
+        <td class="col-dur">${durationFormatted}</td>
+        <td class="col-bar">${renderTimelineBar(conn.legs, conn.duration)}</td>
+        <td class="col-chg">${transfers}</td>
       `;
 
       const detailRow = document.createElement('tr');
@@ -187,6 +228,28 @@ async function handleRouteSearch() {
   }
 }
 
+function renderTimelineBar(legs, totalDurationSec) {
+  if (!legs || legs.length === 0 || !totalDurationSec) return '';
+
+  let html = '<div class="timeline-bar">';
+  legs.forEach((leg, idx) => {
+    const legDuration = (leg.to.arrival && leg.from.departure)
+      ? (leg.to.arrival - leg.from.departure)
+      : 0;
+    
+    let pct = (legDuration / totalDurationSec) * 100;
+    if (pct < 3) pct = 3;
+
+    html += `<div class="timeline-segment" data-mode="${escapeHtml(leg.mode || 'RAIL')}" style="width: ${pct}%;"></div>`;
+
+    if (idx < legs.length - 1) {
+      html += `<div class="timeline-dot"></div>`;
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
 function renderLegDetails(container, legs) {
   container.innerHTML = '';
 
@@ -213,34 +276,27 @@ function renderLegDetails(container, legs) {
         : '';
       legDiv.innerHTML = `
         <div class="leg-header">
-          <span class="line-container" data-mode="WALK">Fußweg</span>
+          <span class="line-badge" data-mode="WALK">Fußweg</span>
           <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
         </div>
       `;
     } else {
       const depTime = formatTime(leg.from.departure);
       const arrTime = formatTime(leg.to.arrival);
-      const depTrack = leg.from.track ? ` (Gleis ${escapeHtml(leg.from.track)})` : '';
-      const arrTrack = leg.to.track ? ` (Gleis ${escapeHtml(leg.to.track)})` : '';
+      const depTrack = leg.from.track ? ` (Gl. ${escapeHtml(leg.from.track)})` : '';
+      const arrTrack = leg.to.track ? ` (Gl. ${escapeHtml(leg.to.track)})` : '';
       const headsign = leg.destination ? ` Richtg. ${escapeHtml(leg.destination)}` : '';
 
-      let tripButtonHtml = '';
-      if (leg.tripId) {
-        tripButtonHtml = `<button class="btn-trip-detail" data-trip-id="${escapeHtml(leg.tripId)}">Zuglauf anzeigen</button>`;
-      }
+      let tripBtnHtml = leg.tripId ? `<button class="btn-trip-detail" data-trip-id="${escapeHtml(leg.tripId)}">Zuglauf</button>` : '';
 
       legDiv.innerHTML = `
         <div class="leg-header">
-          <span class="line-container" data-mode="${escapeHtml(leg.mode || 'RAIL')}">${escapeHtml(leg.line)}</span>
+          <span class="line-badge" data-mode="${escapeHtml(leg.mode || 'RAIL')}">${escapeHtml(leg.line)}</span>
           <span>${headsign}</span>
-          ${tripButtonHtml}
+          ${tripBtnHtml}
         </div>
-        <div class="leg-station">
-          <span>Abfahrt: <strong>${depTime}</strong> ${escapeHtml(leg.from.name)}${depTrack}</span>
-        </div>
-        <div class="leg-station">
-          <span>Ankunft: <strong>${arrTime}</strong> ${escapeHtml(leg.to.name)}${arrTrack}</span>
-        </div>
+        <div>Abfahrt: <strong>${depTime}</strong> ${escapeHtml(leg.from.name)}${depTrack}</div>
+        <div>Ankunft: <strong>${arrTime}</strong> ${escapeHtml(leg.to.name)}${arrTrack}</div>
         <div class="trip-container"></div>
       `;
 
@@ -249,7 +305,7 @@ function renderLegDetails(container, legs) {
         const tripContainer = legDiv.querySelector('.trip-container');
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
-          toggleTripStops(leg.tripId, tripContainer, btn);
+          toggleTripStops(leg.tripId, tripContainer, btn, leg.from, leg.to);
         });
       }
     }
@@ -258,25 +314,27 @@ function renderLegDetails(container, legs) {
   });
 }
 
-async function toggleTripStops(tripId, container, button) {
+async function toggleTripStops(tripId, container, button, legFrom = null, legTo = null) {
   if (container.childElementCount > 0) {
     container.innerHTML = '';
-    button.textContent = 'Zuglauf anzeigen';
+    button.textContent = 'Zuglauf';
     return;
   }
 
-  button.textContent = 'Lade Halte…';
+  button.textContent = 'Lade…';
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(tripId)}`);
     const data = await res.json();
 
     if (data.error || !data.stops || data.stops.length === 0) {
-      button.textContent = 'Keine Halte verfügbar';
+      button.textContent = 'Keine Daten';
       return;
     }
 
     const listDiv = document.createElement('div');
     listDiv.className = 'trip-stops-list';
+
+    let inUserLeg = false;
 
     data.stops.forEach(stop => {
       const arr = formatTime(stop.arrivalLive || stop.arrivalSched);
@@ -284,21 +342,55 @@ async function toggleTripStops(tripId, container, button) {
       const timeDisplay = (arr !== '--:--' && dep !== '--:--' && arr !== dep) ? `${arr} / ${dep}` : (dep !== '--:--' ? dep : arr);
       const track = stop.track ? ` (Gl. ${escapeHtml(stop.track)})` : '';
 
+      // Prüfen, ob diese Haltestelle der Einstieg oder Ausstieg deiner Teilstrecke ist
+      const isBoard = legFrom && isSameStop(stop, legFrom);
+      const isAlight = legTo && isSameStop(stop, legTo);
+
+      if (isBoard) inUserLeg = true;
+
       const stopRow = document.createElement('div');
-      stopRow.className = 'trip-stop-item';
+      let highlightClass = '';
+
+      if (isBoard) {
+        highlightClass = 'board-stop';
+      } else if (isAlight) {
+        highlightClass = 'alight-stop';
+      } else if (inUserLeg) {
+        highlightClass = 'in-route';
+      }
+
+      stopRow.className = `trip-stop-item ${highlightClass}`;
       stopRow.innerHTML = `
         <span>${escapeHtml(stop.name)}${track}</span>
         <span>${timeDisplay}</span>
       `;
       listDiv.appendChild(stopRow);
+
+      if (isAlight) inUserLeg = false;
     });
 
     container.appendChild(listDiv);
-    button.textContent = 'Zuglauf ausblenden';
+    button.textContent = 'Schließen';
   } catch (err) {
-    console.error(err);
-    button.textContent = 'Fehler beim Laden';
+    button.textContent = 'Fehler';
   }
+}
+
+function isSameStop(stopA, stopB) {
+  if (stopA.stopId && stopB.id && stopA.stopId === stopB.id) return true;
+  if (!stopA.name || !stopB.name) return false;
+  
+  // Normalisierung von Bahnhofsnamen (z.B. "Zürich HB" vs "Zürich HB, Bahnhof")
+  const cleanA = stopA.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const cleanB = stopB.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  return cleanA.includes(cleanB) || cleanB.includes(cleanA);
+}
+
+function isSameStop(stopA, stopB) {
+  if (stopA.stopId && stopB.id && stopA.stopId === stopB.id) return true;
+  if (stopA.name && stopB.name && stopA.name.trim().toLowerCase() === stopB.name.trim().toLowerCase()) return true;
+  return false;
 }
 
 async function handleBoardLoad() {
@@ -334,25 +426,18 @@ async function handleBoardLoad() {
       const track = dep.track || '–';
 
       const mainRow = document.createElement('tr');
-      mainRow.className = 'dep-row';
-      if (dep.cancelled) mainRow.classList.add('cancelled');
+      mainRow.className = 'summary-row';
 
       let delayHtml = '';
       if (dep.delayMin && dep.delayMin !== 0) {
-        if (dep.delayMin > 0) {
-          delayHtml = `<span class="delay-badge">+${dep.delayMin}'</span>`;
-        } else if (dep.delayMin < 0) {
-          delayHtml = `<span class="delay-badge" style="color: var(--sob-green);">${dep.delayMin}'</span>`;
-        }
+        delayHtml = `<span style="color:var(--error); font-size:0.75em; margin-left:2px;">+${dep.delayMin}'</span>`;
       }
-
-      const lineContainer = `<span class="line-container" data-mode="${escapeHtml(dep.mode || 'RAIL')}">${escapeHtml(line)}</span>`;
 
       mainRow.innerHTML = `
         <td class="col-time"><strong>${timeStr}</strong>${delayHtml}</td>
-        <td class="col-line">${lineContainer}</td>
-        <td class="col-dest">${escapeHtml(destination)}</td>
-        <td class="col-platform">${escapeHtml(track)}</td>
+        <td style="width:60px;"><span class="line-badge" data-mode="${escapeHtml(dep.mode || 'RAIL')}">${escapeHtml(line)}</span></td>
+        <td style="white-space:normal;">${escapeHtml(destination)}</td>
+        <td style="width:50px; text-align:right; color:var(--text-muted);">${escapeHtml(track)}</td>
       `;
 
       if (dep.tripId) {
@@ -394,6 +479,14 @@ async function handleBoardLoad() {
     hintsContainer.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(err.message)}</div>`;
     resultsContainer.style.display = 'none';
   }
+}
+
+function formatDurationHHMM(totalSeconds) {
+  if (!totalSeconds) return '--:--';
+  const totalMinutes = Math.round(totalSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 }
 
 function formatTime(timestamp) {

@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ÖV Verbindungssuche & Abfahrtstafel</title>
   <style>
     :root {
@@ -13,7 +13,6 @@
       --text-main: #eee;
       --text-muted: #888;
       --text-subtle: #999;
-      --text-soft: #aaa;
       --border-main: #333;
       --border-soft: #2a2a2a;
       --line-accent: #0a5;
@@ -23,6 +22,8 @@
       --sbb-red: #eb0000;
       --sbb-blue: #2d327d;
       --sob-green: #7BA55B;
+      --highlight-bg: rgba(45, 50, 125, 0.35);
+      --highlight-border: #4f56cc;
     }
 
     * {
@@ -30,135 +31,108 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html {
-      scrollbar-gutter: stable;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "SBB Web", sans-serif;
+      overflow-x: hidden;
     }
 
     body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      font-family: "SBB Web", "Helvetica Neue", Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      line-height: 1.5;
     }
 
     #app-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 14px;
+      padding: 8px 12px;
       background: var(--header-bg);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       position: sticky;
       top: 0;
-      z-index: 20;
-      gap: 10px;
-      flex-wrap: wrap;
+      z-index: 50;
+      flex-shrink: 0;
     }
 
     #header-left {
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-shrink: 0;
     }
 
     #btn-home {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: white;
-      padding: 5px 10px;
-      border-radius: 2px;
+      padding: 4px 8px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 1.1em;
+      font-size: 1rem;
       line-height: 1;
-      transition: background 0.15s;
-    }
-
-    #btn-home:hover {
-      background: rgba(255, 255, 255, 0.22);
     }
 
     #app-title {
       color: white;
-      font-size: 1.05em;
+      font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-
-    #header-center {
-      flex: 1;
-      text-align: center;
+      letter-spacing: 0.02em;
     }
 
     #live-clock {
       font-family: monospace;
       font-size: 13px;
       font-weight: bold;
-      letter-spacing: 1px;
       color: var(--text-main);
-    }
-
-    #header-right {
-      display: flex;
-      gap: 7px;
-      align-items: center;
     }
 
     #btn-refresh {
       background: var(--sbb-red);
-      border: 1px solid var(--sbb-red);
+      border: none;
       color: white;
       font-weight: bold;
-      padding: 8px 12px;
+      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 13px;
-      transition: background 0.15s;
+      font-size: 12px;
     }
 
-    #btn-refresh:hover {
-      background: var(--sbb-blue);
-      border-color: var(--sbb-blue);
-    }
-
-    .container {
+    .main-wrapper {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 0;
-      max-width: none;
-      margin: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .panel {
-      padding: 12px 14px;
+      padding: 12px;
       border-bottom: 1px solid var(--border-main);
       display: flex;
       flex-direction: column;
+      gap: 10px;
     }
 
     .panel-title {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       font-weight: 600;
-      margin-bottom: 0.8rem;
       color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .form-section {
+    .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 0.8rem;
+      gap: 8px;
     }
 
-    @media (max-width: 600px) {
-      .form-section {
+    @media (max-width: 500px) {
+      .form-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -166,14 +140,13 @@
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
+      gap: 4px;
       position: relative;
     }
 
     label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
-      font-weight: 500;
     }
 
     input[type="text"],
@@ -181,16 +154,16 @@
       background-color: var(--bg-surface);
       border: 1px solid var(--border-main);
       color: var(--text-main);
-      padding: 0.5rem 0.7rem;
-      border-radius: 4px;
-      font-size: 0.95rem;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.15s;
+      width: 100%;
     }
 
     input[type="text"]:focus,
     input[type="datetime-local"]:focus {
-      border-color: var(--line-accent);
+      border-color: var(--link-hover);
     }
 
     .suggestions {
@@ -200,26 +173,22 @@
       right: 0;
       background-color: var(--bg-surface);
       border: 1px solid var(--border-main);
-      border-radius: 0 0 4px 4px;
-      max-height: 200px;
+      border-radius: 0 0 6px 6px;
+      max-height: 220px;
       overflow-y: auto;
       z-index: 100;
       display: none;
-      margin-top: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
     .suggestion-item {
-      padding: 0.5rem 0.7rem;
+      padding: 10px 12px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       border-bottom: 1px solid var(--border-soft);
-      transition: background 0.15s;
     }
 
-    .suggestion-item:last-child {
-      border-bottom: none;
-    }
-
+    .suggestion-item.selected,
     .suggestion-item:hover {
       background-color: var(--bg-hover);
       color: var(--link-hover);
@@ -228,291 +197,239 @@
     button.btn {
       background-color: var(--sob-green);
       color: white;
-      border: 1px solid var(--sob-green);
-      padding: 0.6rem 1.2rem;
-      border-radius: 4px;
-      font-size: 0.95rem;
-      font-weight: 500;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.15s ease;
-      white-space: nowrap;
-      align-self: flex-start;
-    }
-
-    button.btn:hover {
-      background-color: #6a9648;
-      border-color: #6a9648;
+      width: 100%;
     }
 
     .results-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
       display: none;
+      width: 100%;
+      overflow-x: hidden;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      background: var(--bg-main);
-      font-size: 0.95rem;
+      font-size: 0.85rem;
+      table-layout: fixed;
     }
 
     thead {
       background: var(--header-bg);
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
 
     th {
       text-align: left;
-      padding: 0.6rem 0.7rem;
-      border-bottom: 1px solid var(--border-main);
-      font-size: 0.75rem;
+      padding: 8px 6px;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      font-weight: 500;
-      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
-    tbody tr {
+    tbody tr.summary-row {
       border-bottom: 1px solid var(--border-soft);
       cursor: pointer;
-      transition: background 0.1s;
-      min-height: 44px;
     }
 
-    tbody tr:hover {
+    tbody tr.summary-row:hover {
       background: var(--bg-surface);
     }
 
     td {
-      text-align: left;
-      padding: 0.6rem 0.7rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      padding: 8px 6px;
+      vertical-align: middle;
       white-space: nowrap;
+      overflow: hidden;
     }
 
-    .col-time {
-      width: 60px;
-      font-weight: 600;
-      text-align: center;
-    }
+    .col-time { width: 52px; font-weight: 600; text-align: center; }
+    .col-dur { width: 55px; text-align: center; color: var(--text-subtle); }
+    .col-bar { width: auto; }
+    .col-chg { width: 35px; text-align: center; color: var(--text-muted); }
 
-    .col-line {
-      width: 80px;
-      text-align: center;
-    }
-
-    .col-dest {
-      flex: 1;
-      white-space: normal;
-      max-width: none;
-    }
-
-    .col-platform {
-      width: 90px;
-      text-align: right;
-      color: var(--text-muted);
-    }
-
-    .line-container {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: var(--sbb-blue);
-      color: white;
-      padding: 0.15rem 0.4rem;
-      border-radius: 3px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .line-container[data-mode="HIGHSPEED"] { background: var(--sbb-red); }
-    .line-container[data-mode="RAIL"] { background: #E84E10; }
-    .line-container[data-mode="TRAM"] { background: #e84e10; }
-    .line-container[data-mode="BUS"] { background: #2d7d54; }
-    .line-container[data-mode="SUBWAY"] { background: white; color: black; }
-    .line-container[data-mode="FERRY"] { background: #1a6ea8; }
-    .line-container[data-mode="WALK"] { background: #444; color: #ccc; }
-
-    .delay-badge {
-      display: inline-block;
-      font-size: 0.75em;
-      color: var(--error);
-      font-weight: 600;
-      margin-left: 0.3rem;
-    }
-
-    .ontime { color: var(--sob-green); }
-    .cancelled { color: var(--error); text-decoration: line-through; }
-
-    .empty-hint, .error-hint {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      padding: 1.5rem 0.7rem;
-      text-align: center;
-    }
-
-    .error-hint { color: var(--error); }
-
-    .loading {
+    .timeline-bar {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 7px;
+      padding: 0 2px;
+      width: 100%;
+      overflow: hidden;
     }
 
-    /* Styles für Details-Accordion */
-    .detail-row {
-      background: var(--bg-card);
-      cursor: default;
+    .timeline-segment {
+      height: 6px;
+      position: relative;
+      min-width: 4px;
+      border-radius: 2px;
     }
 
-    .detail-row:hover {
-      background: var(--bg-card);
+    .timeline-segment[data-mode="HIGHSPEED"] { background: var(--sbb-red); }
+    .timeline-segment[data-mode="RAIL"] { background: #E84E10; }
+    .timeline-segment[data-mode="TRAM"] { background: #e84e10; }
+    .timeline-segment[data-mode="BUS"] { background: #2d7d54; }
+    .timeline-segment[data-mode="WALK"] { background: #555; }
+
+    .timeline-dot {
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      margin: 0 -2px;
+      z-index: 2;
+      flex-shrink: 0;
     }
 
+    .detail-row { background: var(--bg-card); }
     .detail-content {
-      padding: 12px 14px;
+      padding: 10px;
       border-left: 3px solid var(--sbb-blue);
-      font-size: 0.9rem;
     }
 
     .leg-item {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      padding: 8px 0;
+      padding: 6px 0;
       border-bottom: 1px dashed var(--border-soft);
     }
 
-    .leg-item:last-child {
-      border-bottom: none;
-    }
+    .leg-item:last-child { border-bottom: none; }
 
     .leg-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 600;
     }
 
-    .leg-station {
-      display: flex;
-      justify-content: space-between;
-      color: var(--text-main);
-      padding-left: 10px;
+    .line-badge {
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      color: white;
+      background: var(--sbb-blue);
     }
+
+    .line-badge[data-mode="WALK"] { background: #444; }
+    .line-badge[data-mode="BUS"] { background: #2d7d54; }
 
     .transfer-info {
       background: var(--bg-hover);
       color: var(--text-subtle);
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 3px;
-      font-size: 0.8rem;
-      margin: 6px 0;
-      display: inline-block;
+      font-size: 0.75rem;
+      margin: 4px 0;
     }
 
     .btn-trip-detail {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-main);
       color: var(--link-hover);
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 3px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       cursor: pointer;
       margin-left: auto;
-      transition: background 0.15s;
-    }
-
-    .btn-trip-detail:hover {
-      background: rgba(255, 255, 255, 0.15);
     }
 
     .trip-stops-list {
-      margin-top: 8px;
-      padding: 8px;
+      margin-top: 6px;
+      padding: 6px;
       background: var(--bg-main);
       border-radius: 4px;
-      border: 1px solid var(--border-soft);
-      font-size: 0.82rem;
+      font-size: 0.78rem;
     }
 
+    /* Hervorhebungen im Zuglauf */
     .trip-stop-item {
       display: flex;
       justify-content: space-between;
-      padding: 3px 0;
+      padding: 4px 6px;
       border-bottom: 1px dotted var(--border-soft);
+      border-left: 3px solid transparent;
     }
 
-    .trip-stop-item:last-child {
-      border-bottom: none;
+    .trip-stop-item.in-route {
+      border-left-color: var(--highlight-border);
+      background: rgba(255, 255, 255, 0.02);
     }
 
-    @media (max-width: 480px) {
-      #app-header { padding: 6px 10px; }
-      .panel { padding: 10px 10px; }
-      .form-section { grid-template-columns: 1fr; gap: 0.8rem; }
-      td { font-size: 0.9rem; padding: 0.5rem 0.5rem; }
-      th { font-size: 0.7rem; padding: 0.5rem 0.4rem; }
-      .col-line { width: 60px; }
-      .col-platform { width: 70px; font-size: 0.8rem; }
+    .trip-stop-item.board-stop {
+      background: var(--highlight-bg);
+      border-left-color: var(--link-hover);
+      font-weight: bold;
+      color: #fff;
     }
+
+    .trip-stop-item.alight-stop {
+      background: var(--highlight-bg);
+      border-left-color: var(--sob-green);
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .loading, .empty-hint, .error-hint {
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .error-hint { color: var(--error); }
   </style>
 </head>
 <body>
   <header id="app-header">
     <div id="header-left">
-      <button id="btn-home" title="Zur Startseite">⏠</button>
+      <button id="btn-home" title="Start">⏠</button>
       <div id="app-title">ÖV Suche</div>
     </div>
-    <div id="header-center">
-      <div id="live-clock">--:--:--</div>
-    </div>
-    <div id="header-right">
-      <button id="btn-refresh">GO</button>
-    </div>
+    <div id="live-clock">--:--:--</div>
+    <button id="btn-refresh">Reset</button>
   </header>
 
-  <div class="container">
+  <div class="main-wrapper">
     <section class="panel">
       <div class="panel-title">Verbindung suchen</div>
-      <div class="form-section">
+      <div class="form-grid">
         <div class="form-group">
           <label for="route-from-input">Von</label>
-          <input type="text" id="route-from-input" placeholder="Startbahnhof..." autocomplete="off">
+          <input type="text" id="route-from-input" placeholder="Start..." autocomplete="off">
           <div id="from-suggestions" class="suggestions"></div>
         </div>
         <div class="form-group">
           <label for="route-to-input">Nach</label>
-          <input type="text" id="route-to-input" placeholder="Zielbahnhof..." autocomplete="off">
+          <input type="text" id="route-to-input" placeholder="Ziel..." autocomplete="off">
           <div id="to-suggestions" class="suggestions"></div>
         </div>
       </div>
-      <div class="form-section">
+      <div class="form-grid">
         <div class="form-group">
-          <label for="route-time">Abfahrtszeit (optional)</label>
+          <label for="route-time">Abfahrt (optional)</label>
           <input type="datetime-local" id="route-time">
         </div>
-        <div class="form-group">
-          <button id="btn-search-route" class="btn">Verbindung finden</button>
+        <div class="form-group" style="justify-content: flex-end;">
+          <button id="btn-search-route" class="btn">Suchen</button>
         </div>
       </div>
+
       <div id="routing-hint"></div>
       <div id="routing-results" class="results-container">
         <table>
           <thead>
             <tr>
-              <th class="col-time">Abfahrt</th>
-              <th class="col-time">Ankunft</th>
-              <th>Dauer</th>
-              <th>Verlauf</th>
-              <th>Umstiege</th>
+              <th class="col-time">Ab</th>
+              <th class="col-time">An</th>
+              <th class="col-dur">Dauer</th>
+              <th class="col-bar">Verlauf</th>
+              <th class="col-chg">Um</th>
             </tr>
           </thead>
           <tbody id="routing-tbody"></tbody>
@@ -520,27 +437,28 @@
       </div>
     </section>
 
-    <section class="panel" style="flex: 1;">
+    <section class="panel">
       <div class="panel-title">Abfahrtstafel</div>
-      <div class="form-section">
+      <div class="form-grid">
         <div class="form-group">
           <label for="board-station-input">Haltestelle</label>
-          <input type="text" id="board-station-input" placeholder="Haltestelle suchen..." autocomplete="off">
+          <input type="text" id="board-station-input" placeholder="Station suchen..." autocomplete="off">
           <div id="board-suggestions" class="suggestions"></div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="justify-content: flex-end;">
           <button id="btn-load-board" class="btn">Abfahrten laden</button>
         </div>
       </div>
+
       <div id="board-hint"></div>
       <div id="board-results" class="results-container">
         <table>
           <thead>
             <tr>
               <th class="col-time">Zeit</th>
-              <th class="col-line">Linie</th>
-              <th class="col-dest">Richtung</th>
-              <th class="col-platform">Gleis</th>
+              <th style="width:60px;">Linie</th>
+              <th>Richtung</th>
+              <th style="width:50px; text-align:right;">Gleis</th>
             </tr>
           </thead>
           <tbody id="board-tbody"></tbody>

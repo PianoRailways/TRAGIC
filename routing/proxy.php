@@ -1,12 +1,6 @@
 <?php
 /**
  * Transitous-Proxy für NOWE-Weltweit
- * -----------------------------------
- * Aktionen:
- *   ?action=search&query=Zuerich (oder ?action=location&q=Zuerich)
- *   ?action=departures&stopId=XYZ&n=12&time=2026-07-04T14:23:00Z
- *   ?action=trip&tripId=XYZ
- *   ?action=plan&fromPlace=XYZ&toPlace=ABC&time=2026-08-04T18:00:00Z&arriveBy=false
  */
 
 ini_set('display_errors', '0');
@@ -17,7 +11,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
 const BASE_URL   = 'https://api.transitous.org';
-const USER_AGENT = 'NOWE-TRAGIC/0.2 (+https://tragic.stellwerksim.ch; piano@stellwerksim.ch)';
+const USER_AGENT = 'NOWE-TRAGIC/0.3 (+https://tragic.stellwerksim.ch; piano@stellwerksim.ch)';
 
 function callTransitous(string $path, array $params): array {
     $url = BASE_URL . $path . '?' . http_build_query($params);
@@ -236,7 +230,7 @@ if ($action === 'trip') {
 
     $stops = [];
     $seenStopIds = [];
-    
+
     foreach ($legs as $legIdx => $leg) {
         if (!is_array($leg)) continue;
 
@@ -391,4 +385,4 @@ if ($action === 'plan') {
 }
 
 http_response_code(400);
-echo json_encode(['error' => 'Unbekannte oder fehlende "action". Nutze "search", "departures", "trip" oder "plan".']);
+echo json_encode(['error' => 'Unbekannte oder fehlende "action".']);
