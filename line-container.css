@@ -44,7 +44,7 @@
 .line-container[data-mode="BUS"]        { background: #2d7d54; }
 .line-container[data-mode="SUBWAY"]     { background: white; color: black; }
 .line-container[data-mode="FERRY"]      { background: #1a6ea8; }
-.line-container[data-raw-mode="WALK"] { background: repeating-linear-gradient( -45deg,#ffda00,#ffda00 5px,black 5px,black 10px);}
+.line-container[data-raw-mode="WALK"] { background: repeating-linear-gradient( 45deg,#ffda00,#ffda00 5px,black 5px,black 10px);}
 
 /* 2. Agency-allgemein (mittler spezifisch) */
 .line-container[data-agency-id="865"] { background: #e2001a; color: white; } /* RhB */

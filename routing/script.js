@@ -529,7 +529,7 @@ function renderTimelineBar(legs, totalDurationSec, globalMinTime, globalMaxTime)
 
           html += `<div class="timeline-wait" 
                         title="Umstieg: ${Math.round(waitDuration / 60)} min"
-                        style="width: ${waitPct.toFixed(2)}%; height: 100%; background: transparent; position: relative; flex-shrink: 0;">
+                        style="width: ${waitPct.toFixed(2)}%;">
                      <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted, #888);"></span>
                    </div>`;
         }
