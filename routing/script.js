@@ -7,13 +7,34 @@ const state = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  setupLiveClock();
   setupAutocompletes();
   setupEventListeners();
 });
 
+function setupLiveClock() {
+  const clock = document.getElementById('live-clock');
+  const updateTime = () => {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    clock.textContent = `${h}:${m}:${s}`;
+  };
+  updateTime();
+  setInterval(updateTime, 1000);
+}
+
 function setupEventListeners() {
   document.getElementById('btn-search-route').addEventListener('click', handleRouteSearch);
   document.getElementById('btn-load-board').addEventListener('click', handleBoardLoad);
+  document.getElementById('btn-refresh').addEventListener('click', () => {
+    document.getElementById('route-time').value = '';
+    document.getElementById('board-station-input').value = '';
+  });
+  document.getElementById('btn-home').addEventListener('click', () => {
+    window.location.href = '/';
+  });
 }
 
 function debounce(func, delay = 300) {
@@ -65,7 +86,7 @@ function initAutocomplete(inputId, suggestionsId, onSelect) {
 
       container.style.display = 'block';
     } catch (err) {
-      console.error('Autocomplete Fehler:', err);
+      console.error('Autocomplete error:', err);
     }
   }, 250);
 
@@ -79,14 +100,18 @@ function initAutocomplete(inputId, suggestionsId, onSelect) {
 }
 
 async function handleRouteSearch() {
+  const hintsContainer = document.getElementById('routing-hint');
   const resultsContainer = document.getElementById('routing-results');
+  const tbody = document.getElementById('routing-tbody');
 
   if (!state.fromStop || !state.toStop) {
-    resultsContainer.innerHTML = '<div class="error-hint">Bitte Start- und Zielhaltestelle aus den Vorschlägen auswählen.</div>';
+    hintsContainer.innerHTML = '<div class="error-hint">Bitte Start- und Zielstation wählen.</div>';
+    resultsContainer.style.display = 'none';
     return;
   }
 
-  resultsContainer.innerHTML = 'Verbindungen werden geladen…';
+  hintsContainer.innerHTML = '<div class="loading">Verbindungen werden geladen…</div>';
+  resultsContainer.style.display = 'none';
 
   const timeInput = document.getElementById('route-time').value;
   let formattedTime = '';
@@ -105,98 +130,111 @@ async function handleRouteSearch() {
     const connections = data.connections || data.itineraries || [];
 
     if (data.error || connections.length === 0) {
-      resultsContainer.innerHTML = '<div class="empty-hint">Keine Verbindungen gefunden.</div>';
+      hintsContainer.innerHTML = '<div class="empty-hint">Keine Verbindungen gefunden.</div>';
+      resultsContainer.style.display = 'none';
       return;
     }
 
-    renderItineraries(connections, resultsContainer);
+    tbody.innerHTML = '';
+    connections.forEach((conn) => {
+      const startTime = formatTime(conn.startTime);
+      const endTime = formatTime(conn.endTime);
+      const duration = conn.duration ? Math.round(conn.duration / 60) : '--';
+      const transfers = conn.transfers || 0;
+
+      const legsText = conn.legs
+        .map(leg => leg.line || leg.routeShortName || leg.mode || '?')
+        .join(' → ');
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="col-time">${startTime}</td>
+        <td class="col-time">${endTime}</td>
+        <td>${duration} min</td>
+        <td><small>${escapeHtml(legsText)}</small></td>
+        <td>${transfers}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    hintsContainer.innerHTML = '';
+    resultsContainer.style.display = 'block';
   } catch (err) {
-    resultsContainer.innerHTML = `<div class="error-hint">Fehler beim Laden: ${escapeHtml(err.message)}</div>`;
+    hintsContainer.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(err.message)}</div>`;
+    resultsContainer.style.display = 'none';
   }
-}
-
-function renderItineraries(itineraries, container) {
-  container.innerHTML = '';
-
-  itineraries.forEach((itinerary) => {
-    const startTime = formatTime(itinerary.startTime);
-    const endTime = formatTime(itinerary.endTime);
-    const durationMin = itinerary.duration ? Math.round(itinerary.duration / 60) : '--';
-
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    const legsSummary = itinerary.legs.map(leg => {
-      if (leg.mode === 'WALK') return '🚶';
-      const name = leg.line || leg.routeShortName || leg.mode || 'Zug';
-      return `<span class="line-badge">${escapeHtml(name)}</span>`;
-    }).join(' → ');
-
-    card.innerHTML = `
-      <div class="route-header">
-        <span>${startTime} → ${endTime}</span>
-        <span>Dauer: ${durationMin} min</span>
-      </div>
-      <div class="route-legs">${legsSummary}</div>
-    `;
-
-    container.appendChild(card);
-  });
 }
 
 async function handleBoardLoad() {
+  const hintsContainer = document.getElementById('board-hint');
   const resultsContainer = document.getElementById('board-results');
+  const tbody = document.getElementById('board-tbody');
 
   if (!state.boardStop) {
-    resultsContainer.innerHTML = '<div class="error-hint">Bitte eine Haltestelle aus den Vorschlägen auswählen.</div>';
+    hintsContainer.innerHTML = '<div class="error-hint">Bitte eine Haltestelle wählen.</div>';
+    resultsContainer.style.display = 'none';
     return;
   }
 
-  resultsContainer.innerHTML = 'Abfahrten werden geladen…';
+  hintsContainer.innerHTML = '<div class="loading">Abfahrten werden geladen…</div>';
+  resultsContainer.style.display = 'none';
 
   try {
-    const url = `${PROXY}?action=departures&stopId=${encodeURIComponent(state.boardStop.id)}`;
+    const url = `${PROXY}?action=departures&stopId=${encodeURIComponent(state.boardStop.id)}&n=25`;
     const res = await fetch(url);
     const data = await res.json();
 
     if (data.error || !data.departures || data.departures.length === 0) {
-      resultsContainer.innerHTML = '<div class="empty-hint">Keine Abfahrten vorhanden.</div>';
+      hintsContainer.innerHTML = '<div class="empty-hint">Keine Abfahrten vorhanden.</div>';
+      resultsContainer.style.display = 'none';
       return;
     }
 
-    renderDepartures(data.departures, resultsContainer);
+    tbody.innerHTML = '';
+    data.departures.forEach(dep => {
+      const timeStr = formatTime(dep.live || dep.scheduled);
+      const line = dep.line || dep.tripNumber || '?';
+      const destination = dep.destination || 'Unbekannt';
+      const track = dep.track || '–';
+
+      const row = document.createElement('tr');
+      row.className = 'dep-row';
+      if (dep.cancelled) row.classList.add('cancelled');
+
+      let delayHtml = '';
+      if (dep.delayMin && dep.delayMin !== 0) {
+        if (dep.delayMin > 0) {
+          delayHtml = `<span class="delay-badge">+${dep.delayMin}'</span>`;
+        } else if (dep.delayMin < 0) {
+          delayHtml = `<span class="delay-badge" style="color: var(--sob-green);">${dep.delayMin}'</span>`;
+        }
+      }
+
+      const lineContainer = `<span class="line-container" data-mode="${escapeHtml(dep.mode || 'RAIL')}">${escapeHtml(line)}</span>`;
+
+      row.innerHTML = `
+        <td class="col-time"><strong>${timeStr}</strong>${delayHtml}</td>
+        <td class="col-line">${lineContainer}</td>
+        <td class="col-dest">${escapeHtml(destination)}</td>
+        <td class="col-platform">${escapeHtml(track)}</td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+    hintsContainer.innerHTML = '';
+    resultsContainer.style.display = 'block';
   } catch (err) {
-    resultsContainer.innerHTML = `<div class="error-hint">Fehler beim Laden: ${escapeHtml(err.message)}</div>`;
+    hintsContainer.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(err.message)}</div>`;
+    resultsContainer.style.display = 'none';
   }
-}
-
-function renderDepartures(departures, container) {
-  container.innerHTML = '';
-
-  departures.forEach(dep => {
-    const timeStr = formatTime(dep.live || dep.scheduled);
-    const line = dep.line || dep.tripNumber || '?';
-    const destination = dep.destination || 'Unbekannt';
-    const delayInfo = dep.delayMin ? ` <span style="color:#f87171;">(+${dep.delayMin}')</span>` : '';
-    const trackInfo = dep.track ? ` <span style="color:var(--text-muted); font-size:0.85rem;">Gleis ${escapeHtml(dep.track)}</span>` : '';
-
-    const row = document.createElement('div');
-    row.className = 'dep-row';
-    row.innerHTML = `
-      <div>
-        <span class="line-badge">${escapeHtml(line)}</span>
-        <span style="margin-left: 0.5rem;">${escapeHtml(destination)}</span>
-        ${trackInfo}
-      </div>
-      <div><strong>${timeStr}</strong>${delayInfo}</div>
-    `;
-    container.appendChild(row);
-  });
 }
 
 function formatTime(timestamp) {
   if (!timestamp) return '--:--';
-  const date = typeof timestamp === 'number' && timestamp < 1e11 ? new Date(timestamp * 1000) : new Date(timestamp);
+  const date = typeof timestamp === 'number' && timestamp < 1e11
+    ? new Date(timestamp * 1000)
+    : new Date(timestamp);
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 

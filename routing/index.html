@@ -3,75 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ÖV Dashboard & Verbindungssuche</title>
+  <title>ÖV Verbindungssuche & Abfahrtstafel</title>
   <style>
     :root {
-      --bg-main: #121418;
-      --bg-surface: #1e222a;
-      --bg-card: #252a34;
-      --text-main: #e0e6ed;
-      --text-muted: #8c96a5;
-      --accent: #4d90fe;
-      --accent-hover: #357ae8;
-      --border-main: #323846;
-      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --bg-main: #111;
+      --bg-surface: #1a1a1a;
+      --bg-hover: #262626;
+      --bg-card: #0a0a0a;
+      --text-main: #eee;
+      --text-muted: #888;
+      --text-subtle: #999;
+      --text-soft: #aaa;
+      --border-main: #333;
+      --border-soft: #2a2a2a;
+      --line-accent: #0a5;
+      --error: #f55;
+      --link-hover: #5cf;
+      --header-bg: #061030;
+      --sbb-red: #eb0000;
+      --sbb-blue: #2d327d;
+      --sob-green: #7BA55B;
     }
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scrollbar-gutter: stable;
     }
 
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
-      font-family: var(--font-family);
-      padding: 1.5rem;
+      font-family: "SBB Web", "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       line-height: 1.5;
     }
 
+    #app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      background: var(--header-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    #btn-home {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 1.1em;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+
+    #btn-home:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    #app-title {
+      color: white;
+      font-size: 1.05em;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    #header-center {
+      flex: 1;
+      text-align: center;
+    }
+
+    #live-clock {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: var(--text-main);
+    }
+
+    #header-right {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    #btn-refresh {
+      background: var(--sbb-red);
+      border: 1px solid var(--sbb-red);
+      color: white;
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+
+    #btn-refresh:hover {
+      background: var(--sbb-blue);
+      border-color: var(--sbb-blue);
+    }
+
     .container {
-      max-width: 1000px;
-      margin: 0 auto;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    header {
-      border-bottom: 1px solid var(--border-main);
-      padding-bottom: 1rem;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--text-main);
+      padding: 0;
+      max-width: none;
+      margin: 0;
     }
 
     .panel {
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-main);
-      border-radius: 6px;
-      padding: 1.25rem;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-main);
+      display: flex;
+      flex-direction: column;
     }
 
     .panel-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 600;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
       color: var(--text-main);
     }
 
-    .grid-2 {
+    .form-section {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
+      margin-bottom: 0.8rem;
     }
 
     @media (max-width: 600px) {
-      .grid-2 {
+      .form-section {
         grid-template-columns: 1fr;
       }
     }
@@ -79,29 +166,31 @@
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.3rem;
       position: relative;
     }
 
     label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
     input[type="text"],
     input[type="datetime-local"] {
-      background-color: var(--bg-card);
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-main);
       color: var(--text-main);
-      padding: 0.6rem 0.8rem;
+      padding: 0.5rem 0.7rem;
       border-radius: 4px;
       font-size: 0.95rem;
       outline: none;
+      transition: border-color 0.15s;
     }
 
     input[type="text"]:focus,
     input[type="datetime-local"]:focus {
-      border-color: var(--accent);
+      border-color: var(--line-accent);
     }
 
     .suggestions {
@@ -109,20 +198,22 @@
       top: 100%;
       left: 0;
       right: 0;
-      background-color: var(--bg-card);
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-main);
       border-radius: 0 0 4px 4px;
       max-height: 200px;
       overflow-y: auto;
       z-index: 100;
       display: none;
+      margin-top: 2px;
     }
 
     .suggestion-item {
-      padding: 0.6rem 0.8rem;
+      padding: 0.5rem 0.7rem;
       cursor: pointer;
       font-size: 0.9rem;
-      border-bottom: 1px solid var(--border-main);
+      border-bottom: 1px solid var(--border-soft);
+      transition: background 0.15s;
     }
 
     .suggestion-item:last-child {
@@ -130,97 +221,224 @@
     }
 
     .suggestion-item:hover {
-      background-color: var(--border-main);
+      background-color: var(--bg-hover);
+      color: var(--link-hover);
     }
 
     button.btn {
-      background-color: var(--accent);
-      color: #fff;
-      border: none;
+      background-color: var(--sob-green);
+      color: white;
+      border: 1px solid var(--sob-green);
       padding: 0.6rem 1.2rem;
       border-radius: 4px;
       font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.15s ease;
+      white-space: nowrap;
       align-self: flex-start;
     }
 
     button.btn:hover {
-      background-color: var(--accent-hover);
+      background-color: #6a9648;
+      border-color: #6a9648;
     }
 
-    .results-list {
-      margin-top: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+    .results-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
     }
 
-    .card {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border-main);
-      border-radius: 4px;
-      padding: 0.8rem 1rem;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-main);
+      font-size: 0.95rem;
     }
 
-    .route-header {
-      display: flex;
-      justify-content: space-between;
+    thead {
+      background: var(--header-bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 0.7rem;
+      border-bottom: 1px solid var(--border-main);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border-soft);
+      cursor: pointer;
+      transition: background 0.1s;
+      min-height: 44px;
+    }
+
+    tbody tr:hover {
+      background: var(--bg-surface);
+    }
+
+    td {
+      text-align: left;
+      padding: 0.6rem 0.7rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .col-time {
+      width: 60px;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      text-align: center;
     }
 
-    .route-legs {
-      display: flex;
+    .col-line {
+      width: 80px;
+      text-align: center;
+    }
+
+    .col-dest {
+      flex: 1;
+      white-space: normal;
+      max-width: none;
+    }
+
+    .col-platform {
+      width: 90px;
+      text-align: right;
+      color: var(--text-muted);
+    }
+
+    .line-container {
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      font-size: 0.9rem;
-    }
-
-    .line-badge {
-      background-color: var(--border-main);
+      gap: 0.4rem;
+      background: var(--sbb-blue);
+      color: white;
       padding: 0.15rem 0.4rem;
       border-radius: 3px;
+      font-size: 0.85rem;
       font-weight: 600;
-      font-size: 0.8rem;
     }
 
-    .dep-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid var(--border-main);
+    .line-container[data-mode="HIGHSPEED"] {
+      background: var(--sbb-red);
+    }
+    .line-container[data-mode="RAIL"] {
+      background: #E84E10;
+    }
+    .line-container[data-mode="TRAM"] {
+      background: #e84e10;
+    }
+    .line-container[data-mode="BUS"] {
+      background: #2d7d54;
+    }
+    .line-container[data-mode="SUBWAY"] {
+      background: white;
+      color: black;
+    }
+    .line-container[data-mode="FERRY"] {
+      background: #1a6ea8;
     }
 
-    .dep-row:last-child {
-      border-bottom: none;
+    .delay-badge {
+      display: inline-block;
+      font-size: 0.75em;
+      color: var(--error);
+      font-weight: 600;
+      margin-left: 0.3rem;
     }
 
-    .empty-hint, .error-hint {
+    .ontime {
+      color: var(--sob-green);
+    }
+
+    .cancelled {
+      color: var(--error);
+      text-decoration: line-through;
+    }
+
+    .empty-hint,
+    .error-hint {
       color: var(--text-muted);
       font-size: 0.9rem;
-      padding: 0.5rem 0;
+      padding: 1.5rem 0.7rem;
+      text-align: center;
     }
 
     .error-hint {
-      color: #f87171;
+      color: var(--error);
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      #app-header {
+        padding: 6px 10px;
+      }
+
+      .panel {
+        padding: 10px 10px;
+      }
+
+      .form-section {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+      }
+
+      td {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.5rem;
+      }
+
+      th {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.4rem;
+      }
+
+      .col-line {
+        width: 60px;
+      }
+
+      .col-platform {
+        width: 70px;
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
 <body>
+  <header id="app-header">
+    <div id="header-left">
+      <button id="btn-home" title="Zur Startseite">⏠</button>
+      <div id="app-title">ÖV Suche</div>
+    </div>
+    <div id="header-center">
+      <div id="live-clock">--:--:--</div>
+    </div>
+    <div id="header-right">
+      <button id="btn-refresh">GO</button>
+    </div>
+  </header>
 
   <div class="container">
-    <header>
-      <h1>ÖV-Informationen & Verbindungssuche</h1>
-    </header>
-
-    <!-- VERBINDUNGSSUCHE -->
     <section class="panel">
       <div class="panel-title">Verbindung suchen</div>
-      <div class="grid-2">
+      <div class="form-section">
         <div class="form-group">
           <label for="route-from-input">Von</label>
           <input type="text" id="route-from-input" placeholder="Startbahnhof..." autocomplete="off">
@@ -232,34 +450,33 @@
           <div id="to-suggestions" class="suggestions"></div>
         </div>
       </div>
-      <div class="grid-2" style="margin-top: 1rem;">
+      <div class="form-section">
         <div class="form-group">
           <label for="route-time">Abfahrtszeit (optional)</label>
           <input type="datetime-local" id="route-time">
         </div>
-        <div class="form-group" style="justify-content: flex-end;">
+        <div class="form-group">
           <button id="btn-search-route" class="btn">Verbindung finden</button>
         </div>
       </div>
-
-      <div id="routing-results" class="results-list"></div>
+      <div id="routing-hint"></div>
+      <div id="routing-results" class="results-container"></div>
     </section>
 
-    <!-- ABFAHRTSTAFEL -->
-    <section class="panel">
+    <section class="panel" style="flex: 1;">
       <div class="panel-title">Abfahrtstafel</div>
-      <div class="grid-2">
+      <div class="form-section">
         <div class="form-group">
           <label for="board-station-input">Haltestelle</label>
           <input type="text" id="board-station-input" placeholder="Haltestelle suchen..." autocomplete="off">
           <div id="board-suggestions" class="suggestions"></div>
         </div>
-        <div class="form-group" style="justify-content: flex-end;">
+        <div class="form-group">
           <button id="btn-load-board" class="btn">Abfahrten laden</button>
         </div>
       </div>
-
-      <div id="board-results" class="results-list"></div>
+      <div id="board-hint"></div>
+      <div id="board-results" class="results-container"></div>
     </section>
   </div>
 
