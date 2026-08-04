@@ -142,19 +142,41 @@ async function handleRouteSearch() {
       const duration = conn.duration ? Math.round(conn.duration / 60) : '--';
       const transfers = conn.transfers || 0;
 
-      const legsText = conn.legs
+      const legsSummary = conn.legs
         .map(leg => leg.line || leg.routeShortName || leg.mode || '?')
         .join(' → ');
 
-      const row = document.createElement('tr');
-      row.innerHTML = `
+      const mainRow = document.createElement('tr');
+      mainRow.className = 'summary-row';
+      mainRow.innerHTML = `
         <td class="col-time">${startTime}</td>
         <td class="col-time">${endTime}</td>
         <td>${duration} min</td>
-        <td><small>${escapeHtml(legsText)}</small></td>
+        <td><small>${escapeHtml(legsSummary)}</small></td>
         <td>${transfers}</td>
       `;
-      tbody.appendChild(row);
+
+      const detailRow = document.createElement('tr');
+      detailRow.className = 'detail-row';
+      detailRow.style.display = 'none';
+
+      const detailTd = document.createElement('td');
+      detailTd.colSpan = 5;
+
+      const detailContent = document.createElement('div');
+      detailContent.className = 'detail-content';
+
+      renderLegDetails(detailContent, conn.legs);
+      detailTd.appendChild(detailContent);
+      detailRow.appendChild(detailTd);
+
+      mainRow.addEventListener('click', () => {
+        const isVisible = detailRow.style.display !== 'none';
+        detailRow.style.display = isVisible ? 'none' : 'table-row';
+      });
+
+      tbody.appendChild(mainRow);
+      tbody.appendChild(detailRow);
     });
 
     hintsContainer.innerHTML = '';
@@ -162,6 +184,120 @@ async function handleRouteSearch() {
   } catch (err) {
     hintsContainer.innerHTML = `<div class="error-hint">Fehler: ${escapeHtml(err.message)}</div>`;
     resultsContainer.style.display = 'none';
+  }
+}
+
+function renderLegDetails(container, legs) {
+  container.innerHTML = '';
+
+  legs.forEach((leg, index) => {
+    if (index > 0) {
+      const prevLeg = legs[index - 1];
+      const transferMinutes = (leg.from.departure && prevLeg.to.arrival)
+        ? Math.round((leg.from.departure - prevLeg.to.arrival) / 60)
+        : null;
+
+      const transferDiv = document.createElement('div');
+      transferDiv.className = 'transfer-info';
+      transferDiv.textContent = `Umstieg in ${escapeHtml(leg.from.name)}` +
+        (transferMinutes !== null ? ` (${transferMinutes} min Umsteigezeit)` : '');
+      container.appendChild(transferDiv);
+    }
+
+    const legDiv = document.createElement('div');
+    legDiv.className = 'leg-item';
+
+    if (leg.mode === 'WALK') {
+      const walkDuration = (leg.from.departure && leg.to.arrival)
+        ? Math.round((leg.to.arrival - leg.from.departure) / 60)
+        : '';
+      legDiv.innerHTML = `
+        <div class="leg-header">
+          <span class="line-container" data-mode="WALK">Fußweg</span>
+          <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
+        </div>
+      `;
+    } else {
+      const depTime = formatTime(leg.from.departure);
+      const arrTime = formatTime(leg.to.arrival);
+      const depTrack = leg.from.track ? ` (Gleis ${escapeHtml(leg.from.track)})` : '';
+      const arrTrack = leg.to.track ? ` (Gleis ${escapeHtml(leg.to.track)})` : '';
+      const headsign = leg.destination ? ` Richtg. ${escapeHtml(leg.destination)}` : '';
+
+      let tripButtonHtml = '';
+      if (leg.tripId) {
+        tripButtonHtml = `<button class="btn-trip-detail" data-trip-id="${escapeHtml(leg.tripId)}">Zuglauf anzeigen</button>`;
+      }
+
+      legDiv.innerHTML = `
+        <div class="leg-header">
+          <span class="line-container" data-mode="${escapeHtml(leg.mode || 'RAIL')}">${escapeHtml(leg.line)}</span>
+          <span>${headsign}</span>
+          ${tripButtonHtml}
+        </div>
+        <div class="leg-station">
+          <span>Abfahrt: <strong>${depTime}</strong> ${escapeHtml(leg.from.name)}${depTrack}</span>
+        </div>
+        <div class="leg-station">
+          <span>Ankunft: <strong>${arrTime}</strong> ${escapeHtml(leg.to.name)}${arrTrack}</span>
+        </div>
+        <div class="trip-container"></div>
+      `;
+
+      if (leg.tripId) {
+        const btn = legDiv.querySelector('.btn-trip-detail');
+        const tripContainer = legDiv.querySelector('.trip-container');
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleTripStops(leg.tripId, tripContainer, btn);
+        });
+      }
+    }
+
+    container.appendChild(legDiv);
+  });
+}
+
+async function toggleTripStops(tripId, container, button) {
+  if (container.childElementCount > 0) {
+    container.innerHTML = '';
+    button.textContent = 'Zuglauf anzeigen';
+    return;
+  }
+
+  button.textContent = 'Lade Halte…';
+  try {
+    const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(tripId)}`);
+    const data = await res.json();
+
+    if (data.error || !data.stops || data.stops.length === 0) {
+      button.textContent = 'Keine Halte verfügbar';
+      return;
+    }
+
+    const listDiv = document.createElement('div');
+    listDiv.className = 'trip-stops-list';
+
+    data.stops.forEach(stop => {
+      const arr = formatTime(stop.arrivalLive || stop.arrivalSched);
+      const dep = formatTime(stop.departureLive || stop.departureSched);
+      const timeDisplay = (arr !== '--:--' && dep !== '--:--' && arr !== dep) ? `${arr} / ${dep}` : (dep !== '--:--' ? dep : arr);
+      const track = stop.track ? ` (Gl. ${escapeHtml(stop.track)})` : '';
+
+      const stopRow = document.createElement('div');
+      stopRow.className = 'trip-stop-item';
+      stopRow.innerHTML = `
+        <span>${escapeHtml(stop.name)}${track}</span>
+        <span>${timeDisplay}</span>
+      `;
+      listDiv.appendChild(stopRow);
+    });
+
+    container.appendChild(listDiv);
+    button.textContent = 'Zuglauf ausblenden';
+  } catch (err) {
+    console.error(err);
+    button.textContent = 'Fehler beim Laden';
   }
 }
 
@@ -197,9 +333,9 @@ async function handleBoardLoad() {
       const destination = dep.destination || 'Unbekannt';
       const track = dep.track || '–';
 
-      const row = document.createElement('tr');
-      row.className = 'dep-row';
-      if (dep.cancelled) row.classList.add('cancelled');
+      const mainRow = document.createElement('tr');
+      mainRow.className = 'dep-row';
+      if (dep.cancelled) mainRow.classList.add('cancelled');
 
       let delayHtml = '';
       if (dep.delayMin && dep.delayMin !== 0) {
@@ -212,14 +348,44 @@ async function handleBoardLoad() {
 
       const lineContainer = `<span class="line-container" data-mode="${escapeHtml(dep.mode || 'RAIL')}">${escapeHtml(line)}</span>`;
 
-      row.innerHTML = `
+      mainRow.innerHTML = `
         <td class="col-time"><strong>${timeStr}</strong>${delayHtml}</td>
         <td class="col-line">${lineContainer}</td>
         <td class="col-dest">${escapeHtml(destination)}</td>
         <td class="col-platform">${escapeHtml(track)}</td>
       `;
 
-      tbody.appendChild(row);
+      if (dep.tripId) {
+        const detailRow = document.createElement('tr');
+        detailRow.className = 'detail-row';
+        detailRow.style.display = 'none';
+
+        const detailTd = document.createElement('td');
+        detailTd.colSpan = 4;
+        detailTd.className = 'detail-content';
+
+        detailRow.appendChild(detailTd);
+
+        mainRow.addEventListener('click', () => {
+          const isVisible = detailRow.style.display !== 'none';
+          if (isVisible) {
+            detailRow.style.display = 'none';
+          } else {
+            detailRow.style.display = 'table-row';
+            if (detailTd.childElementCount === 0) {
+              const dummyBtn = document.createElement('button');
+              dummyBtn.className = 'btn-trip-detail';
+              dummyBtn.style.display = 'none';
+              toggleTripStops(dep.tripId, detailTd, dummyBtn);
+            }
+          }
+        });
+
+        tbody.appendChild(mainRow);
+        tbody.appendChild(detailRow);
+      } else {
+        tbody.appendChild(mainRow);
+      }
     });
 
     hintsContainer.innerHTML = '';

@@ -360,14 +360,14 @@ if ($action === 'plan') {
                     'name'      => $leg['from']['name'] ?? '',
                     'departure' => $depLive ?? $depSched,
                     'scheduled' => $depSched,
-                    'track'     => $leg['from']['track'] ?? null,
+                    'track'     => $leg['from']['track'] ?? $leg['from']['scheduledTrack'] ?? null,
                 ],
                 'to'             => [
                     'id'        => $leg['to']['stopId'] ?? $leg['to']['id'] ?? null,
                     'name'      => $leg['to']['name'] ?? '',
                     'arrival'   => $arrLive ?? $arrSched,
                     'scheduled' => $arrSched,
-                    'track'     => $leg['to']['track'] ?? null,
+                    'track'     => $leg['to']['track'] ?? $leg['to']['scheduledTrack'] ?? null,
                 ],
                 'realTime'       => (bool)($leg['realTime'] ?? false),
             ];

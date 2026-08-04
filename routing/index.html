@@ -329,25 +329,13 @@
       font-weight: 600;
     }
 
-    .line-container[data-mode="HIGHSPEED"] {
-      background: var(--sbb-red);
-    }
-    .line-container[data-mode="RAIL"] {
-      background: #E84E10;
-    }
-    .line-container[data-mode="TRAM"] {
-      background: #e84e10;
-    }
-    .line-container[data-mode="BUS"] {
-      background: #2d7d54;
-    }
-    .line-container[data-mode="SUBWAY"] {
-      background: white;
-      color: black;
-    }
-    .line-container[data-mode="FERRY"] {
-      background: #1a6ea8;
-    }
+    .line-container[data-mode="HIGHSPEED"] { background: var(--sbb-red); }
+    .line-container[data-mode="RAIL"] { background: #E84E10; }
+    .line-container[data-mode="TRAM"] { background: #e84e10; }
+    .line-container[data-mode="BUS"] { background: #2d7d54; }
+    .line-container[data-mode="SUBWAY"] { background: white; color: black; }
+    .line-container[data-mode="FERRY"] { background: #1a6ea8; }
+    .line-container[data-mode="WALK"] { background: #444; color: #ccc; }
 
     .delay-badge {
       display: inline-block;
@@ -357,26 +345,17 @@
       margin-left: 0.3rem;
     }
 
-    .ontime {
-      color: var(--sob-green);
-    }
+    .ontime { color: var(--sob-green); }
+    .cancelled { color: var(--error); text-decoration: line-through; }
 
-    .cancelled {
-      color: var(--error);
-      text-decoration: line-through;
-    }
-
-    .empty-hint,
-    .error-hint {
+    .empty-hint, .error-hint {
       color: var(--text-muted);
       font-size: 0.9rem;
       padding: 1.5rem 0.7rem;
       text-align: center;
     }
 
-    .error-hint {
-      color: var(--error);
-    }
+    .error-hint { color: var(--error); }
 
     .loading {
       display: flex;
@@ -387,38 +366,102 @@
       font-size: 0.9rem;
     }
 
+    /* Styles für Details-Accordion */
+    .detail-row {
+      background: var(--bg-card);
+      cursor: default;
+    }
+
+    .detail-row:hover {
+      background: var(--bg-card);
+    }
+
+    .detail-content {
+      padding: 12px 14px;
+      border-left: 3px solid var(--sbb-blue);
+      font-size: 0.9rem;
+    }
+
+    .leg-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border-soft);
+    }
+
+    .leg-item:last-child {
+      border-bottom: none;
+    }
+
+    .leg-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+
+    .leg-station {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-main);
+      padding-left: 10px;
+    }
+
+    .transfer-info {
+      background: var(--bg-hover);
+      color: var(--text-subtle);
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      margin: 6px 0;
+      display: inline-block;
+    }
+
+    .btn-trip-detail {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-main);
+      color: var(--link-hover);
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin-left: auto;
+      transition: background 0.15s;
+    }
+
+    .btn-trip-detail:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .trip-stops-list {
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--bg-main);
+      border-radius: 4px;
+      border: 1px solid var(--border-soft);
+      font-size: 0.82rem;
+    }
+
+    .trip-stop-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px dotted var(--border-soft);
+    }
+
+    .trip-stop-item:last-child {
+      border-bottom: none;
+    }
+
     @media (max-width: 480px) {
-      #app-header {
-        padding: 6px 10px;
-      }
-
-      .panel {
-        padding: 10px 10px;
-      }
-
-      .form-section {
-        grid-template-columns: 1fr;
-        gap: 0.8rem;
-      }
-
-      td {
-        font-size: 0.9rem;
-        padding: 0.5rem 0.5rem;
-      }
-
-      th {
-        font-size: 0.7rem;
-        padding: 0.5rem 0.4rem;
-      }
-
-      .col-line {
-        width: 60px;
-      }
-
-      .col-platform {
-        width: 70px;
-        font-size: 0.8rem;
-      }
+      #app-header { padding: 6px 10px; }
+      .panel { padding: 10px 10px; }
+      .form-section { grid-template-columns: 1fr; gap: 0.8rem; }
+      td { font-size: 0.9rem; padding: 0.5rem 0.5rem; }
+      th { font-size: 0.7rem; padding: 0.5rem 0.4rem; }
+      .col-line { width: 60px; }
+      .col-platform { width: 70px; font-size: 0.8rem; }
     }
   </style>
 </head>
