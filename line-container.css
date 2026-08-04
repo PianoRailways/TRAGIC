@@ -154,7 +154,17 @@
 .line-container[data-agency-id="827"][data-line="331"] { background: rgb(174,189,199); color: white; }
 .line-container[data-agency-id="827"][data-line="332"] { background: rgb(112,185,171); color: white; }
 /* Aare Seeland Mobil ASM */
-.line-container[data-agency-id="870"][data-line="63"] { background: #dc3545; color: white; }
+.line-container[data-agency-id="870"][data-line="5"] { background: #0FB967; color: white; }
+.line-container[data-agency-id="870"][data-line="7"] { background: #892819; color: white; }
+.line-container[data-agency-id="870"][data-line="51"] { background: #296E88; color: white; }
+.line-container[data-agency-id="870"][data-line="52"] { background: #F05C5B; color: white; }
+.line-container[data-agency-id="870"][data-line="54"] { background: #B3AB18; color: white; }
+.line-container[data-agency-id="870"][data-line="63"] { background: #860043; color: white; }
+.line-container[data-agency-id="870"][data-line="64"] { background: #625C14; color: white; }
+.line-container[data-agency-id="870"][data-line="72"] { background: #625C14; color: white; }
+.line-container[data-agency-id="870"][data-line="75"] { background: #686868; color: white; }
+.line-container[data-agency-id="870"][data-line="73"] { background: #F8A01D; color: white; }
+.line-container[data-agency-id="870"][data-line="74"] { background: #860043; color: white; }
 
 .line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
 
