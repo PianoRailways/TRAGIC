@@ -248,6 +248,7 @@
       flex: 1;
       overflow-y: auto;
       padding: 0;
+      display: none;
     }
 
     table {
@@ -460,7 +461,20 @@
         </div>
       </div>
       <div id="routing-hint"></div>
-      <div id="routing-results" class="results-container"></div>
+      <div id="routing-results" class="results-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-time">Abfahrt</th>
+              <th class="col-time">Ankunft</th>
+              <th>Dauer</th>
+              <th>Verlauf</th>
+              <th>Umstiege</th>
+            </tr>
+          </thead>
+          <tbody id="routing-tbody"></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="panel" style="flex: 1;">
@@ -476,7 +490,19 @@
         </div>
       </div>
       <div id="board-hint"></div>
-      <div id="board-results" class="results-container"></div>
+      <div id="board-results" class="results-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-time">Zeit</th>
+              <th class="col-line">Linie</th>
+              <th class="col-dest">Richtung</th>
+              <th class="col-platform">Gleis</th>
+            </tr>
+          </thead>
+          <tbody id="board-tbody"></tbody>
+        </table>
+      </div>
     </section>
   </div>
 
