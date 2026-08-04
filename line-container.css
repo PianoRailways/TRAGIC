@@ -277,7 +277,10 @@
 .line-container[data-agency-id="796"][data-mode="BUS"] { background: #95276E; color: white; } /* Bus */
 .line-container[data-agency-id="796"][data-mode="FERRY"] { background: #528DBA; color: white; } /* Fähre */
 
-.line-container[data-agency-id="13796"], .line-container[data-agency-id="FLIXTRAIN-eu"] { background: #97d700; color: #353535; } /* Flixtrain */
+.line-container[data-agency-id="13796"],
+.line-container[data-agency-id="FLIXTRAIN-eu"],
+.line-container[data-agency-id="FLIXBUS-eu"]
+{ background: #97d700; color: #353535; } /* FLIX */
 
 /* Halle Saale Tram */
 .line-container[data-agency-id="8896"][data-line="1"] { background: rgb(242,187,68); color: white; }
