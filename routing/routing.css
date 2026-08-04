@@ -240,7 +240,7 @@ td {
     overflow: hidden;
 }
 
-.col-time { width: 52px; font-weight: 600; text-align: center; }
+.col-time { width: 65px; font-weight: 600; text-align: left; }
 .col-dur { width: 55px; text-align: center; color: var(--text-subtle); }
 .col-bar { width: auto; }
 .col-chg { width: 35px; text-align: center; color: var(--text-muted); }
