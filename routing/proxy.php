@@ -325,10 +325,12 @@ if ($action === 'plan') {
         $params['time'] = $time;
     }
 
-    // Vias aus Query-String auslesen
+    // Vias flexibel aus 'via' oder 'viaPlace' lesen
     $viaPlaces = [];
-    if (isset($_GET['viaPlace'])) {
-        $rawVias = is_array($_GET['viaPlace']) ? $_GET['viaPlace'] : [$_GET['viaPlace']];
+    $rawViasInput = $_GET['via'] ?? $_GET['viaPlace'] ?? null;
+
+    if ($rawViasInput !== null) {
+        $rawVias = is_array($rawViasInput) ? $rawViasInput : [$rawViasInput];
         foreach ($rawVias as $v) {
             $vClean = trim($v);
             if ($vClean !== '') {
@@ -340,7 +342,7 @@ if ($action === 'plan') {
     // Basisfeld bauen
     $queryString = http_build_query($params);
 
-    // Hier 'via=' statt '&viaPlace=' verwenden:
+    // Vias als 'via=' an die Transitous API anhängen
     foreach ($viaPlaces as $via) {
         $queryString .= '&via=' . urlencode($via);
     }

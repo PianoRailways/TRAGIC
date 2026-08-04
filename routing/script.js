@@ -307,7 +307,6 @@ function initAutocomplete(inputId, suggestionsId, onSelect) {
   });
 }
 
-// 4. URL-Erstellung in handleRouteSearch() anpassen
 async function handleRouteSearch() {
   const hintsContainer = document.getElementById('routing-hint');
   const resultsContainer = document.getElementById('routing-results');
@@ -326,15 +325,16 @@ async function handleRouteSearch() {
   let formattedTime = timeInput ? new Date(timeInput).toISOString() : '';
 
   try {
-    let url = `${PROXY}?action=plan&fromPlace=${encodeURIComponent(state.fromStop.id)}&toPlace=${encodeURIComponent(state.toStop.id)}`;
+    const fromId = state.fromStop.id || state.fromStop.stopId;
+    const toId = state.toStop.id || state.toStop.stopId;
+    let url = `${PROXY}?action=plan&fromPlace=${encodeURIComponent(fromId)}&toPlace=${encodeURIComponent(toId)}`;
     
     if (formattedTime) {
       url += `&time=${encodeURIComponent(formattedTime)}`;
     }
 
-    // --- WICHTIG: Via-Haltestellen exakt auslesen ---
+    // --- Via-Haltestellen exakt auslesen ---
     state.vias.forEach(v => {
-      // Prüft sowohl das gespeicherte Stop-Objekt als auch v.stop.id
       if (v && v.stop && (v.stop.id || v.stop.stopId)) {
         const stopId = v.stop.id || v.stop.stopId;
         url += `&via=${encodeURIComponent(stopId)}`;
@@ -587,7 +587,8 @@ async function handleBoardLoad() {
   resultsContainer.style.display = 'none';
 
   try {
-    const url = `${PROXY}?action=departures&stopId=${encodeURIComponent(state.boardStop.id)}&n=25`;
+    const boardId = state.boardStop.id || state.boardStop.stopId;
+    const url = `${PROXY}?action=departures&stopId=${encodeURIComponent(boardId)}&n=25`;
     const res = await fetch(url);
     const data = await res.json();
 
