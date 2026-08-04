@@ -585,21 +585,34 @@ function renderLegDetails(container, legs) {
           <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
         </div>
       `;
-    } else {
+} else {
       const depTime = formatTime(leg.from.departure);
       const arrTime = formatTime(leg.to.arrival);
       const depTrack = leg.from.track ? ` (Gl. ${escapeHtml(leg.from.track)})` : '';
       const arrTrack = leg.to.track ? ` (Gl. ${escapeHtml(leg.to.track)})` : '';
       const headsign = leg.destination ? ` nach ${escapeHtml(leg.destination)}` : '';
 
+      // Agency und Trip-Nummer aufbereiten
+      const agencyName = leg.agencyName || '';
+      const agencyIdStr = agencyId ? `[${agencyId}]` : '';
+      const agencyDisplay = [agencyName, agencyIdStr].filter(Boolean).join(' ');
+      
+      const tripNum = leg.tripNumber ? `Nr. ${escapeHtml(leg.tripNumber)}` : '';
+      const tripIdStr = leg.tripId ? `ID: ${escapeHtml(leg.tripId)}` : '';
+      const tripDisplay = [tripNum, tripIdStr].filter(Boolean).join(' | ');
+
+      const metaParts = [agencyDisplay, tripDisplay].filter(Boolean);
+      const metaInfo = metaParts.join(' • ');
+
       let tripBtnHtml = leg.tripId ? `<button class="btn-trip-detail" data-trip-id="${escapeHtml(leg.tripId)}">Zuglauf</button>` : '';
 
       legDiv.innerHTML = `
-        <div class="leg-header">
+        <div class="leg-header" style="flex-wrap: wrap; gap: 4px 8px;">
           <div class="line-container">
             <span class="line-badge line-container" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
           </div>
           <span>${headsign}</span>
+          ${metaInfo ? `<span style="font-size: 0.75em; color: var(--text-muted, #888); margin-left: auto;">${metaInfo}</span>` : ''}
           ${tripBtnHtml}
         </div>
         <div>Abfahrt: <strong>${depTime}</strong> ${escapeHtml(leg.from.name)}${depTrack}</div>

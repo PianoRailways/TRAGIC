@@ -399,7 +399,9 @@ if ($action === 'plan') {
                 'mode'           => $leg['mode'] ?? 'WALK',
                 'line'           => $leg['routeShortName'] ?? $leg['mode'] ?? '?',
                 'routeShortName' => $leg['routeShortName'] ?? $leg['mode'] ?? '?',
+                'tripNumber'     => $leg['tripShortName'] ?? $leg['displayName'] ?? null, // <-- NEU
                 'agencyId'       => $leg['agencyId'] ?? null,
+                'agencyName'     => $leg['agencyName'] ?? null, // <-- NEU
                 'routeId'        => $leg['routeId'] ?? null,
                 'tripId'         => $leg['tripId'] ?? null,
                 'destination'    => $leg['headsign'] ?? null,
