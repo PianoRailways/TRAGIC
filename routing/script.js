@@ -421,25 +421,20 @@ function renderTimelineBar(legs, totalDurationSec, globalMinTime, globalMaxTime)
 
   if (!connStart || !connEnd) return '';
 
-  // Versatz am Anfang (Leerraum, falls die Verbindung später startet als die früheste gefundene Verbindung)
+  // 1. Platzhalter am Anfang, falls die Verbindung später startet als das globale Minimum
   const startOffsetPct = ((connStart - globalMinTime) / globalSpan) * 100;
-  // Tatsächliche Dauer der Verbindung im globalen Kontext
-  const connSpanPct = ((connEnd - connStart) / globalSpan) * 100;
-
-  if (startOffsetPct > 0) {
-    html += `<div style="width: ${startOffsetPct.toFixed(2)}%; height: 100%;"></div>`;
+  if (startOffsetPct > 0.1) {
+    html += `<div style="width: ${startOffsetPct.toFixed(2)}%; height: 100%; flex-shrink: 0;"></div>`;
   }
 
-  let innerHtml = '';
-  const connDuration = connEnd - connStart;
-
+  // 2. Eigentliche Segmente und Umstiege im globalen Verhältnis berechnen
   legs.forEach((leg, idx) => {
     const legDuration = (leg.to.arrival && leg.from.departure)
       ? (leg.to.arrival - leg.from.departure)
       : 0;
 
-    let pct = (legDuration / connDuration) * connSpanPct;
-    if (pct < 2 && legDuration > 0) pct = 2;
+    let pct = (legDuration / globalSpan) * 100;
+    if (pct < 1.5 && legDuration > 0) pct = 1.5;
 
     const rawMode = leg.mode || 'RAIL';
     const mode = canonicalMode(rawMode);
@@ -447,26 +442,26 @@ function renderTimelineBar(legs, totalDurationSec, globalMinTime, globalMaxTime)
     const line = escapeHtml(leg.line || leg.routeShortName || '');
     const routeId = escapeHtml(leg.routeId || '');
 
-    innerHtml += `<div class="timeline-segment line-container" 
+    html += `<div class="timeline-segment line-container" 
                   data-mode="${mode}" 
                   data-raw-mode="${escapeHtml(rawMode)}" 
                   data-agency-id="${agencyId}" 
                   data-line="${line}" 
                   data-route-id="${routeId}" 
                   title="${line}: ${Math.round(legDuration / 60)} min"
-                  style="width: ${pct.toFixed(2)}%; height: 100%;"></div>`;
+                  style="width: ${pct.toFixed(2)}%; height: 100%; flex-shrink: 0;"></div>`;
 
     if (idx < legs.length - 1) {
       const nextLeg = legs[idx + 1];
       if (leg.to.arrival && nextLeg.from.departure) {
         const waitDuration = nextLeg.from.departure - leg.to.arrival;
         if (waitDuration > 0) {
-          let waitPct = (waitDuration / connDuration) * connSpanPct;
+          let waitPct = (waitDuration / globalSpan) * 100;
           if (waitPct < 1) waitPct = 1;
 
-          innerHtml += `<div class="timeline-wait" 
+          html += `<div class="timeline-wait" 
                         title="Umstieg: ${Math.round(waitDuration / 60)} min"
-                        style="width: ${waitPct.toFixed(2)}%; height: 100%; background: transparent; position: relative;">
+                        style="width: ${waitPct.toFixed(2)}%; height: 100%; background: transparent; position: relative; flex-shrink: 0;">
                      <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted, #888);"></span>
                    </div>`;
         }
@@ -474,7 +469,12 @@ function renderTimelineBar(legs, totalDurationSec, globalMinTime, globalMaxTime)
     }
   });
 
-  html += `<div style="display: flex; width: ${connSpanPct.toFixed(2)}%; height: 100%;">${innerHtml}</div>`;
+  // 3. Platzhalter am Ende, damit der Balken bis ganz rechts reicht, falls er früher endet als das globale Maximum
+  const endOffsetPct = ((globalMaxTime - connEnd) / globalSpan) * 100;
+  if (endOffsetPct > 0.1) {
+    html += `<div style="width: ${endOffsetPct.toFixed(2)}%; height: 100%; flex-shrink: 0;"></div>`;
+  }
+
   html += '</div>';
   return html;
 }
