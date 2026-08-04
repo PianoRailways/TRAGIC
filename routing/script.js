@@ -590,7 +590,7 @@ function renderLegDetails(container, legs) {
       const arrTime = formatTime(leg.to.arrival);
       const depTrack = leg.from.track ? ` (Gl. ${escapeHtml(leg.from.track)})` : '';
       const arrTrack = leg.to.track ? ` (Gl. ${escapeHtml(leg.to.track)})` : '';
-      const headsign = leg.destination ? ` Richtg. ${escapeHtml(leg.destination)}` : '';
+      const headsign = leg.destination ? ` nach ${escapeHtml(leg.destination)}` : '';
 
       let tripBtnHtml = leg.tripId ? `<button class="btn-trip-detail" data-trip-id="${escapeHtml(leg.tripId)}">Zuglauf</button>` : '';
 
