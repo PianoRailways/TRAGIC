@@ -245,6 +245,7 @@ function renderTimelineBar(legs, totalDurationSec) {
     const line = escapeHtml(leg.line || leg.routeShortName || '');
     const routeId = escapeHtml(leg.routeId || '');
 
+    // Attribute direkt am Timeline-Segment
     html += `<div class="timeline-segment" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
 
     if (idx < legs.length - 1) {
@@ -286,8 +287,8 @@ function renderLegDetails(container, legs) {
         : '';
       legDiv.innerHTML = `
         <div class="leg-header">
-          <div class="line-container" data-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">
-            <span class="line-badge line" data-mode="WALK">Fußweg</span>
+          <div class="line-container">
+            <span class="line-badge line" data-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
           </div>
           <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
         </div>
@@ -303,8 +304,81 @@ function renderLegDetails(container, legs) {
 
       legDiv.innerHTML = `
         <div class="leg-header">
-          <div class="line-container" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">
-            <span class="line-badge line" data-mode="${mode}">${line}</span>
+          <div class="line-container">
+            <span class="line-badge line" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
+          </div>
+          <span>${headsign}</span>
+          ${tripBtnHtml}
+        </div>
+        <div>Abfahrt: <strong>${depTime}</strong> ${escapeHtml(leg.from.name)}${depTrack}</div>
+        <div>Ankunft: <strong>${arrTime}</strong> ${escapeHtml(leg.to.name)}${arrTrack}</div>
+        <div class="trip-container"></div>
+      `;
+
+      if (leg.tripId) {
+        const btn = legDiv.querySelector('.btn-trip-detail');
+        const tripContainer = legDiv.querySelector('.trip-container');
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleTripStops(leg.tripId, tripContainer, btn, leg.from, leg.to);
+        });
+      }
+    }
+
+    container.appendChild(legDiv);
+  });
+}
+
+function renderLegDetails(container, legs) {
+  container.innerHTML = '';
+
+  legs.forEach((leg, index) => {
+    if (index > 0) {
+      const prevLeg = legs[index - 1];
+      const transferMinutes = (leg.from.departure && prevLeg.to.arrival)
+        ? Math.round((leg.from.departure - prevLeg.to.arrival) / 60)
+        : null;
+
+      const transferDiv = document.createElement('div');
+      transferDiv.className = 'transfer-info';
+      transferDiv.textContent = `Umstieg in ${escapeHtml(leg.from.name)}` +
+        (transferMinutes !== null ? ` (${transferMinutes} min Umsteigezeit)` : '');
+      container.appendChild(transferDiv);
+    }
+
+    const legDiv = document.createElement('div');
+    legDiv.className = 'leg-item';
+
+    const mode = escapeHtml(leg.mode || 'RAIL');
+    const agencyId = escapeHtml(leg.agencyId || '');
+    const line = escapeHtml(leg.line || leg.routeShortName || '');
+    const routeId = escapeHtml(leg.routeId || '');
+
+    if (leg.mode === 'WALK') {
+      const walkDuration = (leg.from.departure && leg.to.arrival)
+        ? Math.round((leg.to.arrival - leg.from.departure) / 60)
+        : '';
+      legDiv.innerHTML = `
+        <div class="leg-header">
+          <div class="line-container">
+            <span class="line-badge line" data-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
+          </div>
+          <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
+        </div>
+      `;
+    } else {
+      const depTime = formatTime(leg.from.departure);
+      const arrTime = formatTime(leg.to.arrival);
+      const depTrack = leg.from.track ? ` (Gl. ${escapeHtml(leg.from.track)})` : '';
+      const arrTrack = leg.to.track ? ` (Gl. ${escapeHtml(leg.to.track)})` : '';
+      const headsign = leg.destination ? ` Richtg. ${escapeHtml(leg.destination)}` : '';
+
+      let tripBtnHtml = leg.tripId ? `<button class="btn-trip-detail" data-trip-id="${escapeHtml(leg.tripId)}">Zuglauf</button>` : '';
+
+      legDiv.innerHTML = `
+        <div class="leg-header">
+          <div class="line-container">
+            <span class="line-badge line" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
           </div>
           <span>${headsign}</span>
           ${tripBtnHtml}
@@ -455,8 +529,8 @@ async function handleBoardLoad() {
       mainRow.innerHTML = `
         <td class="col-time"><strong>${timeStr}</strong>${delayHtml}</td>
         <td style="width:70px;">
-          <div class="line-container" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${escapeHtml(line)}" data-route-id="${routeId}">
-            <span class="line-badge line" data-mode="${mode}">${escapeHtml(line)}</span>
+          <div class="line-container">
+            <span class="line-badge line" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${escapeHtml(line)}" data-route-id="${routeId}">${escapeHtml(line)}</span>
           </div>
         </td>
         <td style="white-space:normal;">${escapeHtml(destination)}</td>
