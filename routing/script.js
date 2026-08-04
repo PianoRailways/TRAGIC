@@ -124,10 +124,37 @@ function setupLiveClock() {
   updateTime();
   setInterval(updateTime, 1000);
 }
+function shiftRouteTime(offsetMinutes) {
+  const timeInput = document.getElementById('route-time');
+  let baseDate = timeInput.value ? new Date(timeInput.value) : new Date();
 
+  // Wenn das Inputfeld leer war, nehmen wir die Startzeit der aktuell ersten gefundenen Verbindung
+  if (!timeInput.value) {
+    const firstLeg = document.querySelector('#routing-tbody .summary-row');
+    // Alternativ nutzen wir den aktuellen Zeitpunkt
+    baseDate = new Date();
+  }
+
+  baseDate.setMinutes(baseDate.getMinutes() + offsetMinutes);
+
+  // Ins Format YYYY-MM-DDTHH:mm für den datetime-local Picker bringen
+  const pad = (n) => String(n).padStart(2, '0');
+  const year = baseDate.getFullYear();
+  const month = pad(baseDate.getMonth() + 1);
+  const day = pad(baseDate.getDate());
+  const hours = pad(baseDate.getHours());
+  const minutes = pad(baseDate.getMinutes());
+
+  timeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+  // Suche automatisch neu ausführen
+  handleRouteSearch();
+}
 function setupEventListeners() {
   document.getElementById('btn-search-route').addEventListener('click', handleRouteSearch);
   document.getElementById('btn-load-board').addEventListener('click', handleBoardLoad);
+  document.getElementById('btn-earlier').addEventListener('click', () => shiftRouteTime(-30));
+  document.getElementById('btn-later').addEventListener('click', () => shiftRouteTime(30));
 
   // Klick-Event für den Via-Button
   const addViaBtn = document.getElementById('btn-add-via');
