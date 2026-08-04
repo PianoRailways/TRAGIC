@@ -263,8 +263,16 @@ td {
     border-radius: 2px;
 }
 
-.timeline-segment[data-mode="HIGHSPEED"] { background: var(--sbb-red); }
-.timeline-segment[data-mode="RAIL"] { background: #E84E10; }
+.line-badge[data-mode="HIGHSPEED"], .line-badge[data-mode="HIGHSPEED_RAIL"], .line-badge[data-mode="RAIL"], .line-badge[data-mode="LONG_DISTANCE"]
+    { background: var(--sbb-red); }
+.line-badge[data-mode="COACH"] { background: var(--sbb-red) }
+.line-badge[data-mode="TRAM"] { background: #e84e10; }
+.line-badge[data-mode="BUS"] { background: #2d7d54; }
+.line-badge[data-mode="WALK"] { background: #555; }
+
+.timeline-segment[data-mode="HIGHSPEED"], .timeline-segment[data-mode="HIGHSPEED_RAIL"],.timeline-segment[data-mode="RAIL"], .timeline-segment[data-mode="LONG_DISTANCE"]
+    { background: var(--sbb-red); }
+.timeline-segment[data-mode="COACH"] { background: var(--sbb-red) }
 .timeline-segment[data-mode="TRAM"] { background: #e84e10; }
 .timeline-segment[data-mode="BUS"] { background: #2d7d54; }
 .timeline-segment[data-mode="WALK"] { background: #555; }
