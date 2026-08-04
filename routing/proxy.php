@@ -343,10 +343,13 @@ if ($action === 'plan') {
             [$depSched, $depLive] = extractPair($leg['from'] ?? [], 'departure');
             [$arrSched, $arrLive] = extractPair($leg['to'] ?? [], 'arrival');
 
+            // In proxy.php bei `if ($action === 'plan')` in der Schleife über legs anpassen:
             $legs[] = [
                 'mode'           => $leg['mode'] ?? 'WALK',
                 'line'           => $leg['routeShortName'] ?? $leg['mode'] ?? '?',
                 'routeShortName' => $leg['routeShortName'] ?? $leg['mode'] ?? '?',
+                'agencyId'       => $leg['agencyId'] ?? null,
+                'routeId'        => $leg['routeId'] ?? null,
                 'tripId'         => $leg['tripId'] ?? null,
                 'destination'    => $leg['headsign'] ?? null,
                 'from'           => [

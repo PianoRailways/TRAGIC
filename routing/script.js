@@ -240,7 +240,12 @@ function renderTimelineBar(legs, totalDurationSec) {
     let pct = (legDuration / totalDurationSec) * 100;
     if (pct < 3) pct = 3;
 
-    html += `<div class="timeline-segment" data-mode="${escapeHtml(leg.mode || 'RAIL')}" style="width: ${pct}%;"></div>`;
+    const mode = escapeHtml(leg.mode || 'RAIL');
+    const agencyId = escapeHtml(leg.agencyId || '');
+    const line = escapeHtml(leg.line || leg.routeShortName || '');
+    const routeId = escapeHtml(leg.routeId || '');
+
+    html += `<div class="timeline-segment" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
 
     if (idx < legs.length - 1) {
       html += `<div class="timeline-dot"></div>`;
@@ -270,13 +275,20 @@ function renderLegDetails(container, legs) {
     const legDiv = document.createElement('div');
     legDiv.className = 'leg-item';
 
+    const mode = escapeHtml(leg.mode || 'RAIL');
+    const agencyId = escapeHtml(leg.agencyId || '');
+    const line = escapeHtml(leg.line || leg.routeShortName || '');
+    const routeId = escapeHtml(leg.routeId || '');
+
     if (leg.mode === 'WALK') {
       const walkDuration = (leg.from.departure && leg.to.arrival)
         ? Math.round((leg.to.arrival - leg.from.departure) / 60)
         : '';
       legDiv.innerHTML = `
         <div class="leg-header">
-          <span class="line-badge" data-mode="WALK">Fußweg</span>
+          <div class="line-container" data-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">
+            <span class="line-badge line" data-mode="WALK">Fußweg</span>
+          </div>
           <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
         </div>
       `;
@@ -291,7 +303,9 @@ function renderLegDetails(container, legs) {
 
       legDiv.innerHTML = `
         <div class="leg-header">
-          <span class="line-badge" data-mode="${escapeHtml(leg.mode || 'RAIL')}">${escapeHtml(leg.line)}</span>
+          <div class="line-container" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">
+            <span class="line-badge line" data-mode="${mode}">${line}</span>
+          </div>
           <span>${headsign}</span>
           ${tripBtnHtml}
         </div>
@@ -393,6 +407,7 @@ function isSameStop(stopA, stopB) {
   return false;
 }
 
+// Auch in der Abfahrtstafel die data-Attribute beim Badge mitgeben
 async function handleBoardLoad() {
   const hintsContainer = document.getElementById('board-hint');
   const resultsContainer = document.getElementById('board-results');
@@ -425,6 +440,10 @@ async function handleBoardLoad() {
       const destination = dep.destination || 'Unbekannt';
       const track = dep.track || '–';
 
+      const mode = escapeHtml(dep.mode || 'RAIL');
+      const agencyId = escapeHtml(dep.agencyId || '');
+      const routeId = escapeHtml(dep.routeId || '');
+
       const mainRow = document.createElement('tr');
       mainRow.className = 'summary-row';
 
@@ -435,7 +454,11 @@ async function handleBoardLoad() {
 
       mainRow.innerHTML = `
         <td class="col-time"><strong>${timeStr}</strong>${delayHtml}</td>
-        <td style="width:60px;"><span class="line-badge" data-mode="${escapeHtml(dep.mode || 'RAIL')}">${escapeHtml(line)}</span></td>
+        <td style="width:70px;">
+          <div class="line-container" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${escapeHtml(line)}" data-route-id="${routeId}">
+            <span class="line-badge line" data-mode="${mode}">${escapeHtml(line)}</span>
+          </div>
+        </td>
         <td style="white-space:normal;">${escapeHtml(destination)}</td>
         <td style="width:50px; text-align:right; color:var(--text-muted);">${escapeHtml(track)}</td>
       `;
