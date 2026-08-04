@@ -610,7 +610,7 @@ function renderLegDetails(container, legs) {
         <div class="leg-header" style="flex-wrap: wrap; gap: 4px 8px;">
           <div class="line-container">
             <span class="line-badge line-container" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
-          </div>
+          </div><span>${escapeHtml(leg.tripNumber)}</span>
           <span>${headsign}</span>
           ${metaInfo ? `<span style="font-size: 0.75em; color: var(--text-muted, #888); margin-left: auto;">${metaInfo}</span>` : ''}
           ${tripBtnHtml}
