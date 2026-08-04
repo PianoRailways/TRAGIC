@@ -1,3 +1,26 @@
+// Kanonische Gruppen: welche API-modes gehören zu welchem Button
+const MODE_GROUPS = {
+  HIGHSPEED: ['HIGHSPEEDRAIL', 'HIGHSPEED_RAIL', 'INTERCITYRAIL', 'LONGDISTANCERAIL', 'LONG_DISTANCE'],
+  RAIL: ['TRAIN', 'RAIL', 'COACHRAILWAY', 'LOCALTRAIN', 'REGIONAL_FAST_RAIL', 'REGIONAL_RAIL', 'SUBURBAN'],
+  NIGHT: ['NIGHTRAIL', 'NIGHT_RAIL'],
+  SUBWAY:  ['SUBWAY', 'METRO', 'URBAN_RAIL'],
+  TRAM:    ['TRAM', 'TROLLEYBUS', 'STREETCAR'],
+  BUS:     ['BUS', 'COACH', 'REGIONALBUS', 'EXPRESBUS', 'DEBUG_BUS_ROUTE'],
+  FERRY:   ['FERRY', 'WATER', 'BOAT', 'DEBUG_FERRY_ROUTE'],
+  GONDOLA: ['GONDOLA', 'CHAIRLIFT', 'CABLEWAY', 'FUNICULAR', 'AERIAL_LIFT', 'AREAL_LIFT', 'CABLE_CAR'],
+  OTHER:   ['WALK', 'BIKE', 'RENTAL', 'CAR', 'CAR_PARKING', 'CAR_DROPOFF', 'ODM', 'RIDE_SHARING', 'FLEX', 'AIRPLANE', 'OTHER']
+};
+
+function canonicalMode(rawMode) {
+  if (!rawMode) return 'OTHER';
+  const m = rawMode.toUpperCase();
+  for (const [group, variants] of Object.entries(MODE_GROUPS)) {
+    if (group === 'OTHER') continue;
+    if (variants.includes(m)) return group;
+  }
+  return 'OTHER';
+}
+
 const PROXY = 'proxy.php';
 
 const state = {
@@ -240,13 +263,13 @@ function renderTimelineBar(legs, totalDurationSec) {
     let pct = (legDuration / totalDurationSec) * 100;
     if (pct < 3) pct = 3;
 
-    const mode = escapeHtml(leg.mode || 'RAIL');
+    const rawMode = leg.mode || 'RAIL';
+    const mode = canonicalMode(rawMode);
     const agencyId = escapeHtml(leg.agencyId || '');
     const line = escapeHtml(leg.line || leg.routeShortName || '');
     const routeId = escapeHtml(leg.routeId || '');
 
-    // Attribute direkt am Timeline-Segment
-    html += `<div class="timeline-segment line-badge" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
+    html += `<div class="timeline-segment line-badge" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
 
     if (idx < legs.length - 1) {
       html += `<div class="timeline-dot"></div>`;
@@ -276,7 +299,8 @@ function renderLegDetails(container, legs) {
     const legDiv = document.createElement('div');
     legDiv.className = 'leg-item';
 
-    const mode = escapeHtml(leg.mode || 'RAIL');
+    const rawMode = leg.mode || 'RAIL';
+    const mode = canonicalMode(rawMode);
     const agencyId = escapeHtml(leg.agencyId || '');
     const line = escapeHtml(leg.line || leg.routeShortName || '');
     const routeId = escapeHtml(leg.routeId || '');
@@ -288,7 +312,7 @@ function renderLegDetails(container, legs) {
       legDiv.innerHTML = `
         <div class="leg-header">
           <div class="line-container">
-            <span class="line-badge line" data-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
+            <span class="line-badge line" data-mode="OTHER" data-raw-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
           </div>
           <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
         </div>
@@ -305,80 +329,7 @@ function renderLegDetails(container, legs) {
       legDiv.innerHTML = `
         <div class="leg-header">
           <div class="line-container">
-            <span class="line-badge line" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
-          </div>
-          <span>${headsign}</span>
-          ${tripBtnHtml}
-        </div>
-        <div>Abfahrt: <strong>${depTime}</strong> ${escapeHtml(leg.from.name)}${depTrack}</div>
-        <div>Ankunft: <strong>${arrTime}</strong> ${escapeHtml(leg.to.name)}${arrTrack}</div>
-        <div class="trip-container"></div>
-      `;
-
-      if (leg.tripId) {
-        const btn = legDiv.querySelector('.btn-trip-detail');
-        const tripContainer = legDiv.querySelector('.trip-container');
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleTripStops(leg.tripId, tripContainer, btn, leg.from, leg.to);
-        });
-      }
-    }
-
-    container.appendChild(legDiv);
-  });
-}
-
-function renderLegDetails(container, legs) {
-  container.innerHTML = '';
-
-  legs.forEach((leg, index) => {
-    if (index > 0) {
-      const prevLeg = legs[index - 1];
-      const transferMinutes = (leg.from.departure && prevLeg.to.arrival)
-        ? Math.round((leg.from.departure - prevLeg.to.arrival) / 60)
-        : null;
-
-      const transferDiv = document.createElement('div');
-      transferDiv.className = 'transfer-info';
-      transferDiv.textContent = `Umstieg in ${escapeHtml(leg.from.name)}` +
-        (transferMinutes !== null ? ` (${transferMinutes} min Umsteigezeit)` : '');
-      container.appendChild(transferDiv);
-    }
-
-    const legDiv = document.createElement('div');
-    legDiv.className = 'leg-item';
-
-    const mode = escapeHtml(leg.mode || 'RAIL');
-    const agencyId = escapeHtml(leg.agencyId || '');
-    const line = escapeHtml(leg.line || leg.routeShortName || '');
-    const routeId = escapeHtml(leg.routeId || '');
-
-    if (leg.mode === 'WALK') {
-      const walkDuration = (leg.from.departure && leg.to.arrival)
-        ? Math.round((leg.to.arrival - leg.from.departure) / 60)
-        : '';
-      legDiv.innerHTML = `
-        <div class="leg-header">
-          <div class="line-container">
-            <span class="line-badge line" data-mode="WALK" data-agency-id="" data-line="WALK" data-route-id="">Fußweg</span>
-          </div>
-          <span>${walkDuration ? walkDuration + ' min' : ''} nach ${escapeHtml(leg.to.name)}</span>
-        </div>
-      `;
-    } else {
-      const depTime = formatTime(leg.from.departure);
-      const arrTime = formatTime(leg.to.arrival);
-      const depTrack = leg.from.track ? ` (Gl. ${escapeHtml(leg.from.track)})` : '';
-      const arrTrack = leg.to.track ? ` (Gl. ${escapeHtml(leg.to.track)})` : '';
-      const headsign = leg.destination ? ` Richtg. ${escapeHtml(leg.destination)}` : '';
-
-      let tripBtnHtml = leg.tripId ? `<button class="btn-trip-detail" data-trip-id="${escapeHtml(leg.tripId)}">Zuglauf</button>` : '';
-
-      legDiv.innerHTML = `
-        <div class="leg-header">
-          <div class="line-container">
-            <span class="line-badge line" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
+            <span class="line-badge line" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}">${line}</span>
           </div>
           <span>${headsign}</span>
           ${tripBtnHtml}
@@ -430,7 +381,6 @@ async function toggleTripStops(tripId, container, button, legFrom = null, legTo 
       const timeDisplay = (arr !== '--:--' && dep !== '--:--' && arr !== dep) ? `${arr} / ${dep}` : (dep !== '--:--' ? dep : arr);
       const track = stop.track ? ` (Gl. ${escapeHtml(stop.track)})` : '';
 
-      // Prüfen, ob diese Haltestelle der Einstieg oder Ausstieg deiner Teilstrecke ist
       const isBoard = legFrom && isSameStop(stop, legFrom);
       const isAlight = legTo && isSameStop(stop, legTo);
 
@@ -468,20 +418,12 @@ function isSameStop(stopA, stopB) {
   if (stopA.stopId && stopB.id && stopA.stopId === stopB.id) return true;
   if (!stopA.name || !stopB.name) return false;
   
-  // Normalisierung von Bahnhofsnamen (z.B. "Zürich HB" vs "Zürich HB, Bahnhof")
   const cleanA = stopA.name.toLowerCase().replace(/[^a-z0-9]/g, '');
   const cleanB = stopB.name.toLowerCase().replace(/[^a-z0-9]/g, '');
   
   return cleanA.includes(cleanB) || cleanB.includes(cleanA);
 }
 
-function isSameStop(stopA, stopB) {
-  if (stopA.stopId && stopB.id && stopA.stopId === stopB.id) return true;
-  if (stopA.name && stopB.name && stopA.name.trim().toLowerCase() === stopB.name.trim().toLowerCase()) return true;
-  return false;
-}
-
-// Auch in der Abfahrtstafel die data-Attribute beim Badge mitgeben
 async function handleBoardLoad() {
   const hintsContainer = document.getElementById('board-hint');
   const resultsContainer = document.getElementById('board-results');
@@ -514,7 +456,8 @@ async function handleBoardLoad() {
       const destination = dep.destination || 'Unbekannt';
       const track = dep.track || '–';
 
-      const mode = escapeHtml(dep.mode || 'RAIL');
+      const rawMode = dep.mode || 'RAIL';
+      const mode = canonicalMode(rawMode);
       const agencyId = escapeHtml(dep.agencyId || '');
       const routeId = escapeHtml(dep.routeId || '');
 
@@ -530,7 +473,7 @@ async function handleBoardLoad() {
         <td class="col-time"><strong>${timeStr}</strong>${delayHtml}</td>
         <td style="width:70px;">
           <div class="line-container">
-            <span class="line-badge line" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${escapeHtml(line)}" data-route-id="${routeId}">${escapeHtml(line)}</span>
+            <span class="line-badge line" data-mode="${mode}" data-raw-mode="${escapeHtml(rawMode)}" data-agency-id="${agencyId}" data-line="${escapeHtml(line)}" data-route-id="${routeId}">${escapeHtml(line)}</span>
           </div>
         </td>
         <td style="white-space:normal;">${escapeHtml(destination)}</td>
