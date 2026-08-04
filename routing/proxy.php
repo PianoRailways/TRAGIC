@@ -325,16 +325,50 @@ if ($action === 'plan') {
         $params['time'] = $time;
     }
 
-    // Vias verarbeiten (Array oder Einzelwert)
+    // Vias aus Query-String auslesen
+    $viaPlaces = [];
     if (isset($_GET['viaPlace'])) {
-        $vias = is_array($_GET['viaPlace']) ? $_GET['viaPlace'] : [$_GET['viaPlace']];
-        $cleanVias = array_filter(array_map('trim', $vias));
-        if (!empty($cleanVias)) {
-            $params['viaPlace'] = array_values($cleanVias);
+        $rawVias = is_array($_GET['viaPlace']) ? $_GET['viaPlace'] : [$_GET['viaPlace']];
+        foreach ($rawVias as $v) {
+            $vClean = trim($v);
+            if ($vClean !== '') {
+                $viaPlaces[] = $vClean;
+            }
         }
     }
 
-    $result = callTransitous('/api/v1/plan', $params);
+    // Basisfeld bauen
+    $queryString = http_build_query($params);
+
+    // Hier 'via=' statt '&viaPlace=' verwenden:
+    foreach ($viaPlaces as $via) {
+        $queryString .= '&via=' . urlencode($via);
+    }
+
+    $url = BASE_URL . '/api/v1/plan?' . $queryString;
+
+    $ctx = stream_context_create([
+        'http' => [
+            'method'  => 'GET',
+            'header'  => "User-Agent: " . USER_AGENT . "\r\n",
+            'timeout' => 8,
+        ],
+    ]);
+
+    $raw = @file_get_contents($url, false, $ctx);
+
+    if ($raw === false) {
+        http_response_code(502);
+        echo json_encode(['error' => 'Transitous nicht erreichbar', 'url' => $url]);
+        exit;
+    }
+
+    $result = json_decode($raw, true);
+    if ($result === null) {
+        http_response_code(502);
+        echo json_encode(['error' => 'Ungültige Antwort von Transitous']);
+        exit;
+    }
 
     if (isset($result['error'])) {
         echo json_encode($result);
@@ -352,7 +386,6 @@ if ($action === 'plan') {
             [$depSched, $depLive] = extractPair($leg['from'] ?? [], 'departure');
             [$arrSched, $arrLive] = extractPair($leg['to'] ?? [], 'arrival');
 
-            // In proxy.php bei `if ($action === 'plan')` in der Schleife über legs anpassen:
             $legs[] = [
                 'mode'           => $leg['mode'] ?? 'WALK',
                 'line'           => $leg['routeShortName'] ?? $leg['mode'] ?? '?',

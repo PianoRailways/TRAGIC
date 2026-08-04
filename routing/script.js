@@ -332,10 +332,12 @@ async function handleRouteSearch() {
       url += `&time=${encodeURIComponent(formattedTime)}`;
     }
 
-    // Aktive, ausgewählte Vias an die URL anhängen
+    // --- WICHTIG: Via-Haltestellen exakt auslesen ---
     state.vias.forEach(v => {
-      if (v.stop && v.stop.id) {
-        url += `&viaPlace[]=${encodeURIComponent(v.stop.id)}`;
+      // Prüft sowohl das gespeicherte Stop-Objekt als auch v.stop.id
+      if (v && v.stop && (v.stop.id || v.stop.stopId)) {
+        const stopId = v.stop.id || v.stop.stopId;
+        url += `&via=${encodeURIComponent(stopId)}`;
       }
     });
 
