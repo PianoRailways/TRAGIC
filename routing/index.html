@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ÖV Dashboard & Verbindungssuche</title>
+  <style>
+    :root {
+      --bg-main: #121418;
+      --bg-surface: #1e222a;
+      --bg-card: #252a34;
+      --text-main: #e0e6ed;
+      --text-muted: #8c96a5;
+      --accent: #4d90fe;
+      --accent-hover: #357ae8;
+      --border-main: #323846;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      padding: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border-main);
+      padding-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-main);
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      position: relative;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    input[type="text"],
+    input[type="datetime-local"] {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-main);
+      color: var(--text-main);
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="datetime-local"]:focus {
+      border-color: var(--accent);
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-main);
+      border-radius: 0 0 4px 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+
+    .suggestion-item {
+      padding: 0.6rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border-main);
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+      background-color: var(--border-main);
+    }
+
+    button.btn {
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      align-self: flex-start;
+    }
+
+    button.btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .results-list {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-main);
+      border-radius: 4px;
+      padding: 0.8rem 1rem;
+    }
+
+    .route-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .route-legs {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+    }
+
+    .line-badge {
+      background-color: var(--border-main);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .dep-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border-main);
+    }
+
+    .dep-row:last-child {
+      border-bottom: none;
+    }
+
+    .empty-hint, .error-hint {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 0.5rem 0;
+    }
+
+    .error-hint {
+      color: #f87171;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>ÖV-Informationen & Verbindungssuche</h1>
+    </header>
+
+    <!-- VERBINDUNGSSUCHE -->
+    <section class="panel">
+      <div class="panel-title">Verbindung suchen</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="route-from-input">Von</label>
+          <input type="text" id="route-from-input" placeholder="Startbahnhof..." autocomplete="off">
+          <div id="from-suggestions" class="suggestions"></div>
+        </div>
+        <div class="form-group">
+          <label for="route-to-input">Nach</label>
+          <input type="text" id="route-to-input" placeholder="Zielbahnhof..." autocomplete="off">
+          <div id="to-suggestions" class="suggestions"></div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: 1rem;">
+        <div class="form-group">
+          <label for="route-time">Abfahrtszeit (optional)</label>
+          <input type="datetime-local" id="route-time">
+        </div>
+        <div class="form-group" style="justify-content: flex-end;">
+          <button id="btn-search-route" class="btn">Verbindung finden</button>
+        </div>
+      </div>
+
+      <div id="routing-results" class="results-list"></div>
+    </section>
+
+    <!-- ABFAHRTSTAFEL -->
+    <section class="panel">
+      <div class="panel-title">Abfahrtstafel</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="board-station-input">Haltestelle</label>
+          <input type="text" id="board-station-input" placeholder="Haltestelle suchen..." autocomplete="off">
+          <div id="board-suggestions" class="suggestions"></div>
+        </div>
+        <div class="form-group" style="justify-content: flex-end;">
+          <button id="btn-load-board" class="btn">Abfahrten laden</button>
+        </div>
+      </div>
+
+      <div id="board-results" class="results-list"></div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
