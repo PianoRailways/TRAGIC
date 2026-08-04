@@ -16,6 +16,7 @@ const destFilter = document.getElementById('destFilter');
 async function loadCombinedStations() {
   const urls = [
     'https://nowe.stellwerksim.ch/combinedstations.js',
+    'https://tragic.stellwerksim.ch/combinedTRAGIC.js',
     // Weitere URLs hier hinzufügen:
     // 'https://example.com/combined-stations-2.js',
     // 'https://another-server.com/stations.js',
