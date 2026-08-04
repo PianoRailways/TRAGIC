@@ -180,7 +180,19 @@
 .line-container[data-agency-id="883"][data-line="15"] { background: #B58F3F; color: white; }
 .line-container[data-agency-id="883"][data-line="16"] { background: #B81F6F; color: white; }
 
-
+/* Biel/Bienne VB/TPB */
+.line-container[data-agency-id="889"][data-line="1"] { background: #E4392B; color: white; }
+.line-container[data-agency-id="889"][data-line="2"] { background: #2C458D; color: white; }
+.line-container[data-agency-id="889"][data-line="3"] { background: #E74E9D; color: white; }
+.line-container[data-agency-id="889"][data-line="4"] { background: #F68324; color: white; }
+.line-container[data-agency-id="889"][data-line="5"] { background: #1F6E36; color: white; }
+.line-container[data-agency-id="889"][data-line="6"] { background: #B7DC41; color: white; }
+.line-container[data-agency-id="889"][data-line="8"] { background: #9040BA; color: white; }
+.line-container[data-agency-id="889"][data-line="9"] { background: #00A6C9; color: white; }
+.line-container[data-agency-id="889"][data-line="11"] { background: #9040BA; color: white; }
+.line-container[data-agency-id="889"][data-line="12"] { background: #72DAC6; color: white; }
+.line-container[data-agency-id="889"][data-line="70"] { background: #296E88; color: white; }
+.line-container[data-agency-id="889"][data-line="71"] { background: #860043; color: white; }
 
 .line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
 
