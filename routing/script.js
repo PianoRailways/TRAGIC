@@ -29,7 +29,36 @@ const state = {
   boardStop: null
 };
 
+let abbrevMap = {};
+
+// ─── Abkürzungs-Mappings laden ──────────────────────────────────────────────
+
+async function loadAbbreviations() {
+  const countries = ['ch', 'de', 'at', 'fr'];
+  try {
+    for (const country of countries) {
+      try {
+        const res = await fetch(`/didok/${country}.json`);
+        if (res.ok) {
+          const data = await res.json();
+          Object.entries(data).forEach(([abbrev, name]) => {
+            if (!abbrevMap[abbrev]) {
+              abbrevMap[abbrev] = [];
+            }
+            abbrevMap[abbrev].push({ name, country: country.toUpperCase() });
+          });
+        }
+      } catch (e) {
+        console.warn(`Konnte /didok/${country}.json nicht laden:`, e);
+      }
+    }
+  } catch (err) {
+    console.error('Fehler beim Laden der Abkürzungs-Mappings:', err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  loadAbbreviations();
   setupLiveClock();
   setupAutocompletes();
   setupEventListeners();
@@ -93,31 +122,74 @@ function initAutocomplete(inputId, suggestionsId, onSelect) {
     }
 
     try {
+      const qUpper = query.toUpperCase();
+      const abbrevMatches = [];
+
+      // 1. Abkürzungs-Matches prüfen und auflösen
+      if (abbrevMap[qUpper]) {
+        for (const match of abbrevMap[qUpper]) {
+          try {
+            const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`);
+            const searchData = await searchRes.json();
+            const station = (searchData.stations || searchData.results || []).find(
+              s => s.name.toLowerCase() === match.name.toLowerCase()
+            );
+
+            if (station) {
+              abbrevMatches.push({
+                ...station,
+                abbrev: qUpper,
+                country: match.country
+              });
+            }
+          } catch (_) {}
+        }
+      }
+
+      // 2. Reguläre API-Suche
       const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(query)}`);
       const data = await res.json();
-      currentItems = data.stations || data.results || [];
+      const apiMatches = data.stations || data.results || [];
+
+      // 3. Mergen & Duplikate filtern (Abkürzungen zuerst)
+      const seen = new Set();
+      currentItems = [];
+
+      [...abbrevMatches, ...apiMatches].forEach(item => {
+        const key = (item.id || item.name).toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        currentItems.push(item);
+      });
 
       container.innerHTML = '';
       activeIndex = -1;
 
-      if (!Array.isArray(currentItems) || currentItems.length === 0) {
+      if (currentItems.length === 0) {
         container.style.display = 'none';
         return;
       }
 
+      // 4. Dropdown-Einträge rendern
       currentItems.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
-        div.textContent = item.name;
+
+        let html = escapeHtml(item.name);
+        if (item.abbrev) {
+          html += ` <span class="abbrev-label">${escapeHtml(item.abbrev)} [${escapeHtml(item.country)}]</span>`;
+        }
+
+        div.innerHTML = html;
         div.addEventListener('click', () => selectItem(index));
         container.appendChild(div);
       });
 
       container.style.display = 'block';
     } catch (err) {
-      console.error(err);
+      console.error('Fehler beim Laden der Vorschläge:', err);
     }
-  }, 200);
+  }, 250);
 
   function selectItem(index) {
     if (index >= 0 && index < currentItems.length) {
@@ -259,7 +331,7 @@ function renderTimelineBar(legs, totalDurationSec) {
     const legDuration = (leg.to.arrival && leg.from.departure)
       ? (leg.to.arrival - leg.from.departure)
       : 0;
-    
+
     let pct = (legDuration / totalDurationSec) * 100;
     if (pct < 3) pct = 3;
 
@@ -417,10 +489,10 @@ async function toggleTripStops(tripId, container, button, legFrom = null, legTo 
 function isSameStop(stopA, stopB) {
   if (stopA.stopId && stopB.id && stopA.stopId === stopB.id) return true;
   if (!stopA.name || !stopB.name) return false;
-  
+
   const cleanA = stopA.name.toLowerCase().replace(/[^a-z0-9]/g, '');
   const cleanB = stopB.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  
+
   return cleanA.includes(cleanB) || cleanB.includes(cleanA);
 }
 
