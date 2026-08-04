@@ -246,7 +246,7 @@ function renderTimelineBar(legs, totalDurationSec) {
     const routeId = escapeHtml(leg.routeId || '');
 
     // Attribute direkt am Timeline-Segment
-    html += `<div class="timeline-segment" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
+    html += `<div class="timeline-segment line-badge" data-mode="${mode}" data-agency-id="${agencyId}" data-line="${line}" data-route-id="${routeId}" style="width: ${pct}%;"></div>`;
 
     if (idx < legs.length - 1) {
       html += `<div class="timeline-dot"></div>`;
