@@ -280,7 +280,7 @@
 .line-container[data-agency-id="82"][data-line="S81"] { background: #85553a; color: white; }
 
 /* SBB */
-.line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-id="11"],[data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; }
 .line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
@@ -291,6 +291,9 @@
 .line-container[data-line^="SEV"], .line-container[data-agency-id="10980"] { position: relative; background-color: rgb(143,40,96); color: white; padding-right: 30px; }
 .line-container[data-line^="SEV"]::after, .line-container[data-agency-id="10980"]::after { content: ""; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background-color: rgb(217,157,54); border-radius: 50%; }
 
+/* Thurbo inkl. DELFI Thurbo */
+.line-container[data-agency-id="65"],.line-container[data-agency-id="10492"][data-line^="RE"] { background: white; color: #eb0000; }
+.line-container[data-agency-id="65"],.line-container[data-agency-id="10492"][data-line^="S"] { background: white; color: black; }
 /* Berlin */
 .line-container[data-agency-id="1"] { background: #008d4f; color: white; } /* S-Bahn */
 .line-container[data-agency-id="796"][data-mode="SUBWAY"] { background: #115D91; color: white; } /* U-Bahn */
