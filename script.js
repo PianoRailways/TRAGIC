@@ -11,53 +11,52 @@ const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
 const destFilter = document.getElementById('destFilter');
 
-// ─── Combined Stations laden (mehrere Quellen) ──────────────────────────────
-
-async function loadCombinedStations() {
-  const urls = [
-    'https://nowe.stellwerksim.ch/combinedstations.js',
-    'https://tragic.stellwerksim.ch/combinedTRAGIC.js',
-    // Weitere URLs hier hinzufügen:
-    // 'https://example.com/combined-stations-2.js',
-    // 'https://another-server.com/stations.js',
-  ];
+// ─── // Fetch departures for multiple stations, merge them and forward mode filters
+async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults = 25, modesParam = '') {
+  const relatedStationNames = getRelatedStations(stationName);
+  const allDeps = [];
   
-  // Temp object um alle Daten zu sammeln
-  const tempMerged = {};
-  let loadedCount = 0;
-  
-  for (const url of urls) {
+  for (const station of relatedStationNames) {
     try {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = url;
-        script.onload = () => {
-          console.log(`combinedStations loaded from ${url}`);
-          
-          // Merge die geladenen Daten ins temp object
-          if (window.combinedStations && typeof window.combinedStations === 'object') {
-            Object.assign(tempMerged, window.combinedStations);
-            loadedCount++;
-          }
-          
-          resolve();
-        };
-        script.onerror = () => {
-          console.warn(`Failed to load combinedStations from ${url}`);
-          resolve(); // Weiterfahren auch bei Fehler
-        };
-        document.head.appendChild(script);
-      });
+      const stationStopId = await resolveStationNameToId(station);
+      
+      if (!stationStopId) {
+        continue;
+      }
+      
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stationStopId)}&n=${numResults}`;
+      if (refEpoch) {
+        q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+      }
+      if (modesParam) {
+        q += `&modes=${encodeURIComponent(modesParam)}`;
+      }
+      
+      const res = await fetch(q);
+      const data = await res.json();
+      
+      if (data.error || !data.departures) {
+        continue;
+      }
+      
+      const departuresWithStation = data.departures.map(dep => ({
+        ...dep,
+        _fromStation: station,
+        _isMainStation: station === stationName
+      }));
+      allDeps.push(...departuresWithStation);
     } catch (err) {
-      console.error(`Error loading combinedStations from ${url}:`, err);
+      console.error(`Error fetching departures for ${station}:`, err);
     }
   }
   
-  // Setze das finale merged object
-  window.combinedStations = tempMerged;
-  window.combinedStationsReady = loadedCount > 0;
+  allDeps.sort((a, b) => {
+    const timeA = a.scheduled || Infinity;
+    const timeB = b.scheduled || Infinity;
+    return timeA - timeB;
+  });
   
-  console.log(`Loaded combinedStations from ${loadedCount}/${urls.length} sources, total entries: ${Object.keys(window.combinedStations).length}`);
+  return allDeps.slice(0, numResults);
 }
 
 // Get all related stations for a given station (by name, not ID)
@@ -585,7 +584,7 @@ async function selectStationByName(name, refEpoch) {
   }
 }
 
-// ─── Abfahrten laden (mit Combined Stations) ────────────────────────────────
+// ─── Abfahrten laden (mit Combined Stations und Filter-Parametern) ─────────
 
 async function loadDepartures(refEpoch) {
   if (!currentStopId) return;
@@ -595,20 +594,33 @@ async function loadDepartures(refEpoch) {
     refEpoch = getSelectedEpoch();
   }
 
+  // Aktive Modi für die API-Abfrage ermitteln
+  let activeModesParam = '';
+  if (!filterState.alleModeActive && filterState.selectedModes.size > 0) {
+    // Sammle alle API-Modi, die zu den ausgewählten kanonischen Gruppen gehören
+    const apiModes = [];
+    filterState.selectedModes.forEach(canonicalGroup => {
+      if (MODE_GROUPS[canonicalGroup]) {
+        apiModes.push(...MODE_GROUPS[canonicalGroup]);
+      }
+    });
+    if (apiModes.length > 0) {
+      activeModesParam = apiModes.join(',');
+    }
+  }
+
   try {
-    // Use fetchCombinedDepartures if combinedStations are available
-    // Falls nicht: fallback auf alte Methode mit stopId
     let departures;
     
     if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
-      console.log('Using combined departures for:', currentStationName);
-      departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
+      departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25, activeModesParam);
     } else {
-      // Fallback: Nur von der Haupt-Station laden (alte Methode)
-      console.log('Using single station departures for:', currentStationName);
       let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
       if (refEpoch) {
         q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+      }
+      if (activeModesParam) {
+        q += `&modes=${encodeURIComponent(activeModesParam)}`;
       }
       const res = await fetch(q);
       const data = await res.json();
@@ -621,7 +633,6 @@ async function loadDepartures(refEpoch) {
       }
 
       departures = data.departures || [];
-      // Markiere als von Haupt-Station (für Labeling)
       departures = departures.map(dep => ({
         ...dep,
         _fromStation: currentStationName,

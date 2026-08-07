@@ -140,6 +140,7 @@ if ($action === 'departures') {
     $stopId = trim($_GET['stopId'] ?? '');
     $n      = (int)($_GET['n'] ?? 25);
     $time   = trim($_GET['time'] ?? ''); // optional: ISO-Zeit als Referenzpunkt
+    $modes  = trim($_GET['modes'] ?? ''); // Modus-Filter auslesen
 
     if ($stopId === '') {
         http_response_code(400);
@@ -166,6 +167,11 @@ if ($action === 'departures') {
     if ($time !== '') {
         $params['time'] = $time;
         $params['arriveBy'] = 'false'; // wir wollen Abfahrten NACH diesem Zeitpunkt
+    }
+    
+    // Parameter an das API-Call-Array hängen, falls gesetzt
+    if ($modes !== '') {
+        $params['modes'] = $modes;
     }
 
     $result = callTransitous('/api/v1/stoptimes', $params);
