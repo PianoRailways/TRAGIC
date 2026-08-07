@@ -775,6 +775,19 @@ async function toggleChain(tr, dep) {
 }
 
 function renderChain(data) {
+  // Sammle Metadaten pro Leg aus den Stops (erste Stop pro Leg hat die Info)
+  const legMetadata = {};
+  (data.stops || []).forEach(stop => {
+    const legIdx = stop.legIndex ?? 0;
+    if (!legMetadata[legIdx]) {
+      legMetadata[legIdx] = {
+        line: data.line || '?',
+        tripNumber: data.tripNumber || null,
+        destination: data.destination || null
+      };
+    }
+  });
+
 const stopsHtml = (data.stops || []).map((stop, i) => {
   const isLast = i === (data.stops.length - 1);
   const isFirst = i === 0;
@@ -846,11 +859,16 @@ const stopsHtml = (data.stops || []).map((stop, i) => {
     const prevLegIndex = prevStop.legIndex ?? 0;
     
     if (currentLegIndex !== prevLegIndex) {
-      // Leg-Wechsel! Separator vor diesem Stop einfügen
+      // Hole Metadaten des nächsten Legs
+      const nextLegMeta = legMetadata[currentLegIndex] || {};
+      const lineStr = nextLegMeta.line ? escapeHtml(nextLegMeta.line) : '?';
+      const tripStr = nextLegMeta.tripNumber ? ` (${escapeHtml(nextLegMeta.tripNumber)})` : '';
+      const destStr = nextLegMeta.destination ? ` nach ${escapeHtml(nextLegMeta.destination)}` : '';
+      
       legSeparatorHtml = `
         <div class="chain-leg-separator">
           <div class="separator-text">
-            ↓ Fährt weiter von <strong>${escapeHtml(prevStop.name)}</strong> via <strong>${escapeHtml(stop.name)}</strong>
+            ↓ Fährt weiter als Linie ${lineStr}${tripStr} via <strong>${escapeHtml(stop.name)}</strong>${destStr}
           </div>
         </div>
       `;
