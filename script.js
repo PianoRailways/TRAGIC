@@ -284,23 +284,10 @@ function applyFilters() {
   document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
     const mode   = tr.dataset.mode   || 'OTHER';
     const dest   = (tr.dataset.dest  || '').toLowerCase();
-    const line   = (tr.dataset.line  || '').toLowerCase();
-    const trip   = (tr.dataset.trip  || '').toLowerCase();
-    const agencyId   = (tr.dataset.agencyId   || '').toLowerCase();
-    const agencyName = (tr.dataset.agencyName || '').toLowerCase();
-    const tripId     = (tr.dataset.tripId     || '').toLowerCase();
 
     // Mode-Filter: wenn "Alle" aktiv, alles zeigen; sonst nur wenn in selectedModes
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
-    
-    // Ziel-Filter + erweiterte Suche: Destination, Linie, Fahrtnummer, Betreiber (Name & ID), TripID
-    const destHide = destQuery && 
-      !dest.includes(destQuery) && 
-      !line.includes(destQuery) && 
-      !trip.includes(destQuery) && 
-      !agencyId.includes(destQuery) && 
-      !agencyName.includes(destQuery) && 
-      !tripId.includes(destQuery);
+    const destHide = destQuery && !dest.includes(destQuery);
 
     // Nutzen der exakten CSS-Klassen aus style.css
     tr.classList.toggle('filtered-mode', modeHide);
@@ -725,10 +712,6 @@ function renderDepartures(departures) {
     tr.dataset.mode = canonicalMode(dep.mode);
     tr.dataset.dest = dep.destination || '';
     tr.dataset.trip = dep.tripNumber || '';
-    tr.dataset.line = dep.line || '';
-    tr.dataset.agencyId = dep.agencyId || '';
-    tr.dataset.agencyName = dep.agencyName || '';
-    tr.dataset.tripId = dep.tripId || '';
 
     // "ab xyz" Label nur wenn nicht von Haupt-Station
     let stationLabelHtml = '';
