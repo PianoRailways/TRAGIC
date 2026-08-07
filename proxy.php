@@ -293,7 +293,19 @@ if ($action === 'trip') {
         }
     }
 
-    // Verwende das erste Leg für Meta-Info (oder baue Multi-Leg-Info auf)
+    // Sammle Meta-Info für jedes Leg
+    $legInfos = [];
+    foreach ($legs as $idx => $leg) {
+        if (!is_array($leg)) continue;
+        $legInfos[$idx] = [
+            'line'        => $leg['routeShortName'] ?? '?',
+            'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
+            'destination' => $leg['headsign'] ?? null,
+            'routeType'   => $leg['routeType'] ?? null,
+        ];
+    }
+
+    // Verwende das erste Leg für Top-Level Meta-Info
     $leg = $legs[0] ?? [];
 
     echo json_encode([
@@ -311,6 +323,7 @@ if ($action === 'trip') {
             'url'  => $leg['agencyUrl'] ?? null,
         ],
         'stops'       => $stops,
+        'legInfos'    => $legInfos,
         'legCount'    => count($legs),
         '_raw_leg_count' => count($legs),
     ]);

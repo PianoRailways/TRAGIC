@@ -775,18 +775,14 @@ async function toggleChain(tr, dep) {
 }
 
 function renderChain(data) {
-  // Sammle Metadaten pro Leg aus den Stops (erste Stop pro Leg hat die Info)
+  // Nutze legInfos vom Server (pro Leg: line, tripNumber, destination, etc.)
+  // PHP gibt die Keys als Strings zurück, daher müssen wir sie zu Zahlen konvertieren
   const legMetadata = {};
-  (data.stops || []).forEach(stop => {
-    const legIdx = stop.legIndex ?? 0;
-    if (!legMetadata[legIdx]) {
-      legMetadata[legIdx] = {
-        line: data.line || '?',
-        tripNumber: data.tripNumber || null,
-        destination: data.destination || null
-      };
-    }
-  });
+  if (data.legInfos) {
+    Object.entries(data.legInfos).forEach(([key, value]) => {
+      legMetadata[parseInt(key)] = value;
+    });
+  }
 
 const stopsHtml = (data.stops || []).map((stop, i) => {
   const isLast = i === (data.stops.length - 1);
