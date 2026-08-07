@@ -291,6 +291,13 @@
 .line-container[data-line^="SEV"], .line-container[data-agency-id="10980"] { position: relative; background-color: rgb(143,40,96); color: white; padding-right: 30px; }
 .line-container[data-line^="SEV"]::after, .line-container[data-agency-id="10980"]::after { content: ""; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background-color: rgb(217,157,54); border-radius: 50%; }
 
+/* CJ */
+.line-container[data-agency-id="43"][data-line="236"] { background: rgb(110,47,140); color: white; }
+.line-container[data-agency-id="43"][data-line="237"] { background: rgb(219,56,52); color: white; }
+.line-container[data-agency-id="833"][data-line="121"] { background: rgb(71,112,176); color: white; }
+.line-container[data-agency-id="833"][data-line="123"] { background: rgb(41,54,141); color: white; }
+.line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
+
 /* Thurbo inkl. DELFI Thurbo */
 .line-container[data-agency-id="65"],.line-container[data-agency-id="10492"][data-line^="RE"] { background: white; color: #eb0000; }
 .line-container[data-agency-id="65"],.line-container[data-agency-id="10492"][data-line^="S"] { background: white; color: black; }
