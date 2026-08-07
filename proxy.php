@@ -4,7 +4,7 @@
  * -----------------------------------
  * Aktionen:
  *   ?action=search&query=Zuerich
- *   ?action=departures&stopId=XYZ&n=12&time=2026-07-04T14:23:00Z
+ *   ?action=departures&stopId=XYZ&n=12&time=2026-07-04T14:23:00Z&modes=RAIL,BUS
  *   ?action=trip&tripId=XYZ
  *
  * WICHTIG: Trage unten Kontaktinfos ein (User-Agent-Pflicht laut Transitous Usage Policy).
@@ -44,10 +44,7 @@ function callTransitous(string $path, array $params): array {
 }
 
 /**
- * Holt robust einen Zeitwert aus einer Place-Struktur. Verschiedene MOTIS-
- * Versionen/Endpoints benennen das leicht unterschiedlich, und manche
- * verschachteln arrival/departure als eigenes Objekt mit scheduledTime/time.
- * Wir probieren mehrere Varianten durch, bis eine passt.
+ * Holt robust einen Zeitwert aus einer Place-Struktur.
  */
 function extractTime($place, array $candidates): ?string {
     if (!is_array($place)) return null;
@@ -67,14 +64,11 @@ function toEpoch(?string $value): ?int {
 }
 
 /**
- * Liefert [scheduledEpoch, liveEpoch] für arrival ODER departure an einer
- * Place-Struktur, egal ob flach (place.arrival = "...") oder verschachtelt
- * (place.arrival = {scheduledTime, time}) geliefert wird.
+ * Liefert [scheduledEpoch, liveEpoch] für arrival ODER departure.
  */
 function extractPair($place, string $type): array {
     if (!is_array($place)) return [null, null];
 
-    // Variante A: verschachteltes Objekt, z.B. place['arrival']['scheduledTime']
     if (isset($place[$type]) && is_array($place[$type])) {
         $obj = $place[$type];
         $sched = $obj['scheduledTime'] ?? $obj['scheduled'] ?? null;
@@ -82,8 +76,7 @@ function extractPair($place, string $type): array {
         return [toEpoch($sched !== null ? (string)$sched : null), toEpoch($live !== null ? (string)$live : null)];
     }
 
-    // Variante B: flache Felder, z.B. place['scheduledArrival'], place['arrival']
-    $prefix = $type; // 'arrival' oder 'departure'
+    $prefix = $type;
     $sched = extractTime($place, [
         $prefix . 'Scheduled', 'scheduled' . ucfirst($prefix), $prefix . 'ScheduledTime',
     ]);
@@ -118,7 +111,6 @@ if ($action === 'search') {
         $id = $entry['id'] ?? $entry['stopId'] ?? null;
         if (!$id) continue;
 
-        // Einträge verwürfen, die mit node/, way/ oder relation/ beginnen
         if (preg_match('/^(node|way|relation)\//i', $id)) {
             continue;
         }
@@ -139,8 +131,8 @@ if ($action === 'search') {
 if ($action === 'departures') {
     $stopId = trim($_GET['stopId'] ?? '');
     $n      = (int)($_GET['n'] ?? 25);
-    $time   = trim($_GET['time'] ?? ''); // optional: ISO-Zeit als Referenzpunkt
-    $modes  = trim($_GET['modes'] ?? ''); // Modus-Filter auslesen
+    $time   = trim($_GET['time'] ?? ''); // optional: ISO-Zeit
+    $modes  = trim($_GET['modes'] ?? ''); // optional: kommagetrennte Liste von Verkehrsmitteln
 
     if ($stopId === '') {
         http_response_code(400);
@@ -148,8 +140,6 @@ if ($action === 'departures') {
         exit;
     }
 
-    // Reine OSM-Elemente (node/..., way/..., relation/...) besitzen keine Fahrpläne.
-    // Sie würden bei Transitous zu einem HTTP-Fehler führen und HTML zurückgeben.
     if (preg_match('/^(node|way|relation)\//i', $stopId)) {
         echo json_encode([
             'stopId'     => $stopId,
@@ -160,16 +150,17 @@ if ($action === 'departures') {
         exit;
     }
 
+    $defaultLimit = ($modes !== '') ? 75 : 25;
+    $n = (int)($_GET['n'] ?? $defaultLimit);
+
     $params = [
         'stopId' => $stopId,
-        'n'      => max(1, min($n, 50)),
+        'n'      => max(1, min($n, 100)), // Limit flexibel bis 100 erlauben
     ];
     if ($time !== '') {
         $params['time'] = $time;
-        $params['arriveBy'] = 'false'; // wir wollen Abfahrten NACH diesem Zeitpunkt
+        $params['arriveBy'] = 'false';
     }
-    
-    // Parameter an das API-Call-Array hängen, falls gesetzt
     if ($modes !== '') {
         $params['modes'] = $modes;
     }
@@ -190,8 +181,6 @@ if ($action === 'departures') {
         $place = $entry['place'] ?? $entry;
 
         [$schedEpoch, $liveEpoch] = extractPair($place, 'departure');
-        // Fallback: manche Stoptimes-Antworten liefern die Zeit direkt am Place
-        // ohne "departure"-Verschachtelung (siehe extractTime-Kandidaten).
         if ($schedEpoch === null) {
             $sched = extractTime($place, ['scheduledTime', 'scheduledDeparture']);
             $live  = extractTime($place, ['time', 'realTimeDeparture']);
@@ -255,9 +244,8 @@ if ($action === 'trip') {
 
     $legs = $result['legs'] ?? [$result];
 
-    // Sammle alle Stops aus ALLEN Legs (für Durchbindungen, Ersatzzüge, etc.)
     $stops = [];
-    $seenStopIds = []; // Um Duplikate zu vermeiden (wenn ein Stop in mehreren Legs vorkommt)
+    $seenStopIds = [];
     
     foreach ($legs as $legIdx => $leg) {
         if (!is_array($leg)) continue;
@@ -270,7 +258,6 @@ if ($action === 'trip') {
         foreach ($placesRaw as $placeIdx => $place) {
             if (!is_array($place)) continue;
 
-            // Duplikat-Check: wenn wir einen Stop schon hatten, skippen wir ihn
             $stopIdKey = $place['stopId'] ?? $place['id'] ?? null;
             if ($stopIdKey && isset($seenStopIds[$stopIdKey])) {
                 continue;
@@ -303,12 +290,11 @@ if ($action === 'trip') {
                 'additional'        => $isAdditional,
                 'pickupType'        => $place['pickupType'] ?? 'NORMAL',
                 'dropoffType'       => $place['dropoffType'] ?? 'NORMAL',
-                'legIndex'          => $legIdx, // Kennzeichne welches Leg dieser Stop angehört
+                'legIndex'          => $legIdx,
             ];
         }
     }
 
-    // Verwende das erste Leg für Meta-Info (oder baue Multi-Leg-Info auf)
     $leg = $legs[0] ?? [];
 
     echo json_encode([
@@ -319,7 +305,6 @@ if ($action === 'trip') {
         'routeType'            => $leg['routeType'] ?? null,
         'bikesAllowed'         => $leg['bikesAllowed'] ?? null,
         'wheelchairAccessible' => $leg['wheelchairAccessible'] ?? null,
-        // Neu extrahierte Betreiberdaten:
         'agency'      => [
             'id'   => $leg['agencyId'] ?? null,
             'name' => $leg['agencyName'] ?? null,
