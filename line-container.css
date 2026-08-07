@@ -280,7 +280,7 @@
 .line-container[data-agency-id="82"][data-line="S81"] { background: #85553a; color: white; }
 
 /* SBB */
-.line-container[data-agency-id="11"],[data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; }
 .line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
