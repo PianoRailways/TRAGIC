@@ -85,16 +85,17 @@ async function resolveStationNameToId(stationName) {
 }
 
 // Fetch departures for multiple stations and merge them
-async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults = 25, modesParam = '') {
+async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults = 25) {
   const relatedStationNames = getRelatedStations(stationName);
   
   console.log(`Fetching departures for ${relatedStationNames.length} station(s):`, relatedStationNames);
   
   const allDeps = [];
   
-  // Für jede verknüpfte Station Abfahrten holen
+  // Fetch departures for each related station
   for (const station of relatedStationNames) {
     try {
+      // First resolve station name to stopId
       const stationStopId = await resolveStationNameToId(station);
       
       if (!stationStopId) {
@@ -102,13 +103,9 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
         continue;
       }
       
-      // numResults wird dynamisch übergeben (25 ohne Filter, 60 mit Filter)
       let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stationStopId)}&n=${numResults}`;
       if (refEpoch) {
         q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
-      }
-      if (modesParam) {
-        q += `&modes=${encodeURIComponent(modesParam)}`;
       }
       
       const res = await fetch(q);
@@ -120,6 +117,7 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
       }
       
       if (data.departures && Array.isArray(data.departures)) {
+        // Add the actual station name to each departure for later labeling
         const departuresWithStation = data.departures.map(dep => ({
           ...dep,
           _fromStation: station,
@@ -132,14 +130,14 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
     }
   }
   
-  // Alle Ergebnisse chronologisch sortieren
+  // Sort all departures by scheduled time
   allDeps.sort((a, b) => {
     const timeA = a.scheduled || Infinity;
     const timeB = b.scheduled || Infinity;
     return timeA - timeB;
   });
   
-  // Auf die angeforderte Menge begrenzen
+  // Limit to numResults
   return allDeps.slice(0, numResults);
 }
 
@@ -177,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCombinedStations();
 });
 
-// ─── Modus-Filter (localStorage & URL-persistent) ──────────────────────────
+// ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
 
 // Kanonische Gruppen: welche API-modes gehören zu welchem Button
 const MODE_GROUPS = {
@@ -202,6 +200,8 @@ function canonicalMode(rawMode) {
   return 'OTHER';
 }
 
+// Geladene Einstellungen aus localStorage
+// Default: "alleModeActive" = true (nur "Alle" leuchtet, alle Modi sind sichtbar)
 function loadActiveModesFromStorage() {
   try {
     const stored = localStorage.getItem('tragic_mode_filter');
@@ -218,16 +218,6 @@ function loadActiveModesFromStorage() {
 
 let filterState = loadActiveModesFromStorage();
 
-// Modi aus der URL beim Start auslesen (übersteuert ggf. localStorage)
-const urlModesRaw = params.get('modes');
-if (urlModesRaw) {
-  const modesArr = urlModesRaw.split(',').filter(Boolean);
-  if (modesArr.length > 0) {
-    filterState.alleModeActive = false;
-    filterState.selectedModes = new Set(modesArr);
-  }
-}
-
 function saveModesToStorage() {
   localStorage.setItem('tragic_mode_filter', JSON.stringify({
     alleModeActive: filterState.alleModeActive,
@@ -237,7 +227,7 @@ function saveModesToStorage() {
 
 function updateModeButtons() {
   const btnAll = document.getElementById('btn-mode-all');
-  if (btnAll) btnAll.classList.toggle('active', filterState.alleModeActive);
+  btnAll.classList.toggle('active', filterState.alleModeActive);
   
   document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
     const mode = btn.dataset.mode;
@@ -245,77 +235,61 @@ function updateModeButtons() {
   });
 }
 
-function syncModesToUrl() {
-  const url = new URL(location.href);
-  if (!filterState.alleModeActive && filterState.selectedModes.size > 0) {
-    url.searchParams.set('modes', [...filterState.selectedModes].join(','));
-  } else {
-    url.searchParams.delete('modes');
-  }
-  const currentEpoch = getSelectedEpoch();
-  history.pushState({
-    stopId: currentStopId, 
-    stationName: currentStationName, 
-    epoch: currentEpoch,
-    modes: [...filterState.selectedModes]
-  }, '', url);
-}
-
-// Event-Listener für Modi-Buttons
+// "Alle" Button Logik
 document.addEventListener('DOMContentLoaded', () => {
   const btnAll = document.getElementById('btn-mode-all');
-  if (btnAll) {
-    btnAll.addEventListener('click', () => {
-      if (filterState.alleModeActive) return;
-      filterState.alleModeActive = true;
-      filterState.selectedModes.clear();
-      saveModesToStorage();
-      updateModeButtons();
-      syncModesToUrl();
-      if (currentStopId) loadDepartures();
-    });
-  }
-
-  document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
-    const mode = btn.dataset.mode;
-
-    btn.addEventListener('click', () => {
-      filterState.alleModeActive = false;
-      
-      if (filterState.selectedModes.has(mode)) {
-        filterState.selectedModes.delete(mode);
-      } else {
-        filterState.selectedModes.add(mode);
-      }
-      
-      if (filterState.selectedModes.size === 0) {
-        filterState.alleModeActive = true;
-      }
-      
-      saveModesToStorage();
-      updateModeButtons();
-      syncModesToUrl();
-      if (currentStopId) loadDepartures();
-    });
+  
+  btnAll.addEventListener('click', () => {
+    filterState.alleModeActive = true;
+    filterState.selectedModes.clear();
+    saveModesToStorage();
+    updateModeButtons();
+    applyFilters();
   });
-
-  updateModeButtons();
 });
 
-// ─── Ziel-Filter (Lokal für Freitext-Suche auf geladenen Treffern) ───────────
+// Einzelne Mode-Buttons
+document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+  const mode = btn.dataset.mode;
+
+  btn.addEventListener('click', () => {
+    // Klick auf einzelnen Modus → "Alle" deaktivieren
+    filterState.alleModeActive = false;
+    
+    // Toggle diesen Modus
+    if (filterState.selectedModes.has(mode)) {
+      filterState.selectedModes.delete(mode);
+    } else {
+      filterState.selectedModes.add(mode);
+    }
+    
+    saveModesToStorage();
+    updateModeButtons();
+    applyFilters();
+  });
+});
+
+// Initial updateModeButtons aufrufen, damit am Start nur "Alle" leuchtet
+updateModeButtons();
+
+// ─── Ziel-Filter ────────────────────────────────────────────────────────────
 
 destFilter.addEventListener('input', () => applyFilters());
+
+// ─── Filter anwenden (lokal, kein Netz) ─────────────────────────────────────
 
 function applyFilters() {
   const destQuery = destFilter.value.trim().toLowerCase();
 
   document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
-    const mode = tr.dataset.mode || 'OTHER';
-    const dest = (tr.dataset.dest || '').toLowerCase();
+    const mode   = tr.dataset.mode   || 'OTHER';
+    const dest   = (tr.dataset.dest  || '').toLowerCase();
 
+    // Mode-Filter: wenn "Alle" aktiv, alles zeigen; sonst nur wenn in selectedModes
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
     const destHide = destQuery && !dest.includes(destQuery);
 
+    // Nutzen der exakten CSS-Klassen aus style.css
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
   });
@@ -337,6 +311,7 @@ function setPickersFromEpoch(epoch) {
   }
   const date = new Date(epoch * 1000);
   const pad2 = n => String(n).padStart(2, '0');
+  // Lokale Zeit verwenden, nicht UTC
   datePicker.value = `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
   timePicker.value = `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
@@ -346,17 +321,8 @@ function syncPickersToUrl() {
   const url = new URL(location.href);
   if (refEpoch) url.searchParams.set('time', refEpoch);
   else          url.searchParams.delete('time');
-  
-  if (!filterState.alleModeActive && filterState.selectedModes.size > 0) {
-    url.searchParams.set('modes', [...filterState.selectedModes].join(','));
-  }
-
-  history.pushState({
-    stopId: currentStopId, 
-    stationName: currentStationName, 
-    epoch: refEpoch,
-    modes: [...filterState.selectedModes]
-  }, '', url);
+  // pushState statt replaceState — damit Browser-Zurück funktioniert
+  history.pushState({stopId: currentStopId, stationName: currentStationName, epoch: refEpoch}, '', url);
   return refEpoch;
 }
 
@@ -375,24 +341,39 @@ function setupNavigationButtons() {
   const handleEarlier = () => {
     const currentEpoch = getSelectedEpoch();
     if (!currentEpoch) return;
-    const earlierEpoch = currentEpoch - (20 * 60);
+    const earlierEpoch = currentEpoch - (20 * 60); // 20 Minuten zurück
     setPickersFromEpoch(earlierEpoch);
     triggerTimeChange();
   };
 
   const handleLater = () => {
-    if (allDepartures.length === 0) return;
+    if (allDepartures.length === 0) {
+      console.log('Keine Abfahrten vorhanden');
+      return;
+    }
+    // Letzte Fahrt finden (nach scheduled sortiert)
     const lastDep = allDepartures[allDepartures.length - 1];
-    if (!lastDep) return;
+    console.log('Last departure:', lastDep);
+    if (!lastDep) {
+      console.log('Keine letzte Fahrt gefunden');
+      return;
+    }
     
+    // scheduled oder live Zeit verwenden
     const lastTime = lastDep.scheduled || lastDep.live;
-    if (!lastTime) return;
+    if (!lastTime) {
+      console.log('Keine Zeit bei letzter Fahrt gefunden');
+      return;
+    }
     
+    // Neue Zeit = letzte Abfahrt - 1 Minute
     const laterEpoch = lastTime - 60;
+    console.log('Setting later epoch to:', laterEpoch, 'from:', lastTime);
     setPickersFromEpoch(laterEpoch);
     triggerTimeChange();
   };
 
+  // Beide Button-Paare (oben und unten) registrieren
   const btnEarlierTop = document.getElementById('btn-earlier-top');
   const btnLaterTop = document.getElementById('btn-later-top');
   const btnEarlierBottom = document.getElementById('btn-earlier-bottom');
@@ -404,7 +385,9 @@ function setupNavigationButtons() {
   if (btnLaterBottom) btnLaterBottom.addEventListener('click', handleLater);
 }
 
+// Nach DOMContentLoaded Buttons setup
 document.addEventListener('DOMContentLoaded', () => {
+  // Warte kurz, bis alle Elemente geladen sind
   setTimeout(() => {
     setupNavigationButtons();
   }, 100);
@@ -412,19 +395,13 @@ document.addEventListener('DOMContentLoaded', () => {
   updateClock();
   setInterval(updateClock, 1000);
 
+  // Popstate-Event für Browser-Navigation (Zurück/Vorwärts)
   window.addEventListener('popstate', (event) => {
     const state = event.state;
     if (state && state.stopId) {
       currentStopId = state.stopId;
       currentStationName = state.stationName || 'Station wählen';
       updateStationTitle(currentStationName);
-      
-      if (state.modes) {
-        filterState.selectedModes = new Set(state.modes);
-        filterState.alleModeActive = filterState.selectedModes.size === 0;
-        updateModeButtons();
-      }
-
       setPickersFromEpoch(state.epoch);
       loadDepartures(state.epoch);
     }
@@ -432,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnJetzt = document.getElementById('btn-jetzt');
   if (btnJetzt) btnJetzt.addEventListener('click', setCurrentTime);
+  // btn-refresh ist bereits vorhanden, aber ändere seinen Handler:
   document.getElementById('btn-refresh').addEventListener('click', reloadDepartures);
 });
 
@@ -444,10 +422,13 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
   if (q.length < 2) return;
  
   try {
+    // 1. Abkürzungs-Matches sammeln
     const abbrevMatches = [];
     const qUpper = q.toUpperCase();
     if (abbrevMap[qUpper]) {
+      // Für jede Abkürzung: Station-Name suchen und ID auflösen
       for (const match of abbrevMap[qUpper]) {
+        // Versuche, die Station über den Namen zu finden
         try {
           const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`);
           const searchData = await searchRes.json();
@@ -466,6 +447,7 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
       }
     }
  
+    // 2. API-Call
     const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
     const data = await res.json();
     const apiMatches = (data.stations || []).map(st => ({
@@ -476,6 +458,7 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
       source: 'api'
     }));
  
+    // 3. Abkürzungs-Matches zuerst, dann API (ohne Duplikate)
     const seen = new Set();
     const allMatches = [...abbrevMatches, ...apiMatches];
     
@@ -487,10 +470,12 @@ document.getElementById('query').addEventListener('input', debounce(async (e) =>
       const li = document.createElement('li');
       let html = escapeHtml(match.name);
       
+      // Abkürzungs-Label anhängen
       if (match.abbrev) {
         html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)} [${escapeHtml(match.country)}]</span>`;
       }
       
+      // Station ID anhängen
       if (match.id) {
         html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
       }
@@ -512,12 +497,15 @@ document.addEventListener('click', (e) => {
 
 // ─── Init aus URL ────────────────────────────────────────────────────────────
 
+// Zeit aus URL lesen und sofort in Picker setzen
 const urlTimeRaw = params.get('time');
 const urlEpoch   = urlTimeRaw && !isNaN(Number(urlTimeRaw)) ? Number(urlTimeRaw) : null;
 
+// Wenn keine Zeit in URL vorhanden ist, aktuelle Zeit verwenden
 let initialEpoch = urlEpoch;
 if (!initialEpoch) {
   const now = new Date();
+  // Lokale Zeit in Epoch umrechnen (timezone-robust)
   initialEpoch = Math.floor(now.getTime() / 1000);
   setPickersFromEpoch(initialEpoch);
 } else {
@@ -526,61 +514,58 @@ if (!initialEpoch) {
 
 if (params.get('stopId')) {
   currentStopId = params.get('stopId');
+  // currentStationName wird von loadDepartures gesetzt, oder als default
   currentStationName = 'Station wählen';
   updateStationTitle(currentStationName);
   loadDepartures(initialEpoch);
 }
 
-// ─── Station Title aktualisieren ─────────────────────────────────────────────
+// ─── Station Title aktualisieren (in zwei Orten) ────────────────────────────
 
 function updateStationTitle(name) {
   currentStationName = name;
   document.getElementById('stationTitle').textContent = name;
+  // Optional: auch im Browser-Tab-Titel anzeigen
   document.title = name + ' | OMNI (NOWE)';
 }
 
 // ─── Station auswählen ───────────────────────────────────────────────────────
 
 function selectStation(stopId, name, refEpoch) {
+  // Wenn stopId null ist (Abkürzungs-Match), suche die Station über die API
   if (stopId === null) {
+    // Versuche, die Station zu finden
     selectStationByName(name, refEpoch);
     return;
   }
 
   currentStopId = stopId;
   currentStationName = name;
-  currentMainStationId = stopId;
+  currentMainStationId = stopId; // Merke die Haupt-Station für Combined-Labeling
   updateStationTitle(name);
   document.getElementById('suggestions').innerHTML = '';
   document.getElementById('query').value = '';
 
+  // Nur wenn refEpoch explizit übergeben wurde, die Picker setzen.
+  // Sonst: aktuelle Picker-Werte bewahren (der Benutzer hat sie ja gerade gesetzt)
   if (refEpoch !== undefined) {
     setPickersFromEpoch(refEpoch);
   }
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
+  // Aktuelle Picker-Werte in die URL schreiben
   const currentEpoch = getSelectedEpoch();
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
   else              url.searchParams.delete('time');
-  
-  if (!filterState.alleModeActive && filterState.selectedModes.size > 0) {
-    url.searchParams.set('modes', [...filterState.selectedModes].join(','));
-  } else {
-    url.searchParams.delete('modes');
-  }
-
-  history.pushState({
-    stopId, 
-    stationName: name, 
-    epoch: currentEpoch,
-    modes: [...filterState.selectedModes]
-  }, '', url);
+  // pushState für History — ermöglicht Browser-Zurück
+  history.pushState({stopId, stationName: name, epoch: currentEpoch}, '', url);
 
   loadDepartures(currentEpoch);
   window.scrollTo({top: 250, behavior: 'smooth'});
 }
 
+// Hilfsfunktion: Suche Station nach Name über API
 async function selectStationByName(name, refEpoch) {
   try {
     const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(name)}`);
@@ -592,6 +577,7 @@ async function selectStationByName(name, refEpoch) {
       return;
     }
     
+    // Nimm die erste exakte Übereinstimmung oder die erste Option
     const match = stations.find(s => s.name.toLowerCase() === name.toLowerCase()) || stations[0];
     selectStation(match.id, match.name, refEpoch);
   } catch (err) {
@@ -599,7 +585,7 @@ async function selectStationByName(name, refEpoch) {
   }
 }
 
-// ─── Abfahrten laden (mit API-Modusfilter) ───────────────────────────────────
+// ─── Abfahrten laden (mit Combined Stations) ────────────────────────────────
 
 async function loadDepartures(refEpoch) {
   if (!currentStopId) return;
@@ -609,40 +595,21 @@ async function loadDepartures(refEpoch) {
     refEpoch = getSelectedEpoch();
   }
 
-  // Aktive API-Modi ermitteln
-  let activeModesParam = '';
-  if (!filterState.alleModeActive && filterState.selectedModes.size > 0) {
-    const apiModes = [];
-    filterState.selectedModes.forEach(canonicalGroup => {
-      if (MODE_GROUPS[canonicalGroup]) {
-        apiModes.push(...MODE_GROUPS[canonicalGroup]);
-      }
-    });
-    if (apiModes.length > 0) {
-      activeModesParam = apiModes.join(',');
-    }
-  }
-
-  // Bei aktivem Filter fordern wir 60 Treffer an, damit Transitous zeitlich 
-  // weiter scannt und die Liste mit dem gewünschten Verkehrsmittel auffüllt.
-  const requestedLimit = activeModesParam ? 60 : 25;
-
   try {
+    // Use fetchCombinedDepartures if combinedStations are available
+    // Falls nicht: fallback auf alte Methode mit stopId
     let departures;
     
     if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
       console.log('Using combined departures for:', currentStationName);
-      departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, requestedLimit, activeModesParam);
+      departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
     } else {
+      // Fallback: Nur von der Haupt-Station laden (alte Methode)
       console.log('Using single station departures for:', currentStationName);
-      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=${requestedLimit}`;
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
       if (refEpoch) {
         q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
       }
-      if (activeModesParam) {
-        q += `&modes=${encodeURIComponent(activeModesParam)}`;
-      }
-
       const res = await fetch(q);
       const data = await res.json();
 
@@ -654,6 +621,7 @@ async function loadDepartures(refEpoch) {
       }
 
       departures = data.departures || [];
+      // Markiere als von Haupt-Station (für Labeling)
       departures = departures.map(dep => ({
         ...dep,
         _fromStation: currentStationName,
@@ -709,7 +677,7 @@ function renderDepartures(departures) {
     document.getElementById('status').innerHTML = '<div class="empty-hint">Keine Abfahrten gefunden.</div>';
     return;
   }
-  
+  // Sortiere nach Fahrplanzeit (scheduled), nicht nach Live-Zeit
   const sorted = [...departures].sort((a, b) => {
     const timeA = a.scheduled || Infinity;
     const timeB = b.scheduled || Infinity;
@@ -720,10 +688,12 @@ function renderDepartures(departures) {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
+    // SOLL-Zeit anzeigen (scheduled), NICHT live
     const timeStr = dep.scheduled
       ? new Date(dep.scheduled * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'})
       : '–';
 
+    // Verspätungs-Badge
     let delayHtml = '';
     if (dep.cancelled) {
       delayHtml = '<span class="cancelled">Ausfall</span>';
@@ -738,10 +708,12 @@ function renderDepartures(departures) {
 
     const iconHtml = getModeIcon(dep.mode);
 
+    // data-Attribute für Filter — kanonischen Mode speichern, nicht Rohwert
     tr.dataset.mode = canonicalMode(dep.mode);
     tr.dataset.dest = dep.destination || '';
     tr.dataset.trip = dep.tripNumber || '';
 
+    // "ab xyz" Label nur wenn nicht von Haupt-Station
     let stationLabelHtml = '';
     if (dep._fromStation && !dep._isMainStation) {
       stationLabelHtml = `<div class="station-hint">ab ${escapeHtml(dep._fromStation)}</div>`;
@@ -760,6 +732,7 @@ function renderDepartures(departures) {
     tbody.appendChild(tr);
   });
 
+  // Filter nach dem Rendern sofort anwenden
   applyFilters();
 }
 
@@ -802,114 +775,127 @@ async function toggleChain(tr, dep) {
 }
 
 function renderChain(data) {
-  const stopsHtml = (data.stops || []).map((stop, i) => {
-    const isLast = i === (data.stops.length - 1);
-    const isFirst = i === 0;
+const stopsHtml = (data.stops || []).map((stop, i) => {
+  const isLast = i === (data.stops.length - 1);
+  const isFirst = i === 0;
+  
+  // Zeiten formatieren (SOLL-Zeit, wie in der Haupttafel)
+  const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
+  const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
+  
+  // Verspätungs-Badges
+  const arrDelayHtml = stop.cancelled
+    ? '<span class="cancelled">Ausfall</span>'
+    : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
+        ? (Math.floor(stop.arrivalDelaySec / 60) < 0
+            ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+            : Math.abs(stop.arrivalDelaySec) > 30
+              ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
+              : '')
+        : '');
+  
+  const depDelayHtml = stop.cancelled
+    ? '<span class="cancelled">Ausfall</span>'
+    : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
+        ? (Math.floor(stop.departureDelaySec / 60) < 0
+            ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
+            : Math.abs(stop.departureDelaySec) > 30
+              ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>`
+              : '')
+        : '');
+  
+  // Gleis
+  let platHtml = '';
+  if (stop.track) {
+    platHtml = `Gl. ${escapeHtml(stop.track)}`;
+  }
+ 
+  // ─── SD/SM Boarding Badges ───
+  let boardingBadge = '';
+  const noPickup  = stop.pickupType === 'NOT_ALLOWED' || stop.pickupType === 'MUST_PHONE' || stop.pickupType === 'COORDINATE_WITH_DRIVER';
+  const noDropoff = stop.dropoffType === 'NOT_ALLOWED' || stop.dropoffType === 'MUST_PHONE' || stop.dropoffType === 'COORDINATE_WITH_DRIVER';
+ 
+  if (noPickup && !noDropoff) {
+    boardingBadge = '<span class="boarding-badge badge-sd" title="Halt nur zum Aussteigen">SD</span>';
+  } else if (noDropoff && !noPickup) {
+    boardingBadge = '<span class="boarding-badge badge-sm" title="Halt nur zum Einsteigen">SM</span>';
+  }
+  
+  // Ausfall-Status
+  const stopNameStyle = stop.cancelled 
+    ? 'text-decoration: line-through; color: #555;' 
+    : '';
+  
+  // Dot-Styling (ausgefallene Halte grau)
+  const dotStyle = stop.cancelled 
+    ? ' style="background:#555;"' 
+    : '';
+  
+  // Referenzpunkt für "klick auf Stop" = SOLL-Ankunft
+  const refEpoch = stop.arrivalSched || stop.arrivalLive;
+  const isClickable = !!stop.stopId;
+  const clickAttrs = isClickable
+    ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
+    : '';
+  
+  // Leg-Wechsel prüfen: wenn diesen Stop ein anderes Leg hat als der vorherige
+  let legSeparatorHtml = '';
+  if (i > 0) {
+    const prevStop = data.stops[i - 1];
+    const currentLegIndex = stop.legIndex ?? 0;
+    const prevLegIndex = prevStop.legIndex ?? 0;
     
-    const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
-    const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
-    
-    const arrDelayHtml = stop.cancelled
-      ? '<span class="cancelled">Ausfall</span>'
-      : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
-          ? (Math.floor(stop.arrivalDelaySec / 60) < 0
-              ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
-              : Math.abs(stop.arrivalDelaySec) > 30
-                ? `<span class="delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
-                : '')
-          : '');
-    
-    const depDelayHtml = stop.cancelled
-      ? '<span class="cancelled">Ausfall</span>'
-      : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
-          ? (Math.floor(stop.departureDelaySec / 60) < 0
-              ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
-              : Math.abs(stop.departureDelaySec) > 30
-                ? `<span class="delay">${fmtDelay(stop.departureDelaySec)}</span>`
-                : '')
-          : '');
-    
-    let platHtml = '';
-    if (stop.track) {
-      platHtml = `Gl. ${escapeHtml(stop.track)}`;
+    if (currentLegIndex !== prevLegIndex) {
+      // Leg-Wechsel! Separator vor diesem Stop einfügen
+      legSeparatorHtml = `
+        <div class="chain-leg-separator">
+          <div class="separator-text">
+            ↓ Fährt weiter von <strong>${escapeHtml(prevStop.name)}</strong> via <strong>${escapeHtml(stop.name)}</strong>
+          </div>
+        </div>
+      `;
     }
-   
-    let boardingBadge = '';
-    const noPickup  = stop.pickupType === 'NOT_ALLOWED' || stop.pickupType === 'MUST_PHONE' || stop.pickupType === 'COORDINATE_WITH_DRIVER';
-    const noDropoff = stop.dropoffType === 'NOT_ALLOWED' || stop.dropoffType === 'MUST_PHONE' || stop.dropoffType === 'COORDINATE_WITH_DRIVER';
-   
-    if (noPickup && !noDropoff) {
-      boardingBadge = '<span class="boarding-badge badge-sd" title="Halt nur zum Aussteigen">SD</span>';
-    } else if (noDropoff && !noPickup) {
-      boardingBadge = '<span class="boarding-badge badge-sm" title="Halt nur zum Einsteigen">SM</span>';
-    }
-    
-    const stopNameStyle = stop.cancelled 
-      ? 'text-decoration: line-through; color: #555;' 
-      : '';
-    
-    const dotStyle = stop.cancelled 
-      ? ' style="background:#555;"' 
-      : '';
-    
-    const refEpoch = stop.arrivalSched || stop.arrivalLive;
-    const isClickable = !!stop.stopId;
-    const clickAttrs = isClickable
-      ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
-      : '';
-    
-    let legSeparatorHtml = '';
-    if (i > 0) {
-      const prevStop = data.stops[i - 1];
-      const currentLegIndex = stop.legIndex ?? 0;
-      const prevLegIndex = prevStop.legIndex ?? 0;
+  }
+  
+  return legSeparatorHtml + `
+    <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
       
-      if (currentLegIndex !== prevLegIndex) {
-        legSeparatorHtml = `
-          <div class="chain-leg-separator">
-            <div class="separator-text">
-              ↓ Fährt weiter von <strong>${escapeHtml(prevStop.name)}</strong> via <strong>${escapeHtml(stop.name)}</strong>
-            </div>
+      <!-- Dot-Spalte mit Linie -->
+      <div class="chain-dot-col">
+        <div class="chain-dot-wrapper">
+          <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
+        </div>
+        ${!isLast ? `
+          <div class="chain-line-wrapper">
+            <div class="chain-line"${stop.cancelled ? ' style="background:rgba(255,255,255,0.05);"' : ''}></div>
           </div>
-        `;
-      }
-    }
-    
-    return legSeparatorHtml + `
-      <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
-        <div class="chain-dot-col">
-          <div class="chain-dot-wrapper">
-            <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
-          </div>
-          ${!isLast ? `
-            <div class="chain-line-wrapper">
-              <div class="chain-line"${stop.cancelled ? ' style="background:rgba(255,255,255,0.05);"' : ''}></div>
-            </div>
-          ` : ''}
-        </div>
-        
-        <div class="chain-times">
-          ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
-          ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
-        </div>
-        
-        <div class="chain-info">
-          <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}${boardingBadge}</div>
-          ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
-        </div>
+        ` : ''}
       </div>
-    `;
-  }).join('');
-    
+      
+      <!-- Zeit-Spalte -->
+      <div class="chain-times">
+        ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
+        ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
+      </div>
+      
+      <!-- Info-Spalte (Halte + Gleis) -->
+      <div class="chain-info">
+        <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}${boardingBadge}</div>
+        ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
+      </div>
+    </div>
+  `;
+}).join('');
+  
   const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
   const BetreiberHTML = (data.agency && (data.agency.name || data.agency.id))
-    ? `<div class="agency-row">Betreiber: ${
-        data.agency.url 
-          ? `<a href="${escapeHtml(data.agency.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}</a>`
-          : `${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}`
-      }</div>`
-    : '';
-    
+  ? `<div class="agency-row">Betreiber: ${
+      data.agency.url 
+        ? `<a href="${escapeHtml(data.agency.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}</a>`
+        : `${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}`
+    }</div>`
+  : '';
+  
   return `
     <div class="chain-header">
       <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · ' + escapeHtml(data.tripNumber) : ''}
@@ -942,30 +928,30 @@ function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 function escapeAttr(str) {
   if (str === null || str === undefined) return '';
   return String(str).replace(/[\\'"]/g, c => '\\' + c);
 }
-
 function debounce(fn, delay) {
   let t;
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
 }
 
-// ─── JETZT Button ───────────────────────────────────────────────────────────
+// ─── JETZT Button: Aktuelle Zeit setzen ────────────────────────────────────
 
 function setCurrentTime() {
   const now = new Date();
   const pad2 = n => String(n).padStart(2, '0');
   
+  // Lokale Zeit in Picker setzen
   datePicker.value = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
   timePicker.value = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
   
+  // URL aktualisieren und Abfahrten laden
   triggerTimeChange();
 }
 
-// ─── GO Button ──────────────────────────────────────────────────────────────
+// ─── GO Button: Abfahrten neu laden ────────────────────────────────────────
 
 function reloadDepartures() {
   const currentEpoch = getSelectedEpoch();
