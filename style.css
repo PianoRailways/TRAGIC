@@ -413,6 +413,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   align-items: center;
   gap: 0.4rem;
   background: #2d327d;
+  border-radius: 5px;
 }
 
 .mode-icon {
