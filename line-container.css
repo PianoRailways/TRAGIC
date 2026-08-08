@@ -267,10 +267,10 @@
 .line-container[data-agency-id="871"][data-line="493"] { background: rgb(129,27,78); color: white; border: 1px solid #A0E100;}
 
 /* RBS Bahn */
-.line-container[data-agency-id="88"][data-line="S7"] { background: rgb(227,141,67); color: white; }
-.line-container[data-agency-id="88"][data-line="S8"] { background: black; color: white; }
-.line-container[data-agency-id="88"][data-line="S9"] { background: rgb(208,46,38); color: white; }
-.line-container[data-agency-id="88"][data-line="RE5"] { background: rgb(55,126,34); color: white; }
+.line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="S7"] { background: rgb(227,141,67); color: white; }
+.line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="S8"] { background: black; color: white; }
+.line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="S9"] { background: rgb(208,46,38); color: white; }
+.line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="RE5"] { background: rgb(55,126,34); color: white; }
 
 /* === SOB === */
 .line-container[data-agency-id="82"] { background: #e10e23; color: white; } /* SOB */
