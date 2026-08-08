@@ -280,6 +280,18 @@
 .line-container[data-agency-id="82"][data-line^="VAE"],
 .line-container[data-agency-id="82"][data-line="S81"] { background: #85553a; color: white; }
 
+/* === MGB === */
+.line-container[data-agency-name*="Matterhorn Gotthard Bahn"][data-line="R40"] { background: #ACA425; color: white; }
+.line-container[data-agency-name*="Matterhorn Gotthard Bahn"][data-line="R41"] { background: #48A8B7; color: white; }
+.line-container[data-agency-name*="Matterhorn Gotthard Bahn"][data-line="R42"] { background: #00788B; color: white; }
+.line-container[data-agency-name*="Matterhorn Gotthard Bahn"][data-line="R43"] { background: #E82324; color: white; }
+.line-container[data-agency-name*="Matterhorn Gotthard Bahn"][data-line="R44"] { background: #EAA7A8; color: white; }
+.line-container[data-agency-name*="Matterhorn Gotthard Bahn"][data-line="R44"] { background: #A72D42; color: white; }
+.line-container[data-agency-name*="Matterhorn Gotthard Bahn"][data-line="R44"] { background: #F88C29; color: white; }
+
+.line-container[data-agency-name="Gornergratbahn"] { background: #FFB82D; color: white; }
+Matterhorn Gotthard Bahn (bvz)
+
 /* SBB */
 .line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; }
