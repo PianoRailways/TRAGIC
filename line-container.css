@@ -244,7 +244,7 @@
 .line-container[data-agency-id="889"][data-line="70"] { background: #296E88; color: white; }
 .line-container[data-agency-id="889"][data-line="71"] { background: #860043; color: white; }
 
-.line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
+.line-container[data-agency-name="BLS AG"] { background: #A0E100; color: #0028a0; } /* BLS */
 
 /* Busland */
 .line-container[data-agency-id="871"][data-line="271"] { background: rgb(48,112,142); color: white; border: 1px solid #A0E100;}
