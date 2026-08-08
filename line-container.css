@@ -45,6 +45,7 @@
 .line-container[data-mode="SUBWAY"]     { background: white; color: black; }
 .line-container[data-mode="FERRY"]      { background: #1a6ea8; }
 
+.line-container[data-line^="ICE"]      { background: white; color: #B4B4B4; font-style: italic; }
 
 @keyframes move-stripes {
   0% {background-position: 0 0;}
