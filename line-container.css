@@ -356,6 +356,7 @@
 /* Polen */
 .line-container[data-agency-id="12617"],
 .line-container[data-agency-name="PKP Intercity"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
+.line-container[data-agency-name="PolRegio"] { background: #5D6770; color: #DA2128; } /* PolRegio y */
 /* Dänemark */
 .line-container[data-agency-id="318"],
 .line-container[data-agency-id="203"] { background: #c2122b; color: white; } /* DSB */
