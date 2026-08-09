@@ -912,7 +912,7 @@ const stopsHtml = (data.stops || []).map((stop, i) => {
   
   return `
     <div class="chain-header">
-      <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · ' + escapeHtml(data.tripNumber) : ''}
+      <b>Linie ${escapeHtml(data.line || '?')}${data.destination ? ' → ' + escapeHtml(data.destination) : ''}</b>${data.tripNumber ? ' · ' + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) : ''}
     </div>
     <div class="chain">
       ${stopsHtml}
