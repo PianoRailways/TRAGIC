@@ -300,8 +300,15 @@
 .line-container[data-agency-id="11"][data-line^="EC"] { font-style: italic; background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line^="ICE"] { font-style: italic; background: #eb0000; color: white;}
 .line-container[data-line^="EV"] { background-color: var(--sbb-orange); color: #000; }
-.line-container[data-line^="SEV"], .line-container[data-agency-id="10980"] { position: relative; background-color: rgb(143,40,96); color: white; padding-right: 30px; }
-.line-container[data-line^="SEV"]::after, .line-container[data-agency-id="10980"]::after { content: ""; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background-color: rgb(217,157,54); border-radius: 50%; }
+
+.line-container[data-line^="SEV"],
+.line-container[data-agency-id="10980"],
+.line-container[data-agency-name^="DB"][data-mode="BUS"]
+  {position: relative; background-color: rgb(143,40,96); color: white; padding-right: 30px; }
+.line-container[data-line^="SEV"]::after,
+.line-container[data-agency-id="10980"]::after,
+.line-container[data-agency-name^="DB"][data-mode="BUS"]::after
+  { content: ""; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background-color: rgb(217,157,54); border-radius: 50%; }
 
 /* CJ */
 .line-container[data-agency-id="43"][data-line="R36"] { background: rgb(110,47,140); color: white; }
