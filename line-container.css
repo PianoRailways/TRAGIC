@@ -164,6 +164,8 @@
 .line-container[data-agency-id="840"][data-line="6"] { background: rgb(229,136,70); color: white; }
 .line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
+/* Regionalbus Lenzburg */
+.line-container[data-agency-name="Regionalbus Lenzburg"] { background: white; color: #E3000B; }
 /* Bernmobil + RBS */
 .line-container[data-agency-id="827"][data-line="6"] { background: rgb(56,127,196); color: white; }
 .line-container[data-agency-id="827"][data-line="7"] { background: rgb(208,46,38); color: white; }
