@@ -245,6 +245,12 @@
 .line-container[data-agency-id="889"][data-line="71"] { background: #860043; color: white; }
 
 .line-container[data-agency-name="BLS AG"],.line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
+.line-container[data-line="GPX"] { background: #0f437a; color: #c2a84c; }
+
+/* BOB / Jungfraubahnen */
+.line-container[data-agency-name="Berner Oberland-Bahnen"],
+.line-container[data-agency-name^="Wengernalpbahn"],
+.line-container[data-agency-name^="Jungfraubahn"] { background: #ffdc00; color: #213857; }
 
 /* Busland */
 .line-container[data-agency-id="871"][data-line="271"] { background: rgb(48,112,142); color: white; border: 1px solid #A0E100;}
@@ -290,7 +296,7 @@
 .line-container[data-agency-name*="Matterhorn"][data-line="R44"] { background: #F88C29; color: white; }
 
 .line-container[data-agency-name="Gornergratbahn"] { background: #FFB82D; color: white; }
-/* MBC */
+/* MBC etc. */
 .line-container[data-agency-id="64"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="131"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="23"][data-line^="R"] { background: white; color: black; }
