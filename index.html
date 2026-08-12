@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="stylesheet" href="line-container.css">
-    <link rel="stylesheet" href="style.css?v=3107202611">
+    <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="tragic.png">
     <link rel="apple-touch-icon" href="tragic.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,12 +18,13 @@
     <div id="header-left">
       <button id="btn-home" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A82597'" title="Startseite">⌂ Home</button>
     </div>
-    <div id="header-center"><span id="live-clock" onClick="window.location = './'">00:00:00</span></div>
+    <div id="header-center"><span id="live-clock" onClick="window.location = './'">18:04:69</span></div>
     <div id="header-right">
-      <span id="app-title" style="text-decoration: none;" onclick="toggleArrival()">öV OMNI</span>
+      <span id="app-title" style="text-decoration: none;" onclick="toggleArrivalMode()">öV OMNI</span>
     </div>
   </header>
-<div class="panel">
+
+  <div class="panel">
     <!-- ═══════════════ FAVORITEN ═══════════════ -->
     <nav id="fav-bar">
       <button class="fav-btn" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A8100'">LTH</button>
@@ -53,15 +54,15 @@
     <nav id="mode-filter-bar">
       <span class="mode-filter-label">Filter:</span>
       <button id="btn-mode-all" class="mode-btn mode-all active" title="Alle Filter">Alle</button>
-      <button class="mode-btn active" data-mode="HIGHSPEED"     title="Hochgeschwindigkeit">Highspeed</button>
-      <button class="mode-btn active" data-mode="RAIL"     title="Bahn">🚆 Bahn</button>
-      <button class="mode-btn active" data-mode="NIGHT"     title="Nacht">Nacht</button>
-      <button class="mode-btn active" data-mode="SUBWAY"   title="U-Bahn">🚇 U</button>
-      <button class="mode-btn active" data-mode="TRAM"     title="Tram">🚊 Tram</button>
-      <button class="mode-btn active" data-mode="BUS"      title="Bus">🚌 Bus</button>
-      <button class="mode-btn active" data-mode="FERRY"    title="Schiff">⛴ Schiff</button>
-      <button class="mode-btn active" data-mode="GONDOLA"  title="Seilbahn">🚡 Seilbahn</button>
-      <button class="mode-btn active" data-mode="OTHER"    title="Andere">🚐 Andere</button>
+      <button class="mode-btn active" data-mode="HIGHSPEED" title="Hochgeschwindigkeit">Highspeed</button>
+      <button class="mode-btn active" data-mode="RAIL" title="Bahn">🚆 Bahn</button>
+      <button class="mode-btn active" data-mode="NIGHT" title="Nacht">Nacht</button>
+      <button class="mode-btn active" data-mode="SUBWAY" title="U-Bahn">🚇 U</button>
+      <button class="mode-btn active" data-mode="TRAM" title="Tram">🚊 Tram</button>
+      <button class="mode-btn active" data-mode="BUS" title="Bus">🚌 Bus</button>
+      <button class="mode-btn active" data-mode="FERRY" title="Schiff">⛴ Schiff</button>
+      <button class="mode-btn active" data-mode="GONDOLA" title="Seilbahn">🚡 Seilbahn</button>
+      <button class="mode-btn active" data-mode="OTHER" title="Andere">🚐 Andere</button>
     </nav>
 
     <!-- ═══════════════ ZIEL-FILTER ═══════════════ -->
@@ -70,16 +71,19 @@
     </div>
     <hr>
     <div id="status"></div>
+
     <!-- Navigation Buttons (oben) -->
     <div id="nav-buttons-top" class="nav-buttons" style="display:none">
       <button id="btn-earlier-top" class="nav-btn nav-btn-earlier">← Früher</button>
+      <button id="btn-later-top" class="nav-btn nav-btn-later">Später →</button>
     </div>
+
     <table id="departureTable" style="display:none">
       <thead>
         <tr>
-          <th class="col-time">Ab</th>
+          <th id="th-col-time" class="col-time">Ab</th>
           <th class="col-line">Linie</th>
-          <th class="col-dest">Ziel</th>
+          <th id="th-col-dest" class="col-dest">Ziel</th>
           <th class="col-platform">Gl./Kt.</th>
         </tr>
       </thead>
@@ -88,20 +92,20 @@
 
     <!-- Navigation Buttons (unten) -->
     <div id="nav-buttons-bottom" class="nav-buttons" style="display:none">
+      <button id="btn-earlier-bottom" class="nav-btn nav-btn-earlier">← Früher</button>
       <button id="btn-later-bottom" class="nav-btn nav-btn-later">Später →</button>
     </div>
 
-    <script src="script.js?v=31072617"></script>
-</div>
-</body>
-
-<footer class="page-footer">
-  <p>Verwendete API: <a href="https://transitous.org/sources/" style="color: var(--sob-green); font-weight: bold;">Transitous</a></p>
-  <p>Zur Erstellung dieser Web-App wurde u.a. künstliche Intelligenz verwendet.<br>
-    Der Sourcecode ist auf <a href="https://github.com/PianoRailways/TRAGIC" style="color: var(--sob-green); font-weight: bold;">GitHub</a>.</p>
-  <div>
-    <p>Die Routing-Funktion befindet sich in der Beta und ist erreichbar unter: <a href="/routing" style="color: var(--sbb-red); font-weight: bold;">/routing</a></p>
+    <script src="script.js"></script>
   </div>
-</footer>
 
+  <footer class="page-footer">
+    <p>Verwendete API: <a href="https://transitous.org/sources/" style="color: var(--sob-green); font-weight: bold;">Transitous</a></p>
+    <p>Zur Erstellung dieser Web-App wurde u.a. künstliche Intelligenz verwendet.<br>
+      Der Sourcecode ist auf <a href="https://github.com/PianoRailways/TRAGIC" style="color: var(--sob-green); font-weight: bold;">GitHub</a>.</p>
+    <div>
+      <p>Die Routing-Funktion befindet sich in der Beta und ist erreichbar unter: <a href="/routing" style="color: var(--sbb-red); font-weight: bold;">/routing</a></p>
+    </div>
+  </footer>
+</body>
 </html>
