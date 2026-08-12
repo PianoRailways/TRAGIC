@@ -5,4 +5,5 @@ window.combinedStations = {
     'Andermatt, Bahnhofplatz': ['Andermatt', 'Andermatt, Bahnhofplatz'],
     'Solothurn, Hauptbahnhof': ['Solothurn', 'Solothurn, Hauptbahnhof'],
     'Solothurn': ['Solothurn', 'Solothurn, Hauptbahnhof'],
+    'Disentis/Mustér': ['Disentis/Mustér', 'Disentis/Mustér, staziun/posta'],
 	};
