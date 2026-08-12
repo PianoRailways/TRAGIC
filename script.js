@@ -318,7 +318,7 @@ function getSelectedEpoch() {
 }
 
 function setPickersFromEpoch(epoch) {
-  if (!datePicker.value || !timePicker.value) return;
+  if (!datePicker || !timePicker) return;
   if (!epoch) {
     datePicker.value = '';
     timePicker.value = '';
@@ -552,14 +552,15 @@ function selectStation(stopId, name, refEpoch) {
   if (list) list.innerHTML = '';
   if (queryInput) queryInput.value = '';
 
-  if (refEpoch !== undefined) {
+  if (refEpoch) {
     setPickersFromEpoch(refEpoch);
   }
+
+  const currentEpoch = getSelectedEpoch();
 
   const url = new URL(location.href);
   url.searchParams.set('stopId', stopId);
   
-  const currentEpoch = getSelectedEpoch();
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
   else              url.searchParams.delete('time');
 
@@ -840,7 +841,11 @@ function renderChain(data) {
       ? ' style="background:#555;"' 
       : '';
     
-    const refEpoch = stop.arrivalSched || stop.arrivalLive;
+    // Dynamische Wahl des Epoch-Zeitstempels je nach Modus
+    const refEpoch = isArrivalsMode
+      ? (stop.arrivalSched || stop.arrivalLive || stop.departureSched || stop.departureLive)
+      : (stop.departureSched || stop.departureLive || stop.arrivalSched || stop.arrivalLive);
+
     const isClickable = !!stop.stopId;
     const clickAttrs = isClickable
       ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
