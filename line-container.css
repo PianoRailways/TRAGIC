@@ -290,15 +290,40 @@
 .line-container[data-agency-name*="Matterhorn"][data-line="R44"] { background: #F88C29; color: white; }
 
 .line-container[data-agency-name="Gornergratbahn"] { background: #FFB82D; color: white; }
-
+/* MBC */
+.line-container[data-agency-id="64"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-id="131"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-id="23"][data-line^="R"] { background: white; color: black; }
+/* RA/TMR */
+.line-container[data-agency-id="74"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-id="61"][data-line^="R"] { background: white; color: black; }
+/* RhB */
+.line-container[data-agency-id="72"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-id="72"][data-line^="RE"] { background: white; color: #eb0000; }
+.line-container[data-agency-id="72"][data-line^="S"] { background: white; color: black; }
+.line-container[data-agency-id="72"][data-line^="IR"] { background: #eb0000; color: white; }
 /* SBB */
 .line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; }
 .line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; }
-.line-container[data-agency-id="11"][data-line^="EC"] { font-style: italic; background: #eb0000; color: white; }
-.line-container[data-agency-id="11"][data-line^="ICE"] { font-style: italic; background: #eb0000; color: white;}
+.line-container[data-agency-id="11"][data-line^="EC"],
+.line-container[data-agency-id="11"][data-line^="EN"],
+.line-container[data-agency-id="11"][data-line^="ICN"],
+.line-container[data-agency-id="11"][data-line^="TGV"],
+.line-container[data-agency-id="11"][data-line^="CNL"],
+.line-container[data-agency-id="11"][data-line^="RJ"],
+.line-container[data-agency-id="11"][data-line^="RJX"],
+.line-container[data-agency-id="11"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
+.line-container[data-agency-id="11"][data-line^="N"] { font-style: italic; background: transparent; color: #FFDE15; }
+.line-container[data-agency-id="11"][data-line^="SN"] { background: transparent; color: #FFDE15; border: 0.5px solid #FFDE15; }
+
+.line-container[data-agency-id="11"][data-line="GEX"],
+.line-container[data-agency-id="11"][data-line="BEX"],
+.line-container[data-agency-id="11"][data-line^="PE"] { background: #eb0000; color: white; }
+
+/* Ersatzverkehr */ 
 .line-container[data-line^="EV"] { background-color: var(--sbb-orange); color: #000; }
 
 .line-container[data-line^="SEV"],
