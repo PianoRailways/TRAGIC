@@ -6,12 +6,10 @@
  *   ?action=search&query=Zuerich
  *   ?action=departures&stopId=XYZ&n=12&time=2026-07-04T14:23:00Z
  *   ?action=trip&tripId=XYZ
- *
- * WICHTIG: Trage unten Kontaktinfos ein (User-Agent-Pflicht laut Transitous Usage Policy).
  */
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *'); // bei Bedarf auf deine Domain einschränken
+header('Access-Control-Allow-Origin: *');
 
 const BASE_URL   = 'https://api.transitous.org';
 const USER_AGENT = 'NOWE-TRAGIC/0.2 (+https://tragic.stellwerksim.ch; piano@stellwerksim.ch)';
@@ -43,12 +41,6 @@ function callTransitous(string $path, array $params): array {
     return $data;
 }
 
-/**
- * Holt robust einen Zeitwert aus einer Place-Struktur. Verschiedene MOTIS-
- * Versionen/Endpoints benennen das leicht unterschiedlich, und manche
- * verschachteln arrival/departure als eigenes Objekt mit scheduledTime/time.
- * Wir probieren mehrere Varianten durch, bis eine passt.
- */
 function extractTime($place, array $candidates): ?string {
     if (!is_array($place)) return null;
     foreach ($candidates as $key) {
@@ -66,15 +58,9 @@ function toEpoch(?string $value): ?int {
     return $ts === false ? null : $ts;
 }
 
-/**
- * Liefert [scheduledEpoch, liveEpoch] für arrival ODER departure an einer
- * Place-Struktur, egal ob flach (place.arrival = "...") oder verschachtelt
- * (place.arrival = {scheduledTime, time}) geliefert wird.
- */
 function extractPair($place, string $type): array {
     if (!is_array($place)) return [null, null];
 
-    // Variante A: verschachteltes Objekt, z.B. place['arrival']['scheduledTime']
     if (isset($place[$type]) && is_array($place[$type])) {
         $obj = $place[$type];
         $sched = $obj['scheduledTime'] ?? $obj['scheduled'] ?? null;
@@ -82,8 +68,7 @@ function extractPair($place, string $type): array {
         return [toEpoch($sched !== null ? (string)$sched : null), toEpoch($live !== null ? (string)$live : null)];
     }
 
-    // Variante B: flache Felder, z.B. place['scheduledArrival'], place['arrival']
-    $prefix = $type; // 'arrival' oder 'departure'
+    $prefix = $type;
     $sched = extractTime($place, [
         $prefix . 'Scheduled', 'scheduled' . ucfirst($prefix), $prefix . 'ScheduledTime',
     ]);
@@ -118,7 +103,6 @@ if ($action === 'search') {
         $id = $entry['id'] ?? $entry['stopId'] ?? null;
         if (!$id) continue;
 
-        // Einträge verwürfen, die mit node/, way/ oder relation/ beginnen
         if (preg_match('/^(node|way|relation)\//i', $id)) {
             continue;
         }
@@ -139,7 +123,7 @@ if ($action === 'search') {
 if ($action === 'departures' || $action === 'arrivals') {
     $stopId   = trim($_GET['stopId'] ?? '');
     $n        = (int)($_GET['n'] ?? 25);
-    $time     = trim($_GET['time'] ?? ''); // optional: ISO-Zeit als Referenzpunkt
+    $time     = trim($_GET['time'] ?? '');
     $arrivals = filter_var($_GET['arrivals'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
     if ($stopId === '') {
@@ -158,14 +142,31 @@ if ($action === 'departures' || $action === 'arrivals') {
         exit;
     }
 
+    // Zeitstempel verarbeiten & Toleranzfenster bei Ankünften anwenden
+    $formattedTime = '';
+    if ($time !== '') {
+        $refEpoch = strtotime($time);
+        if ($refEpoch !== false) {
+            if ($arrivals) {
+                // 10 Minuten (600 Sek.) vorziehen, damit knapp angekommene Züge sichtbar bleiben
+                $refEpoch -= 600;
+            }
+            $formattedTime = date('c', $refEpoch);
+        }
+    } else if ($arrivals) {
+        // Falls keine Zeit übergeben wurde: JETZT minus 10 Minuten
+        $formattedTime = date('c', time() - 600);
+    }
+
     $params = [
-        'stopId'   => $stopId,
-        'n'        => max(1, min($n, 50)),
-        'arriveBy' => $arrivals ? 'true' : 'false',
+        'stopId'    => $stopId,
+        'n'         => max(1, min($n, 50)),
+        'arriveBy'  => $arrivals ? 'true' : 'false',
+        'direction' => 'LATER', // Zwingt MOTIS, vorwärts ab dem Zeitpunkt zu suchen
     ];
 
-    if ($time !== '') {
-        $params['time'] = $time;
+    if ($formattedTime !== '') {
+        $params['time'] = $formattedTime;
     }
 
     $result = callTransitous('/api/v1/stoptimes', $params);
@@ -263,8 +264,6 @@ if ($action === 'trip') {
 
     $legs = $result['legs'] ?? [$result];
 
-    // Sammle alle Stops aus ALLEN Legs (für Durchbindungen, Ersatzzüge, etc.)
-    // Stops dürfen mehrfach vorkommen (verschiedene Legs, oder im gleichen Leg)
     $stops = [];
     
     foreach ($legs as $legIdx => $leg) {
@@ -302,12 +301,11 @@ if ($action === 'trip') {
                 'additional'        => $isAdditional,
                 'pickupType'        => $place['pickupType'] ?? 'NORMAL',
                 'dropoffType'       => $place['dropoffType'] ?? 'NORMAL',
-                'legIndex'          => $legIdx, // Kennzeichne welches Leg dieser Stop angehört
+                'legIndex'          => $legIdx,
             ];
         }
     }
 
-    // Sammle Meta-Info für jedes Leg
     $legInfos = [];
     foreach ($legs as $idx => $leg) {
         if (!is_array($leg)) continue;
@@ -319,7 +317,6 @@ if ($action === 'trip') {
         ];
     }
 
-    // Verwende das erste Leg für Top-Level Meta-Info
     $leg = $legs[0] ?? [];
 
     echo json_encode([
@@ -330,7 +327,6 @@ if ($action === 'trip') {
         'routeType'            => $leg['routeType'] ?? null,
         'bikesAllowed'         => $leg['bikesAllowed'] ?? null,
         'wheelchairAccessible' => $leg['wheelchairAccessible'] ?? null,
-        // Neu extrahierte Betreiberdaten:
         'agency'      => [
             'id'   => $leg['agencyId'] ?? null,
             'name' => $leg['agencyName'] ?? null,
