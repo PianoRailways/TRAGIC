@@ -250,6 +250,7 @@
 /* BOB / Jungfraubahnen */
 .line-container[data-agency-name="Berner Oberland-Bahnen"],
 .line-container[data-agency-name^="Wengernalpbahn"],
+.line-container[data-agency-name^="Lauterbrunnen"],
 .line-container[data-agency-name^="Jungfraubahn"] { background: #ffdc00; color: #213857; }
 
 /* Busland */
