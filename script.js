@@ -284,10 +284,23 @@ function applyFilters() {
   document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
     const mode   = tr.dataset.mode   || 'OTHER';
     const dest   = (tr.dataset.dest  || '').toLowerCase();
+    const line   = (tr.dataset.line  || '').toLowerCase();
+    const trip   = (tr.dataset.trip  || '').toLowerCase();
+    const agencyId   = (tr.dataset.agencyId   || '').toLowerCase();
+    const agencyName = (tr.dataset.agencyName || '').toLowerCase();
+    const tripId     = (tr.dataset.tripId     || '').toLowerCase();
 
     // Mode-Filter: wenn "Alle" aktiv, alles zeigen; sonst nur wenn in selectedModes
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
-    const destHide = destQuery && !dest.includes(destQuery);
+    
+    // Ziel-Filter + erweiterte Suche: Destination, Linie, Fahrtnummer, Betreiber (Name & ID), TripID
+    const destHide = destQuery && 
+      !dest.includes(destQuery) && 
+      !line.includes(destQuery) && 
+      !trip.includes(destQuery) && 
+      !agencyId.includes(destQuery) && 
+      !agencyName.includes(destQuery) && 
+      !tripId.includes(destQuery);
 
     // Nutzen der exakten CSS-Klassen aus style.css
     tr.classList.toggle('filtered-mode', modeHide);
@@ -712,6 +725,10 @@ function renderDepartures(departures) {
     tr.dataset.mode = canonicalMode(dep.mode);
     tr.dataset.dest = dep.destination || '';
     tr.dataset.trip = dep.tripNumber || '';
+    tr.dataset.line = dep.line || '';
+    tr.dataset.agencyId = dep.agencyId || '';
+    tr.dataset.agencyName = dep.agencyName || '';
+    tr.dataset.tripId = dep.tripId || '';
 
     // "ab xyz" Label nur wenn nicht von Haupt-Station
     let stationLabelHtml = '';
@@ -722,7 +739,7 @@ function renderDepartures(departures) {
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
-        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
+        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}"data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
         <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber.replace(/^0+(?=\d)/, '')) : ''}</div>
       </td>
       <td class="col-dest">${escapeHtml(dep.destination)}${stationLabelHtml}</td>

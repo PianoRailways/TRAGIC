@@ -135,11 +135,12 @@ if ($action === 'search') {
     exit;
 }
 
-// ------------------------------------------------------------ departures --
-if ($action === 'departures') {
-    $stopId = trim($_GET['stopId'] ?? '');
-    $n      = (int)($_GET['n'] ?? 25);
-    $time   = trim($_GET['time'] ?? ''); // optional: ISO-Zeit als Referenzpunkt
+// ------------------------------------------------------------ departures / arrivals --
+if ($action === 'departures' || $action === 'arrivals') {
+    $stopId   = trim($_GET['stopId'] ?? '');
+    $n        = (int)($_GET['n'] ?? 25);
+    $time     = trim($_GET['time'] ?? ''); // optional: ISO-Zeit als Referenzpunkt
+    $arrivals = filter_var($_GET['arrivals'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
     if ($stopId === '') {
         http_response_code(400);
@@ -147,8 +148,6 @@ if ($action === 'departures') {
         exit;
     }
 
-    // Reine OSM-Elemente (node/..., way/..., relation/...) besitzen keine Fahrpläne.
-    // Sie würden bei Transitous zu einem HTTP-Fehler führen und HTML zurückgeben.
     if (preg_match('/^(node|way|relation)\//i', $stopId)) {
         echo json_encode([
             'stopId'     => $stopId,
@@ -160,12 +159,13 @@ if ($action === 'departures') {
     }
 
     $params = [
-        'stopId' => $stopId,
-        'n'      => max(1, min($n, 50)),
+        'stopId'   => $stopId,
+        'n'        => max(1, min($n, 50)),
+        'arriveBy' => $arrivals ? 'true' : 'false',
     ];
+
     if ($time !== '') {
         $params['time'] = $time;
-        $params['arriveBy'] = 'false'; // wir wollen Abfahrten NACH diesem Zeitpunkt
     }
 
     $result = callTransitous('/api/v1/stoptimes', $params);
@@ -178,28 +178,41 @@ if ($action === 'departures') {
     $rawEntries = $result['stopTimes'] ?? $result['results'] ?? (is_array($result) ? $result : []);
 
     $departures = [];
+    $typeKey = $arrivals ? 'arrival' : 'departure';
+
     foreach ($rawEntries as $entry) {
         if (!is_array($entry)) continue;
 
         $place = $entry['place'] ?? $entry;
 
-        [$schedEpoch, $liveEpoch] = extractPair($place, 'departure');
-        // Fallback: manche Stoptimes-Antworten liefern die Zeit direkt am Place
-        // ohne "departure"-Verschachtelung (siehe extractTime-Kandidaten).
+        [$schedEpoch, $liveEpoch] = extractPair($place, $typeKey);
+
         if ($schedEpoch === null) {
-            $sched = extractTime($place, ['scheduledTime', 'scheduledDeparture']);
-            $live  = extractTime($place, ['time', 'realTimeDeparture']);
+            $schedCandidates = $arrivals 
+                ? ['scheduledTime', 'scheduledArrival'] 
+                : ['scheduledTime', 'scheduledDeparture'];
+            $liveCandidates  = $arrivals 
+                ? ['time', 'realTimeArrival'] 
+                : ['time', 'realTimeDeparture'];
+
+            $sched = extractTime($place, $schedCandidates);
+            $live  = extractTime($place, $liveCandidates);
             $schedEpoch = toEpoch($sched);
             $liveEpoch  = toEpoch($live) ?? $schedEpoch;
         }
 
         $delaySec = delaySeconds($schedEpoch, $liveEpoch);
 
+        // Herkunft / Ziel je nach Modus bestimmen
+        $destination = $arrivals 
+            ? ($entry['tripFrom'] ?? $entry['origin'] ?? $entry['headsign'] ?? '')
+            : ($entry['headsign'] ?? $entry['tripTo'] ?? '');
+
         $departures[] = [
             'tripId'      => $entry['tripId'] ?? null,
             'line'        => $entry['routeShortName'] ?? '?',
             'tripNumber'  => $entry['tripShortName'] ?? $entry['displayName'] ?? null,
-            'destination' => $entry['headsign'] ?? $entry['tripTo'] ?? '',
+            'destination' => $destination,
             'scheduled'   => $schedEpoch,
             'live'        => $liveEpoch,
             'delayMin'    => $delaySec !== null ? (int)round($delaySec / 60) : null,
@@ -217,6 +230,7 @@ if ($action === 'departures') {
 
     echo json_encode([
         'stopId'     => $stopId,
+        'arrivals'   => $arrivals,
         'departures' => $departures,
         '_raw_count' => count($rawEntries),
     ]);
