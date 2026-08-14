@@ -380,6 +380,40 @@
 .line-container[data-agency-id="8896"][data-line="12"] { background: rgb(152,197,84); color: white; }
 .line-container[data-agency-id="8896"][data-line="16"] { background: rgb(159,49,111); color: white; }
 
+/* TFL (Transport for London) */
+.line-container[data-line="Bakerloo"] { background: #B05F0F; color: white; }
+.line-container[data-line="Central"] { background: #E02525; color: white; }
+.line-container[data-line="Circle"] { background: #FECE08; color: black; }
+.line-container[data-line="District"] { background: #04783F; color: white; }
+.line-container[data-line="Hammersmith"] { background: #EE9BAC; color: white; }
+.line-container[data-line="Jubilee"] { background: #7B848B; color: white; }
+.line-container[data-line="Metropolitan"] { background: #861A54; color: white; }
+.line-container[data-line="Northern"] { background: #231F20; color: white; }
+.line-container[data-line^="Waterloo"] { background: #6DC7B0; color: white; }
+.line-container[data-line="Victoria"] { background: #0C9FDC; color: white; }
+.line-container[data-line="Piccadilly"] { background: #1B3F94; color: white; }
+
+.line-container[data-line="Liberty"] { background: #566366; color: white; }
+.line-container[data-line="Lioness"] { background: #F9A51B; color: white; }
+.line-container[data-line="Mildmay"] { background: #0086C7; color: white; }
+.line-container[data-line="Suffragette"] { background: #57BC71; color: white; }
+.line-container[data-line="Weaver"] { background: #B2377F; color: white; }
+.line-container[data-line="Windrush"] { background: #EE1B2D; color: white; }
+
+.line-container[data-line="Thameslink"] { background: #e9418b; color: #434e54; }
+.line-container[data-line="Gatwick Express"] { background: #DC0C1D; color: white; }
+.line-container[data-line="Southern"] { background: #80C242; color: white; }
+.line-container[data-line="GWR"] { background: #0A493E; color: white; }
+.line-container[data-line="Southeastern"] { background: #1E1E50; color: white; }
+.line-container[data-line="EMR"] { background: #4C2F48; color: white; }
+
+.line-container[data-agency-name="Elizabeth line"] { background: #6F4B9E; color: white; }
+.line-container[data-line="DLR"] { background: #00AFA9; color: black; }
+
+.line-container[data-line^="EST"] { background: #0C326F; color: #FCF5D8; }
+
+
+
 /* Basel */
 /* BVB */
 .line-container[data-agency-id="823"][data-line="1"] { background: rgb(121,75,47); color: white; }
