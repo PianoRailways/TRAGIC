@@ -903,11 +903,21 @@ function renderChain(data) {
   const chainDestName = getDestinationName(data.destination);
   const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
   const BetreiberHTML = (data.agency && (data.agency.name || data.agency.id))
-    ? `<div class="agency-row">Betreiber: ${
-        data.agency.url 
-          ? `<a href="${escapeHtml(data.agency.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}</a>`
-          : `${escapeHtml(data.agency.name || 'Unbekannt')}${data.agency.id ? ` [${escapeHtml(data.agency.id)}]` : ''}`
-      }</div>`
+    ? `<div class="agency-row">
+        <span class="agency-label">Betreiber:</span>
+        <span class="agency-content">
+          ${
+            data.agency.url 
+              ? `<a href="${escapeHtml(data.agency.url)}" target="_blank" rel="noopener noreferrer" class="agency-name">${escapeHtml(data.agency.name || 'Unbekannt')}</a>`
+              : `<span class="agency-name">${escapeHtml(data.agency.name || 'Unbekannt')}</span>`
+          }
+          ${
+            data.agency.id 
+              ? `<code class="agency-id" title="${escapeHtml(data.agency.id)}">${escapeHtml(data.agency.id)}</code>` 
+              : ''
+          }
+        </span>
+      </div>`
     : '';
   
   return `

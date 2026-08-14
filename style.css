@@ -523,16 +523,35 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   border-top: 1px solid var(--border-soft);
   font-size: 0.65rem;
   color: var(--text-muted);
-  word-break: break-all;
-  overflow-wrap: break-word;
+  
+  /* Verhindert das Aufblähen des Flex-/Grid-Containers */
+  min-width: 0;
   max-width: 100%;
+  overflow: hidden;
 }
+
 .agency-row a {
   color: var(--link-hover);
   text-decoration: none;
 }
 
-.trip-id-row code {
+/* Neuer Container für den Inhalt */
+.agency-content {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  word-break: break-all;
+  overflow-wrap: anywhere; /* Extrem aggressiver Umbruch für ewig lange Strings */
+}
+
+.agency-name {
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.trip-id-row code, .agency-row code {
   font-family: monospace;
   font-size: 0.65rem;
   cursor: pointer;
@@ -542,15 +561,17 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   border-radius: 2px;
   transition: background 0.2s, color 0.2s;
   
-  /* Umbruch erzwingen */
+  /* Harter Umbruch & Box-Modell */
   display: block;
   width: 100%;
-  word-break: break-all;
-  white-space: normal;
-  overflow-wrap: break-word;
-  
-  /* Kein Overflow */
+  max-width: 100%;
   box-sizing: border-box;
+  margin-top: 2px;
+  
+  /* Verhindert Horizontalscrollen durch lange UUIDs/IDs */
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 @media (max-width: 480px) {
   .line {
