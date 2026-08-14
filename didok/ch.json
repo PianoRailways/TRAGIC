@@ -5682,22 +5682,5 @@
     "ZWRN": "Zweieren (Abzw)",
     "ZZ": "Bad Zurzach",
     "ZZOL": "Zürich Altstetten Zollhalle",
-    "ZZOP": "Zürich Zollstrasse Parkhaus",
-	
-	
-	"FOER": "Zürich, Förrlibuckstrasse",
-	"SUEP": "Kriens, Südpol",
-	"PSQ": "Zürich, Pass. Sihlquai",
-	"LUBF": "Luzern, Bahnhof",
-	"STL": "Saint-Louis (Haut-Rhin)",
-	"VIG": ["Vignogn, vitg", "Vignogn, baselgia"],
-	"SUDO": "Sumiswald, Dorfgasse",
-	"GURKE": "Kilchberg ZH, Schwelle",
-	"FWF": "Otelfingen",
-	"LOSL": "Lörrach-Stetten",
-	"EIPL": "Bern, Eigerplatz",
-	"HELP": "Hellbühl, Post",
-	"RURO": "Ruswil, Rottalcenter",
-	"STRS": "Strasbourg"
-
+    "ZZOP": "Zürich Zollstrasse Parkhaus"
 }
