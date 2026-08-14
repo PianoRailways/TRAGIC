@@ -5,6 +5,7 @@ let currentMainStationId = null; // Merke die echte Haupt-Station für Labeling
 let refreshTimer = null;
 let allDepartures = [];
 let abbrevMap = {}; // Abkürzungs-Mapping (alle Länder kombiniert)
+let nameToAbbrevMap = {}; // Reverse Mapping (Name -> Abkürzungen)
 
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
@@ -143,7 +144,15 @@ async function loadAbbreviations() {
             if (!abbrevMap[abbrev]) {
               abbrevMap[abbrev] = [];
             }
-            abbrevMap[abbrev].push({ name, country: country.toUpperCase() });
+            const countryCode = country.toUpperCase();
+            abbrevMap[abbrev].push({ name, country: countryCode });
+
+            // Reverse-Map für schnellen Lookup nach Name aufbauen
+            const normName = name.trim().toLowerCase();
+            if (!nameToAbbrevMap[normName]) {
+              nameToAbbrevMap[normName] = [];
+            }
+            nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
           });
         }
       } catch (e) {
@@ -154,6 +163,12 @@ async function loadAbbreviations() {
   } catch (err) {
     console.error('Fehler beim Laden der Abkürzungs-Mappings:', err);
   }
+}
+
+function getAbbrevsForName(stationName) {
+  if (!stationName) return [];
+  const normName = stationName.trim().toLowerCase();
+  return nameToAbbrevMap[normName] || [];
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -461,13 +476,18 @@ if (queryInput) {
    
       const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
       const data = await res.json();
-      const apiMatches = (data.stations || []).map(st => ({
-        id: st.id,
-        name: st.name,
-        abbrev: null,
-        country: null,
-        source: 'api'
-      }));
+      
+      const apiMatches = (data.stations || []).map(st => {
+        const foundAbbrevs = getAbbrevsForName(st.name);
+        const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
+        return {
+          id: st.id,
+          name: st.name,
+          abbrev: primary ? primary.abbrev : null,
+          country: primary ? primary.country : null,
+          source: 'api'
+        };
+      });
    
       const seen = new Set();
       const allMatches = [...abbrevMatches, ...apiMatches];
@@ -481,7 +501,7 @@ if (queryInput) {
         let html = escapeHtml(match.name);
         
         if (match.abbrev) {
-          html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)} [${escapeHtml(match.country)}]</span>`;
+          html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
         }
         
         if (match.id) {
@@ -841,6 +861,12 @@ function renderChain(data) {
       ? ' style="background:#555;"' 
       : '';
     
+    // Abkürzungs-Badge für den Stationsnamen im Fahrtverlauf ermitteln
+    const stopAbbrevs = getAbbrevsForName(stop.name);
+    const stopAbbrevBadge = stopAbbrevs.length > 0
+      ? ` <span class="abbrev-label">${escapeHtml(stopAbbrevs[0].abbrev)}</span>`
+      : '';
+
     // Dynamische Wahl des Epoch-Zeitstempels je nach Modus
     const refEpoch = isArrivalsMode
       ? (stop.arrivalSched || stop.arrivalLive || stop.departureSched || stop.departureLive)
@@ -893,7 +919,7 @@ function renderChain(data) {
         </div>
         
         <div class="chain-info">
-          <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}${boardingBadge}</div>
+          <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}${stopAbbrevBadge}${boardingBadge}</div>
           ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
         </div>
       </div>
