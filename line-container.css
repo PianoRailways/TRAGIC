@@ -169,10 +169,11 @@
 /* AVA */
 .line-container[data-agency-name^="Aargau Verkehr"][data-mode="BUS"] { background: #000066; color: white; }
 /* Bernmobil + RBS */
-.line-container[data-agency-id="827"][data-line="6"] { background: rgb(56,127,196); color: white; }
-.line-container[data-agency-id="827"][data-line="7"] { background: rgb(208,46,38); color: white; }
-.line-container[data-agency-id="827"][data-line="8"] { background: rgb(221,118,165); color: white; }
-.line-container[data-agency-id="827"][data-line="9"] { background: rgb(244,198,67); color: white; }
+.line-container[data-agency-id="827"][data-line^="3"] { background: #AABDC7; color: white; }
+.line-container[data-agency-id="827"][data-line^="6"] { background: rgb(56,127,196); color: white; }
+.line-container[data-agency-id="827"][data-line^="7"] { background: rgb(208,46,38); color: white; }
+.line-container[data-agency-id="827"][data-line^="8"] { background: rgb(221,118,165); color: white; }
+.line-container[data-agency-id="827"][data-line^="9"] { background: rgb(244,198,67); color: white; }
 .line-container[data-agency-id="827"][data-line="10"] { background: rgb(66,148,75); color: white; }
 .line-container[data-agency-id="827"][data-line="11"] { background: rgb(85,184,234); color: white; }
 .line-container[data-agency-id="827"][data-line="12"] { background: rgb(230,151,54); color: white; }
