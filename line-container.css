@@ -279,6 +279,10 @@
 .line-container[data-agency-id="871"][data-line="491"] { background: rgb(116,105,34); color: white; border: 1px solid #A0E100;}
 .line-container[data-agency-id="871"][data-line="493"] { background: rgb(129,27,78); color: white; border: 1px solid #A0E100;}
 
+/* Bus Hergiswil (es fährt Auto AG Rothenbrg) */
+.line-container[data-agency-id="812"][data-line="381"] {background: #0D92D3; color: white;}
+.line-container[data-agency-id="812"][data-line="382"] {background: #C73834; color: white;}
+
 /* RBS Bahn */
 .line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="S7"] { background: rgb(227,141,67); color: white; }
 .line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="S8"] { background: black; color: white; }
