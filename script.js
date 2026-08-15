@@ -384,15 +384,25 @@ function setupNavigationButtons() {
   };
 
   const handleLater = () => {
-    if (allDepartures.length === 0) return;
-    const lastDep = allDepartures[allDepartures.length - 1];
-    if (!lastDep) return;
+    const currentEpoch = getSelectedEpoch() || Math.floor(Date.now() / 1000);
     
-    const lastTime = lastDep.scheduled || lastDep.live;
-    if (!lastTime) return;
+    if (allDepartures.length === 0) {
+      setPickersFromEpoch(currentEpoch + (20 * 60));
+      triggerTimeChange();
+      return;
+    }
+
+    // Höchsten Zeitstempel aus den geladenen Daten ermitteln
+    const maxTime = Math.max(...allDepartures.map(d => d.scheduled || d.live || 0));
+
+    // Nur nutzen, wenn er echtes Voranschreiten garantiert
+    if (maxTime > currentEpoch) {
+      setPickersFromEpoch(maxTime + 60);
+    } else {
+      // Fallback: Wenn das Array nur alte/vergangene Züge enthielt
+      setPickersFromEpoch(currentEpoch + (20 * 60));
+    }
     
-    const laterEpoch = lastTime - 60;
-    setPickersFromEpoch(laterEpoch);
     triggerTimeChange();
   };
 

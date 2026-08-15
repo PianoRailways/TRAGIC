@@ -148,14 +148,12 @@ if ($action === 'departures' || $action === 'arrivals') {
         $refEpoch = strtotime($time);
         if ($refEpoch !== false) {
             if ($arrivals) {
-                // 10 Minuten (600 Sek.) vorziehen, damit knapp angekommene Züge sichtbar bleiben
-                $refEpoch -= 600;
+                $refEpoch -= 360;
             }
             $formattedTime = date('c', $refEpoch);
         }
     } else if ($arrivals) {
-        // Falls keine Zeit übergeben wurde: JETZT minus 10 Minuten
-        $formattedTime = date('c', time() - 600);
+        $formattedTime = date('c', time() - 420);
     }
 
     $params = [
