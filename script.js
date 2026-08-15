@@ -158,27 +158,54 @@ function generateICS(startStop, viaStops, destStop, trips) {
   const dtStart = formatDateTimeUTC(startDate);
   const dtEnd = formatDateTimeUTC(endDate);
 
-  // Build description with all stops and trip details
-  let description = `Fahrt von ${startStop.name} nach ${destStop.name}\\n\\n`;
-  
+  // Hilfsfunktion zur Formatierung des Stationsnamens mit Gleis/Kante
+  const formatStationWithTrack = (stationName, track) => {
+    // Abkürzung/DiDok-Kürzel suchen
+    const abbrevs = getAbbrevsForName(stationName);
+    const hasAbbrev = abbrevs && abbrevs.length > 0;
+    const baseName = hasAbbrev ? abbrevs[0].abbrev : stationName;
+    const cleanTrack = track ? String(track).trim() : '';
+
+    if (!cleanTrack) {
+      return baseName;
+    }
+
+    // Wenn Abkürzung vorhanden -> direkt hintendran (z.B. LTH14)
+    // Wenn keine Abkürzung -> mit Leerzeichen (z.B. Luzern, Bahnhof A)
+    return hasAbbrev ? `${baseName}${cleanTrack}` : `${baseName} ${cleanTrack}`;
+  };
+
+  // Erstelle die Beschreibungszeilen aus den übergebenen Etappen/Trips
+  let descriptionLines = [];
+
   if (trips && trips.length > 0) {
-    trips.forEach((trip, idx) => {
-      description += `Fahrt ${idx + 1}: ${trip.line} → ${trip.destination}\\n`;
-      description += `Start: ${trip.startTime} ${trip.startStation} (Gl. ${trip.startTrack || '?'})\\n`;
-      description += `Ziel: ${trip.endTime} ${trip.endStation} (Gl. ${trip.endTrack || '?'})\\n`;
-      description += `Fahrtnummer: ${trip.tripNumber || trip.tripId}\\n\\n`;
+    descriptionLines = trips.map(trip => {
+      const startFormatted = `${trip.startTime} ${formatStationWithTrack(trip.startStation, trip.startTrack)}`;
+      const endFormatted = `${trip.endTime} ${formatStationWithTrack(trip.endStation, trip.endTrack)}`;
+      const tripNum = trip.tripNumber || trip.tripId || '';
+
+      return `${startFormatted} - ${endFormatted} (${tripNum})`;
     });
+  } else {
+    // Fallback, falls nur Start und Ziel ohne Detail-Trips vorliegen
+    const startTimeStr = startDate.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+    const endTimeStr = endDate.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+
+    const startFormatted = `${startTimeStr} ${formatStationWithTrack(startStop.name, startStop.track)}`;
+    const endFormatted = `${endTimeStr} ${formatStationWithTrack(destStop.name, destStop.track)}`;
+
+    descriptionLines.push(`${startFormatted} - ${endFormatted}`);
   }
 
-  const allStops = [startStop, ...viaStops, destStop];
-  const stopList = allStops.map((s, i) => {
-    const label = i === 0 ? 'Start' : (i === allStops.length - 1 ? 'Ziel' : `Via ${i}`);
-    return `${label}: ${s.name}`;
-  }).join('\\n');
-  
-  description += `Stationen:\\n${stopList}`;
+  const description = descriptionLines.join('\n');
 
-  // Escape for ICS
+  // Ort (LOCATION) für das Event: Abkürzung + Gleis (z.B. LTH14)
+  const eventLocation = formatStationWithTrack(
+    trips && trips.length > 0 ? trips[0].startStation : startStop.name,
+    trips && trips.length > 0 ? trips[0].startTrack : startStop.track
+  );
+
+  // Escape für ICS-Format
   const escapeICS = (str) => {
     return String(str)
       .replace(/\\/g, '\\\\')
@@ -204,7 +231,7 @@ DTSTART:${dtStart}
 DTEND:${dtEnd}
 SUMMARY:${escapeICS(eventTitle)}
 DESCRIPTION:${escapeICS(description)}
-LOCATION:${escapeICS(startStop.name)}
+LOCATION:${escapeICS(eventLocation)}
 SEQUENCE:0
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
