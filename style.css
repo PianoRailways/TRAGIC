@@ -791,3 +791,128 @@ p {
 .chain-leg-separator strong {
   color: var(--color-text);
 }
+
+
+
+
+/* ─── Calendar Export Button ─── */
+
+.btn-export-calendar {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 16px;
+  margin: 8px 0;
+  
+  background: linear-gradient(135deg, var(--sbb-green, #4CAF50), #45a049);
+  color: white;
+  
+  border: none;
+  border-radius: 6px;
+  
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+  
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-export-calendar:active {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transform: scale(0.98);
+}
+
+.btn-export-calendar:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-export-calendar:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* Mobile / Responsive */
+@media (max-width: 600px) {
+  .btn-export-calendar {
+    font-size: 14px;
+    padding: 10px 12px;
+    margin: 6px 0;
+  }
+}
+
+/* ─── Chain-Stop Calendar Action Buttons ─── */
+
+.chain-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cal-via-btn,
+.cal-dest-btn {
+  padding: 6px 10px;
+  min-width: 32px;
+  height: 32px;
+  
+  background: var(--sbb-green, #4CAF50);
+  color: white;
+  
+  border: none;
+  border-radius: 4px;
+  
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  
+  transition: all 0.15s ease-in-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cal-via-btn:active,
+.cal-dest-btn:active {
+  background: #45a049;
+  transform: scale(0.92);
+}
+
+.cal-via-btn:hover,
+.cal-dest-btn:hover {
+  background: #45a049;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.cal-dest-btn {
+  background: var(--sbb-red, #eb0000);
+}
+
+.cal-dest-btn:hover {
+  background: #d10000;
+}
+
+.cal-dest-btn:active {
+  background: #b80000;
+}
+
+/* Mobile / Responsive */
+@media (max-width: 600px) {
+  .chain-actions {
+    gap: 4px;
+  }
+
+  .cal-via-btn,
+  .cal-dest-btn {
+    padding: 4px 8px;
+    min-width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}

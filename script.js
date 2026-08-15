@@ -10,6 +10,238 @@ let nameToAbbrevMap = {}; // Reverse Mapping (Name -> Abkürzungen)
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
 
+// ─── Calendar Journey Tracking ────────────────────────────────────────────
+let calendarStart = null;      // { stopId, name, epoch }
+let calendarVias = [];         // [ { stopId, name, epoch }, ... ]
+let calendarDest = null;       // { stopId, name, epoch }
+let calendarTrips = [];        // [ { tripId, line, tripNumber, ... }, ... ]
+
+function loadCalendarStateFromUrl() {
+  const cstartRaw = params.get('cstart');
+  const cviasRaw = params.get('cvias');
+  const cdestRaw = params.get('cdest');
+
+  if (cstartRaw) {
+    try {
+      const parts = cstartRaw.split('|');
+      calendarStart = {
+        stopId: parts[0],
+        name: decodeURIComponent(parts[1]),
+        epoch: parseInt(parts[2])
+      };
+    } catch (_) {}
+  }
+
+  if (cviasRaw) {
+    try {
+      const viaParts = cviasRaw.split(';;');
+      calendarVias = viaParts
+        .map(v => {
+          const parts = v.split('|');
+          return {
+            stopId: parts[0],
+            name: decodeURIComponent(parts[1]),
+            epoch: parseInt(parts[2])
+          };
+        })
+        .filter(v => v.stopId && v.name);
+    } catch (_) {}
+  }
+
+  if (cdestRaw) {
+    try {
+      const parts = cdestRaw.split('|');
+      calendarDest = {
+        stopId: parts[0],
+        name: decodeURIComponent(parts[1]),
+        epoch: parseInt(parts[2])
+      };
+    } catch (_) {}
+  }
+}
+
+loadCalendarStateFromUrl();
+
+function saveCalendarStateToUrl() {
+  const url = new URL(location.href);
+
+  if (calendarStart) {
+    url.searchParams.set('cstart', `${calendarStart.stopId}|${encodeURIComponent(calendarStart.name)}|${calendarStart.epoch}`);
+  } else {
+    url.searchParams.delete('cstart');
+  }
+
+  if (calendarVias.length > 0) {
+    const viasStr = calendarVias
+      .map(v => `${v.stopId}|${encodeURIComponent(v.name)}|${v.epoch}`)
+      .join(';;');
+    url.searchParams.set('cvias', viasStr);
+  } else {
+    url.searchParams.delete('cvias');
+  }
+
+  if (calendarDest) {
+    url.searchParams.set('cdest', `${calendarDest.stopId}|${encodeURIComponent(calendarDest.name)}|${calendarDest.epoch}`);
+  } else {
+    url.searchParams.delete('cdest');
+  }
+
+  history.replaceState(
+    { ...history.state, calendarStart, calendarVias, calendarDest },
+    '',
+    url
+  );
+}
+
+function setCalendarStart(stopId, name, epoch) {
+  calendarStart = { stopId, name, epoch };
+  saveCalendarStateToUrl();
+  updateCalendarExportButton();
+}
+
+function addCalendarVia(stopId, name, epoch) {
+  const existingIdx = calendarVias.findIndex(v => v.stopId === stopId);
+  if (existingIdx >= 0) {
+    calendarVias[existingIdx] = { stopId, name, epoch };
+  } else {
+    calendarVias.push({ stopId, name, epoch });
+  }
+  saveCalendarStateToUrl();
+  updateCalendarExportButton();
+}
+
+function setCalendarDest(stopId, name, epoch) {
+  calendarDest = { stopId, name, epoch };
+  saveCalendarStateToUrl();
+  updateCalendarExportButton();
+}
+
+function clearCalendarJourney() {
+  calendarStart = null;
+  calendarVias = [];
+  calendarDest = null;
+  calendarTrips = [];
+  saveCalendarStateToUrl();
+  updateCalendarExportButton();
+}
+
+function updateCalendarExportButton() {
+  const exportBtn = document.getElementById('btn-export-calendar');
+  if (!exportBtn) return;
+
+  const isValid = calendarStart && calendarDest;
+  exportBtn.style.display = isValid ? 'block' : 'none';
+}
+
+function generateICS(startStop, viaStops, destStop, trips) {
+  if (!startStop || !destStop) return null;
+
+  const startEpoch = startStop.epoch;
+  const destEpoch = destStop.epoch;
+
+  if (!startEpoch || !destEpoch) return null;
+
+  const startDate = new Date(startEpoch * 1000);
+  const endDate = new Date(destEpoch * 1000);
+
+  // Format: YYYYMMDDTHHMMSSZ
+  const formatDateTimeUTC = (date) => {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const mins = String(date.getUTCMinutes()).padStart(2, '0');
+    const secs = String(date.getUTCSeconds()).padStart(2, '0');
+    return `${year}${month}${day}T${hours}${mins}${secs}Z`;
+  };
+
+  const dtStart = formatDateTimeUTC(startDate);
+  const dtEnd = formatDateTimeUTC(endDate);
+
+  // Build description with all stops and trip details
+  let description = `Fahrt von ${startStop.name} nach ${destStop.name}\\n\\n`;
+  
+  if (trips && trips.length > 0) {
+    trips.forEach((trip, idx) => {
+      description += `Fahrt ${idx + 1}: ${trip.line} → ${trip.destination}\\n`;
+      description += `Start: ${trip.startTime} ${trip.startStation} (Gl. ${trip.startTrack || '?'})\\n`;
+      description += `Ziel: ${trip.endTime} ${trip.endStation} (Gl. ${trip.endTrack || '?'})\\n`;
+      description += `Fahrtnummer: ${trip.tripNumber || trip.tripId}\\n\\n`;
+    });
+  }
+
+  const allStops = [startStop, ...viaStops, destStop];
+  const stopList = allStops.map((s, i) => {
+    const label = i === 0 ? 'Start' : (i === allStops.length - 1 ? 'Ziel' : `Via ${i}`);
+    return `${label}: ${s.name}`;
+  }).join('\\n');
+  
+  description += `Stationen:\\n${stopList}`;
+
+  // Escape for ICS
+  const escapeICS = (str) => {
+    return String(str)
+      .replace(/\\/g, '\\\\')
+      .replace(/,/g, '\\,')
+      .replace(/;/g, '\\;')
+      .replace(/\n/g, '\\n');
+  };
+
+  const eventTitle = `Fahrt: ${startStop.name} → ${destStop.name}`;
+  const uid = `calendar-${startEpoch}-${destEpoch}-${Date.now()}@stellwerksim.ch`;
+
+  const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//NOWE-OMNI//Calendar Export//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:NOWE-OMNI Fahrten
+X-WR-TIMEZONE:Europe/Zurich
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatDateTimeUTC(new Date())}
+DTSTART:${dtStart}
+DTEND:${dtEnd}
+SUMMARY:${escapeICS(eventTitle)}
+DESCRIPTION:${escapeICS(description)}
+LOCATION:${escapeICS(startStop.name)}
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR`;
+
+  return ics;
+}
+
+function downloadICS(icsContent) {
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `fahrt-${new Date().getTime()}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+async function exportCalendarJourney() {
+  if (!calendarStart || !calendarDest) {
+    alert('Start und Ziel müssen gesetzt sein.');
+    return;
+  }
+
+  const icsContent = generateICS(calendarStart, calendarVias, calendarDest, calendarTrips);
+  if (!icsContent) {
+    alert('Fehler beim Generieren der ICS-Datei.');
+    return;
+  }
+
+  downloadICS(icsContent);
+  clearCalendarJourney();
+}
+
+// ─── Ende Calendar Tracking ──────────────────────────────────────────────────
+
 const datePicker = document.getElementById('datePicker');
 const timePicker = document.getElementById('timePicker');
 const destFilter = document.getElementById('destFilter');
@@ -174,6 +406,7 @@ function getAbbrevsForName(stationName) {
 document.addEventListener('DOMContentLoaded', () => {
   loadAbbreviations();
   loadCombinedStations();
+  updateCalendarExportButton();
 });
 
 // ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
@@ -358,7 +591,10 @@ function syncPickersToUrl() {
     stopId: currentStopId, 
     stationName: currentStationName, 
     epoch: refEpoch,
-    arrivals: isArrivalsMode
+    arrivals: isArrivalsMode,
+    calendarStart,
+    calendarVias,
+    calendarDest
   }, '', url);
   return refEpoch;
 }
@@ -436,10 +672,14 @@ document.addEventListener('DOMContentLoaded', () => {
       currentStopId = state.stopId;
       currentStationName = state.stationName || 'Station wählen';
       isArrivalsMode = state.arrivals || false;
+      if (state.calendarStart) calendarStart = state.calendarStart;
+      if (state.calendarVias) calendarVias = state.calendarVias;
+      if (state.calendarDest) calendarDest = state.calendarDest;
       updateArrivalToggleUI();
       updateStationTitle(currentStationName);
       setPickersFromEpoch(state.epoch);
       loadDepartures(state.epoch);
+      updateCalendarExportButton();
     }
   });
 
@@ -448,6 +688,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const btnRefresh = document.getElementById('btn-refresh');
   if (btnRefresh) btnRefresh.addEventListener('click', reloadDepartures);
+
+  const btnExportCalendar = document.getElementById('btn-export-calendar');
+  if (btnExportCalendar) {
+    btnExportCalendar.addEventListener('click', exportCalendarJourney);
+  }
 });
 
 // ─── Stationssuche ───────────────────────────────────────────────────────────
@@ -597,7 +842,7 @@ function selectStation(stopId, name, refEpoch) {
   if (isArrivalsMode) url.searchParams.set('arrivals', 'true');
   else                url.searchParams.delete('arrivals');
 
-  history.pushState({stopId, stationName: name, epoch: currentEpoch, arrivals: isArrivalsMode}, '', url);
+  history.pushState({stopId, stationName: name, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
 
   loadDepartures(currentEpoch);
   window.scrollTo({top: 250, behavior: 'smooth'});
@@ -883,6 +1128,16 @@ function renderChain(data) {
       : (stop.departureSched || stop.departureLive || stop.arrivalSched || stop.arrivalLive);
 
     const isClickable = !!stop.stopId;
+    
+    // Calendar buttons for Via and Dest (right-aligned, any stop can be dest)
+    const viaBtn = !calendarDest && stop.stopId && !isFirst
+      ? `<button class="cal-via-btn" onclick="event.stopPropagation(); addCalendarVia('${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpoch}); selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'}); alert('Via gesetzt: ${escapeAttr(stop.name)}');" title="Als Zwischenhalt merken">↓</button>`
+      : '';
+    
+    const destBtn = !calendarDest && stop.stopId
+      ? `<button class="cal-dest-btn" onclick="event.stopPropagation(); setCalendarDest('${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpoch}); exportCalendarJourney();" title="Als Ziel merken">✓</button>`
+      : '';
+    
     const clickAttrs = isClickable
       ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpoch || 'null'})"`
       : '';
@@ -931,6 +1186,10 @@ function renderChain(data) {
         <div class="chain-info">
           <div class="chain-name" style="${stopNameStyle}">${escapeHtml(stop.name)}${stopAbbrevBadge}${boardingBadge}</div>
           ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
+        </div>
+        
+        <div class="chain-actions">
+          ${viaBtn}${destBtn}
         </div>
       </div>
     `;
