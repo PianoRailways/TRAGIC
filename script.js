@@ -897,12 +897,12 @@ function renderChain(data) {
         const nextLegMeta = legMetadata[currentLegIndex] || {};
         const lineStr = nextLegMeta.line ? escapeHtml(nextLegMeta.line) : '?';
         const tripStr = nextLegMeta.tripNumber ? ` (${escapeHtml(nextLegMeta.tripNumber)})` : '';
-        const destStr = nextLegMeta.destination ? ` nach ${escapeHtml(getDestinationName(nextLegMeta.destination))}` : '';
+        const destStr = nextLegMeta.destination ? ` nach <strong>${escapeHtml(getDestinationName(nextLegMeta.destination))}</strong>` : '';
         
         legSeparatorHtml = `
           <div class="chain-leg-separator">
             <div class="separator-text">
-              ↓ Fährt weiter als Linie ${lineStr}${tripStr} via <strong>${escapeHtml(stop.name)}</strong>${destStr}
+              ↓ Weiter als Linie ${lineStr}${tripStr}${destStr}
             </div>
           </div>
         `;
