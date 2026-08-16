@@ -315,7 +315,7 @@
 .line-container[data-agency-id="61"][data-line^="R"] { background: white; color: black; }
 /* RhB */
 .line-container[data-agency-id="72"][data-line^="R"] { background: white; color: black; }
-.line-container[data-agency-id="72"][data-line^="RE"] { background: white; color: #eb0000; }
+.line-container[data-agency-id="72"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-id="72"][data-line^="S"] { background: white; color: black; }
 .line-container[data-agency-id="72"][data-line^="IR"] { background: #eb0000; color: white; }
 /* Zentralbahn ZB */
@@ -331,7 +331,7 @@
 .line-container[data-agency-id="86"][data-line="R71"] { background: #76B72A; color: white; }
 /* SBB */
 .line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
-.line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; }
+.line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; }
@@ -370,7 +370,7 @@
 .line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
 /* Thurbo inkl. DELFI Thurbo */
-.line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; }
+.line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-id="THURBO"][data-line^="S"] { background: white; color: black; }
 /* Berlin */
 .line-container[data-agency-name="S-Bahn Berlin GmbH"] { background: #008d4f; color: white; } /* S-Bahn */
