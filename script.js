@@ -129,42 +129,31 @@ function setCalendarStart(stopId, name, epoch, track) {
 }
 
 function recordSubtrip(endStopId, endName, endEpoch, endTrack, stopIndex) {
-  if (!calendarStart) {
-    if (currentChainData && currentChainData.stops && currentChainData.stops.length > 0) {
-      const firstStop = currentChainData.stops[0];
-      calendarStart = {
-        stopId: firstStop.stopId || '',
-        name: firstStop.name,
-        epoch: firstStop.departureSched || firstStop.departureLive || firstStop.arrivalSched || endEpoch,
-        track: firstStop.track || ''
-      };
-    } else {
-      calendarStart = { stopId: endStopId, name: endName, epoch: endEpoch, track: endTrack || '' };
-    }
-  }
+  // Letzten Fixpunkt ermitteln (Via falls vorhanden, sonst Start)
+  const lastPoint = calendarVias.length > 0 
+    ? calendarVias[calendarVias.length - 1] 
+    : calendarStart;
 
-  const lastPoint = calendarVias.length > 0 ? calendarVias[calendarVias.length - 1] : calendarStart;
+  if (!lastPoint) return;
 
-  let startName = lastPoint ? lastPoint.name : endName;
-  let startTrack = lastPoint ? lastPoint.track : '';
-  let startTimeEpoch = lastPoint ? lastPoint.epoch : endEpoch;
+  let startName = lastPoint.name;
+  let startTrack = lastPoint.track || '';
+  let startTimeEpoch = lastPoint.epoch;
 
-  if (currentChainData && currentChainData.stops && typeof stopIndex === 'number') {
+  // Falls Kette geladen ist, genaueren Abfahrtszeitpunkt/Gleis am Umsteigepunkt auslesen
+  if (currentChainData && currentChainData.stops) {
+    const stops = currentChainData.stops;
     let matchIdx = -1;
-    if (lastPoint && lastPoint.stopId) {
-      matchIdx = currentChainData.stops.findIndex(s => s.stopId === lastPoint.stopId);
+
+    if (lastPoint.stopId) {
+      matchIdx = stops.findIndex(s => s.stopId === lastPoint.stopId);
     }
-    if (matchIdx < 0 && lastPoint && lastPoint.name) {
-      matchIdx = currentChainData.stops.findIndex(s => s.name.toLowerCase() === lastPoint.name.toLowerCase());
+    if (matchIdx < 0 && lastPoint.name) {
+      matchIdx = stops.findIndex(s => s.name.toLowerCase() === lastPoint.name.toLowerCase());
     }
 
-    if (matchIdx >= 0 && matchIdx < stopIndex) {
-      const startObj = currentChainData.stops[matchIdx];
-      startName = startObj.name;
-      startTrack = startObj.track || startTrack;
-      startTimeEpoch = startObj.departureSched || startObj.departureLive || startObj.arrivalSched || startTimeEpoch;
-    } else if (stopIndex > 0) {
-      const startObj = currentChainData.stops[0];
+    if (matchIdx >= 0 && typeof stopIndex === 'number' && matchIdx < stopIndex) {
+      const startObj = stops[matchIdx];
       startName = startObj.name;
       startTrack = startObj.track || startTrack;
       startTimeEpoch = startObj.departureSched || startObj.departureLive || startObj.arrivalSched || startTimeEpoch;
