@@ -1204,9 +1204,7 @@ function renderChain(data) {
       ? ` <span class="abbrev-label">${escapeHtml(stopAbbrevs[0].abbrev)}</span>`
       : '';
 
-    const refEpoch = isArrivalsMode
-      ? (stop.arrivalSched || stop.arrivalLive || stop.departureSched || stop.departureLive)
-      : (stop.departureSched || stop.departureLive || stop.arrivalSched || stop.arrivalLive);
+    const refEpoch = stop.arrivalSched || stop.arrivalLive || stop.departureSched || stop.departureLive;
 
     const isClickable = !!stop.stopId;
     
