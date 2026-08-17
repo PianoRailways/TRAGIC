@@ -1149,9 +1149,23 @@ function renderChain(data) {
     });
   }
 
+  // Index der aktuellen Station im Fahrtverlauf ermitteln
+  let currentIdx = 0;
+  if (data.stops && data.stops.length > 0) {
+    const foundIdx = data.stops.findIndex(s => 
+      (currentStopId && s.stopId === currentStopId) ||
+      (currentStationName && s.name.toLowerCase() === currentStationName.toLowerCase())
+    );
+    if (foundIdx > 0) {
+      currentIdx = foundIdx;
+    }
+  }
+
   const stopsHtml = (data.stops || []).map((stop, i) => {
     const isLast = i === (data.stops.length - 1);
     const isFirst = i === 0;
+    const isPast = i < currentIdx;
+    const isCurrent = i === currentIdx;
     
     const arrDisp = stop.arrivalSched   ? fmtTime(stop.arrivalSched)   : null;
     const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
@@ -1237,7 +1251,7 @@ function renderChain(data) {
         const destStr = nextLegMeta.destination ? ` nach <strong>${escapeHtml(getDestinationName(nextLegMeta.destination))}</strong>` : '';
         
         legSeparatorHtml = `
-          <div class="chain-leg-separator">
+          <div class="chain-leg-separator"${isPast ? ' style="display:none;"' : ''}>
             <div class="separator-text">
               ↓ Weiter als Linie ${lineStr}${tripStr}${destStr}
             </div>
@@ -1246,8 +1260,12 @@ function renderChain(data) {
       }
     }
     
+    const pastClass = isPast ? ' chain-past-stop' : '';
+    const currentClass = isCurrent ? ' chain-current-stop' : '';
+    const hideStyle = isPast ? ' style="display:none;"' : '';
+
     return legSeparatorHtml + `
-      <div class="chain-stop${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" ${clickAttrs}>
+      <div class="chain-stop${pastClass}${currentClass}${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}"${hideStyle} ${clickAttrs}>
         
         <div class="chain-dot-col">
           <div class="chain-dot-wrapper">
@@ -1296,10 +1314,15 @@ function renderChain(data) {
         </span>
       </div>`
     : '';
-  
+
+  const togglePastBtnHtml = currentIdx > 0
+    ? `<div style="margin-top: 6px;"><button type="button" class="btn-toggle-past" onclick="event.stopPropagation(); togglePastStops(this)">Gesamte Fahrt anzeigen (${currentIdx} frühere Halte)</button></div>`
+    : '';
+
   return `
     <div class="chain-header">
       <b>Linie ${escapeHtml(data.line || '?')}${chainDestName ? ' → ' + escapeHtml(chainDestName) : ''}</b>${data.tripNumber ? ' · ' + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) : ''}
+      ${togglePastBtnHtml}
     </div>
     <div class="chain">
       ${stopsHtml}
@@ -1308,7 +1331,31 @@ function renderChain(data) {
     ${BetreiberHTML}
   `;
 }
+function togglePastStops(btn) {
+  const chainWrap = btn.closest('.chain-wrap');
+  if (!chainWrap) return;
 
+  const pastStops = chainWrap.querySelectorAll('.chain-past-stop');
+  const pastSeparators = chainWrap.querySelectorAll('.chain-leg-separator');
+  if (pastStops.length === 0) return;
+
+  const isHidden = pastStops[0].style.display === 'none';
+
+  pastStops.forEach(el => {
+    el.style.display = isHidden ? 'flex' : 'none';
+  });
+
+  pastSeparators.forEach(el => {
+    // Falls ein Trenner zu den vergangenen Halten gehört
+    if (el.nextElementSibling && el.nextElementSibling.classList.contains('chain-past-stop')) {
+      el.style.display = isHidden ? 'block' : 'none';
+    }
+  });
+
+  btn.textContent = isHidden 
+    ? 'Frühere Halte ausblenden' 
+    : `Gesamte Fahrt anzeigen (${pastStops.length} frühere Halte)`;
+}
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 function getDestinationName(dest) {
