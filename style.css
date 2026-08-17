@@ -916,3 +916,52 @@ p {
     font-size: 14px;
   }
 }
+
+/* Button zum Ein-/Ausblenden früherer Halte */
+.btn-toggle-past {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  padding: 3px 9px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-toggle-past:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Frühere Halte optisch dezent ausgrauen, wenn sie eingeblendet werden */
+.chain-stop.chain-past-stop {
+  opacity: 0.55;
+}
+
+.chain-stop.chain-past-stop:hover {
+  opacity: 0.85;
+}
+
+/* Aktuelle Station zur Orientierung leicht hervorheben */
+.chain-stop.chain-current-stop {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
+/* Trenner für Linien- oder Fahrtnummernwechsel */
+.chain-leg-separator {
+  margin: 6px 0 6px 28px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  color: #b0b0b0;
+  border-left: 2px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0 4px 4px 0;
+}
+
+.chain-leg-separator .separator-text {
+  font-style: italic;
+}
