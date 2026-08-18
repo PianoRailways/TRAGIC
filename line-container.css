@@ -328,6 +328,7 @@
 .line-container[data-agency-id="86"][data-line="R70"] { background: #009767; color: white; }
 .line-container[data-agency-id="86"][data-line="R71"] { background: #76B72A; color: white; }
 /* SBB */
+.line-container[data-agency-id="11"][data-line^="TER"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
