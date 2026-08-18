@@ -947,6 +947,86 @@ async function selectStationByName(name, refEpoch) {
   }
 }
 
+// ─── Line Normalization ──────────────────────────────────────────────────────
+
+function normalizeLineDisplay(line) {
+  if (!line) return '';
+  const upperLine = line.toUpperCase();
+  
+  // TER und ICE: nur Präfix anzeigen (z.B. "TER 830102" → "TER", "ICE 501" → "ICE")
+  if (upperLine.startsWith('TER ') || upperLine.startsWith('TER')) {
+    return 'TER';
+  }
+  if (upperLine.startsWith('ICE ') || upperLine.startsWith('ICE')) {
+    return 'ICE';
+  }
+  
+  return line;
+}
+
+// ─── Async Destination Loading ───────────────────────────────────────────────
+
+async function loadTripDestinationAsync(dep, tbody, depIdx) {
+  if (!dep.tripId) return;
+  
+  // Verzögerung: Trips mit etwas Delay laden (Hintergrund)
+  await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+  
+  try {
+    const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
+    const data = await res.json();
+    
+    if (data.error) {
+      console.warn(`Failed to load trip ${dep.tripId}:`, data.error);
+      return;
+    }
+    
+    // Priorität: destination → letzte Haltestelle aus stops
+    let finalDestination = data.destination;
+    let isFromLastStop = false;
+    
+    if (!finalDestination && data.stops && data.stops.length > 0) {
+      const lastStop = data.stops[data.stops.length - 1];
+      finalDestination = lastStop.name || '';
+      isFromLastStop = true; // Markiere, dass dies vom letzten Stop kommt
+    }
+    
+    if (finalDestination) {
+      // Update departure object
+      dep.destination = finalDestination;
+      
+      // Find the row in tbody and update it
+      const rows = tbody.querySelectorAll('tr.dep-row');
+      if (rows[depIdx]) {
+        const row = rows[depIdx];
+        const destCell = row.querySelector('.col-dest');
+        if (destCell) {
+          const destName = getDestinationName(finalDestination);
+          
+          // Update data attribute
+          row.dataset.dest = destName;
+          
+          // Update HTML (preserve any station-hint if exists)
+          const stationHint = destCell.querySelector('.station-hint');
+          const stationHintHtml = stationHint ? stationHint.outerHTML : '';
+          
+          // Wenn von letztem Stop: kursiv darstellen
+          const destDisplay = isFromLastStop 
+            ? `<em>${escapeHtml(destName)}</em>`
+            : escapeHtml(destName);
+          
+          destCell.innerHTML = `${destDisplay}${stationHintHtml}`;
+          
+          // Re-apply filters to this row
+          applyFilters();
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`Failed to load destination for trip ${dep.tripId}:`, err);
+  }
+}
+
 // ─── Abfahrten/Ankünfte laden ────────────────────────────────────────────────
 
 async function loadDepartures(refEpoch) {
@@ -1049,9 +1129,14 @@ function renderDepartures(departures) {
     return timeA - timeB;
   });
 
-  sorted.forEach(dep => {
+  sorted.forEach((dep, depIdx) => {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
+
+    // Async destination loading wenn nötig
+    if (!dep.destination && dep.tripId) {
+      loadTripDestinationAsync(dep, tbody, depIdx);
+    }
 
     const timeStr = dep.scheduled
       ? new Date(dep.scheduled * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'})
@@ -1071,6 +1156,7 @@ function renderDepartures(departures) {
 
     const iconHtml = getModeIcon(dep.mode);
     const destName = getDestinationName(dep.destination);
+    const displayLine = normalizeLineDisplay(dep.line);
 
     tr.dataset.mode = canonicalMode(dep.mode);
     tr.dataset.dest = destName;
@@ -1088,7 +1174,7 @@ function renderDepartures(departures) {
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
-        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(dep.line)}</span></div>
+        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
         <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber.replace(/^0+(?=\d)/, '')) : ''}</div>
       </td>
       <td class="col-dest">${escapeHtml(destName)}${stationLabelHtml}</td>
@@ -1101,7 +1187,7 @@ function renderDepartures(departures) {
   applyFilters();
 }
 
-// ─── Fahrt-Chain ─────────────────────────────────────────────────────────────
+// ─── Fahrt-Chain 	─────────────────────────────────────────────────────────────
 
 async function toggleChain(tr, dep) {
   const existing = tr.nextElementSibling;
@@ -1410,6 +1496,7 @@ function togglePastStopsInLeg(btn) {
     ? '– Frühere Halte ausblenden' 
     : btn.getAttribute('data-label-show');
 }
+
 function togglePastStops(btn) {
   const chainWrap = btn.closest('.chain-wrap');
   if (!chainWrap) return;
@@ -1435,6 +1522,7 @@ function togglePastStops(btn) {
     ? 'Frühere Halte ausblenden' 
     : `Gesamte Fahrt anzeigen (${pastStops.length} frühere Halte)`;
 }
+
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 function getDestinationName(dest) {
