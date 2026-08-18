@@ -478,3 +478,13 @@
 
 /* Österreich */
 .line-container[data-agency-id="02"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
+
+/* Niederlanden */
+.line-container[data-agency-name="NS"] { background: #ffc917; color: #003082; }
+.line-container[data-agency-name="NS International"] { background: white; color: #003082; }
+
+.line-container[data-agency-name="GVB"] { background: white; color: #024b8c; }
+
+.line-container[data-agency-name="Arriva"] { background: #33cbd7; color: white; }
+
+.line-container[data-agency-name="European Sleeper"] { background: #40002c; color: white; } /* European Sleeper */
