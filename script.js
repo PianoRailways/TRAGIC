@@ -969,6 +969,9 @@ function normalizeLineDisplay(line) {
 async function loadTripDestinationAsync(dep, tbody, depIdx) {
   if (!dep.tripId) return;
   
+  // Verzögerung: Trips mit etwas Delay laden (Hintergrund)
+  await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+  
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
     const data = await res.json();
@@ -980,9 +983,12 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
     
     // Priorität: destination → letzte Haltestelle aus stops
     let finalDestination = data.destination;
+    let isFromLastStop = false;
+    
     if (!finalDestination && data.stops && data.stops.length > 0) {
       const lastStop = data.stops[data.stops.length - 1];
       finalDestination = lastStop.name || '';
+      isFromLastStop = true; // Markiere, dass dies vom letzten Stop kommt
     }
     
     if (finalDestination) {
@@ -1004,7 +1010,12 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
           const stationHint = destCell.querySelector('.station-hint');
           const stationHintHtml = stationHint ? stationHint.outerHTML : '';
           
-          destCell.innerHTML = `${escapeHtml(destName)}${stationHintHtml}`;
+          // Wenn von letztem Stop: kursiv darstellen
+          const destDisplay = isFromLastStop 
+            ? `<em>${escapeHtml(destName)}</em>`
+            : escapeHtml(destName);
+          
+          destCell.innerHTML = `${destDisplay}${stationHintHtml}`;
           
           // Re-apply filters to this row
           applyFilters();
