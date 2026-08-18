@@ -454,6 +454,70 @@
 .line-container[data-agency-id="318"],
 .line-container[data-agency-id="203"] { background: #c2122b; color: white; } /* DSB */
 
+/* Italien */
+/* 1. FRECCIAROSSA: Tiefes Rot mit elegantem Silbergrau-Akzent */
+.line-container[data-agency-name="TRENITALIA"][data-line*="FR"],
+.line-container[data-agency-name="TRENITALIA"][data-line*="Frecciarossa"] {
+  background: linear-gradient(135deg, #a80518 0%, #d91424 70%, #4a4a4a 100%);
+  color: #ffffff;
+  font-weight: bold;
+  border-left: 3px solid #ffffff;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 2. FRECCIARGENTO: Silber-Grau mit feinem roten Akzentstreifen */
+.line-container[data-agency-name="TRENITALIA"][data-line*="FA"],
+.line-container[data-agency-name="TRENITALIA"][data-line*="Frecciargento"] {
+  background: linear-gradient(135deg, #4a4d4e 0%, #828a8f 75%, #c2122b 100%);
+  color: #ffffff;
+  font-weight: bold;
+  border-left: 3px solid #c2122b;
+}
+
+/* 3. FRECCIABIANCA: Schneeweiß/Silber mit charakteristischem roten Rand */
+.line-container[data-agency-name="TRENITALIA"][data-line*="FB"],
+.line-container[data-agency-name="TRENITALIA"][data-line*="Frecciabianca"] {
+  background: linear-gradient(135deg, #ffffff 0%, #e6e8ea 80%, #c2122b 100%);
+  color: #1a1a1a;
+  font-weight: bold;
+  border: 1px solid #cccccc;
+  border-left: 4px solid #c2122b;
+}
+
+/* 4. RESTLICHE TRENITALIA ZÜGE (IC, Regionalverkehr etc.): Klassisches Trenitalia-Grün/Dunkelblau */
+.line-container[data-agency-name="TRENITALIA"] {
+  background: linear-gradient(135deg, #006643 0%, #004d32 70%, #002b49 100%);
+  color: #ffffff;
+  border-left: 3px solid #00a86b;
+}
+
+/* 1. Trenord STANDARD (Regionale, RegioExpress): Typisches Trenord-Grün */
+.line-container[data-agency-name="Trenord"],
+.line-container[data-agency-id="Trenord"] {
+  background: linear-gradient(135deg, #016734 0%, #018d47 70%, #1cc691 100%);
+  color: #ffffff;
+  font-weight: bold;
+  border-left: 3px solid #1cc691;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 2. MALPENSA EXPRESS: Das charakteristische Bordeauxrot / Weinrot von Trenord */
+.line-container[data-agency-name="Trenord"][data-line*="MXP"],
+.line-container[data-agency-name="Trenord"][data-line*="Malpensa"],
+.line-container[data-agency-name="Trenord"][data-route-id*="MXP"] {
+  background: linear-gradient(135deg, #7a0026 0%, #a30836 70%, #1cc691 100%);
+  color: #ffffff;
+  font-weight: bold;
+  border-left: 3px solid #ffffff;
+}
+
+/* 3. SUBURBANO (S-Bahnen Mailand, z. B. S1, S13): Dunkelblau mit grünem Akzent */
+.line-container[data-agency-name="Trenord"][data-line^="S"] {
+  background: linear-gradient(135deg, #0f2b5c 0%, #163d82 70%, #016734 100%);
+  color: #ffffff;
+  border-left: 3px solid #016734;
+}
+
 /* === Frankreich === */
 
 /* SNCF – TER Linien */
