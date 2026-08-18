@@ -950,7 +950,6 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('ICE')) return 'ICE';
   if (upper.startsWith('ICD')) return 'ICD';
   if (upper.startsWith('ECD')) return 'ECD';
-  if (upper.startsWith('IC')) return 'ECD';
   if (upper.startsWith('L')) return 'L';
   if (upper.startsWith('FR')) return 'FR';
   if (upper.startsWith('EC')) return 'EC';
