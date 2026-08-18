@@ -107,6 +107,20 @@
 .line-container[data-agency-id="849"], .line-container[data-agency-id="3849"] { background: white; color: black; }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 
+/* Stadtbus Winterthur */
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="1"] { background: #A8C42E; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="2"] { background: #E6000E; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="3"] { background: #12A03C; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="4"] { background: #FBB029; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="5"] { background: #006CAF; color: white; }
+
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="7"] { background: #E82085; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="9"] { background: #E87118; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="10"] { background: #02428B; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="12"] { background: #825A33; color: white; }
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line="22"] { background: #E6000E; color: white; }
+
+
 /* STI Bus */
 .line-container[data-agency-id="146"][data-line="1"] { background: rgb(209,70,53); color: white; }
 .line-container[data-agency-id="146"][data-line="2"] { background: rgb(62,53,127); color: white; }
