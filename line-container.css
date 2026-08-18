@@ -130,7 +130,7 @@
 .line-container[data-agency-id="146"][data-line="43"] { background: rgb(246,205,73); color: white; }
 .line-container[data-agency-id="146"][data-line="44"] { background: rgb(131,30,129); color: white; }
 .line-container[data-agency-id="146"][data-line="50"] { background: rgb(176,166,222); color: white; }
-.line-container[data-agency-id="146"][data-line="50"] { background: rgb(232,153,55); color: white; }
+.line-container[data-agency-id="146"][data-line="51"] { background: rgb(232,153,55); color: white; }
 .line-container[data-agency-id="146"][data-line="53"] { background: rgb(153,221,201); color: white; }
 .line-container[data-agency-id="146"][data-line="55"] { background: rgb(115,188,57); color: white; }
 .line-container[data-agency-id="146"][data-line="252"] { background: rgb(123,22,67); color: white; }
@@ -222,7 +222,7 @@
 .line-container[data-agency-id="870"][data-line="74"] { background: #860043; color: white; }
 
 /* Solothurn und Umgebung BSU */
-.line-container[data-agency-id="883"][data-line="2"] { background: #151616; color: white; }
+.line-container[data-agency-id="883"][data-line="1"] { background: #151616; color: white; }
 .line-container[data-agency-id="883"][data-line="2"] { background: #DD2B1C; color: white; }
 .line-container[data-agency-id="883"][data-line="3"] { background: #373098; color: white; }
 .line-container[data-agency-id="883"][data-line="4"] { background: #F27E00; color: white; }
@@ -302,8 +302,8 @@
 .line-container[data-agency-name*="Matterhorn"][data-line="R42"] { background: #00788B; color: white; }
 .line-container[data-agency-name*="Matterhorn"][data-line="R43"] { background: #E82324; color: white; }
 .line-container[data-agency-name*="Matterhorn"][data-line="R44"] { background: #EAA7A8; color: white; }
-.line-container[data-agency-name*="Matterhorn"][data-line="R44"] { background: #A72D42; color: white; }
-.line-container[data-agency-name*="Matterhorn"][data-line="R44"] { background: #F88C29; color: white; }
+.line-container[data-agency-name*="Matterhorn"][data-line="R45"] { background: #A72D42; color: white; }
+.line-container[data-agency-name*="Matterhorn"][data-line="R46"] { background: #F88C29; color: white; }
 
 .line-container[data-agency-name="Gornergratbahn"] { background: #FFB82D; color: white; }
 /* MBC etc. */
