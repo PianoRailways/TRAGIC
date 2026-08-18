@@ -916,3 +916,45 @@ p {
     font-size: 14px;
   }
 }
+.chain-leg-toggle-wrap,
+.chain-stops-toggle-wrap {
+  margin: 6px 0 6px 28px;
+}
+
+.btn-toggle-past-leg,
+.btn-toggle-past {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-toggle-past-leg:hover,
+.btn-toggle-past:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.chain-stop.chain-past-stop {
+  opacity: 0.82;
+  transition: opacity 0.15s ease;
+}
+
+.chain-stop.chain-past-stop:hover {
+  opacity: 1;
+}
+
+.chain-past-leg-body .chain-stop {
+  opacity: 0.82;
+  transition: opacity 0.15s ease;
+}
+
+.chain-past-leg-body .chain-stop:hover {
+  opacity: 1;
+}

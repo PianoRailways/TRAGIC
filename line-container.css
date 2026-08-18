@@ -361,7 +361,8 @@
 .line-container[data-agency-id="10980"]::after,
 .line-container[data-agency-name^="DB"][data-mode="BUS"]::after
   { content: ""; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background-color: rgb(217,157,54); border-radius: 50%; }
-
+.line-container[data-agency-name^="DB Regio"] { background: white; color: #858B95}
+.line-container[data-agency-name^="10939"] { background: #2859a6; color: white} /* SWEG */
 /* CJ */
 .line-container[data-agency-id="43"][data-line="R36"] { background: rgb(110,47,140); color: white; }
 .line-container[data-agency-id="43"][data-line="R37"] { background: rgb(219,56,52); color: white; }
