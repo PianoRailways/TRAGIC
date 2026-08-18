@@ -943,22 +943,13 @@ async function selectStationByName(name, refEpoch) {
 
 function normalizeLineDisplay(line) {
   if (!line) return '';
-  const upperLine = line.toUpperCase();
+  const upper = line.toUpperCase();
   
-  // TER und ICE: nur Präfix anzeigen (z.B. "TER 830102" → "TER", "ICE 501" → "ICE")
-  if (upperLine.startsWith('TER ') || upperLine.startsWith('TER')) {
-    return 'TER';
-  }
-  if (upperLine.startsWith('ICE ') || upperLine.startsWith('ICE')) {
-    return 'ICE';
-  }
-  if (upperLine.startsWith('TGV') || upperLine.startsWith('TGV')) {
-    return 'TGV';
-  }
+  if (upper.startsWith('TGV LYRIA')) return 'TGV Lyria';
+  if (upper.startsWith('TER')) return 'TER';
+  if (upper.startsWith('ICE')) return 'ICE';
   
-  const withoutParens = line.replace(/\s*\(\d+\)\s*$/g, '').trim();
-  
-  return withoutParens;
+  return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
 
 // ─── Async Destination Loading ───────────────────────────────────────────────
