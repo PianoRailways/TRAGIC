@@ -1118,8 +1118,14 @@ function formatTripNumber(tripNumber, line) {
   if (match1) {
     return match1[1];
   }
+
+  // Pattern 2: Produktgattung/Linie vor Ziffern "ICE 201", "RE 4812" → "201", "4812"
+  const match2 = tripNumber.match(/^[A-Za-z]+\s+(\d+)$/);
+  if (match2) {
+    return match2[1];
+  }
   
-  // Pattern 2: Führende Nullen entfernen "0013619" → "13619"
+  // Pattern 3: Führende Nullen entfernen "0013619" → "13619"
   return tripNumber.replace(/^0+(?=\d)/, '');
 }
 
