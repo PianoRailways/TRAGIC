@@ -1092,6 +1092,25 @@ function getModeIcon(mode) {
   return '';
 }
 
+// ─── Trip Number Extraction Helper ──────────────────────────────────────────
+
+function extractTripNumberFromLine(line) {
+  if (!line) return '';
+  
+  // Entferne führende/nachfolgende Leerzeichen
+  line = line.trim();
+  
+  // Extrahiere die Nummer am Ende (z.B. "ES 475" → "475")
+  const match = line.match(/\s(\d+)$/);
+  if (match) {
+    return match[1];
+  }
+  
+  return '';
+}
+
+// ─── Rendern ─────────────────────────────────────────────────────────────────
+
 function renderDepartures(departures) {
   const tbody = document.getElementById('departureBody');
   const table = document.getElementById('departureTable');
@@ -1140,6 +1159,11 @@ function renderDepartures(departures) {
     const destName = getDestinationName(dep.destination);
     const displayLine = normalizeLineDisplay(dep.line);
 
+    // ─── TripNumber: Fallback auf Line-Extraktion wenn leer ───
+    const tripNumDisplay = dep.tripNumber 
+      ? dep.tripNumber.replace(/^0+(?=\d)/, '')
+      : extractTripNumberFromLine(dep.line);
+
     tr.dataset.mode = canonicalMode(dep.mode);
     tr.dataset.dest = destName;
     tr.dataset.trip = dep.tripNumber || '';
@@ -1161,7 +1185,7 @@ function renderDepartures(departures) {
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
         <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
-        <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber.replace(/^0+(?=\d)/, '')) : ''}</div>
+        <div class="col-nr tripnr">${tripNumDisplay}</div>
       </td>
       <td class="col-dest">${destDisplay}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
