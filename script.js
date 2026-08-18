@@ -973,9 +973,21 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
     const data = await res.json();
     
-    if (!data.error && data.destination) {
+    if (data.error) {
+      console.warn(`Failed to load trip ${dep.tripId}:`, data.error);
+      return;
+    }
+    
+    // Priorität: destination → letzte Haltestelle aus stops
+    let finalDestination = data.destination;
+    if (!finalDestination && data.stops && data.stops.length > 0) {
+      const lastStop = data.stops[data.stops.length - 1];
+      finalDestination = lastStop.name || '';
+    }
+    
+    if (finalDestination) {
       // Update departure object
-      dep.destination = data.destination;
+      dep.destination = finalDestination;
       
       // Find the row in tbody and update it
       const rows = tbody.querySelectorAll('tr.dep-row');
@@ -983,7 +995,7 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
         const row = rows[depIdx];
         const destCell = row.querySelector('.col-dest');
         if (destCell) {
-          const destName = getDestinationName(data.destination);
+          const destName = getDestinationName(finalDestination);
           
           // Update data attribute
           row.dataset.dest = destName;
