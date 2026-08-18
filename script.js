@@ -961,7 +961,10 @@ function normalizeLineDisplay(line) {
     return 'ICE';
   }
   
-  return line;
+  // Entferne Nummern in Klammern (z.B. "RB27 (17180)" → "RB27")
+  const withoutParens = line.replace(/\s*\(\d+\)\s*$/g, '').trim();
+  
+  return withoutParens;
 }
 
 // ─── Async Destination Loading ───────────────────────────────────────────────
