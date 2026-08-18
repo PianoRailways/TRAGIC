@@ -1,6 +1,12 @@
 window.combinedStations = {
     'Aarberg': ['Aarberg', 'Aarberg, Post/Bahnhof'],
     'Aarberg, Post/Bahnhof': ['Aarberg', 'Aarberg, Post/Bahnhof'],
+    'Seon': ['Seon', 'Seon, Post/Bahnhof'],
+    'Seon, Post/Bahnhof': ['Seon', 'Seon, Post/Bahnhof'],
+    'Aarberg': ['Aarberg', 'Aarberg, Post/Bahnhof'],
+    'Ilanz, Bahnhof/Post': ['Ilanz', 'Ilanz, Bahnhof/Post'],
+    'Ilanz': ['Ilanz', 'Ilanz, Bahnhof/Post'],
+    'Aarberg, Post/Bahnhof': ['Aarberg', 'Aarberg, Post/Bahnhof'],
     'Andermatt': ['Andermatt', 'Andermatt, Bahnhofplatz'],
     'Andermatt, Bahnhofplatz': ['Andermatt', 'Andermatt, Bahnhofplatz'],
     'Solothurn, Hauptbahnhof': ['Solothurn', 'Solothurn, Hauptbahnhof'],
