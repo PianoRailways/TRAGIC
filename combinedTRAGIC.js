@@ -6,4 +6,9 @@ window.combinedStations = {
     'Solothurn, Hauptbahnhof': ['Solothurn', 'Solothurn, Hauptbahnhof'],
     'Solothurn': ['Solothurn', 'Solothurn, Hauptbahnhof'],
     'Disentis/Mustér': ['Disentis/Mustér', 'Disentis/Mustér, staziun/posta'],
+    'Bern Wankdorf, Bahnhof Nord': ['Bern Wankdorf', 'Bern Wankdorf, Bahnhof Nord'],
+    'Bern Wankdorf': ['Bern Wankdorf', 'Bern Wankdorf, Bahnhof Nord'],
+    'Rotkreuz': ['Rotkreuz, Bahnhof Nord', 'Rotkreuz', 'Rotkreuz, Bahnhof Süd'],
+    'Rotkreuz, Bahnhof Nord': ['Rotkreuz, Bahnhof Nord', 'Rotkreuz', 'Rotkreuz, Bahnhof Süd'],
+    'Rotkreuz, Bahnhof Süd': ['Rotkreuz, Bahnhof Nord', 'Rotkreuz', 'Rotkreuz, Bahnhof Süd'],
 	};
