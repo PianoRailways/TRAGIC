@@ -1092,18 +1092,41 @@ function getModeIcon(mode) {
   return '';
 }
 
-// ─── Trip Number Extraction Helper ──────────────────────────────────────────
+// ─── Trip Number Formatting Helper ──────────────────────────────────────────
+
+function formatTripNumber(tripNumber, line) {
+  if (!tripNumber) {
+    // Fallback: aus line extrahieren wenn tripNumber leer
+    return extractTripNumberFromLine(line);
+  }
+  
+  tripNumber = String(tripNumber).trim();
+  
+  // Pattern 1: "S40 - 25406" → "25406"
+  const match1 = tripNumber.match(/\s*-\s*(\d+)$/);
+  if (match1) {
+    return match1[1];
+  }
+  
+  // Pattern 2: Führende Nullen entfernen "0013619" → "13619"
+  return tripNumber.replace(/^0+(?=\d)/, '');
+}
 
 function extractTripNumberFromLine(line) {
   if (!line) return '';
   
-  // Entferne führende/nachfolgende Leerzeichen
   line = line.trim();
   
-  // Extrahiere die Nummer am Ende (z.B. "ES 475" → "475")
-  const match = line.match(/\s(\d+)$/);
-  if (match) {
-    return match[1];
+  // Pattern 1: "S40 - 25406" → "25406"
+  const match1 = line.match(/\s*-\s*(\d+)$/);
+  if (match1) {
+    return match1[1];
+  }
+  
+  // Pattern 2: "ES 475" → "475"
+  const match2 = line.match(/\s(\d+)$/);
+  if (match2) {
+    return match2[1];
   }
   
   return '';
@@ -1160,9 +1183,7 @@ function renderDepartures(departures) {
     const displayLine = normalizeLineDisplay(dep.line);
 
     // ─── TripNumber: Fallback auf Line-Extraktion wenn leer ───
-    const tripNumDisplay = dep.tripNumber 
-      ? dep.tripNumber.replace(/^0+(?=\d)/, '')
-      : extractTripNumberFromLine(dep.line);
+    const tripNumDisplay = formatTripNumber(dep.tripNumber, dep.line);
 
     tr.dataset.mode = canonicalMode(dep.mode);
     tr.dataset.dest = destName;
