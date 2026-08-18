@@ -1097,12 +1097,17 @@ function getModeIcon(mode) {
 // ─── Trip Number Formatting Helper ──────────────────────────────────────────
 
 function formatTripNumber(tripNumber, line) {
-  if (!tripNumber) {
-    // Fallback: aus line extrahieren wenn tripNumber leer
+  // Wenn tripNumber nicht existiert, leer ist ODER '0' bzw. 0 ist:
+  if (!tripNumber || tripNumber === '0' || tripNumber === 0) {
     return extractTripNumberFromLine(line);
   }
   
   tripNumber = String(tripNumber).trim();
+  
+  // Wenn nach dem Trimmen nur '0' übrig bleibt (z.B. bei "0" oder "00")
+  if (tripNumber === '0' || /^0+$/.test(tripNumber)) {
+    return extractTripNumberFromLine(line);
+  }
   
   // Pattern 1: "S40 - 25406" → "25406"
   const match1 = tripNumber.match(/\s*-\s*(\d+)$/);
@@ -1125,8 +1130,8 @@ function extractTripNumberFromLine(line) {
     return match1[1];
   }
   
-  // Pattern 2: "ES 475" → "475"
-  const match2 = line.match(/\s(\d+)$/);
+  // Pattern 2: "ES 475", "IC 533" oder "FR 9607" → extrahiert die Zahlen am Ende
+  const match2 = line.match(/(?:^|\s)(\d+)$/);
   if (match2) {
     return match2[1];
   }
