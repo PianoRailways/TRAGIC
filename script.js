@@ -952,6 +952,9 @@ function normalizeLineDisplay(line) {
   if (upperLine.startsWith('ICE ') || upperLine.startsWith('ICE')) {
     return 'ICE';
   }
+  if (upperLine.startsWith('TGV') || upperLine.startsWith('TGV')) {
+    return 'TGV';
+  }
   
   const withoutParens = line.replace(/\s*\(\d+\)\s*$/g, '').trim();
   

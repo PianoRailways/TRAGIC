@@ -455,20 +455,14 @@
 
 /* === Frankreich === */
 
-/* SNCF (TER) */
-.line-container[data-agency-id="SNCF"],
-.line-container[data-agency-id="1187"],
-.line-container[data-agency-id="87_LEX"] { background: linear-gradient( 90deg, #822266 0%, #AF1173 25%, #DC0E0E 81%, #DC0E0E 100 ); }
-
-
-.line-container[data-agency-id="1187"][data-line^="C"],
-.line-container[data-agency-id="1187"][data-line^="P"],
-.line-container[data-agency-id="1187"][data-line^="K"],
-.line-container[data-agency-id="87_LEX"][data-line^="C"],
-.line-container[data-agency-id="87_LEX"][data-line^="P"],
-.line-container[data-agency-id="87_LEX"][data-line^="K"],
-.line-container[data-agency-id="1187"][data-line^="L"] {
+/* SNCF – TER Linien */
+.line-container[data-agency-name="SNCF VOYAGEURS"][data-line^="TER"] {
   background: #004b87; color: white;
+}
+
+/* SNCF – alle anderen */
+.line-container[data-agency-name="SNCF VOYAGEURS"] {
+  background: linear-gradient(90deg, #822266 0%, #AF1173 25%, #DC0E0E 81%, #DC0E0E 100%);
 }
 
 /* Österreich */
