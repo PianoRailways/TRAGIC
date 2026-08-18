@@ -1,11 +1,11 @@
 const PROXY = 'proxy.php';
 let currentStopId = null;
 let currentStationName = null;
-let currentMainStationId = null; // Merke die echte Haupt-Station für Labeling
+let currentMainStationId = null;
 let refreshTimer = null;
 let allDepartures = [];
-let abbrevMap = {}; // Abkürzungs-Mapping (alle Länder kombiniert)
-let nameToAbbrevMap = {}; // Reverse Mapping (Name -> Abkürzungen)
+let abbrevMap = {};
+let nameToAbbrevMap = {};
 
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
@@ -15,10 +15,8 @@ let isArrivalsMode = params.get('arrivals') === 'true';
 function formatStationWithTrack(stationName, track) {
   if (!stationName) return '';
 
-  // Gleisbezeichnung bereinigen (z.B. "Gl. 14" -> "14")
   const cleanTrack = track ? String(track).replace(/^(Gl\.|Gleis|Pl\.|Plattform)\s*/i, '').trim() : '';
 
-  // DiDok-Abkürzung suchen
   const abbrevs = getAbbrevsForName(stationName);
   const hasAbbrev = abbrevs && abbrevs.length > 0;
   const baseName = hasAbbrev ? abbrevs[0].abbrev : stationName.trim();
@@ -27,17 +25,15 @@ function formatStationWithTrack(stationName, track) {
     return baseName;
   }
 
-  // Mit Abkürzung: direkt anhängen (z.B. LTH14)
-  // Ohne Abkürzung: mit Leerzeichen (z.B. Luzern, Bahnhof A)
   return hasAbbrev ? `${baseName}-${cleanTrack}` : `${baseName} ${cleanTrack}`;
 }
 
 // ─── Calendar Journey Tracking ────────────────────────────────────────────
-let calendarStart = null;      // { stopId, name, epoch, track }
-let calendarVias = [];         // [ { stopId, name, epoch, track }, ... ]
-let calendarDest = null;       // { stopId, name, epoch, track }
-let calendarTrips = [];        // [ { startStation, startTrack, startTimeEpoch, endStation, endTrack, endTimeEpoch, tripNumber }, ... ]
-let currentChainData = null;   // Speichert den aktuell geöffneten Fahrtverlauf
+let calendarStart = null;
+let calendarVias = [];
+let calendarDest = null;
+let calendarTrips = [];
+let currentChainData = null;
 
 function loadCalendarStateFromUrl() {
   const cstartRaw = params.get('cstart');
@@ -129,7 +125,6 @@ function setCalendarStart(stopId, name, epoch, track) {
 }
 
 function recordSubtrip(endStopId, endName, endEpoch, endTrack, stopIndex) {
-  // Letzten Fixpunkt ermitteln (Via falls vorhanden, sonst Start)
   const lastPoint = calendarVias.length > 0 
     ? calendarVias[calendarVias.length - 1] 
     : calendarStart;
@@ -140,7 +135,6 @@ function recordSubtrip(endStopId, endName, endEpoch, endTrack, stopIndex) {
   let startTrack = lastPoint.track || '';
   let startTimeEpoch = lastPoint.epoch;
 
-  // Falls Kette geladen ist, genaueren Abfahrtszeitpunkt/Gleis am Umsteigepunkt auslesen
   if (currentChainData && currentChainData.stops) {
     const stops = currentChainData.stops;
     let matchIdx = -1;
@@ -259,7 +253,6 @@ function generateICS(startStop, viaStops, destStop, trips) {
 
   const description = descriptionLines.join('\n');
 
-  // Ort für LOCATION (z.B. LTH14)
   const firstTrip = (trips && trips.length > 0) ? trips[0] : null;
   const locStation = firstTrip ? firstTrip.startStation : startStop.name;
   const locTrack = firstTrip ? firstTrip.startTrack : (startStop.track || '');
@@ -463,7 +456,6 @@ async function loadAbbreviations() {
             const countryCode = country.toUpperCase();
             abbrevMap[abbrev].push({ name, country: countryCode });
 
-            // Reverse-Map für schnellen Lookup nach Name aufbauen
             const normName = name.trim().toLowerCase();
             if (!nameToAbbrevMap[normName]) {
               nameToAbbrevMap[normName] = [];
@@ -961,7 +953,6 @@ function normalizeLineDisplay(line) {
     return 'ICE';
   }
   
-  // Entferne Nummern in Klammern (z.B. "RB27 (17180)" → "RB27")
   const withoutParens = line.replace(/\s*\(\d+\)\s*$/g, '').trim();
   
   return withoutParens;
@@ -972,7 +963,6 @@ function normalizeLineDisplay(line) {
 async function loadTripDestinationAsync(dep, tbody, depIdx) {
   if (!dep.tripId) return;
   
-  // Verzögerung: Trips mit etwas Delay laden (Hintergrund)
   await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
   
   try {
@@ -984,21 +974,18 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
       return;
     }
     
-    // Priorität: destination → letzte Haltestelle aus stops
     let finalDestination = data.destination;
     let isFromLastStop = false;
     
     if (!finalDestination && data.stops && data.stops.length > 0) {
       const lastStop = data.stops[data.stops.length - 1];
       finalDestination = lastStop.name || '';
-      isFromLastStop = true; // Markiere, dass dies vom letzten Stop kommt
+      isFromLastStop = true;
     }
     
     if (finalDestination) {
-      // Update departure object
       dep.destination = finalDestination;
       
-      // Find the row in tbody and update it
       const rows = tbody.querySelectorAll('tr.dep-row');
       if (rows[depIdx]) {
         const row = rows[depIdx];
@@ -1006,21 +993,17 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
         if (destCell) {
           const destName = getDestinationName(finalDestination);
           
-          // Update data attribute
           row.dataset.dest = destName;
           
-          // Update HTML (preserve any station-hint if exists)
           const stationHint = destCell.querySelector('.station-hint');
           const stationHintHtml = stationHint ? stationHint.outerHTML : '';
           
-          // Wenn von letztem Stop: kursiv darstellen
           const destDisplay = isFromLastStop 
             ? `<em>${escapeHtml(destName)}</em>`
             : escapeHtml(destName);
           
           destCell.innerHTML = `${destDisplay}${stationHintHtml}`;
           
-          // Re-apply filters to this row
           applyFilters();
         }
       }
@@ -1136,7 +1119,6 @@ function renderDepartures(departures) {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
-    // Async destination loading wenn nötig
     const isLoadingDest = !dep.destination && dep.tripId;
     if (isLoadingDest) {
       loadTripDestinationAsync(dep, tbody, depIdx);
@@ -1175,7 +1157,6 @@ function renderDepartures(departures) {
       stationLabelHtml = `<div class="station-hint">${isArrivalsMode ? 'an' : 'ab'} ${escapeHtml(dep._fromStation)}</div>`;
     }
 
-    // Zeige Lade-Placeholder wenn Destination noch geladen wird
     const destDisplay = isLoadingDest
       ? '<span style="color:#999; font-style:italic;">Lade Zielbahnhof aus Trip…</span>'
       : escapeHtml(destName);
@@ -1249,11 +1230,9 @@ function renderChain(data) {
     });
   }
 
-  // Referenzzeit aus Picker oder aktueller Zeit
   const refEpoch = getSelectedEpoch() || Math.floor(Date.now() / 1000);
   const refTimeStr = fmtTime(refEpoch);
 
-  // Halte nach Legs gruppieren
   const legs = [];
   let currentLeg = null;
 
@@ -1277,7 +1256,6 @@ function renderChain(data) {
     return t > 0 && t < refEpoch;
   }).length;
 
-  // Fallback: Wenn ALLE Halte in der Vergangenheit liegen, nichts ausblenden
   const ignoreTimeFilter = totalStops > 0 && pastStopsCount === totalStops;
 
   let legsHtml = '';
@@ -1382,7 +1360,6 @@ function renderChain(data) {
         `;
       }
 
-      // Button vor dem ersten künftigen Halt einfügen
       if (!isLegFullyPast && !isPast && !pastStopsToggleInserted && legPastStops.length > 0) {
         const count = legPastStops.length;
         const stopWord = count === 1 ? 'früheren Halt' : 'frühere Halte';
@@ -1521,7 +1498,6 @@ function togglePastStops(btn) {
   });
 
   pastSeparators.forEach(el => {
-    // Falls ein Trenner zu den vergangenen Halten gehört
     if (el.nextElementSibling && el.nextElementSibling.classList.contains('chain-past-stop')) {
       el.style.display = isHidden ? 'block' : 'none';
     }
