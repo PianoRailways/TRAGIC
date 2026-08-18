@@ -948,6 +948,8 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('TGV LYRIA')) return 'TGV Lyria';
   if (upper.startsWith('TER')) return 'TER';
   if (upper.startsWith('ICE')) return 'ICE';
+  if (upper.startsWith('ICD')) return 'ICD';
+  if (upper.startsWith('ECD')) return 'ECD';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
