@@ -950,6 +950,8 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('ICE')) return 'ICE';
   if (upper.startsWith('ICD')) return 'ICD';
   if (upper.startsWith('ECD')) return 'ECD';
+  if (upper.startsWith('IC')) return 'ECD';
+  if (upper.startsWith('L')) return 'L';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
