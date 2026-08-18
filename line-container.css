@@ -153,6 +153,12 @@
 .line-container[data-agency-id="817"][data-line="7"] { background: rgb(95,153,208); color: black; }
 .line-container[data-agency-id="817"][data-line="8"] { background: rgb(212,218,101); color: black; }
 
+/* --- FART / CENTOVALLI --- */
+.line-container[data-agency-id="49"] { background: linear-gradient(135deg, #005f96 0%, #00906f 100%); color: #f2e7c9; }
+.line-container[data-agency-id="49"][data-line^="PE"] { background: #f4bc1e; color: #000; }
+.line-container[data-agency-id="49"][data-line^="R"] { background: #f2e7c9; color: #084cb9; }
+.line-container[data-agency-id="49"][data-line^="RE"] { background: #f2e7c9; color: var(--sbb-red); }
+
 /* Bus Aarau */
 .line-container[data-agency-id="840"][data-line="1"] { background: rgb(219,57,49); color: white; }
 .line-container[data-agency-id="840"][data-line="2"] { background: rgb(86,176,88); color: white; }
