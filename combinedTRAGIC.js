@@ -17,4 +17,6 @@ window.combinedStations = {
     'Rotkreuz': ['Rotkreuz, Bahnhof Nord', 'Rotkreuz', 'Rotkreuz, Bahnhof Süd'],
     'Rotkreuz, Bahnhof Nord': ['Rotkreuz, Bahnhof Nord', 'Rotkreuz', 'Rotkreuz, Bahnhof Süd'],
     'Rotkreuz, Bahnhof Süd': ['Rotkreuz, Bahnhof Nord', 'Rotkreuz', 'Rotkreuz, Bahnhof Süd'],
+    'Vignogn, vitg': ['Vignogn, vitg', 'Vignogn, Baselgia'],
+    'Vignogn, Baselgia': ['Vignogn, vitg', 'Vignogn, Baselgia'],
 	};
