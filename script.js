@@ -952,6 +952,9 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('ECD')) return 'ECD';
   if (upper.startsWith('IC')) return 'ECD';
   if (upper.startsWith('L')) return 'L';
+  if (upper.startsWith('FR')) return 'FR';
+  if (upper.startsWith('EC')) return 'EC';
+  if (upper.startsWith('RV')) return 'RV';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
