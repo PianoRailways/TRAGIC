@@ -1137,7 +1137,8 @@ function renderDepartures(departures) {
     tr.className = 'dep-row';
 
     // Async destination loading wenn nötig
-    if (!dep.destination && dep.tripId) {
+    const isLoadingDest = !dep.destination && dep.tripId;
+    if (isLoadingDest) {
       loadTripDestinationAsync(dep, tbody, depIdx);
     }
 
@@ -1174,13 +1175,18 @@ function renderDepartures(departures) {
       stationLabelHtml = `<div class="station-hint">${isArrivalsMode ? 'an' : 'ab'} ${escapeHtml(dep._fromStation)}</div>`;
     }
 
+    // Zeige Lade-Placeholder wenn Destination noch geladen wird
+    const destDisplay = isLoadingDest
+      ? '<span style="color:#999; font-style:italic;">Lade Zielbahnhof aus Trip…</span>'
+      : escapeHtml(destName);
+
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
         <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
         <div class="col-nr tripnr">${dep.tripNumber ? escapeHtml(dep.tripNumber.replace(/^0+(?=\d)/, '')) : ''}</div>
       </td>
-      <td class="col-dest">${escapeHtml(destName)}${stationLabelHtml}</td>
+      <td class="col-dest">${destDisplay}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
     `;
     tr.onclick = () => toggleChain(tr, dep);
