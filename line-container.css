@@ -278,6 +278,10 @@
 .line-container[data-agency-name^="Lauterbrunnen"],
 .line-container[data-agency-name^="Jungfraubahn"] { background: #ffdc00; color: #213857; }
 
+/* Rigi Bahn */
+.line-container[data-agency-name^="Rigi"]{ background: #007453; color: white;}
+.line-container[data-agency-name^="Rigi"] span { transform: rotate(-10deg); }
+
 /* Busland */
 .line-container[data-agency-id="871"][data-line="271"] { background: rgb(48,112,142); color: white; border: 1px solid #A0E100;}
 .line-container[data-agency-id="871"][data-line="281"] { background: rgb(195,186,60); color: white; border: 1px solid #A0E100;}
