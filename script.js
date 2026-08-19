@@ -1068,6 +1068,8 @@ async function loadDepartures(refEpoch) {
     if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
       console.log('Using combined departures/arrivals for:', currentStationName);
       departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
+      // Deduplicate combined departures
+      departures = deduplicateDepartures(departures);
     } else {
       console.log('Using single station departures/arrivals for:', currentStationName);
       let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
@@ -1179,6 +1181,29 @@ function extractTripNumberFromLine(line) {
   return '';
 }
 
+// ─── Deduplication ───────────────────────────────────────────────────────────
+
+function deduplicateDepartures(departures) {
+  const seen = new Map();
+  const deduplicated = [];
+
+  departures.forEach(dep => {
+    const tripId = dep.tripId || '';
+    const scheduled = dep.scheduled || 0;
+    const line = dep.line || '';
+    
+    // Key: tripId + scheduled time + line (for trips without tripId)
+    const key = tripId ? `${tripId}:${scheduled}` : `${line}:${scheduled}`;
+    
+    if (!seen.has(key)) {
+      seen.set(key, true);
+      deduplicated.push(dep);
+    }
+  });
+
+  return deduplicated;
+}
+
 // ─── Rendern ─────────────────────────────────────────────────────────────────
 
 function renderDepartures(departures) {
@@ -1193,7 +1218,7 @@ function renderDepartures(departures) {
     document.getElementById('status').innerHTML = '<div class="empty-hint">Keine Einträge gefunden.</div>';
     return;
   }
-  
+
   const sorted = [...departures].sort((a, b) => {
     const timeA = a.scheduled || Infinity;
     const timeB = b.scheduled || Infinity;
