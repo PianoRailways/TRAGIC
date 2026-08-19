@@ -499,6 +499,13 @@ const MODE_GROUPS = {
   OTHER:   ['WALK', 'BIKE', 'RENTAL', 'CAR', 'CAR_PARKING', 'CAR_DROPOFF', 'ODM', 'RIDE_SHARING', 'FLEX', 'AIRPLANE', 'OTHER']
 };
 
+// Meta-groups for quick filtering
+const MODE_META_GROUPS = {
+  RAIL_ALL: ['HIGHSPEED', 'RAIL', ,'SUBWAY', 'NIGHT'],
+  URBAN: ['SUBWAY', 'TRAM', 'BUS'],
+  TRANSIT: ['HIGHSPEED', 'RAIL', 'NIGHT', 'SUBWAY', 'TRAM', 'BUS', 'FERRY', 'GONDOLA']
+};
+
 function canonicalMode(rawMode) {
   if (!rawMode) return 'OTHER';
   const m = rawMode.toUpperCase();
@@ -542,6 +549,15 @@ function updateModeButtons() {
   });
 }
 
+function activateModesInGroup(groupModes) {
+  filterState.alleModeActive = false;
+  filterState.selectedModes.clear();
+  groupModes.forEach(mode => filterState.selectedModes.add(mode));
+  saveModesToStorage();
+  updateModeButtons();
+  applyFilters();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const btnAll = document.getElementById('btn-mode-all');
   if (btnAll) {
@@ -551,6 +567,28 @@ document.addEventListener('DOMContentLoaded', () => {
       saveModesToStorage();
       updateModeButtons();
       applyFilters();
+    });
+  }
+
+  // Meta-group buttons
+  const btnRailAll = document.getElementById('btn-mode-rail-all');
+  if (btnRailAll) {
+    btnRailAll.addEventListener('click', () => {
+      activateModesInGroup(MODE_META_GROUPS.RAIL_ALL);
+    });
+  }
+
+  const btnUrban = document.getElementById('btn-mode-urban');
+  if (btnUrban) {
+    btnUrban.addEventListener('click', () => {
+      activateModesInGroup(MODE_META_GROUPS.URBAN);
+    });
+  }
+
+  const btnTransit = document.getElementById('btn-mode-transit');
+  if (btnTransit) {
+    btnTransit.addEventListener('click', () => {
+      activateModesInGroup(MODE_META_GROUPS.TRANSIT);
     });
   }
 });
@@ -1100,31 +1138,26 @@ function getModeIcon(mode) {
 // ─── Trip Number Formatting Helper ──────────────────────────────────────────
 
 function formatTripNumber(tripNumber, line) {
-  // Wenn tripNumber nicht existiert, leer ist ODER '0' bzw. 0 ist:
   if (!tripNumber || tripNumber === '0' || tripNumber === 0) {
     return extractTripNumberFromLine(line);
   }
   
   tripNumber = String(tripNumber).trim();
   
-  // Wenn nach dem Trimmen nur '0' übrig bleibt (z.B. bei "0" oder "00")
   if (tripNumber === '0' || /^0+$/.test(tripNumber)) {
     return extractTripNumberFromLine(line);
   }
   
-  // Pattern 1: "S40 - 25406" → "25406"
   const match1 = tripNumber.match(/\s*-\s*(\d+)$/);
   if (match1) {
     return match1[1];
   }
 
-  // Pattern 2: Produktgattung/Linie vor Ziffern "ICE 201", "RE 4812" → "201", "4812"
   const match2 = tripNumber.match(/^[A-Za-z]+\s+(\d+)$/);
   if (match2) {
     return match2[1];
   }
   
-  // Pattern 3: Führende Nullen entfernen "0013619" → "13619"
   return tripNumber.replace(/^0+(?=\d)/, '');
 }
 
@@ -1133,13 +1166,11 @@ function extractTripNumberFromLine(line) {
   
   line = line.trim();
   
-  // Pattern 1: "S40 - 25406" → "25406"
   const match1 = line.match(/\s*-\s*(\d+)$/);
   if (match1) {
     return match1[1];
   }
   
-  // Pattern 2: "ES 475", "IC 533" oder "FR 9607" → extrahiert die Zahlen am Ende
   const match2 = line.match(/(?:^|\s)(\d+)$/);
   if (match2) {
     return match2[1];
@@ -1198,7 +1229,6 @@ function renderDepartures(departures) {
     const destName = getDestinationName(dep.destination);
     const displayLine = normalizeLineDisplay(dep.line);
 
-    // ─── TripNumber: Fallback auf Line-Extraktion wenn leer ───
     const tripNumDisplay = formatTripNumber(dep.tripNumber, dep.line);
 
     tr.dataset.mode = canonicalMode(dep.mode);
