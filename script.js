@@ -7,6 +7,16 @@ let allDepartures = [];
 let abbrevMap = {};
 let nameToAbbrevMap = {};
 
+const DEFAULT_FAVORITES = [
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:8100', label: 'LTH', name: 'LTH' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5000', label: 'LZ', name: 'LZ' },
+  { stopId: 'de-DELFI_ch:23005:6', label: 'BAD', name: 'BAD' },
+  { stopId: 'fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF:OCETrainTER87182063', label: 'MUL', name: 'MUL' },
+  { stopId: 'ch-opentransportdataswiss26_Parent8721202', label: 'STRS', name: 'STRS' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'BS', name: 'BS' }
+];
+const FAVORITES_STORAGE_KEY = 'tragic_favorites';
+
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
 
@@ -26,6 +36,177 @@ function formatStationWithTrack(stationName, track) {
   }
 
   return hasAbbrev ? `${baseName}-${cleanTrack}` : `${baseName} ${cleanTrack}`;
+}
+
+function cloneDefaultFavorites() {
+  return DEFAULT_FAVORITES.map(favorite => ({ ...favorite }));
+}
+
+function normalizeFavoriteName(favorite) {
+  return String(favorite?.name || favorite?.stationName || favorite?.label || '').trim();
+}
+
+function getFavoriteLabelForName(stationName) {
+  const normalizedName = String(stationName || '').trim();
+  if (!normalizedName) return '';
+
+  const abbrevs = getAbbrevsForName(normalizedName);
+  if (abbrevs.length > 0 && abbrevs[0].abbrev) {
+    return abbrevs[0].abbrev;
+  }
+
+  return normalizedName;
+}
+
+function loadFavoritesFromStorage() {
+  try {
+    const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+    if (!stored) {
+      return cloneDefaultFavorites();
+    }
+
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return cloneDefaultFavorites();
+    }
+
+    const seenStopIds = new Set();
+    return parsed
+      .map(entry => {
+        const rawStopId = String(entry?.stopId || '').trim();
+        let stopId = rawStopId;
+        try {
+          stopId = decodeURIComponent(rawStopId);
+        } catch (_) {}
+        const name = normalizeFavoriteName(entry);
+        const label = String(entry?.label || '').trim();
+
+        return {
+          stopId,
+          name,
+          label: label || ''
+        };
+      })
+      .filter(entry => {
+        if (!entry.stopId || !entry.name || seenStopIds.has(entry.stopId)) {
+          return false;
+        }
+        seenStopIds.add(entry.stopId);
+        return true;
+      });
+  } catch (_) {
+    return cloneDefaultFavorites();
+  }
+}
+
+let favoriteStations = loadFavoritesFromStorage();
+
+function saveFavoritesToStorage() {
+  try {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteStations));
+  } catch (_) {}
+}
+
+function getFavoriteLabel(favorite) {
+  return favorite.label || getFavoriteLabelForName(favorite.name);
+}
+
+function isFavoriteStation(stopId) {
+  return favoriteStations.some(favorite => favorite.stopId === stopId);
+}
+
+function renderFavoritesBar() {
+  const bar = document.getElementById('fav-bar');
+  if (!bar) return;
+
+  bar.innerHTML = '';
+
+  favoriteStations.forEach(favorite => {
+    const item = document.createElement('span');
+    item.className = 'fav-item';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'fav-btn';
+    btn.textContent = getFavoriteLabel(favorite);
+    btn.title = favorite.name;
+    if (currentStopId && favorite.stopId === currentStopId) {
+      btn.classList.add('is-current');
+    }
+    btn.addEventListener('click', () => {
+      window.location = `./?stopId=${encodeURIComponent(favorite.stopId)}`;
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'fav-remove-btn';
+    removeBtn.title = `Favorit ${getFavoriteLabel(favorite)} entfernen`;
+    removeBtn.setAttribute('aria-label', `Favorit ${getFavoriteLabel(favorite)} entfernen`);
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', event => {
+      event.stopPropagation();
+      favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
+      saveFavoritesToStorage();
+      renderFavoritesBar();
+    });
+
+    item.appendChild(btn);
+    item.appendChild(removeBtn);
+    bar.appendChild(item);
+  });
+
+  const controls = document.createElement('span');
+  controls.className = 'fav-controls';
+
+  const starBtn = document.createElement('button');
+  starBtn.type = 'button';
+  starBtn.className = 'fav-star-btn';
+  const canFavorite = !!currentStopId && !!currentStationName && currentStationName !== 'Station wählen';
+  const activeFavorite = canFavorite && isFavoriteStation(currentStopId);
+  starBtn.textContent = activeFavorite ? '★' : '☆';
+  starBtn.title = canFavorite
+    ? (activeFavorite ? 'Aktuelle Station aus Favoriten entfernen' : 'Aktuelle Station zu Favoriten hinzufügen')
+    : 'Station auswählen, um Favorit zu speichern';
+  starBtn.disabled = !canFavorite;
+  if (activeFavorite) {
+    starBtn.classList.add('is-active');
+  }
+  starBtn.addEventListener('click', () => {
+    if (!canFavorite) return;
+
+    if (activeFavorite) {
+      favoriteStations = favoriteStations.filter(entry => entry.stopId !== currentStopId);
+    } else {
+      if (isFavoriteStation(currentStopId)) {
+        renderFavoritesBar();
+        return;
+      }
+
+      favoriteStations = [...favoriteStations, {
+        stopId: currentStopId,
+        name: currentStationName,
+        label: getFavoriteLabelForName(currentStationName)
+      }];
+    }
+
+    saveFavoritesToStorage();
+    renderFavoritesBar();
+  });
+
+  const resetBtn = document.createElement('button');
+  resetBtn.type = 'button';
+  resetBtn.className = 'fav-reset-btn';
+  resetBtn.title = 'Favoriten auf die eingebauten Standards zurücksetzen';
+  resetBtn.textContent = 'Standard';
+  resetBtn.addEventListener('click', () => {
+    favoriteStations = cloneDefaultFavorites();
+    localStorage.removeItem(FAVORITES_STORAGE_KEY);
+    renderFavoritesBar();
+  });
+
+  controls.appendChild(starBtn);
+  controls.appendChild(resetBtn);
+  bar.appendChild(controls);
 }
 
 // ─── Calendar Journey Tracking ────────────────────────────────────────────
@@ -480,7 +661,7 @@ function getAbbrevsForName(stationName) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadAbbreviations();
+  loadAbbreviations().then(() => renderFavoritesBar());
   loadCombinedStations();
   updateCalendarExportButton();
 });
@@ -919,6 +1100,7 @@ function updateStationTitle(name) {
   const el = document.getElementById('stationTitle');
   if (el) el.textContent = name;
   document.title = name + ' | OMNI (NOWE)';
+  renderFavoritesBar();
 }
 
 // ─── Station auswählen ───────────────────────────────────────────────────────

@@ -158,8 +158,19 @@ body {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  align-items: center;
   padding: 6px 0 2px;
   margin-bottom: 2px;
+}
+.fav-item,
+.fav-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.fav-controls {
+  margin-left: auto;
 }
 .fav-btn {
   background: rgba(255,255,255,0.08);
@@ -175,6 +186,41 @@ body {
   flex-shrink: 0;
 }
 .fav-btn:hover { background: rgba(255,255,255,0.18); }
+.fav-btn.is-current {
+  background: rgba(0, 170, 85, 0.18);
+  border-color: rgba(0, 170, 85, 0.45);
+  color: var(--on-time);
+}
+.fav-remove-btn,
+.fav-star-btn,
+.fav-reset-btn {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-main);
+  border: 1px solid rgba(255,255,255,0.13);
+  padding: 3px 7px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 0.78em;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.fav-remove-btn:hover,
+.fav-star-btn:hover,
+.fav-reset-btn:hover {
+  background: rgba(255,255,255,0.14);
+}
+.fav-remove-btn {
+  padding: 3px 6px;
+}
+.fav-star-btn.is-active {
+  background: rgba(0, 170, 85, 0.18);
+  border-color: rgba(0, 170, 85, 0.45);
+  color: var(--on-time);
+}
+.fav-reset-btn {
+  opacity: 0.9;
+}
 
 /* ── MODUS-FILTER-BAR ──────────────────────────────────────── */
 #mode-filter-bar {
