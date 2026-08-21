@@ -313,6 +313,14 @@
 .line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="S9"] { background: rgb(208,46,38); color: white; }
 .line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="RE5"] { background: rgb(55,126,34); color: white; }
 
+/* TPF Fribourg/Freiburg */
+.line-container[data-agency-id="834"],
+.line-container[data-agency-id="53"] {background: #ffffff;color: #000000;position: relative;}
+
+.line-container[data-agency-id="834"]::after,
+.line-container[data-agency-id="53"]::after {content: "";position: absolute;bottom: 3px;right: 13px;width: 4px;height: 4px;background: #9b1c2e;border-radius: 50%;box-shadow: 5px 0 0 #9b1c2e, 10px 0 0 #9b1c2e;}
+
+.line-container[data-agency-id="53"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 /* === SOB === */
 .line-container[data-agency-id="82"] { background: #e10e23; color: white; } /* SOB */
 /* SOB - X */
