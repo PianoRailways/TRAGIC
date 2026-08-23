@@ -295,6 +295,50 @@
 .line-container[data-agency-name="BLS AG"],.line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
 .line-container[data-line="GPX"] { background: #0f437a; color: #c2a84c; }
 
+/* TransN */
+.line-container[data-agency-name*="Neuchâtel"]{background: #7BB600; color:black;}
+
+.line-container[data-agency-name*="Neuchâtel"][data-line="101"]{background: #2D3291; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="102"]{background: #4696D2; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="106"]{background: #D282B4; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="107"]{background: #EB1E23; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="108"]{background: #009155; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="109"]{background: #912891; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="120"]{background: #F5821E; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="121"]{background: #78AF41; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="122"]{background: #7DCDBE; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="421"]{background: #D7E141; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="422"]{background: #D282B4; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="423"]{background: #009155; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="425"]{background: #EB008C; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="426"]{background: #4696D2; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="110"]{background: #7DCDBE; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="111"]{background: #D7E141; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="112"]{background: #009155; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="R15"]{background: #7DCDBE; color:black;}
+
+.line-container[data-agency-name*="Neuchâtel"][data-line="301"]{background: #2D3291; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="302"]{background: #EB1E23; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="303"]{background: #78AF41; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="304"]{background: #009155; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="310"]{background: #D282B4; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="311"]{background: #F5821E; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="312"]{background: #912891; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="341"]{background: #2D3291; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="342"]{background: #EB1E23; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="352"]{background: #EB1E23; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="353"]{background: #78AF41; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="354"]{background: #009155; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="360"]{background: #4696D2; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="361"]{background: #7DCDBE; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="370"]{background: #EB008C; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="590"]{background: #EB1E23; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="591"]{background: #009155; color:white;}
+
+.line-container[data-agency-name*="Neuchâtel"][data-line="R21"]{background: #912891; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="R22"]{background: #78AF41; color:white;}
+.line-container[data-agency-name*="Neuchâtel"][data-line="R24"]{background: #D282B4; color:white;}
+
 /* BOB / Jungfraubahnen */
 .line-container[data-agency-name="Berner Oberland-Bahnen"],
 .line-container[data-agency-name^="Wengernalpbahn"],
