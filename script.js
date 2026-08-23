@@ -443,7 +443,7 @@ function generateICS(startStop, viaStops, destStop, trips) {
       const endFormatted = formatStationWithTrack(trip.endStation, trip.endTrack);
       const tripNum = trip.tripNumber ? ` (${trip.tripNumber})` : '';
       const viaText = Array.isArray(trip.vias) && trip.vias.length > 0
-        ? ` via ${trip.vias.join(' • ')}`
+        ? ` via ${trip.vias.join(' · ')}`
         : '';
 
       return `${sTime} ${startFormatted} - ${eTime} ${endFormatted}${tripNum}${viaText}`;
@@ -1302,7 +1302,7 @@ function extractViasFromTripData(data, originName, destinationName) {
 function renderViaLine(vias) {
   if (!viaLoadingEnabled) return '';
   if (!Array.isArray(vias) || vias.length === 0) return '';
-  return `<span class="via">via ${vias.map(v => escapeHtml(v)).join(' • ')}</span>`;
+  return `<span class="via">via ${vias.map(v => escapeHtml(v)).join(' · ')}</span>`;
 }
 
 function renderDestinationCellHtml(destName, isFromLastStop, stationHintHtml, vias) {
