@@ -897,6 +897,7 @@ function applyFilters() {
     const agencyId   = (tr.dataset.agencyId   || '').toLowerCase();
     const agencyName = (tr.dataset.agencyName || '').toLowerCase();
     const tripId     = (tr.dataset.tripId     || '').toLowerCase();
+    const vias       = (tr.dataset.vias       || '').toLowerCase();
 
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
     
@@ -906,7 +907,8 @@ function applyFilters() {
       !trip.includes(destQuery) && 
       !agencyId.includes(destQuery) && 
       !agencyName.includes(destQuery) && 
-      !tripId.includes(destQuery);
+      !tripId.includes(destQuery) &&
+      !vias.includes(destQuery);
 
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
@@ -1599,6 +1601,7 @@ function renderDepartures(departures) {
     tr.dataset.agencyId = dep.agencyId || '';
     tr.dataset.agencyName = dep.agencyName || '';
     tr.dataset.tripId = dep.tripId || '';
+    tr.dataset.vias = Array.isArray(dep.vias) ? dep.vias.join(' ') : '';
     tr.dataset.scheduled = dep.scheduled || '';
 
     let stationLabelHtml = '';
