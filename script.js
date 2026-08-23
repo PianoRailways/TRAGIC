@@ -231,7 +231,25 @@ function renderFavoritesBar() {
   resetBtn.className = 'fav-reset-btn';
   resetBtn.title = 'Favoriten auf die eingebauten Standards zurücksetzen';
   resetBtn.textContent = 'Standard';
+  resetBtn.dataset.confirmPending = 'false';
   resetBtn.addEventListener('click', () => {
+    const isConfirmPending = resetBtn.dataset.confirmPending === 'true';
+
+    if (!isConfirmPending) {
+      resetBtn.dataset.confirmPending = 'true';
+      resetBtn.textContent = '✓ Löschen?';
+      resetBtn.classList.add('fav-remove-btn-confirm');
+
+      setTimeout(() => {
+        if (resetBtn.dataset.confirmPending === 'true') {
+          resetBtn.dataset.confirmPending = 'false';
+          resetBtn.textContent = 'Standard';
+          resetBtn.classList.remove('fav-remove-btn-confirm');
+        }
+      }, 3000);
+      return;
+    }
+
     favoriteStations = cloneDefaultFavorites();
     localStorage.removeItem(FAVORITES_STORAGE_KEY);
     renderFavoritesBar();
