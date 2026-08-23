@@ -149,6 +149,9 @@ function renderFavoritesBar() {
     removeBtn.title = `Favorit ${getFavoriteLabel(favorite)} entfernen`;
     removeBtn.setAttribute('aria-label', `Favorit ${getFavoriteLabel(favorite)} entfernen`);
     removeBtn.textContent = '×';
+    removeBtn.dataset.stopId = favorite.stopId;
+    removeBtn.dataset.confirmPending = 'false';
+
     removeBtn.addEventListener('click', event => {
       event.stopPropagation();
       favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
