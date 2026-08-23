@@ -16,6 +16,7 @@ const DEFAULT_FAVORITES = [
   { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'BS', name: 'BS' }
 ];
 const FAVORITES_STORAGE_KEY = 'tragic_favorites';
+const VIA_LOADING_STORAGE_KEY = 'tragic_via_loading_enabled';
 
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
@@ -736,6 +737,43 @@ function loadActiveModesFromStorage() {
 
 let filterState = loadActiveModesFromStorage();
 
+function loadViaLoadingFromStorage() {
+  try {
+    return localStorage.getItem(VIA_LOADING_STORAGE_KEY) === 'true';
+  } catch (_) {
+    return false;
+  }
+}
+
+let viaLoadingEnabled = loadViaLoadingFromStorage();
+
+function saveViaLoadingToStorage() {
+  try {
+    localStorage.setItem(VIA_LOADING_STORAGE_KEY, viaLoadingEnabled ? 'true' : 'false');
+  } catch (_) {}
+}
+
+function updateViaToggleButton() {
+  const btn = document.getElementById('btn-toggle-vias');
+  if (!btn) return;
+
+  btn.classList.toggle('active', viaLoadingEnabled);
+  btn.textContent = viaLoadingEnabled ? 'Via: AN' : 'Via: AUS';
+  btn.title = viaLoadingEnabled
+    ? 'Via-Nachladung ist aktiv (klick zum Deaktivieren)'
+    : 'Via-Nachladung ist deaktiviert (klick zum Aktivieren)';
+}
+
+function toggleViaLoading() {
+  viaLoadingEnabled = !viaLoadingEnabled;
+  saveViaLoadingToStorage();
+  updateViaToggleButton();
+
+  if (allDepartures.length > 0) {
+    renderDepartures(allDepartures);
+  }
+}
+
 function saveModesToStorage() {
   localStorage.setItem('tragic_mode_filter', JSON.stringify({
     alleModeActive: filterState.alleModeActive,
@@ -971,6 +1009,10 @@ function setupNavigationButtons() {
 document.addEventListener('DOMContentLoaded', () => {
   const btnToggleArrivals = document.getElementById('btn-toggle-arrivals');
   if (btnToggleArrivals) btnToggleArrivals.addEventListener('click', toggleArrivalMode);
+
+  const btnToggleVias = document.getElementById('btn-toggle-vias');
+  if (btnToggleVias) btnToggleVias.addEventListener('click', toggleViaLoading);
+  updateViaToggleButton();
 
   updateArrivalToggleUI();
 
@@ -1256,6 +1298,7 @@ function extractViasFromTripData(data, originName, destinationName) {
 }
 
 function renderViaLine(vias) {
+  if (!viaLoadingEnabled) return '';
   if (!Array.isArray(vias) || vias.length === 0) return '';
   return `<span class="via">via ${vias.map(v => escapeHtml(v)).join(' • ')}</span>`;
 }
@@ -1292,7 +1335,9 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
     }
 
     const destName = getDestinationName(finalDestination);
-    const viaNames = extractViasFromTripData(data, dep._fromStation || currentStationName, destName);
+    const viaNames = viaLoadingEnabled
+      ? extractViasFromTripData(data, dep._fromStation || currentStationName, destName)
+      : [];
     dep.vias = viaNames;
     
     if (finalDestination) {
@@ -1309,7 +1354,7 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
       const destCell = row.querySelector('.col-dest');
       if (destCell && destName) {
         row.dataset.dest = destName;
-        row.dataset.vias = viaNames.join(' ');
+        row.dataset.vias = viaLoadingEnabled ? viaNames.join(' ') : '';
 
         const stationHint = destCell.querySelector('.station-hint');
         const stationHintHtml = stationHint ? stationHint.outerHTML : '';
@@ -1518,7 +1563,9 @@ function renderDepartures(departures) {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
-    const shouldLoadTripDetails = !!dep.tripId && (!dep.destination || !Array.isArray(dep.vias));
+    const needsDestinationFallback = !!dep.tripId && !dep.destination;
+    const needsViaLoading = !!dep.tripId && viaLoadingEnabled && !Array.isArray(dep.vias);
+    const shouldLoadTripDetails = needsDestinationFallback || needsViaLoading;
     if (shouldLoadTripDetails) {
       queueTripDetailsLoad(dep, tbody, depIdx);
     }

@@ -331,9 +331,13 @@ h1 {
 /* Ziel-Filter */
 #dest-filter-row {
   margin-top: 0.45rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 #destFilter {
   width: 100%;
+  flex: 1;
   padding: 0.45rem 0.7rem;
   font-size: 0.95rem;
   background: var(--bg-surface);
@@ -342,6 +346,12 @@ h1 {
   color: var(--text-main);
 }
 #destFilter:focus { outline: none; border-color: var(--line-accent); }
+
+.btn-toggle-vias {
+  min-width: 90px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+}
 
 input {
   width: 100%;
