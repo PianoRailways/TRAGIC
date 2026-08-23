@@ -1273,8 +1273,29 @@ function getStopRefEpoch(stop, arrivalsMode) {
   return stop.departureLive || stop.departureSched || stop.arrivalLive || stop.arrivalSched || 0;
 }
 
+function pickClosestStopIndexByTime(stops, indices, refEpoch) {
+  if (!Array.isArray(indices) || indices.length === 0) return -1;
+  if (!refEpoch) return indices[0];
+
+  let bestIdx = -1;
+  let bestDelta = Infinity;
+
+  indices.forEach(idx => {
+    const t = getStopRefEpoch(stops[idx], isArrivalsMode);
+    if (!t) return;
+    const delta = Math.abs(t - refEpoch);
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      bestIdx = idx;
+    }
+  });
+
+  return bestIdx >= 0 ? bestIdx : indices[0];
+}
+
 function findOriginStopIndex(stops, dep, originName) {
   if (!Array.isArray(stops) || stops.length === 0) return -1;
+  const refEpoch = dep?.scheduled || dep?.live || 0;
 
   const candidates = [];
   if (dep?.stopId) candidates.push(String(dep.stopId));
@@ -1283,7 +1304,13 @@ function findOriginStopIndex(stops, dep, originName) {
 
   const uniqueCandidates = [...new Set(candidates.filter(Boolean))];
   if (uniqueCandidates.length > 0) {
-    const byStopId = stops.findIndex(stop => uniqueCandidates.includes(String(stop?.stopId || '')));
+    const matchingIndices = [];
+    stops.forEach((stop, idx) => {
+      if (uniqueCandidates.includes(String(stop?.stopId || ''))) {
+        matchingIndices.push(idx);
+      }
+    });
+    const byStopId = pickClosestStopIndexByTime(stops, matchingIndices, refEpoch);
     if (byStopId >= 0) return byStopId;
   }
 
@@ -1292,14 +1319,17 @@ function findOriginStopIndex(stops, dep, originName) {
     .filter(Boolean);
 
   if (normalizedOriginNames.length > 0) {
-    const byName = stops.findIndex(stop => {
+    const matchingIndices = [];
+    stops.forEach((stop, idx) => {
       const stopName = normalizeStationKey(stop?.name);
-      return normalizedOriginNames.includes(stopName);
+      if (normalizedOriginNames.includes(stopName)) {
+        matchingIndices.push(idx);
+      }
     });
+    const byName = pickClosestStopIndexByTime(stops, matchingIndices, refEpoch);
     if (byName >= 0) return byName;
   }
 
-  const refEpoch = dep?.scheduled || dep?.live || 0;
   if (!refEpoch) return -1;
 
   let bestIdx = -1;
@@ -1322,29 +1352,95 @@ function findOriginStopIndex(stops, dep, originName) {
   return -1;
 }
 
-function extractViasFromTripData(data, dep, originName, destinationName) {
+function getLegInfoByIndex(legInfos, legIndex) {
+  if (!legInfos) return null;
+
+  if (Array.isArray(legInfos)) {
+    return legInfos[legIndex] || null;
+  }
+
+  if (typeof legInfos === 'object') {
+    return legInfos[String(legIndex)] || null;
+  }
+
+  return null;
+}
+
+function resolveLegContext(data, dep, originName) {
   const stops = Array.isArray(data?.stops) ? data.stops : [];
+  if (stops.length === 0) {
+    return { stops: [], originIdx: -1, legIndex: 0, legStartIdx: 0, legEndIdx: -1, legInfo: null };
+  }
+
+  let originIdx = findOriginStopIndex(stops, dep, originName);
+  if (originIdx < 0 && !isArrivalsMode) {
+    originIdx = 0;
+  }
+
+  const safeOriginIdx = Math.max(0, Math.min(originIdx, stops.length - 1));
+  const legIndex = Number.isFinite(stops[safeOriginIdx]?.legIndex) ? stops[safeOriginIdx].legIndex : 0;
+
+  let legStartIdx = safeOriginIdx;
+  while (legStartIdx > 0 && (Number.isFinite(stops[legStartIdx - 1]?.legIndex) ? stops[legStartIdx - 1].legIndex : 0) === legIndex) {
+    legStartIdx--;
+  }
+
+  let legEndIdx = safeOriginIdx;
+  while (legEndIdx + 1 < stops.length && (Number.isFinite(stops[legEndIdx + 1]?.legIndex) ? stops[legEndIdx + 1].legIndex : 0) === legIndex) {
+    legEndIdx++;
+  }
+
+  return {
+    stops,
+    originIdx: safeOriginIdx,
+    legIndex,
+    legStartIdx,
+    legEndIdx,
+    legInfo: getLegInfoByIndex(data?.legInfos, legIndex)
+  };
+}
+
+function resolveDestinationForLeg(data, dep, originName) {
+  const context = resolveLegContext(data, dep, originName);
+  const { stops, legInfo, legEndIdx } = context;
+
+  let finalDestination = getDestinationName(legInfo?.destination || '');
+  let isFromLastStop = false;
+
+  if (!finalDestination && stops.length > 0 && legEndIdx >= 0) {
+    finalDestination = getDestinationName(stops[legEndIdx]?.name || '');
+    isFromLastStop = !!finalDestination;
+  }
+
+  if (!finalDestination) {
+    finalDestination = getDestinationName(data?.destination || '');
+  }
+
+  if (!finalDestination && stops.length > 0) {
+    finalDestination = getDestinationName(stops[stops.length - 1]?.name || '');
+    isFromLastStop = !!finalDestination;
+  }
+
+  return { finalDestination, isFromLastStop, context };
+}
+
+function extractViasFromTripData(data, dep, originName, destinationName) {
+  const { stops, originIdx, legStartIdx, legEndIdx } = resolveLegContext(data, dep, originName);
   if (stops.length < 3) return [];
 
   const destNorm = normalizeStationKey(destinationName);
   const originNorm = normalizeStationKey(originName);
 
-  let originIdx = findOriginStopIndex(stops, dep, originName);
-
   const rawVias = [];
 
-  if (originIdx < 0 && !isArrivalsMode) {
-    originIdx = 0;
-  }
-
-  if (isArrivalsMode && originIdx > 0) {
-    for (let i = 1; i < originIdx; i++) {
+  if (isArrivalsMode && originIdx > legStartIdx) {
+    for (let i = legStartIdx; i < originIdx; i++) {
       const viaName = String(stops[i]?.name || '').trim();
       if (viaName) rawVias.push(viaName);
     }
   } else {
-    const startIdx = Math.max(originIdx, 0);
-    for (let i = startIdx + 1; i < stops.length - 1; i++) {
+    const startIdx = Math.max(originIdx, legStartIdx);
+    for (let i = startIdx + 1; i < legEndIdx; i++) {
       const viaName = String(stops[i]?.name || '').trim();
       if (viaName) rawVias.push(viaName);
     }
@@ -1389,14 +1485,7 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
       return;
     }
     
-    let finalDestination = data.destination;
-    let isFromLastStop = false;
-    
-    if (!finalDestination && data.stops && data.stops.length > 0) {
-      const lastStop = data.stops[data.stops.length - 1];
-      finalDestination = lastStop.name || '';
-      isFromLastStop = true;
-    }
+    const { finalDestination, isFromLastStop } = resolveDestinationForLeg(data, dep, dep._fromStation || currentStationName);
 
     const destName = getDestinationName(finalDestination);
     const viaNames = viaLoadingEnabled
