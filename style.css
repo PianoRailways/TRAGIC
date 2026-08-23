@@ -26,7 +26,7 @@
   --board-alt:  #0a1a4a;
   --board-head: #0d2060;
   --text-main:  #ffffff;
-  --text-via:   #a0b8d8;
+  --text-via:   #9b9b9b;
   --text-dim:   #6080a0;
   --night-gold: #d4af37;
   --border:     rgba(200,200,200,0.09);
@@ -491,7 +491,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .via {
   display: block;
   margin-top: 2px;
-  font-size: 0.68rem;
+  font-size: 0.6rem;
   line-height: 1.2;
   color: var(--text-via);
   white-space: normal;
