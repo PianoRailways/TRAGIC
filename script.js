@@ -121,6 +121,12 @@ function renderFavoritesBar() {
 
   bar.innerHTML = '';
 
+  const scrollContainer = document.createElement('div');
+  scrollContainer.className = 'fav-scroll-container';
+
+  const favoritesList = document.createElement('div');
+  favoritesList.className = 'fav-list';
+
   favoriteStations.forEach(favorite => {
     const item = document.createElement('span');
     item.className = 'fav-item';
@@ -143,19 +149,45 @@ function renderFavoritesBar() {
     removeBtn.title = `Favorit ${getFavoriteLabel(favorite)} entfernen`;
     removeBtn.setAttribute('aria-label', `Favorit ${getFavoriteLabel(favorite)} entfernen`);
     removeBtn.textContent = '×';
+    removeBtn.dataset.stopId = favorite.stopId;
+    removeBtn.dataset.confirmPending = 'false';
+
     removeBtn.addEventListener('click', event => {
       event.stopPropagation();
-      favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
-      saveFavoritesToStorage();
-      renderFavoritesBar();
+      
+      const isConfirmPending = removeBtn.dataset.confirmPending === 'true';
+      
+      if (!isConfirmPending) {
+        // Erster Klick: In Bestätigungs-State wechseln
+        removeBtn.dataset.confirmPending = 'true';
+        removeBtn.textContent = '✓ Löschen?';
+        removeBtn.classList.add('fav-remove-btn-confirm');
+        
+        // Nach 3 Sekunden zurücksetzen wenn nicht bestätigt
+        setTimeout(() => {
+          if (removeBtn.dataset.confirmPending === 'true') {
+            removeBtn.dataset.confirmPending = 'false';
+            removeBtn.textContent = '×';
+            removeBtn.classList.remove('fav-remove-btn-confirm');
+          }
+        }, 3000);
+      } else {
+        // Zweiter Klick: Wirklich löschen
+        favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
+        saveFavoritesToStorage();
+        renderFavoritesBar();
+      }
     });
 
     item.appendChild(btn);
     item.appendChild(removeBtn);
-    bar.appendChild(item);
+    favoritesList.appendChild(item);
   });
 
-  const controls = document.createElement('span');
+  scrollContainer.appendChild(favoritesList);
+  bar.appendChild(scrollContainer);
+
+  const controls = document.createElement('div');
   controls.className = 'fav-controls';
 
   const starBtn = document.createElement('button');
