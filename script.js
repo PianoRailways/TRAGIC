@@ -1258,22 +1258,84 @@ function queueTripDetailsLoad(dep, tbody, depIdx) {
     });
 }
 
-function extractViasFromTripData(data, originName, destinationName) {
+function normalizeStationKey(name) {
+  return String(name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function getStopRefEpoch(stop, arrivalsMode) {
+  if (!stop) return 0;
+  if (arrivalsMode) {
+    return stop.arrivalLive || stop.arrivalSched || stop.departureLive || stop.departureSched || 0;
+  }
+  return stop.departureLive || stop.departureSched || stop.arrivalLive || stop.arrivalSched || 0;
+}
+
+function findOriginStopIndex(stops, dep, originName) {
+  if (!Array.isArray(stops) || stops.length === 0) return -1;
+
+  const candidates = [];
+  if (dep?.stopId) candidates.push(String(dep.stopId));
+  if (currentStopId) candidates.push(String(currentStopId));
+  if (currentMainStationId) candidates.push(String(currentMainStationId));
+
+  const uniqueCandidates = [...new Set(candidates.filter(Boolean))];
+  if (uniqueCandidates.length > 0) {
+    const byStopId = stops.findIndex(stop => uniqueCandidates.includes(String(stop?.stopId || '')));
+    if (byStopId >= 0) return byStopId;
+  }
+
+  const normalizedOriginNames = [originName, dep?._fromStation, currentStationName]
+    .map(normalizeStationKey)
+    .filter(Boolean);
+
+  if (normalizedOriginNames.length > 0) {
+    const byName = stops.findIndex(stop => {
+      const stopName = normalizeStationKey(stop?.name);
+      return normalizedOriginNames.includes(stopName);
+    });
+    if (byName >= 0) return byName;
+  }
+
+  const refEpoch = dep?.scheduled || dep?.live || 0;
+  if (!refEpoch) return -1;
+
+  let bestIdx = -1;
+  let bestDelta = Infinity;
+  stops.forEach((stop, idx) => {
+    const t = getStopRefEpoch(stop, isArrivalsMode);
+    if (!t) return;
+    const delta = Math.abs(t - refEpoch);
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      bestIdx = idx;
+    }
+  });
+
+  // Guardrail: only trust time fallback if reasonably close.
+  if (bestIdx >= 0 && bestDelta <= 120 * 60) {
+    return bestIdx;
+  }
+
+  return -1;
+}
+
+function extractViasFromTripData(data, dep, originName, destinationName) {
   const stops = Array.isArray(data?.stops) ? data.stops : [];
   if (stops.length < 3) return [];
 
-  const destNorm = String(destinationName || '').trim().toLowerCase();
-  const originNorm = String(originName || '').trim().toLowerCase();
+  const destNorm = normalizeStationKey(destinationName);
+  const originNorm = normalizeStationKey(originName);
 
-  let originIdx = -1;
-  if (originNorm) {
-    originIdx = stops.findIndex(stop => String(stop?.name || '').trim().toLowerCase() === originNorm);
-  }
+  let originIdx = findOriginStopIndex(stops, dep, originName);
+
+  const rawVias = [];
+
   if (originIdx < 0 && !isArrivalsMode) {
     originIdx = 0;
   }
-
-  const rawVias = [];
 
   if (isArrivalsMode && originIdx > 0) {
     for (let i = 1; i < originIdx; i++) {
@@ -1338,7 +1400,7 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
 
     const destName = getDestinationName(finalDestination);
     const viaNames = viaLoadingEnabled
-      ? extractViasFromTripData(data, dep._fromStation || currentStationName, destName)
+      ? extractViasFromTripData(data, dep, dep._fromStation || currentStationName, destName)
       : [];
     dep.vias = viaNames;
     
