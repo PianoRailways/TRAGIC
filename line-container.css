@@ -229,6 +229,28 @@
 .line-container[data-agency-id="827"][data-line="168"] { background: rgb(233,161,60); color: white; }
 .line-container[data-agency-id="827"][data-line="331"] { background: rgb(174,189,199); color: white; }
 .line-container[data-agency-id="827"][data-line="332"] { background: rgb(112,185,171); color: white; }
+
+/* Moonliner */
+.line-container[data-agency-name*="Aare Seeland"][data-line^="M"],
+.line-container[data-agency-name*="Bern"][data-line^="M"],
+.line-container[data-agency-name*="STI"][data-line^="M"],
+.line-container[data-agency-name*="RBS"][data-line^="M"],
+.line-container[data-agency-name*="Busland"][data-line^="M"],
+.line-container[data-agency-name*="Solothurn"][data-line^="M"],
+.line-container[data-agency-name*="Biel"][data-line^="M"]
+ {background: #4B103C; color: #FFFAD7;}
+
+.line-container[data-agency-name*="Aare Seeland"][data-line^="M"]{border: solid 1px #C42937;}
+.line-container[data-agency-name*="Bern"][data-line^="M"]{border: solid 1px #D20037;}
+.line-container[data-agency-name*="STI"][data-line^="M"]{border: solid 1px #fae253;}
+.line-container[data-agency-name*="Biel"][data-line^="M"]{border: solid 1px #005362;}
+.line-container[data-agency-name*="Aremo"][data-line^="M"],
+.line-container[data-agency-name*="Solothurn"][data-line^="M"]{border: solid 1px #1E6969;}
+.line-container[data-agency-name*="RBS"][data-line^="M"]{border: solid 1px #FF6600;}
+
+.line-container[data-agency-name*="TPF"][data-line^="N"],
+.line-container[data-agency-name*="TPF"][data-line^="M"] {background-color: #231F20; color: #FFDC01;}
+
 /* Aare Seeland Mobil ASM */
 .line-container[data-agency-id="870"][data-line="5"] { background: #0FB967; color: white; }
 .line-container[data-agency-id="870"][data-line="7"] { background: #892819; color: white; }
