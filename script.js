@@ -155,17 +155,40 @@ function renderFavoritesBar() {
 
     removeBtn.addEventListener('click', event => {
       event.stopPropagation();
-      favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
-      saveFavoritesToStorage();
-      renderFavoritesBar();
+      
+      const isConfirmPending = removeBtn.dataset.confirmPending === 'true';
+      
+      if (!isConfirmPending) {
+        // Erster Klick: In Bestätigungs-State wechseln
+        removeBtn.dataset.confirmPending = 'true';
+        removeBtn.textContent = '✓ Löschen?';
+        removeBtn.classList.add('fav-remove-btn-confirm');
+        
+        // Nach 3 Sekunden zurücksetzen wenn nicht bestätigt
+        setTimeout(() => {
+          if (removeBtn.dataset.confirmPending === 'true') {
+            removeBtn.dataset.confirmPending = 'false';
+            removeBtn.textContent = '×';
+            removeBtn.classList.remove('fav-remove-btn-confirm');
+          }
+        }, 3000);
+      } else {
+        // Zweiter Klick: Wirklich löschen
+        favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
+        saveFavoritesToStorage();
+        renderFavoritesBar();
+      }
     });
 
     item.appendChild(btn);
     item.appendChild(removeBtn);
-    bar.appendChild(item);
+    favoritesList.appendChild(item);
   });
 
-  const controls = document.createElement('span');
+  scrollContainer.appendChild(favoritesList);
+  bar.appendChild(scrollContainer);
+
+  const controls = document.createElement('div');
   controls.className = 'fav-controls';
 
   const starBtn = document.createElement('button');
