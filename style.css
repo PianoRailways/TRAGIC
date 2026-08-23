@@ -478,6 +478,14 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   text-overflow: ellipsis;
 }
 .col-dest  { width: auto; white-space: normal; }
+.via {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  color: var(--text-via);
+  white-space: normal;
+}
 .col-platform {
   width: 90px;
   text-align: right;

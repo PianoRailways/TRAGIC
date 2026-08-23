@@ -324,23 +324,33 @@ function recordSubtrip(endStopId, endName, endEpoch, endTrack, stopIndex) {
   let startName = lastPoint.name;
   let startTrack = lastPoint.track || '';
   let startTimeEpoch = lastPoint.epoch;
+  let matchedStartIdx = -1;
+  let tripVias = [];
 
   if (currentChainData && currentChainData.stops) {
     const stops = currentChainData.stops;
-    let matchIdx = -1;
 
     if (lastPoint.stopId) {
-      matchIdx = stops.findIndex(s => s.stopId === lastPoint.stopId);
+      matchedStartIdx = stops.findIndex(s => s.stopId === lastPoint.stopId);
     }
-    if (matchIdx < 0 && lastPoint.name) {
-      matchIdx = stops.findIndex(s => s.name.toLowerCase() === lastPoint.name.toLowerCase());
+    if (matchedStartIdx < 0 && lastPoint.name) {
+      matchedStartIdx = stops.findIndex(s => s.name.toLowerCase() === lastPoint.name.toLowerCase());
     }
 
-    if (matchIdx >= 0 && typeof stopIndex === 'number' && matchIdx < stopIndex) {
-      const startObj = stops[matchIdx];
+    if (matchedStartIdx >= 0 && typeof stopIndex === 'number' && matchedStartIdx < stopIndex) {
+      const startObj = stops[matchedStartIdx];
       startName = startObj.name;
       startTrack = startObj.track || startTrack;
       startTimeEpoch = startObj.departureSched || startObj.departureLive || startObj.arrivalSched || startTimeEpoch;
+
+      const seenViaNames = new Set();
+      for (let idx = matchedStartIdx + 1; idx < stopIndex; idx++) {
+        const viaName = String(stops[idx]?.name || '').trim();
+        const viaKey = viaName.toLowerCase();
+        if (!viaName || seenViaNames.has(viaKey)) continue;
+        seenViaNames.add(viaKey);
+        tripVias.push(viaName);
+      }
     }
   }
 
@@ -354,7 +364,8 @@ function recordSubtrip(endStopId, endName, endEpoch, endTrack, stopIndex) {
     endStation: endName,
     endTrack: endTrack || '',
     endTimeEpoch: endEpoch,
-    tripNumber: cleanTripNum
+    tripNumber: cleanTripNum,
+    vias: tripVias
   });
 }
 
@@ -430,8 +441,11 @@ function generateICS(startStop, viaStops, destStop, trips) {
       const startFormatted = formatStationWithTrack(trip.startStation, trip.startTrack);
       const endFormatted = formatStationWithTrack(trip.endStation, trip.endTrack);
       const tripNum = trip.tripNumber ? ` (${trip.tripNumber})` : '';
+      const viaText = Array.isArray(trip.vias) && trip.vias.length > 0
+        ? ` via ${trip.vias.join(' • ')}`
+        : '';
 
-      return `${sTime} ${startFormatted} - ${eTime} ${endFormatted}${tripNum}`;
+      return `${sTime} ${startFormatted} - ${eTime} ${endFormatted}${tripNum}${viaText}`;
     });
   } else {
     const sTime = formatTimeHHMM(startEpoch);
@@ -1190,10 +1204,74 @@ function normalizeLineDisplay(line) {
 
 // ─── Async Destination Loading ───────────────────────────────────────────────
 
+let tripDetailsQueue = Promise.resolve();
+
+function queueTripDetailsLoad(dep, tbody, depIdx) {
+  tripDetailsQueue = tripDetailsQueue
+    .then(() => loadTripDestinationAsync(dep, tbody, depIdx))
+    .catch(err => {
+      console.warn(`Trip details queue error for ${dep.tripId}:`, err);
+    });
+}
+
+function extractViasFromTripData(data, originName, destinationName) {
+  const stops = Array.isArray(data?.stops) ? data.stops : [];
+  if (stops.length < 3) return [];
+
+  const destNorm = String(destinationName || '').trim().toLowerCase();
+  const originNorm = String(originName || '').trim().toLowerCase();
+
+  let originIdx = -1;
+  if (originNorm) {
+    originIdx = stops.findIndex(stop => String(stop?.name || '').trim().toLowerCase() === originNorm);
+  }
+  if (originIdx < 0 && !isArrivalsMode) {
+    originIdx = 0;
+  }
+
+  const rawVias = [];
+
+  if (isArrivalsMode && originIdx > 0) {
+    for (let i = 1; i < originIdx; i++) {
+      const viaName = String(stops[i]?.name || '').trim();
+      if (viaName) rawVias.push(viaName);
+    }
+  } else {
+    const startIdx = Math.max(originIdx, 0);
+    for (let i = startIdx + 1; i < stops.length - 1; i++) {
+      const viaName = String(stops[i]?.name || '').trim();
+      if (viaName) rawVias.push(viaName);
+    }
+  }
+
+  const seen = new Set();
+  return rawVias.filter(name => {
+    const norm = name.toLowerCase();
+    if (!name || norm === destNorm || norm === originNorm || seen.has(norm)) {
+      return false;
+    }
+    seen.add(norm);
+    return true;
+  });
+}
+
+function renderViaLine(vias) {
+  if (!Array.isArray(vias) || vias.length === 0) return '';
+  return `<span class="via">via ${vias.map(v => escapeHtml(v)).join(' • ')}</span>`;
+}
+
+function renderDestinationCellHtml(destName, isFromLastStop, stationHintHtml, vias) {
+  const destDisplay = isFromLastStop
+    ? `<em>${escapeHtml(destName)}</em>`
+    : escapeHtml(destName);
+  const viaHtml = renderViaLine(vias);
+  return `${destDisplay}${viaHtml}${stationHintHtml}`;
+}
+
 async function loadTripDestinationAsync(dep, tbody, depIdx) {
   if (!dep.tripId) return;
   
-  await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+  await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 800));
   
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
@@ -1212,30 +1290,33 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
       finalDestination = lastStop.name || '';
       isFromLastStop = true;
     }
+
+    const destName = getDestinationName(finalDestination);
+    const viaNames = extractViasFromTripData(data, dep._fromStation || currentStationName, destName);
+    dep.vias = viaNames;
     
     if (finalDestination) {
       dep.destination = finalDestination;
-      
-      const rows = tbody.querySelectorAll('tr.dep-row');
-      if (rows[depIdx]) {
-        const row = rows[depIdx];
-        const destCell = row.querySelector('.col-dest');
-        if (destCell) {
-          const destName = getDestinationName(finalDestination);
-          
-          row.dataset.dest = destName;
-          
-          const stationHint = destCell.querySelector('.station-hint');
-          const stationHintHtml = stationHint ? stationHint.outerHTML : '';
-          
-          const destDisplay = isFromLastStop 
-            ? `<em>${escapeHtml(destName)}</em>`
-            : escapeHtml(destName);
-          
-          destCell.innerHTML = `${destDisplay}${stationHintHtml}`;
-          
-          applyFilters();
-        }
+    }
+
+    const rows = tbody.querySelectorAll('tr.dep-row');
+    if (rows[depIdx]) {
+      const row = rows[depIdx];
+      const isSameTrip = (row.dataset.tripId || '') === (dep.tripId || '');
+      if (!isSameTrip) {
+        return;
+      }
+      const destCell = row.querySelector('.col-dest');
+      if (destCell && destName) {
+        row.dataset.dest = destName;
+        row.dataset.vias = viaNames.join(' ');
+
+        const stationHint = destCell.querySelector('.station-hint');
+        const stationHintHtml = stationHint ? stationHint.outerHTML : '';
+
+        destCell.innerHTML = renderDestinationCellHtml(destName, isFromLastStop, stationHintHtml, viaNames);
+
+        applyFilters();
       }
     }
   } catch (err) {
@@ -1437,9 +1518,9 @@ function renderDepartures(departures) {
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
-    const isLoadingDest = !dep.destination && dep.tripId;
-    if (isLoadingDest) {
-      loadTripDestinationAsync(dep, tbody, depIdx);
+    const shouldLoadTripDetails = !!dep.tripId && (!dep.destination || !Array.isArray(dep.vias));
+    if (shouldLoadTripDetails) {
+      queueTripDetailsLoad(dep, tbody, depIdx);
     }
 
     const timeStr = dep.scheduled
@@ -1471,15 +1552,18 @@ function renderDepartures(departures) {
     tr.dataset.agencyId = dep.agencyId || '';
     tr.dataset.agencyName = dep.agencyName || '';
     tr.dataset.tripId = dep.tripId || '';
+    tr.dataset.scheduled = dep.scheduled || '';
 
     let stationLabelHtml = '';
     if (dep._fromStation && !dep._isMainStation) {
       stationLabelHtml = `<div class="station-hint">${isArrivalsMode ? 'an' : 'ab'} ${escapeHtml(dep._fromStation)}</div>`;
     }
 
-    const destDisplay = isLoadingDest
+    const destDisplay = (!dep.destination && shouldLoadTripDetails)
       ? '<span style="color:#999; font-style:italic;">Lade Zielbahnhof aus Trip…</span>'
       : escapeHtml(destName);
+
+    const viaHtml = renderViaLine(dep.vias);
 
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
@@ -1487,7 +1571,7 @@ function renderDepartures(departures) {
         <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
         <div class="col-nr tripnr">${tripNumDisplay}</div>
       </td>
-      <td class="col-dest">${destDisplay}${stationLabelHtml}</td>
+      <td class="col-dest">${destDisplay}${viaHtml}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
     `;
     tr.onclick = () => toggleChain(tr, dep);
