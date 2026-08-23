@@ -20,6 +20,7 @@
   --sbb-orange: #E84E10;
   --sob-green:  #7BA55B;
   --sob-blue:   #1A527F;
+  --tpf-lila:   #94163E;
   --board-bg:   #0a1a4a;
   --board-row:  #0d2060;
   --board-alt:  #0a1a4a;
@@ -314,11 +315,26 @@
 .line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="RE5"] { background: rgb(55,126,34); color: white; }
 
 /* TPF Fribourg/Freiburg */
-.line-container[data-agency-id="834"],
-.line-container[data-agency-id="53"] {background: #ffffff;color: #000000;position: relative;}
+.line-container[data-agency-id="834"] {background: var(--tpf-lila);color: white;}
+.line-container[data-agency-id="53"] {background: #ffffff;color: #000000;}
+
+.line-container[data-agency-name*="TPF"][data-line="2"] {background: #EF4B44; color: white;}
+.line-container[data-agency-name*="TPF"][data-line="3"] {background: #FED702; color: black;}
+.line-container[data-agency-name*="TPF"][data-line="4"] {background: #F7951F; color: black;}
+.line-container[data-agency-name*="TPF"][data-line="5"] {background: #0093D0; color: #ECE820;}
+.line-container[data-agency-name*="TPF"][data-line="6"] {background: #543695; color: white;}
+.line-container[data-agency-name*="TPF"][data-line="8"] {background: #EA4498; color: black;}
+.line-container[data-agency-name*="TPF"][data-line="9"] {background: #A54499; color: white;}
+.line-container[data-agency-name*="TPF"][data-line="11"] {background: #00B294; color: white;}
+.line-container[data-agency-name*="TPF"][data-line="12"] {background: #1466B2; color: white;}
+.line-container[data-agency-name*="TPF"][data-line="13"] {background: #EA2B39; color: white;}
+
+.line-container[data-agency-name*="TPF"][data-line="201"] {background: #EF3122; color: white;}
+.line-container[data-agency-name*="TPF"][data-line="202"] {background: #21B259; color: white;}
+.line-container[data-agency-name*="TPF"][data-line="203"] {background: #0072BC; color: white;}
 
 .line-container[data-agency-id="834"]::after,
-.line-container[data-agency-id="53"]::after {content: "";position: absolute;bottom: 3px;right: 13px;width: 4px;height: 4px;background: #9b1c2e;border-radius: 50%;box-shadow: 5px 0 0 #9b1c2e, 10px 0 0 #9b1c2e;}
+.line-container[data-agency-id="53"]::after {content: "";position: absolute;bottom: 3px;right: 13px;width: 4px;height: 4px;background: var(--tpf-lila);border-radius: 50%;box-shadow: 5px 0 0 #9b1c2e, 10px 0 0 #9b1c2e;}
 
 .line-container[data-agency-id="53"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 /* === SOB === */
