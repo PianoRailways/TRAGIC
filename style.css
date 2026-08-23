@@ -26,7 +26,7 @@
   --board-alt:  #0a1a4a;
   --board-head: #0d2060;
   --text-main:  #ffffff;
-  --text-via:   #a0b8d8;
+  --text-via:   #9b9b9b;
   --text-dim:   #6080a0;
   --night-gold: #d4af37;
   --border:     rgba(200,200,200,0.09);
@@ -331,9 +331,13 @@ h1 {
 /* Ziel-Filter */
 #dest-filter-row {
   margin-top: 0.45rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 #destFilter {
   width: 100%;
+  flex: 1;
   padding: 0.45rem 0.7rem;
   font-size: 0.95rem;
   background: var(--bg-surface);
@@ -342,6 +346,12 @@ h1 {
   color: var(--text-main);
 }
 #destFilter:focus { outline: none; border-color: var(--line-accent); }
+
+.btn-toggle-vias {
+  min-width: 90px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+}
 
 input {
   width: 100%;
@@ -478,6 +488,14 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   text-overflow: ellipsis;
 }
 .col-dest  { width: auto; white-space: normal; }
+.via {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.6rem;
+  line-height: 1.2;
+  color: var(--text-via);
+  white-space: normal;
+}
 .col-platform {
   width: 90px;
   text-align: right;
