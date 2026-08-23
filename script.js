@@ -758,7 +758,7 @@ function updateViaToggleButton() {
   if (!btn) return;
 
   btn.classList.toggle('active', viaLoadingEnabled);
-  btn.textContent = viaLoadingEnabled ? 'Via: AN' : 'Via: AUS';
+  btn.textContent = viaLoadingEnabled ? '$vias ein' : '$vias';
   btn.title = viaLoadingEnabled
     ? 'Via-Nachladung ist aktiv (klick zum Deaktivieren)'
     : 'Via-Nachladung ist deaktiviert (klick zum Aktivieren)';
