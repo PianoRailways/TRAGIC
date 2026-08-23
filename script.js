@@ -149,45 +149,19 @@ function renderFavoritesBar() {
     removeBtn.title = `Favorit ${getFavoriteLabel(favorite)} entfernen`;
     removeBtn.setAttribute('aria-label', `Favorit ${getFavoriteLabel(favorite)} entfernen`);
     removeBtn.textContent = '×';
-    removeBtn.dataset.stopId = favorite.stopId;
-    removeBtn.dataset.confirmPending = 'false';
-
     removeBtn.addEventListener('click', event => {
       event.stopPropagation();
-      
-      const isConfirmPending = removeBtn.dataset.confirmPending === 'true';
-      
-      if (!isConfirmPending) {
-        // Erster Klick: In Bestätigungs-State wechseln
-        removeBtn.dataset.confirmPending = 'true';
-        removeBtn.textContent = '✓ Löschen?';
-        removeBtn.classList.add('fav-remove-btn-confirm');
-        
-        // Nach 3 Sekunden zurücksetzen wenn nicht bestätigt
-        setTimeout(() => {
-          if (removeBtn.dataset.confirmPending === 'true') {
-            removeBtn.dataset.confirmPending = 'false';
-            removeBtn.textContent = '×';
-            removeBtn.classList.remove('fav-remove-btn-confirm');
-          }
-        }, 3000);
-      } else {
-        // Zweiter Klick: Wirklich löschen
-        favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
-        saveFavoritesToStorage();
-        renderFavoritesBar();
-      }
+      favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
+      saveFavoritesToStorage();
+      renderFavoritesBar();
     });
 
     item.appendChild(btn);
     item.appendChild(removeBtn);
-    favoritesList.appendChild(item);
+    bar.appendChild(item);
   });
 
-  scrollContainer.appendChild(favoritesList);
-  bar.appendChild(scrollContainer);
-
-  const controls = document.createElement('div');
+  const controls = document.createElement('span');
   controls.className = 'fav-controls';
 
   const starBtn = document.createElement('button');
@@ -1439,7 +1413,24 @@ function renderDepartures(departures) {
     return timeA - timeB;
   });
 
+  let lastDate = null;
+
   sorted.forEach((dep, depIdx) => {
+    // Check if date changed and insert date separator
+    if (dep.scheduled) {
+      const depDate = new Date(dep.scheduled * 1000);
+      const dateKey = `${depDate.getFullYear()}-${String(depDate.getMonth() + 1).padStart(2, '0')}-${String(depDate.getDate()).padStart(2, '0')}`;
+      
+      if (lastDate !== dateKey) {
+        const dateStr = depDate.toLocaleDateString('de-CH', { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' });
+        const separatorRow = document.createElement('tr');
+        separatorRow.className = 'date-separator-row';
+        separatorRow.innerHTML = `<td colspan="4"><div class="date-separator">${escapeHtml(dateStr)}</div></td>`;
+        tbody.appendChild(separatorRow);
+        lastDate = dateKey;
+      }
+    }
+
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
 
