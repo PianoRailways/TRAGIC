@@ -356,6 +356,23 @@ function setCalendarStart(stopId, name, epoch, track) {
   updateCalendarExportButton();
 }
 
+function selectCalendarRole(event, role, stopId, name, epoch, track, stopIndex) {
+  event.stopPropagation();
+
+  if (role === 'start') {
+    setCalendarStart(stopId, name, epoch, track);
+    alert('Start gesetzt: ' + formatStationWithTrack(name, track));
+  } else if (role === 'via') {
+    addCalendarVia(stopId, name, epoch, track, stopIndex);
+    selectStation(stopId, name, epoch || null);
+  } else {
+    setCalendarDest(stopId, name, epoch, track, stopIndex);
+  }
+
+  const menu = event.currentTarget.closest('details');
+  if (menu) menu.open = false;
+}
+
 function recordSubtrip(endStopId, endName, endEpoch, endTrack, stopIndex) {
   const lastPoint = calendarVias.length > 0 
     ? calendarVias[calendarVias.length - 1] 
@@ -1975,16 +1992,15 @@ function renderChain(data) {
       const refEpochStop = stop.arrivalSched || stop.arrivalLive || stop.departureSched || stop.departureLive;
       const isClickable = !!stop.stopId;
       
-      const startBtn = !calendarStart && stop.stopId
-        ? `<button class="cal-start-btn" onclick="event.stopPropagation(); setCalendarStart('${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpochStop}, '${escapeAttr(stop.track || '')}'); alert('Start gesetzt: ' + formatStationWithTrack('${escapeAttr(stop.name)}', '${escapeAttr(stop.track || '')}'));" title="Als Start merken">▶</button>`
-        : '';
-
-      const viaBtn = !calendarDest && stop.stopId && !isFirst
-        ? `<button class="cal-via-btn" onclick="event.stopPropagation(); addCalendarVia('${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpochStop}, '${escapeAttr(stop.track || '')}', ${i}); selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpochStop || 'null'});" title="Als Zwischenhalt merken">↓</button>`
-        : '';
-      
-      const destBtn = !calendarDest && stop.stopId
-        ? `<button class="cal-dest-btn" onclick="event.stopPropagation(); setCalendarDest('${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpochStop}, '${escapeAttr(stop.track || '')}', ${i});" title="Als Ziel merken & Exportieren">✓</button>`
+      const calendarOptions = stop.stopId && (!calendarStart || !calendarDest)
+        ? `<details class="chain-actions">
+            <summary class="cal-menu-toggle" onclick="event.stopPropagation()" title="Kalenderaktion auswählen">📅</summary>
+            <div class="cal-menu" onclick="event.stopPropagation()">
+              ${!calendarStart ? `<button type="button" onclick="selectCalendarRole(event, 'start', '${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpochStop}, '${escapeAttr(stop.track || '')}', ${i})">Start</button>` : ''}
+              ${!calendarDest && !isFirst ? `<button type="button" onclick="selectCalendarRole(event, 'via', '${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpochStop}, '${escapeAttr(stop.track || '')}', ${i})">Via</button>` : ''}
+              ${!calendarDest ? `<button type="button" onclick="selectCalendarRole(event, 'dest', '${escapeAttr(stop.stopId)}', '${escapeAttr(stop.name)}', ${refEpochStop}, '${escapeAttr(stop.track || '')}', ${i})">Ende</button>` : ''}
+            </div>
+          </details>`
         : '';
       
       const clickAttrs = isClickable
@@ -2047,9 +2063,7 @@ function renderChain(data) {
             ${platHtml ? `<div class="chain-platform">${escapeHtml(platHtml)}</div>` : ''}
           </div>
           
-          <div class="chain-actions">
-            ${startBtn}${viaBtn}${destBtn}
-          </div>
+          ${calendarOptions}
         </div>
       `;
     });
