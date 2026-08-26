@@ -190,7 +190,13 @@ async function loadBoard() {
     boardTbody.innerHTML = (data.departures || []).map(departure => `
       <tr>
         <td>${formatTime(departure.scheduled || departure.live)}</td>
-        <td><span class="line-container line-badge" data-line="${escapeHtml(departure.line || '?')}">${escapeHtml(departure.line || '?')}</span></td>
+        <td>${renderLineBadge({
+          line: departure.line,
+          mode: departure.mode,
+          agencyId: departure.agencyId,
+          agencyName: departure.agencyName,
+          destination: departure.destination
+        })}</td>
         <td>${escapeHtml(departure.destination || '')}</td>
         <td>${escapeHtml(departure.track || '')}</td>
       </tr>
