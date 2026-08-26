@@ -1011,9 +1011,8 @@ p {
 @media (max-width: 600px) {
   .chain-stop {
     display: grid;
-    grid-template-columns: 18px 68px minmax(0, 1fr);
+    grid-template-columns: 18px 68px minmax(0, 1fr) auto;
     column-gap: 5px;
-    row-gap: 3px;
   }
 
   .chain-dot-col {
@@ -1033,10 +1032,11 @@ p {
   }
 
   .chain-actions {
-    grid-column: 3;
-    grid-row: 2;
+    grid-column: 4;
+    grid-row: 1;
     justify-self: end;
     gap: 4px;
+    flex-wrap: nowrap;
   }
 
   .cal-via-btn,
