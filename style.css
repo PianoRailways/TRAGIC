@@ -1009,7 +1009,33 @@ p {
 
 /* Mobile / Responsive */
 @media (max-width: 600px) {
+  .chain-stop {
+    display: grid;
+    grid-template-columns: 18px 68px minmax(0, 1fr);
+    column-gap: 5px;
+    row-gap: 3px;
+  }
+
+  .chain-dot-col {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .chain-times {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .chain-info {
+    grid-column: 3;
+    grid-row: 1;
+    padding-left: 0;
+  }
+
   .chain-actions {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: end;
     gap: 4px;
   }
 
