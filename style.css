@@ -729,6 +729,7 @@ p {
   align-items: stretch;
   padding: 0.4rem 0;
   position: relative;
+  min-width: 0;
 }
  
 .chain-stop.chain-cancelled {
@@ -830,6 +831,7 @@ p {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   padding-left: 25px;
 }
  
@@ -837,6 +839,7 @@ p {
   font-size: 1em;
   font-weight: 200;
   color: white;
+  overflow-wrap: anywhere;
 }
  
 .chain-platform {
@@ -954,6 +957,9 @@ p {
   display: flex;
   gap: 6px;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  max-width: 100%;
   flex-shrink: 0;
 }
 
@@ -1009,8 +1015,9 @@ p {
 
   .cal-via-btn,
   .cal-dest-btn {
-    padding: 4px 8px;
+    padding: 0;
     min-width: 28px;
+    width: 28px;
     height: 28px;
     font-size: 14px;
   }
