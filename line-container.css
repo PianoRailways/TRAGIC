@@ -295,6 +295,8 @@
 .line-container[data-agency-name="BLS AG"],.line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
 .line-container[data-line="GPX"] { background: #0f437a; color: #c2a84c; }
 
+.line-container[data-agency-name^="BLS"][data-line^="ATZ"] { color: #A0E100; background: #0028a0; }
+
 /* TransN */
 .line-container[data-agency-name*="Neuchâtel"]{background: #7BB600; color:black;}
 
