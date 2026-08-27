@@ -106,6 +106,7 @@
 .line-container[data-agency-id="849"][data-line="325"] { background: #e82788; color: white; }
 
 .line-container[data-agency-id="849"], .line-container[data-agency-id="3849"] { background: white; color: black; }
+.line-container[data-agency-id="Zürich"][data-line="E"] { background: white; color: black; border: solid 1px rgb(144,190,227); }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 
 /* Stadtbus Winterthur */
