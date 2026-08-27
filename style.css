@@ -729,6 +729,7 @@ p {
   align-items: stretch;
   padding: 0.4rem 0;
   position: relative;
+  min-width: 0;
 }
  
 .chain-stop.chain-cancelled {
@@ -830,6 +831,7 @@ p {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   padding-left: 25px;
 }
  
@@ -837,6 +839,7 @@ p {
   font-size: 1em;
   font-weight: 200;
   color: white;
+  overflow-wrap: anywhere;
 }
  
 .chain-platform {
@@ -951,66 +954,75 @@ p {
 /* ─── Chain-Stop Calendar Action Buttons ─── */
 
 .chain-actions {
+  position: relative;
   display: flex;
-  gap: 6px;
-  align-items: center;
   flex-shrink: 0;
 }
 
-.cal-via-btn,
-.cal-dest-btn {
-  padding: 6px 10px;
-  min-width: 32px;
-  height: 32px;
-  
+.cal-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   background: var(--sbb-green, #4CAF50);
   color: white;
-  
   border: none;
   border-radius: 4px;
-  
-  font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  
-  transition: all 0.15s ease-in-out;
+  font-size: 15px;
+  list-style: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-.cal-via-btn:active,
-.cal-dest-btn:active {
+.cal-menu-toggle:hover,
+.chain-actions[open] .cal-menu-toggle {
   background: #45a049;
-  transform: scale(0.92);
 }
 
-.cal-via-btn:hover,
-.cal-dest-btn:hover {
-  background: #45a049;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+.cal-menu-toggle::-webkit-details-marker {
+  display: none;
 }
 
-.cal-dest-btn {
-  background: var(--sbb-red, #eb0000);
+.cal-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 88px;
+  padding: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-main);
+  border-radius: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
 }
 
-.cal-dest-btn:hover {
-  background: #d10000;
+.cal-menu button {
+  padding: 6px 9px;
+  background: transparent;
+  color: var(--text-main);
+  border: 0;
+  border-radius: 2px;
+  text-align: left;
+  font-size: 0.82rem;
+  cursor: pointer;
 }
 
-.cal-dest-btn:active {
-  background: #b80000;
+.cal-menu button:hover {
+  background: var(--bg-hover);
 }
 
 /* Mobile / Responsive */
 @media (max-width: 600px) {
   .chain-actions {
-    gap: 4px;
+    margin-left: 2px;
   }
 
-  .cal-via-btn,
-  .cal-dest-btn {
-    padding: 4px 8px;
+  .cal-menu-toggle {
     min-width: 28px;
+    width: 28px;
     height: 28px;
     font-size: 14px;
   }
