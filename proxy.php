@@ -207,9 +207,27 @@ if ($action === 'departures' || $action === 'arrivals') {
             ? ($entry['tripFrom'] ?? $entry['origin'] ?? $entry['headsign'] ?? '')
             : ($entry['headsign'] ?? $entry['tripTo'] ?? '');
 
+        // VBZ-spezifisch: Linie aus tripId extrahieren, falls nicht vorhanden
+        $line = $entry['routeShortName'] ?? '?';
+        $agencyId = $entry['agencyId'] ?? null;
+        $tripId = $entry['tripId'] ?? null;
+        
+        if ($line === '?' && $tripId && preg_match('/:(\d+):(\d+)_ch:/', $tripId, $m)) {
+            $possibleAgency = $m[1];  // z.B. 3849
+            $extractedLine = ltrim($m[2], '0') ?: '0';  // z.B. 016 → 16
+            
+            // Nur für VBZ anwenden (3849 = Tram, 849 = Bus)
+            if ($possibleAgency === '3849' || $possibleAgency === '849') {
+                $line = $extractedLine;
+                if (!$agencyId) {
+                    $agencyId = $possibleAgency;
+                }
+            }
+        }
+
         $departures[] = [
-            'tripId'      => $entry['tripId'] ?? null,
-            'line'        => $entry['routeShortName'] ?? '?',
+            'tripId'      => $tripId,
+            'line'        => $line,
             'tripNumber'  => $entry['tripShortName'] ?? $entry['displayName'] ?? null,
             'destination' => $destination,
             'scheduled'   => $schedEpoch,
@@ -220,7 +238,7 @@ if ($action === 'departures' || $action === 'arrivals') {
             'cancelled'   => (bool)($entry['cancelled'] ?? false),
             'realTime'    => (bool)($entry['realTime'] ?? false),
             'mode'        => $entry['mode'] ?? null,
-            'agencyId'    => $entry['agencyId'] ?? null,
+            'agencyId'    => $agencyId,
             'agencyName'  => $entry['agencyName'] ?? null,
             'agencyUrl'   => $entry['agencyUrl'] ?? null,
             'routeId'     => $entry['routeId'] ?? null,
@@ -316,17 +334,34 @@ if ($action === 'trip') {
     }
 
     $leg = $legs[0] ?? [];
+    
+    // VBZ-spezifisch: Linie aus tripId extrahieren, falls nicht vorhanden
+    $line = $leg['routeShortName'] ?? '?';
+    $agencyId = $leg['agencyId'] ?? null;
+    
+    if ($line === '?' && preg_match('/:(\d+):(\d+)_ch:/', $decodedTripId, $m)) {
+        $possibleAgency = $m[1];  // z.B. 3849
+        $extractedLine = ltrim($m[2], '0') ?: '0';  // z.B. 016 → 16
+        
+        // Nur für VBZ anwenden (3849 = Tram, 849 = Bus)
+        if ($possibleAgency === '3849' || $possibleAgency === '849') {
+            $line = $extractedLine;
+            if (!$agencyId) {
+                $agencyId = $possibleAgency;
+            }
+        }
+    }
 
     echo json_encode([
         'tripId'      => $decodedTripId,
-        'line'        => $leg['routeShortName'] ?? '?',
+        'line'        => $line,
         'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
         'destination' => $leg['headsign'] ?? null,
         'routeType'            => $leg['routeType'] ?? null,
         'bikesAllowed'         => $leg['bikesAllowed'] ?? null,
         'wheelchairAccessible' => $leg['wheelchairAccessible'] ?? null,
         'agency'      => [
-            'id'   => $leg['agencyId'] ?? null,
+            'id'   => $agencyId,
             'name' => $leg['agencyName'] ?? null,
             'url'  => $leg['agencyUrl'] ?? null,
         ],
