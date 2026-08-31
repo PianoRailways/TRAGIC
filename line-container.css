@@ -544,7 +544,8 @@
 
 /* Thurbo inkl. DELFI Thurbo */
 .line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
-.line-container[data-agency-id="THURBO"][data-line^="S"] { background: white; color: black; }
+.line-container[data-agency-name="THURBO"][data-line^="S"] { background: white; color: black; }
+.line-container[data-agency-name="THURBO"][data-line^="SN"] { background: black; color: #FFED00; }
 /* Berlin */
 .line-container[data-agency-name="S-Bahn Berlin GmbH"] { background: #008d4f; color: white; } /* S-Bahn */
 .line-container[data-agency-id="796"][data-mode="SUBWAY"] { background: #115D91; color: white; } /* U-Bahn */
