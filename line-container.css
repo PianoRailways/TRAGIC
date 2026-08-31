@@ -511,8 +511,8 @@
 .line-container[data-agency-id="11"][data-line^="RJ"],
 .line-container[data-agency-id="11"][data-line^="RJX"],
 .line-container[data-agency-id="11"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
-.line-container[data-agency-id="11"][data-line^="N"] { font-style: italic; background: transparent; color: #FFDE15; }
-.line-container[data-agency-id="11"][data-line^="SN"] { background: transparent; color: #FFDE15; border: 0.5px solid #FFDE15; }
+.line-container[data-agency-id="11"][data-line*="N"] { font-style: italic; background: transparent; color: #FFDE15; }
+.line-container[data-agency-name*="SBB"][data-line^="SN"] { background: transparent; color: #FFDE15; border: 0.5px solid #FFDE15; }
 
 .line-container[data-line="GEX"],
 .line-container[data-line="BEX"],
