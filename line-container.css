@@ -109,6 +109,8 @@
 .line-container[data-agency-id="Zürich"][data-line="E"] { background: white; color: black; border: solid 1px rgb(144,190,227); }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 
+.line-container[data-agency-id="849"][data-line^="N"] {color:rgb(255,242,0); background-color:rgb(0,0,0);} /* VBZ Nachtnetz */
+
 /* Verkehrsbetriebe Glattal */
 .line-container[data-agency-name*="Glattal"] { background: #90c53e; color: white; }
 
