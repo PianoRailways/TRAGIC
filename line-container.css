@@ -389,7 +389,7 @@
 .line-container[data-agency-id="151"][data-line^="m"] {position: relative;background-color: #0152A3;color: white;}
 .line-container[data-agency-id="151"][data-line^="m"]::after {content: "";position: absolute;top: 62%;right: 2px;transform: translateY(-50%);width: 13px;height: 13px;background-size: contain;background-repeat: no-repeat;background-position: center;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23e3007b' d='M83.4 16.6C65 -1.9 35 -1.9 16.6 16.6c-18.5 18.5-18.5 48.4 0 66.9 18.5 18.5 48.4 18.5 66.9 0 18.4-18.5 18.4-48.4-.1-66.9zM22.8 77.2L68 32c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L28.9 83.3c-2.3-1.8-4.4-3.8-6.1-6.1zm11.9 11.9L79.9 43.9c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L40.8 95.2c-2.2-1.8-4.2-3.9-6.1-6.1zM6.8 45.1L52 0c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L12.9 51.2c-2.2-1.9-4.3-3.9-6.1-6.1z'/%3E%3C/svg%3E");}
 
-.line-container[data-agency-id="55"] {;color: #5AB031;background: white;}
+.line-container[data-agency-id="55"] {color: #5AB031;background: white;}
 /* BOB / Jungfraubahnen */
 .line-container[data-agency-name="Berner Oberland-Bahnen"],
 .line-container[data-agency-name^="Wengernalpbahn"],
