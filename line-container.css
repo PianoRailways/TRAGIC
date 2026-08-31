@@ -192,6 +192,8 @@
 .line-container[data-agency-id="840"][data-line="6"] { background: rgb(229,136,70); color: white; }
 .line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
+.line-container[data-agency-id="840"][data-line^="N"] { background: #231F20; color: #EBE835; }
+
 /* RVBW */
 .line-container[data-agency-name*="Wettingen"][data-line="1"] { background: #EE1D23; color: white; }
 .line-container[data-agency-name*="Wettingen"][data-line="2"] { background: #0097D8; color: white; }
