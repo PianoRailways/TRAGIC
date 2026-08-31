@@ -1921,7 +1921,23 @@ function renderChain(data) {
 
   const ignoreTimeFilter = totalStops > 0 && pastStopsCount === totalStops;
 
+  // Count future legs (not fully past) for collapsing logic
+  const futureLegs = [];
+  legs.forEach((leg) => {
+    const legPastStops = leg.stops.filter(s => {
+      if (ignoreTimeFilter) return false;
+      const t = getStopTime(s.stop);
+      return t > 0 && t < refEpoch;
+    });
+    const isLegFullyPast = !ignoreTimeFilter && legPastStops.length === leg.stops.length;
+    if (!isLegFullyPast) {
+      futureLegs.push({ leg, isCollapsed: futureLegs.length >= 2 });
+    }
+  });
+
   let legsHtml = '';
+  let futureLegToggleInserted = false;
+  let futureLegContainerHtml = '';
 
   legs.forEach((leg, legIdx) => {
     const legPastStops = leg.stops.filter(s => {
@@ -1931,6 +1947,10 @@ function renderChain(data) {
     });
 
     const isLegFullyPast = !ignoreTimeFilter && legPastStops.length === leg.stops.length;
+    
+    // Find current leg in futureLegs to check if it should be collapsed
+    const futureLegInfo = futureLegs.find(fl => fl.leg === leg);
+    const shouldCollapseFutureLeg = futureLegInfo && futureLegInfo.isCollapsed;
     
     const lineStr = leg.meta.line ? escapeHtml(leg.meta.line) : (data.line ? escapeHtml(data.line) : '?');
     const destStr = leg.meta.destination ? escapeHtml(getDestinationName(leg.meta.destination)) : (data.destination ? escapeHtml(getDestinationName(data.destination)) : '');
@@ -2077,10 +2097,31 @@ function renderChain(data) {
         </div>
       `;
       legsHtml += legToggleHtml + `<div class="chain-past-leg-body" style="display:none;">${legContentHtml}</div>`;
+    } else if (shouldCollapseFutureLeg) {
+      // Add future legs to container instead of showing directly
+      if (!futureLegToggleInserted) {
+        // Insert toggle button before the first future leg
+        const remainingCount = futureLegs.length - 2;
+        legsHtml += `
+          <div class="chain-leg-toggle-wrap">
+            <button type="button" class="btn-toggle-future-leg" data-label-show="+ ${remainingCount > 1 ? remainingCount + ' weitere Legs' : '1 weiteres Leg'} anzeigen" onclick="event.stopPropagation(); toggleFutureLeg(this)">
+              + ${remainingCount > 1 ? remainingCount + ' weitere Legs' : '1 weiteres Leg'} anzeigen
+            </button>
+          </div>
+          <div class="chain-future-leg-container" style="display:none;">
+        `;
+        futureLegToggleInserted = true;
+      }
+      futureLegContainerHtml += `<div class="chain-leg-body">${legContentHtml}</div>`;
     } else {
       legsHtml += `<div class="chain-leg-body">${legContentHtml}</div>`;
     }
   });
+
+  // Close the future legs container if it was opened
+  if (futureLegToggleInserted) {
+    legsHtml += futureLegContainerHtml + '</div>';
+  }
 
   const chainDestName = getDestinationName(data.destination);
   const tripIdHtml = data.tripId ? `<div class="trip-id-row">Trip-ID: <code title="${escapeHtml(data.tripId)}" onclick="navigator.clipboard.writeText('${data.tripId.replace(/'/g, "\\'")}'); this.innerText='✅ Kopiert!'; setTimeout(() => this.innerText='${escapeHtml(data.tripId).replace(/'/g, "\\'")}', 1500);">${escapeHtml(data.tripId)}</code></div>` : '';
@@ -2123,6 +2164,18 @@ function togglePastLeg(btn) {
   legBody.style.display = isHidden ? 'block' : 'none';
   btn.textContent = isHidden 
     ? '– Früheres Leg ausblenden' 
+    : btn.getAttribute('data-label-show');
+}
+
+function toggleFutureLeg(btn) {
+  const legToggleWrap = btn.parentElement;
+  const legContainer = legToggleWrap.nextElementSibling;
+  if (!legContainer) return;
+
+  const isHidden = legContainer.style.display === 'none';
+  legContainer.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden 
+    ? '– Weitere Legs ausblenden' 
     : btn.getAttribute('data-label-show');
 }
 

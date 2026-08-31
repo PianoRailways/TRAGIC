@@ -1052,6 +1052,24 @@ p {
   border-color: rgba(255, 255, 255, 0.35);
 }
 
+.btn-toggle-future-leg {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-toggle-future-leg:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
 .chain-stop.chain-past-stop {
   opacity: 0.82;
   transition: opacity 0.15s ease;
@@ -1068,4 +1086,12 @@ p {
 
 .chain-past-leg-body .chain-stop:hover {
   opacity: 1;
+}
+
+.chain-future-leg-container {
+  /* Container for future legs that are collapsed */
+}
+
+.chain-future-leg-container .chain-stop {
+  /* Optional: Add any specific styling for future leg stops if needed */
 }
