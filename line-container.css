@@ -471,8 +471,8 @@
 .line-container[data-agency-id="11"][data-line^="N"] { font-style: italic; background: transparent; color: #FFDE15; }
 .line-container[data-agency-id="11"][data-line^="SN"] { background: transparent; color: #FFDE15; border: 0.5px solid #FFDE15; }
 
-.line-container[data-agency-id="11"][data-line="GEX"],
-.line-container[data-agency-id="11"][data-line="BEX"],
+.line-container[data-line="GEX"],
+.line-container[data-line="BEX"],
 .line-container[data-agency-id="11"][data-line^="PE"] { background: #eb0000; color: white; }
 .line-container[data-line^="EXT"],
 .line-container[data-line^="AG"] { background: #eb0000; color: white; }
