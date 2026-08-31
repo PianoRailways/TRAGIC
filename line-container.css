@@ -113,6 +113,7 @@
 
 /* Verkehrsbetriebe Glattal */
 .line-container[data-agency-name*="Glattal"] { background: #90c53e; color: white; }
+.line-container[data-agency-id="849"][data-line^="91"] { background: #D0B084; color: black; } /* AZZK */
 
 /* Stadtbus Winterthur */
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line="1"] { background: #A8C42E; color: white; }
