@@ -294,7 +294,8 @@
 .line-container[data-agency-id="883"][data-line="5"] { background: #0FB967; color: white; }
 .line-container[data-agency-id="883"][data-line="6"] { background: #D3DD00; color: white; }
 .line-container[data-agency-id="883"][data-line="7"] { background: #892819; color: white; }
-.line-container[data-agency-id="883"][data-line="8"] { background: #5AB3DC; color: white; }
+.line-container[data-agency-id="850"][data-line="8"] { background: #5AB3DC; color: white; } /*RBS */
+.line-container[data-agency-id="850"][data-line="898"] { background: #DB4105; color: white; } /*RBS */
 .line-container[data-agency-id="883"][data-line="9"] { background: #DB51A4; color: white; }
 .line-container[data-agency-id="883"][data-line="10"] { background: #23849A; color: white; }
 .line-container[data-agency-id="883"][data-line="15"] { background: #B58F3F; color: white; }
