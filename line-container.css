@@ -186,6 +186,21 @@
 .line-container[data-agency-id="840"][data-line="6"] { background: rgb(229,136,70); color: white; }
 .line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
+/* RVBW */
+.line-container[data-agency-name*="Wettingen"][data-line="1"] { background: #EE1D23; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="2"] { background: #0097D8; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="3"] { background: #FFD124; color: black; }
+.line-container[data-agency-name*="Wettingen"][data-line="4"] { background: #1AAB52; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="5"] { background: #DF3288; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="6"] { background: #231F20; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="7"] { background: #24469D; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="8"] { background: #7D4E2C; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="9"] { background: #EC9E65; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="10"] { background: #6C2789; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="11"] { background: #AAC12C; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="12"] { background: #78CBBF; color: white; }
+.line-container[data-agency-name*="Wettingen"][data-line="13"] { background: #F28650; color: white; }
+
 /* Regionalbus Lenzburg */
 .line-container[data-agency-name="Regionalbus Lenzburg"] { background: white; color: #E3000B; }
 /* AVA */
