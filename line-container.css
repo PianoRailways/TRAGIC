@@ -301,6 +301,19 @@
 .line-container[data-agency-id="883"][data-line="15"] { background: #B58F3F; color: white; }
 .line-container[data-agency-id="883"][data-line="16"] { background: #B81F6F; color: white; }
 
+/* Grenchen und Umgebung BGU */
+.line-container[data-agency-id="894"][data-line="2"] { background: #28448C; color: white; }
+.line-container[data-agency-id="894"][data-line="12"] { background: #6ED8C6; color: white; }
+.line-container[data-agency-id="894"][data-line="20"] { background: #6ED8C6; color: white; }
+.line-container[data-agency-id="894"][data-line="21"] { background: #4075B9; color: white; }
+.line-container[data-agency-id="894"][data-line="22"] { background: #605B14; color: white; }
+.line-container[data-agency-id="894"][data-line="23"] { background: #A8BDC7; color: white; }
+.line-container[data-agency-id="894"][data-line="24"] { background: #840243; color: white; }
+.line-container[data-agency-id="894"][data-line="25"] { background: #F69F1D; color: white; }
+.line-container[data-agency-id="894"][data-line="26"] { background: #AFA821; color: white; }
+.line-container[data-agency-id="894"][data-line="27"] { background: #EF5D5C; color: white; }
+.line-container[data-agency-id="894"][data-line="28"] { background: #421F17; color: white; }
+
 /* Biel/Bienne VB/TPB */
 .line-container[data-agency-id="889"][data-line="1"] { background: #E4392B; color: white; }
 .line-container[data-agency-id="889"][data-line="2"] { background: #2C458D; color: white; }
