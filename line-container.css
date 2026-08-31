@@ -592,6 +592,9 @@
 .line-container[data-agency-id="823"][data-line="17"] { background: rgb(78,172,233); color: white; }
 .line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT */
 
+.line-container[data-agency-id="823"][data-mode="BUS"] { background: #C7C8CA; color: black; } /* BVB Bus */
+.line-container[data-agency-name*="Liestal"] { background: #FFF064; color: black; } /* Auto AG Liestal */
+
 /* Polen */
 .line-container[data-agency-id="12617"],
 .line-container[data-agency-name="PKP Intercity"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
