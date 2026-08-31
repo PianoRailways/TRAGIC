@@ -128,6 +128,8 @@
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line="12"] { background: #825A33; color: white; }
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line="22"] { background: #E6000E; color: white; }
 
+.line-container[data-agency-name="Stadtbus Winterthur"][data-line^="N"] { background: #000; color: #FFED00; }
+
 .line-container[data-agency-name="Regiobus Gossau SG"] { background: #ffffff; color: #0E9D5E; box-shadow: inset 0 2px 0 #fa5609, inset 0 -3.5px 0 #fa5609; }
 
 
