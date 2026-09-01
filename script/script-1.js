@@ -274,7 +274,7 @@ const destFilter = document.getElementById('destFilter');
 async function loadCombinedStations() {
   const urls = [
     'https://nowe.stellwerksim.ch/combinedstations.js',
-    'https://tragic.stellwerksim.ch/combinedTRAGIC.js',
+    'https://tragic.stellwerksim.ch/script/combinedTRAGIC.js',
   ];
   
   const tempMerged = {};
