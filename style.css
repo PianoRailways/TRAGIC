@@ -1027,16 +1027,8 @@ p {
 
 /* Mobile / Responsive */
 @media (max-width: 600px) {
-  .chain-actions {
-    margin-left: 2px;
-  }
-
-  .cal-menu-toggle {
-    min-width: 28px;
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-  }
+  .chain-actions {margin-left: 2px;}
+  .cal-menu-toggle {min-width: 28px;width: 28px;height: 28px;font-size: 14px;}
 }
 .chain-leg-toggle-wrap,
 .chain-stops-toggle-wrap {
