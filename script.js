@@ -742,12 +742,6 @@ function getAbbrevsForName(stationName) {
   return nameToAbbrevMap[normName] || [];
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadAbbreviations().then(() => renderFavoritesBar());
-  loadCombinedStations();
-  updateCalendarExportButton();
-});
-
 // ─── Hamburger-Menü ─────────────────────────────────────────
 
 function toggleMenu() {
@@ -770,6 +764,52 @@ function closeMenu() {
   sidebar.classList.remove('active');
   overlay.classList.remove('active');
   document.body.style.overflow = '';
+}
+
+// ─── Stations-View (Wichtige Bahnhöfe) ──────────────────────────
+
+function renderStationsView() {
+  const stationsView = document.getElementById('stations-view');
+  const stationsList = document.getElementById('stations-list');
+  
+  if (!stationsView || !stationsList) return;
+  
+  stationsList.innerHTML = '';
+  
+  DEFAULT_FAVORITES.forEach(station => {
+    const li = document.createElement('li');
+    
+    const link = document.createElement('a');
+    link.className = 'stations-item';
+    link.textContent = station.name;
+    link.href = 'javascript:void(0);';
+    
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectStation(station.stopId, station.name, null);
+      closeStationsView();
+    });
+    
+    li.appendChild(link);
+    stationsList.appendChild(li);
+  });
+  
+  stationsView.style.display = 'flex';
+}
+
+function closeStationsView() {
+  const stationsView = document.getElementById('stations-view');
+  if (stationsView) {
+    stationsView.style.display = 'none';
+  }
+}
+
+function checkAndRenderView() {
+  const viewParam = params.get('view');
+  
+  if (viewParam === 'stations') {
+    renderStationsView();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -798,6 +838,15 @@ document.addEventListener('DOMContentLoaded', () => {
   menuLinks.forEach(link => {
     link.addEventListener('click', closeMenu);
   });
+
+  // Stations-View Event-Listener
+  const btnCloseStations = document.getElementById('btn-close-stations');
+  if (btnCloseStations) {
+    btnCloseStations.addEventListener('click', closeStationsView);
+  }
+
+  // Check for view parameter and render accordingly
+  checkAndRenderView();
 });
 
 // ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
