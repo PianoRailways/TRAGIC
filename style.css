@@ -1469,37 +1469,12 @@ p {
 
 /* Mobile Anpassungen */
 @media (max-width: 600px) {
-  .home-container {
-    padding: 16px;
-  }
-
-  .home-grid {
-    gap: 12px;
-  }
-
-  .home-tile {
-    min-height: 120px;
-    padding: 16px;
-  }
-
-  .home-tile-icon {
-    font-size: 2em;
-  }
-
-  .home-tile-label {
-    font-size: 1em;
-  }
-
-  .stations-header {
-    padding: 12px 14px;
-  }
-
-  .stations-header h2 {
-    font-size: 1em;
-  }
-
-  .stations-item {
-    padding: 14px 14px;
-    font-size: 0.95em;
-  }
+  .home-container {padding: 16px;}
+  .home-grid {gap: 12px;}
+  .home-tile {min-height: 120px;padding: 16px;}
+  .home-tile-icon {font-size: 2em;}
+  .home-tile-label {font-size: 1em;}
+  .stations-header {padding: 12px 14px;}
+  .stations-header h2 {font-size: 1em;}
+  .stations-item {padding: 14px 14px;font-size: 0.95em;}
 }
