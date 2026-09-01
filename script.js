@@ -748,6 +748,58 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCalendarExportButton();
 });
 
+// ─── Hamburger-Menü ─────────────────────────────────────────
+
+function toggleMenu() {
+  const sidebar = document.getElementById('menu-sidebar');
+  const overlay = document.getElementById('menu-overlay');
+  
+  if (!sidebar || !overlay) return;
+  
+  sidebar.classList.toggle('active');
+  overlay.classList.toggle('active');
+  document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+}
+
+function closeMenu() {
+  const sidebar = document.getElementById('menu-sidebar');
+  const overlay = document.getElementById('menu-overlay');
+  
+  if (!sidebar || !overlay) return;
+  
+  sidebar.classList.remove('active');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadAbbreviations().then(() => renderFavoritesBar());
+  loadCombinedStations();
+  updateCalendarExportButton();
+
+  // Hamburger-Menü Event-Listener
+  const btnMenuToggle = document.getElementById('btn-menu-toggle');
+  const btnMenuClose = document.getElementById('btn-menu-close');
+  const menuOverlay = document.getElementById('menu-overlay');
+  const menuLinks = document.querySelectorAll('.menu-link');
+
+  if (btnMenuToggle) {
+    btnMenuToggle.addEventListener('click', toggleMenu);
+  }
+
+  if (btnMenuClose) {
+    btnMenuClose.addEventListener('click', closeMenu);
+  }
+
+  if (menuOverlay) {
+    menuOverlay.addEventListener('click', closeMenu);
+  }
+
+  menuLinks.forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+});
+
 // ─── Modus-Filter (localStorage-persistent) ────────────────────────────────
 
 const MODE_GROUPS = {

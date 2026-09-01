@@ -1095,3 +1095,137 @@ p {
 .chain-future-leg-container .chain-stop {
   /* Optional: Add any specific styling for future leg stops if needed */
 }
+
+/* ─── HAMBURGER-MENÜ ─────────────────────────────────────────── */
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 29;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.menu-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.menu-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-main);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.menu-sidebar.active {
+  transform: translateX(0);
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 14px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-main);
+  flex-shrink: 0;
+}
+
+.btn-menu-close {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.5em;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-menu-close:hover {
+  color: var(--link-hover);
+}
+
+.menu-title {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-main);
+  flex: 1;
+  text-align: center;
+}
+
+.menu-list {
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.menu-list li {
+  display: flex;
+}
+
+.menu-list li.menu-divider {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 8px 0;
+  flex-shrink: 0;
+}
+
+.menu-link {
+  flex: 1;
+  padding: 14px 16px;
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 0.95em;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.menu-link:hover {
+  background: var(--bg-hover);
+  border-left-color: var(--line-accent);
+  color: var(--on-time);
+}
+
+.menu-link:active {
+  background: rgba(10, 165, 85, 0.15);
+}
+
+/* Mobile Anpassungen */
+@media (max-width: 600px) {
+  .menu-sidebar {
+    width: 240px;
+  }
+
+  .menu-link {
+    padding: 12px 14px;
+    font-size: 0.9em;
+  }
+
+  .menu-title {
+    font-size: 1em;
+  }
+}

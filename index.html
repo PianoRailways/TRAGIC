@@ -16,13 +16,31 @@
   <!-- ═══════════════ HEADER ═══════════════ -->
   <header id="app-header">
     <div id="header-left">
-      <button id="btn-home" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A82597'" title="Startseite">⌂ Home</button>
+      <button id="btn-menu-toggle" class="btn-menu-toggle" title="Menü öffnen">☰</button>
     </div>
     <div id="header-center"><span id="live-clock" onClick="window.location = './'">18:04:69</span></div>
     <div id="header-right">
       <span id="app-title" style="text-decoration: none;" onclick="toggleArrivalMode()">öV OMNI</span>
     </div>
   </header>
+
+  <!-- ═══════════════ HAMBURGER-MENÜ ═══════════════ -->
+  <div id="menu-overlay" class="menu-overlay"></div>
+  <nav id="menu-sidebar" class="menu-sidebar">
+    <div class="menu-header">
+      <button id="btn-menu-close" class="btn-menu-close" title="Menü schließen">✕</button>
+      <h2 class="menu-title">OMNI</h2>
+    </div>
+    <ul class="menu-list">
+      <li><a href="./?view=departures" class="menu-link">Abfahrten</a></li>
+      <li><a href="./?view=arrivals&arrivals=true" class="menu-link">Ankünfte</a></li>
+      <li><a href="./?view=favorites" class="menu-link">Favoriten</a></li>
+      <li><a href="./?view=stations" class="menu-link">Wichtige Bahnhöfe</a></li>
+      <li class="menu-divider"></li>
+      <li><a href="/routing" class="menu-link">Routing</a></li>
+      <li><a href="./?view=settings" class="menu-link">Einstellungen</a></li>
+    </ul>
+  </nav>
 
   <div class="panel">
     <!-- ═══════════════ FAVORITEN ═══════════════ -->
@@ -68,7 +86,7 @@
     <!-- ═══════════════ ZIEL-FILTER ═══════════════ -->
     <div id="dest-filter-row">
       <input type="text" id="destFilter" placeholder="Filtern (z.B. Basel, IR26, 475)..." autocomplete="off">
-      <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">$vias</button>
+      <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">Via: AUS</button>
     </div>
     <hr>
     <div id="status"></div>
