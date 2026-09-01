@@ -129,7 +129,10 @@
         <button id="btn-refresh" title="Aktualisieren">GO</button>
 
         <div class="filter-menu-wrap">
-          <button id="filter-menu-button" class="filter-menu-button" type="button" aria-expanded="false" aria-controls="departure-filter-popup" title="Filter öffnen">☰</button>
+          <button id="filter-menu-button" class="filter-menu-button" type="button" aria-expanded="false" aria-controls="departure-filter-popup" title="Filter öffnen">
+            <span aria-hidden="true">☰</span>
+            <span class="filter-indicator" aria-hidden="true"></span>
+          </button>
 
           <div id="departure-filter-popup" class="filter-popup" role="dialog" aria-label="Filtermenü">
             <div class="filter-popup-inner">

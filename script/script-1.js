@@ -751,6 +751,20 @@ function updateModeButtons() {
     const mode = btn.dataset.mode;
     btn.classList.toggle('active', filterState.selectedModes.has(mode));
   });
+
+  updateFilterMenuIndicator();
+}
+
+function updateFilterMenuIndicator() {
+  const btn = document.getElementById('filter-menu-button');
+  if (!btn) return;
+
+  const destQuery = destFilter ? destFilter.value.trim() : '';
+  const hasActiveModeFilter = !filterState.alleModeActive || filterState.selectedModes.size > 0;
+  const isActive = Boolean(destQuery) || hasActiveModeFilter;
+
+  btn.classList.toggle('has-active-filters', isActive);
+  btn.title = isActive ? 'Filter aktiv – klicken zum Öffnen' : 'Filter öffnen';
 }
 
 function activateModesInGroup(groupModes) {
@@ -845,7 +859,10 @@ function updateArrivalToggleUI() {
 // ─── Ziel-Filter ────────────────────────────────────────────────────────────
 
 if (destFilter) {
-  destFilter.addEventListener('input', () => applyFilters());
+  destFilter.addEventListener('input', () => {
+    applyFilters();
+    updateFilterMenuIndicator();
+  });
 }
 
 function applyFilters() {
@@ -879,6 +896,8 @@ function applyFilters() {
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
   });
+
+  updateFilterMenuIndicator();
 }
 
 // ─── Datum / Zeit (URL ↔ Picker) ────────────────────────────────────────────
