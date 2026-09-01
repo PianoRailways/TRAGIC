@@ -804,11 +804,97 @@ function closeStationsView() {
   }
 }
 
+// ─── Favorites-View (Benutzerdefinierte Favoriten) ────────────────────
+
+function renderFavoritesView() {
+  const favoritesView = document.getElementById('favorites-view');
+  const favoritesList = document.getElementById('favorites-list');
+  
+  if (!favoritesView || !favoritesList) return;
+  
+  favoritesList.innerHTML = '';
+  
+  favoriteStations.forEach(favorite => {
+    const li = document.createElement('li');
+    
+    const itemContainer = document.createElement('div');
+    itemContainer.style.display = 'flex';
+    itemContainer.style.flex = '1';
+    itemContainer.style.alignItems = 'center';
+    itemContainer.style.justifyContent = 'space-between';
+    
+    const link = document.createElement('a');
+    link.className = 'stations-item';
+    link.textContent = favorite.name;
+    link.href = 'javascript:void(0);';
+    link.style.flex = '1';
+    
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectStation(favorite.stopId, favorite.name, null);
+      closeFavoritesView();
+    });
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'fav-remove-btn';
+    deleteBtn.title = `Favorit ${favorite.name} löschen`;
+    deleteBtn.textContent = '×';
+    deleteBtn.style.marginRight = '10px';
+    deleteBtn.dataset.stopId = favorite.stopId;
+    deleteBtn.dataset.confirmPending = 'false';
+    
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      
+      const isConfirmPending = deleteBtn.dataset.confirmPending === 'true';
+      
+      if (!isConfirmPending) {
+        // Erster Klick: In Bestätigungs-State wechseln
+        deleteBtn.dataset.confirmPending = 'true';
+        deleteBtn.textContent = '✓ Löschen?';
+        deleteBtn.classList.add('fav-remove-btn-confirm');
+        
+        // Nach 3 Sekunden zurücksetzen wenn nicht bestätigt
+        setTimeout(() => {
+          if (deleteBtn.dataset.confirmPending === 'true') {
+            deleteBtn.dataset.confirmPending = 'false';
+            deleteBtn.textContent = '×';
+            deleteBtn.classList.remove('fav-remove-btn-confirm');
+          }
+        }, 3000);
+      } else {
+        // Zweiter Klick: Wirklich löschen
+        favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
+        saveFavoritesToStorage();
+        renderFavoritesView();
+        renderFavoritesBar();
+      }
+    });
+    
+    itemContainer.appendChild(link);
+    itemContainer.appendChild(deleteBtn);
+    li.appendChild(itemContainer);
+    favoritesList.appendChild(li);
+  });
+  
+  favoritesView.style.display = 'flex';
+}
+
+function closeFavoritesView() {
+  const favoritesView = document.getElementById('favorites-view');
+  if (favoritesView) {
+    favoritesView.style.display = 'none';
+  }
+}
+
 function checkAndRenderView() {
   const viewParam = params.get('view');
   
   if (viewParam === 'stations') {
     renderStationsView();
+  } else if (viewParam === 'favorites') {
+    renderFavoritesView();
   }
 }
 
@@ -843,6 +929,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseStations = document.getElementById('btn-close-stations');
   if (btnCloseStations) {
     btnCloseStations.addEventListener('click', closeStationsView);
+  }
+
+  // Favorites-View Event-Listener
+  const btnCloseFavorites = document.getElementById('btn-close-favorites');
+  if (btnCloseFavorites) {
+    btnCloseFavorites.addEventListener('click', closeFavoritesView);
   }
 
   // Check for view parameter and render accordingly
