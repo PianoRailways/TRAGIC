@@ -8,12 +8,15 @@ let abbrevMap = {};
 let nameToAbbrevMap = {};
 
 const DEFAULT_FAVORITES = [
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:8100', label: 'LTH', name: 'LTH' },
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5000', label: 'LZ', name: 'LZ' },
-  { stopId: 'de-DELFI_ch:23005:6', label: 'BAD', name: 'BAD' },
-  { stopId: 'fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF:OCETrainTER87182063', label: 'MUL', name: 'MUL' },
-  { stopId: 'ch-opentransportdataswiss26_Parent8721202', label: 'STRS', name: 'STRS' },
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'BS', name: 'BS' }
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:8100', label: 'Langenthal', name: 'Langenthal' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5000', label: 'Luzern', name: 'Luzern' },
+  { stopId: 'de-DELFI_ch:23005:6', label: 'Basel Badischer Bhf', name: 'Basel Badischer Bhf' },
+  { stopId: 'fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF:OCETrainTER87182063', label: 'Mulhouse-Ville', name: 'Mulhouse-Ville' },
+  { stopId: 'ch-opentransportdataswiss26_Parent8721202', label: 'Strasbourg', name: 'Strasbourg' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'Basel SBB', name: 'Basel SBB' }
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3000', label: 'Zürich HB', name: 'Zürich HB' }
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:7000', label: 'Bern', name: 'Bern' }
+  { stopId: 'pl-PKP-Intercity_1008_parent', label: 'Świnoujście', name: 'Świnoujście' }
 ];
 const FAVORITES_STORAGE_KEY = 'tragic_favorites';
 const VIA_LOADING_STORAGE_KEY = 'tragic_via_loading_enabled';
