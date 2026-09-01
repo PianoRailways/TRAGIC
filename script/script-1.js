@@ -860,12 +860,16 @@ function applyFilters() {
     const agencyName = (tr.dataset.agencyName || '').toLowerCase();
     const tripId     = (tr.dataset.tripId     || '').toLowerCase();
     const vias       = (tr.dataset.vias       || '').toLowerCase();
+    const visibleLine = (tr.querySelector('.line')?.textContent || '').toLowerCase();
+    const routeId = (tr.dataset.routeId || '').toLowerCase();
 
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
     
     const destHide = destQuery && 
       !dest.includes(destQuery) && 
       !line.includes(destQuery) && 
+      !visibleLine.includes(destQuery) &&
+      !routeId.includes(destQuery) &&
       !trip.includes(destQuery) && 
       !agencyId.includes(destQuery) && 
       !agencyName.includes(destQuery) && 
