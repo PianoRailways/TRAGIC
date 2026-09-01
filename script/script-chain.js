@@ -269,3 +269,220 @@ function renderChain(data) {
     ${BetreiberHTML}
   `;
 }
+
+// ─── Rendern ─────────────────────────────────────────────────────────────────
+
+function renderDepartures(departures) {
+  const tbody = document.getElementById('departureBody');
+  const table = document.getElementById('departureTable');
+  if (!tbody || !table) return;
+
+  tbody.innerHTML = '';
+  table.style.display = departures.length ? 'table' : 'none';
+
+  if (!departures.length) {
+    document.getElementById('status').innerHTML = '<div class="empty-hint">Keine Einträge gefunden.</div>';
+    return;
+  }
+
+  const sorted = [...departures].sort((a, b) => {
+    const timeA = a.scheduled || Infinity;
+    const timeB = b.scheduled || Infinity;
+    return timeA - timeB;
+  });
+
+  let lastDate = null;
+
+  sorted.forEach((dep, depIdx) => {
+    // Check if date changed and insert date separator
+    if (dep.scheduled) {
+      const depDate = new Date(dep.scheduled * 1000);
+      const dateKey = `${depDate.getFullYear()}-${String(depDate.getMonth() + 1).padStart(2, '0')}-${String(depDate.getDate()).padStart(2, '0')}`;
+      
+      if (lastDate !== dateKey) {
+        const dateStr = depDate.toLocaleDateString('de-CH', { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' });
+        const separatorRow = document.createElement('tr');
+        separatorRow.className = 'date-separator-row';
+        separatorRow.innerHTML = `<td colspan="4"><div class="date-separator">${escapeHtml(dateStr)}</div></td>`;
+        tbody.appendChild(separatorRow);
+        lastDate = dateKey;
+      }
+    }
+
+    const tr = document.createElement('tr');
+    tr.className = 'dep-row';
+
+    const needsDestinationFallback = !!dep.tripId && !dep.destination;
+    const needsViaLoading = !!dep.tripId && viaLoadingEnabled && !Array.isArray(dep.vias);
+    const shouldLoadTripDetails = needsDestinationFallback || needsViaLoading;
+    if (shouldLoadTripDetails) {
+      queueTripDetailsLoad(dep, tbody, depIdx);
+    }
+
+    const timeStr = dep.scheduled
+      ? new Date(dep.scheduled * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'})
+      : '–';
+
+    let delayHtml = '';
+    if (dep.cancelled) {
+      delayHtml = '<span class="cancelled">Ausfall</span>';
+    } else if (dep.delaySec !== null && dep.delaySec !== undefined) {
+      const delayMin = Math.floor(dep.delaySec / 60);
+      if (delayMin < 0) {
+        delayHtml = `<span class="vbz-delay">${fmtDelay(dep.delaySec)}</span>`;
+      } else if (delayMin > 0) {
+        delayHtml = `<span class="delay">${fmtDelay(dep.delaySec)}</span>`;
+      }
+    }
+
+    const iconHtml = getModeIcon(dep.mode);
+    const destName = getDestinationName(dep.destination);
+    const displayLine = normalizeLineDisplay(dep.line);
+
+    const tripNumDisplay = formatTripNumber(dep.tripNumber, dep.line);
+
+    tr.dataset.mode = canonicalMode(dep.mode);
+    tr.dataset.dest = destName;
+    tr.dataset.trip = dep.tripNumber || '';
+    tr.dataset.line = dep.line || '';
+    tr.dataset.agencyId = dep.agencyId || '';
+    tr.dataset.agencyName = dep.agencyName || '';
+    tr.dataset.tripId = dep.tripId || '';
+    tr.dataset.vias = Array.isArray(dep.vias) ? dep.vias.join(' ') : '';
+    tr.dataset.scheduled = dep.scheduled || '';
+
+    let stationLabelHtml = '';
+    if (dep._fromStation && !dep._isMainStation) {
+      stationLabelHtml = `<div class="station-hint">${isArrivalsMode ? 'an' : 'ab'} ${escapeHtml(dep._fromStation)}</div>`;
+    }
+
+    const destDisplay = (!dep.destination && shouldLoadTripDetails)
+      ? '<span style="color:#999; font-style:italic;">Lade Zielbahnhof aus Trip…</span>'
+      : escapeHtml(destName);
+
+    const viaHtml = renderViaLine(dep.vias);
+
+    tr.innerHTML = `
+      <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
+        <div class="col-nr tripnr">${tripNumDisplay}</div>
+      </td>
+      <td class="col-dest">${destDisplay}${viaHtml}${stationLabelHtml}</td>
+      <td class="col-platform">${escapeHtml(dep.track)}</td>
+    `;
+    tr.onclick = () => toggleChain(tr, dep);
+    tbody.appendChild(tr);
+  });
+
+  applyFilters();
+}
+
+// ─── Fahrt-Chain 	─────────────────────────────────────────────────────────────
+
+async function toggleChain(tr, dep) {
+  const existing = tr.nextElementSibling;
+  if (existing && existing.classList.contains('chain-row')) {
+    existing.remove();
+    return;
+  }
+  document.querySelectorAll('.chain-row').forEach(r => r.remove());
+
+  if (!dep.tripId) {
+    alert('Keine Fahrtnummer (tripId) vorhanden – Fahrtverlauf nicht möglich.');
+    return;
+  }
+
+  const chainTr = document.createElement('tr');
+  chainTr.className = 'chain-row';
+  const td = document.createElement('td');
+  td.colSpan = 5;
+  td.innerHTML = '<div class="chain-wrap"><div class="chain-header">Lade Fahrtverlauf…</div></div>';
+  chainTr.appendChild(td);
+  tr.after(chainTr);
+
+  try {
+    const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
+    const data = await res.json();
+
+    if (data.error) {
+      td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler: ${escapeHtml(data.error)}</div></div>`;
+      return;
+    }
+
+    td.innerHTML = `<div class="chain-wrap">${renderChain(data)}</div>`;
+  } catch (err) {
+    td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler beim Laden: ${escapeHtml(err.message)}</div></div>`;
+  }
+}
+
+function getStopTime(stop) {
+  if (!stop) return 0;
+  return stop.departureSched || stop.departureLive || stop.arrivalSched || stop.arrivalLive || 0;
+}
+
+function togglePastLeg(btn) {
+  const legToggleWrap = btn.parentElement;
+  const legBody = legToggleWrap.nextElementSibling;
+  if (!legBody) return;
+
+  const isHidden = legBody.style.display === 'none';
+  legBody.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden 
+    ? '– Früheres Leg ausblenden' 
+    : btn.getAttribute('data-label-show');
+}
+
+function toggleFutureLeg(btn) {
+  const legToggleWrap = btn.parentElement;
+  const legContainer = legToggleWrap.nextElementSibling;
+  if (!legContainer) return;
+
+  const isHidden = legContainer.style.display === 'none';
+  legContainer.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden 
+    ? '– Weitere Legs ausblenden' 
+    : btn.getAttribute('data-label-show');
+}
+
+function togglePastStopsInLeg(btn) {
+  const legBody = btn.closest('.chain-leg-body');
+  if (!legBody) return;
+
+  const pastStops = legBody.querySelectorAll('.chain-past-stop');
+  if (pastStops.length === 0) return;
+
+  const isHidden = pastStops[0].style.display === 'none';
+  pastStops.forEach(el => {
+    el.style.display = isHidden ? 'flex' : 'none';
+  });
+
+  btn.textContent = isHidden 
+    ? '– Frühere Halte ausblenden' 
+    : btn.getAttribute('data-label-show');
+}
+
+function togglePastStops(btn) {
+  const chainWrap = btn.closest('.chain-wrap');
+  if (!chainWrap) return;
+
+  const pastStops = chainWrap.querySelectorAll('.chain-past-stop');
+  const pastSeparators = chainWrap.querySelectorAll('.chain-leg-separator');
+  if (pastStops.length === 0) return;
+
+  const isHidden = pastStops[0].style.display === 'none';
+
+  pastStops.forEach(el => {
+    el.style.display = isHidden ? 'flex' : 'none';
+  });
+
+  pastSeparators.forEach(el => {
+    if (el.nextElementSibling && el.nextElementSibling.classList.contains('chain-past-stop')) {
+      el.style.display = isHidden ? 'block' : 'none';
+    }
+  });
+
+  btn.textContent = isHidden 
+    ? 'Frühere Halte ausblenden' 
+    : `Gesamte Fahrt anzeigen (${pastStops.length} frühere Halte)`;
+}
