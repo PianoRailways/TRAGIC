@@ -388,6 +388,7 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('RV')) return 'RV';
   if (upper.startsWith('GATWICK EXPRESS')) return 'GX';
   if (upper.startsWith('ELIZABETH LINE')) return 'ELZ';
+  if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
