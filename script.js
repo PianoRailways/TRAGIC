@@ -66,12 +66,12 @@ function loadFavoritesFromStorage() {
   try {
     const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
     if (!stored) {
-      return cloneDefaultFavorites();
+      return [];
     }
 
     const parsed = JSON.parse(stored);
     if (!Array.isArray(parsed)) {
-      return cloneDefaultFavorites();
+      return [];
     }
 
     const seenStopIds = new Set();
@@ -99,7 +99,7 @@ function loadFavoritesFromStorage() {
         return true;
       });
   } catch (_) {
-    return cloneDefaultFavorites();
+    return [];
   }
 }
 
