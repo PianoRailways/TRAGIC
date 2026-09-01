@@ -888,12 +888,32 @@ function closeFavoritesView() {
   }
 }
 
+// ─── Home-View ────────────────────────────────────────────
+
+function renderHomeView() {
+  const homeView = document.getElementById('home-view');
+  if (homeView) {
+    homeView.style.display = 'flex';
+  }
+}
+
+function closeHomeView() {
+  const homeView = document.getElementById('home-view');
+  if (homeView) {
+    homeView.style.display = 'none';
+  }
+}
+
 function checkAndRenderView() {
   const viewParam = params.get('view');
   
-  if (viewParam === 'stations') {
+  if (!viewParam || viewParam === 'home') {
+    renderHomeView();
+  } else if (viewParam === 'stations') {
+    closeHomeView();
     renderStationsView();
   } else if (viewParam === 'favorites') {
+    closeHomeView();
     renderFavoritesView();
   }
 }
