@@ -1099,14 +1099,6 @@ p {
   opacity: 1;
 }
 
-.chain-future-leg-container {
-  /* Container for future legs that are collapsed */
-}
-
-.chain-future-leg-container .chain-stop {
-  /* Optional: Add any specific styling for future leg stops if needed */
-}
-
 /* ─── HAMBURGER-MENÜ ─────────────────────────────────────────── */
 
 .menu-overlay {
