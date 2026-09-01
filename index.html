@@ -117,42 +117,40 @@
         <input type="time" id="timePicker">
         <button id="btn-jetzt" title="Auf aktuelle Zeit setzen">JETZT</button>
         <button id="btn-refresh" title="Aktualisieren">GO</button>
-      </div>
-    </div>
 
-    <div class="departure-controls">
-      <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">Via: AUS</button>
+        <div class="filter-menu-wrap">
+          <button id="filter-menu-button" class="filter-menu-button" type="button" aria-expanded="false" aria-controls="departure-filter-popup" title="Filter öffnen">☰</button>
 
-      <div class="filter-menu-wrap">
-        <button id="filter-menu-button" class="filter-menu-button" type="button" aria-expanded="false" aria-controls="departure-filter-popup" title="Filter öffnen">☰</button>
+          <div id="departure-filter-popup" class="filter-popup" role="dialog" aria-label="Filtermenü">
+            <div class="filter-popup-inner">
+              <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">Via: AUS</button>
 
-        <div id="departure-filter-popup" class="filter-popup" role="dialog" aria-label="Filtermenü">
-          <div class="filter-popup-inner">
-            <!-- ═══════════════ VERKEHRSMITTEL-FILTER ═══════════════ -->
-            <nav id="mode-filter-bar">
-              <span class="mode-filter-label">Filter:</span>
-              <button id="btn-mode-all" class="mode-btn mode-all active" title="Alle Filter">Alle</button>
+              <!-- ═══════════════ VERKEHRSMITTEL-FILTER ═══════════════ -->
+              <nav id="mode-filter-bar">
+                <span class="mode-filter-label">Filter:</span>
+                <button id="btn-mode-all" class="mode-btn mode-all active" title="Alle Filter">Alle</button>
 
-              <!-- Meta-group buttons -->
-              <button id="btn-mode-rail-all" class="mode-btn mode-meta-btn" title="Alle Zugarten (Highspeed, Regional, Nacht)">🚄 Alle Züge</button>
-              <button id="btn-mode-urban" class="mode-btn mode-meta-btn" title="U-Bahn & Tram">🚈 Urban</button>
-              <button id="btn-mode-transit" class="mode-btn mode-meta-btn" title="Alle öffentlichen Verkehrsmittel">🚊 Alle ÖPNV</button>
+                <!-- Meta-group buttons -->
+                <button id="btn-mode-rail-all" class="mode-btn mode-meta-btn" title="Alle Zugarten (Highspeed, Regional, Nacht)">🚄 Alle Züge</button>
+                <button id="btn-mode-urban" class="mode-btn mode-meta-btn" title="U-Bahn & Tram">🚈 Urban</button>
+                <button id="btn-mode-transit" class="mode-btn mode-meta-btn" title="Alle öffentlichen Verkehrsmittel">🚊 Alle ÖPNV</button>
 
-              <!-- Individual mode buttons -->
-              <button class="mode-btn active" data-mode="HIGHSPEED" title="Hochgeschwindigkeit">Highspeed</button>
-              <button class="mode-btn active" data-mode="RAIL" title="Bahn">🚆 Bahn</button>
-              <button class="mode-btn active" data-mode="NIGHT" title="Nacht">🌙 Nacht</button>
-              <button class="mode-btn active" data-mode="SUBWAY" title="U-Bahn">🚇 U</button>
-              <button class="mode-btn active" data-mode="TRAM" title="Tram">🚊 Tram</button>
-              <button class="mode-btn active" data-mode="BUS" title="Bus">🚌 Bus</button>
-              <button class="mode-btn active" data-mode="FERRY" title="Schiff">⛴ Schiff</button>
-              <button class="mode-btn active" data-mode="GONDOLA" title="Seilbahn">🚡 Seilbahn</button>
-              <button class="mode-btn active" data-mode="OTHER" title="Andere">🚐 Andere</button>
-            </nav>
+                <!-- Individual mode buttons -->
+                <button class="mode-btn active" data-mode="HIGHSPEED" title="Hochgeschwindigkeit">Highspeed</button>
+                <button class="mode-btn active" data-mode="RAIL" title="Bahn">🚆 Bahn</button>
+                <button class="mode-btn active" data-mode="NIGHT" title="Nacht">🌙 Nacht</button>
+                <button class="mode-btn active" data-mode="SUBWAY" title="U-Bahn">🚇 U</button>
+                <button class="mode-btn active" data-mode="TRAM" title="Tram">🚊 Tram</button>
+                <button class="mode-btn active" data-mode="BUS" title="Bus">🚌 Bus</button>
+                <button class="mode-btn active" data-mode="FERRY" title="Schiff">⛴ Schiff</button>
+                <button class="mode-btn active" data-mode="GONDOLA" title="Seilbahn">🚡 Seilbahn</button>
+                <button class="mode-btn active" data-mode="OTHER" title="Andere">🚐 Andere</button>
+              </nav>
 
-            <!-- ═══════════════ ZIEL-FILTER ═══════════════ -->
-            <div id="dest-filter-row">
-              <input type="text" id="destFilter" placeholder="Filtern (z.B. Basel, IR26, 475)..." autocomplete="off">
+              <!-- ═══════════════ ZIEL-FILTER ═══════════════ -->
+              <div id="dest-filter-row">
+                <input type="text" id="destFilter" placeholder="Filtern (z.B. Basel, IR26, 475)..." autocomplete="off">
+              </div>
             </div>
           </div>
         </div>
