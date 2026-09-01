@@ -170,7 +170,118 @@ document.addEventListener('click', (e) => {
     const list = document.getElementById('suggestions');
     if (list) list.innerHTML = '';
   }
+
+  if (!e.target.closest('.home-search-panel')) {
+    const list = document.getElementById('home-suggestions');
+    if (list) list.innerHTML = '';
+  }
 });
+
+const homeQueryInput = document.getElementById('home-query');
+if (homeQueryInput) {
+  homeQueryInput.addEventListener('input', debounce(async (e) => {
+    const q = e.target.value.trim();
+    const list = document.getElementById('home-suggestions');
+    if (!list) return;
+    list.innerHTML = '';
+    if (q.length < 2) return;
+
+    try {
+      const abbrevMatches = [];
+      const qUpper = q.toUpperCase();
+      if (abbrevMap[qUpper]) {
+        for (const match of abbrevMap[qUpper]) {
+          try {
+            const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`);
+            const searchData = await searchRes.json();
+            const station = (searchData.stations || []).find(s => s.name.toLowerCase() === match.name.toLowerCase());
+
+            if (station) {
+              abbrevMatches.push({
+                id: station.id,
+                name: match.name,
+                abbrev: qUpper,
+                country: match.country,
+                source: 'abbrev'
+              });
+            }
+          } catch (_) {}
+        }
+      }
+
+      const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
+      const data = await res.json();
+
+      const apiMatches = (data.stations || []).map(st => {
+        const foundAbbrevs = getAbbrevsForName(st.name);
+        const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
+        return {
+          id: st.id,
+          name: st.name,
+          abbrev: primary ? primary.abbrev : null,
+          country: primary ? primary.country : null,
+          source: 'api'
+        };
+      });
+
+      const seen = new Set();
+      const allMatches = [...abbrevMatches, ...apiMatches];
+
+      allMatches.forEach(match => {
+        const key = (match.id || match.name).toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+
+        const li = document.createElement('li');
+        let html = escapeHtml(match.name);
+
+        if (match.abbrev) {
+          html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
+        }
+
+        if (match.id) {
+          html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
+        }
+
+        li.innerHTML = html;
+        li.onclick = () => selectStation(match.id, match.name, null);
+        list.appendChild(li);
+      });
+    } catch (err) {
+      setStatus('Fehler bei der Stationssuche: ' + err.message);
+    }
+  }, 350));
+
+  const homeSearchBtn = document.getElementById('home-search-btn');
+  if (homeSearchBtn) {
+    homeSearchBtn.addEventListener('click', async () => {
+      const q = homeQueryInput.value.trim();
+      const list = document.getElementById('home-suggestions');
+      if (!q) return;
+
+      if (list && list.children.length > 0) {
+        const firstItem = list.children[0];
+        firstItem.click();
+        return;
+      }
+
+      try {
+        const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        const stations = data.stations || [];
+        if (!stations.length) {
+          alert(`Station "${q}" nicht gefunden.`);
+          return;
+        }
+
+        const match = stations.find(s => s.name.toLowerCase() === q.toLowerCase()) || stations[0];
+        selectStation(match.id, match.name, null);
+      } catch (err) {
+        alert('Fehler bei der Stationssuche: ' + err.message);
+      }
+    });
+  }
+}
 
 // ─── Init aus URL ────────────────────────────────────────────────────────────
 

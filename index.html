@@ -72,30 +72,40 @@
   <!-- ═══════════════ HOME-VIEW ═══════════════ -->
   <div id="home-view" class="home-view" style="display:none;">
     <div class="home-container">
-      <div class="home-grid">
-        <a href="./?view=stations" class="home-tile home-tile-stations">
-          <div class="home-tile-content">
-            <div class="home-tile-icon"></div>
-            <div class="home-tile-label">Wichtige<br>Bahnhöfe</div>
+      <div class="home-shell">
+        <div class="home-grid">
+          <a href="./?view=stations" class="home-tile home-tile-stations">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">◫</div>
+              <div class="home-tile-label">Wichtige<br>Bahnhöfe</div>
+            </div>
+          </a>
+          <a href="./?view=departures" class="home-tile home-tile-departures">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">◫</div>
+              <div class="home-tile-label">Alle Bahnhöfe</div>
+            </div>
+          </a>
+          <a href="./?view=favorites" class="home-tile home-tile-favorites">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">★</div>
+              <div class="home-tile-label">Favoriten</div>
+            </div>
+          </a>
+          <a href="./?view=bvi" class="home-tile home-tile-empty">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">⚡</div>
+              <div class="home-tile-label">Ereignisse</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="home-search-panel" aria-label="Stationssuche">
+          <div class="home-search-row">
+            <input type="text" id="home-query" class="home-search-input" placeholder="Station suchen…" autocomplete="off" inputmode="search">
+            <button type="button" id="home-search-btn" class="home-search-btn" aria-label="Station suchen">⌕</button>
           </div>
-        </a>
-        <a href="./?view=departures" class="home-tile home-tile-departures">
-          <div class="home-tile-content">
-            <div class="home-tile-icon"></div>
-            <div class="home-tile-label">Abfahrten</div>
-          </div>
-        </a>
-        <a href="./?view=favorites" class="home-tile home-tile-favorites">
-          <div class="home-tile-content">
-            <div class="home-tile-icon"></div>
-            <div class="home-tile-label">Favoriten</div>
-          </div>
-        </a>
-        <div class="home-tile home-tile-empty">
-          <div class="home-tile-content">
-            <div class="home-tile-icon"></div>
-            <div class="home-tile-label">unknown</div>
-          </div>
+          <ul id="home-suggestions" class="home-suggestions"></ul>
         </div>
       </div>
     </div>
