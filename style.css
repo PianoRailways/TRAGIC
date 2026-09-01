@@ -94,9 +94,7 @@ body {
   color: #ffd700;
 }
 
-.btn-home:active {
-  background: rgba(255,215,0,0.3);
-}
+.btn-home:active {background: rgba(255,215,0,0.3);}
 
 #app-title,
 #app-title a {
@@ -145,23 +143,21 @@ body {
 }
 
 #btn-jetzt {
-    background: #444;
-    border: 1px solid #444;
+  background: #444;
+  border: 1px solid #444;
 	border-radius: 4px;
-    color: var(--text-main);
-    padding: 8px;
+  color: var(--text-main);
+  padding: 8px;
 	width: 25%;
-    border-radius: 2px;
-    cursor: pointer;
-    font-size: 0.9em;
-    line-height: 1;
-    transition: background 0.15s;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 0.9em;
+  line-height: 1;
+  transition: background 0.15s;
 	font-weight: bold;
 }
 
-#btn-jetzt:hover {
-	background: var(--sob-green);
-}
+#btn-jetzt:hover {background: var(--sob-green);}
 
 
 /* ── FAVORITEN-BAR ─────────────────────────────────────────── */
@@ -264,9 +260,7 @@ body {
   border-color: rgba(0, 170, 85, 0.45);
   color: var(--on-time);
 }
-.fav-reset-btn {
-  opacity: 0.9;
-}
+.fav-reset-btn {opacity: 0.9;}
 
 /* ── MODUS-FILTER-BAR ──────────────────────────────────────── */
 #mode-filter-bar {
@@ -324,11 +318,9 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.station-title {
-  font-weight: bold;
-}
+.station-title {font-weight: bold;}
 
-#search-box { position: relative; }
+#search-box {position: relative;}
 
 .time-picker-row {
   display: flex;
@@ -579,12 +571,7 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
 .chain-header b { color: var(--text-main); }
 
 .timeline { position: relative; padding-left: 0.9rem; }
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 0.22rem; top: 0.5rem; bottom: 0.5rem;
-  width: 2px; background: var(--border-soft);
-}
+.timeline::before {content: '';position: absolute;left: 0.22rem; top: 0.5rem; bottom: 0.5rem;width: 2px; background: var(--border-soft);}
 .stop {
   position: relative;
   padding: 0.4rem 0 0.4rem 0.7rem;
@@ -640,10 +627,7 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   overflow: hidden;
 }
 
-.agency-row a {
-  color: var(--link-hover);
-  text-decoration: none;
-}
+.agency-row a {color: var(--link-hover);text-decoration: none}
 
 /* Neuer Container für den Inhalt */
 .agency-content {
@@ -684,24 +668,15 @@ tr.chain-row td { background: var(--bg-chain); padding: 0; }
   white-space: normal;
 }
 @media (max-width: 480px) {
-  .line {
-    max-width: 70px;
-  }
-  .tripnr {
-    max-width: 90px;
-  }
+  .line {max-width: 70px;}
+  .tripnr {max-width: 90px;}
 }
 @media (max-width: 360px) {
   th, td { font-size: 0.88rem; padding: 0.45rem 0.3rem; }
 }
-a {
-  color: none;
-  text-decoration: none;
-}
 
-p {
-  margin: 3px;
-}
+a {color: none;text-decoration: none;}
+p {margin: 3px;}
 
 .page-footer {
   text-decoration: none;
@@ -872,9 +847,7 @@ p {
   line-height: 1.6;
 }
  
-.meta-journeyref {
-  color: rgba(255,255,255,0.45);
-}
+.meta-journeyref {color: rgba(255,255,255,0.45);}
 
 .boarding-badge {
   color: #91a7bd;
@@ -901,12 +874,7 @@ p {
   font-weight: 500;
 }
 
-.chain-leg-separator strong {
-  color: var(--color-text);
-}
-
-
-
+.chain-leg-separator strong {color: var(--color-text);}
 
 /* ─── Calendar Export Button ─── */
 
@@ -1039,9 +1007,7 @@ p {
   }
 }
 .chain-leg-toggle-wrap,
-.chain-stops-toggle-wrap {
-  margin: 6px 0 6px 28px;
-}
+.chain-stops-toggle-wrap {margin: 6px 0 6px 28px;}
 
 .btn-toggle-past-leg,
 .btn-toggle-past {
@@ -1081,23 +1047,13 @@ p {
   border-color: rgba(255, 255, 255, 0.35);
 }
 
-.chain-stop.chain-past-stop {
-  opacity: 0.82;
-  transition: opacity 0.15s ease;
-}
+.chain-stop.chain-past-stop {opacity: 0.82;transition: opacity 0.15s ease;}
 
-.chain-stop.chain-past-stop:hover {
-  opacity: 1;
-}
+.chain-stop.chain-past-stop:hover {opacity: 1;}
 
-.chain-past-leg-body .chain-stop {
-  opacity: 0.82;
-  transition: opacity 0.15s ease;
-}
+.chain-past-leg-body .chain-stop {opacity: 0.82;transition: opacity 0.15s ease;}
 
-.chain-past-leg-body .chain-stop:hover {
-  opacity: 1;
-}
+.chain-past-leg-body .chain-stop:hover {opacity: 1;}
 
 /* ─── HAMBURGER-MENÜ ─────────────────────────────────────────── */
 
@@ -1114,10 +1070,7 @@ p {
   transition: opacity 0.3s ease;
 }
 
-.menu-overlay.active {
-  display: block;
-  opacity: 1;
-}
+.menu-overlay.active {display: block;opacity: 1;}
 
 .menu-sidebar {
   position: fixed;
@@ -1136,9 +1089,7 @@ p {
   transition: transform 0.3s ease;
 }
 
-.menu-sidebar.active {
-  transform: translateX(0);
-}
+.menu-sidebar.active {transform: translateX(0);}
 
 .menu-header {
   display: flex;
@@ -1162,9 +1113,7 @@ p {
   -webkit-tap-highlight-color: transparent;
 }
 
-.btn-menu-close:hover {
-  color: var(--link-hover);
-}
+.btn-menu-close:hover {color: var(--link-hover);}
 
 .menu-title {
   margin: 0;
@@ -1184,9 +1133,7 @@ p {
   overflow-y: auto;
 }
 
-.menu-list li {
-  display: flex;
-}
+.menu-list li {display: flex;}
 
 .menu-list li.menu-divider {
   height: 1px;
@@ -1219,18 +1166,9 @@ p {
 
 /* Mobile Anpassungen */
 @media (max-width: 600px) {
-  .menu-sidebar {
-    width: 240px;
-  }
-
-  .menu-link {
-    padding: 12px 14px;
-    font-size: 0.9em;
-  }
-
-  .menu-title {
-    font-size: 1em;
-  }
+  .menu-sidebar {width: 240px;}
+  .menu-link {padding: 12px 14px;font-size: 0.9em;}
+  .menu-title {font-size: 1em;}
 }
 
 /* ─── STATIONS-OVERLAY ─────────────────────────────────────────── */
@@ -1284,9 +1222,7 @@ p {
   -webkit-tap-highlight-color: transparent;
 }
 
-.btn-close-stations:hover {
-  color: var(--link-hover);
-}
+.btn-close-stations:hover {color: var(--link-hover);}
 
 .stations-list {
   list-style: none;
@@ -1297,9 +1233,7 @@ p {
   -webkit-overflow-scrolling: touch;
 }
 
-.stations-list li {
-  display: flex;
-}
+.stations-list li {display: flex;}
 
 .stations-item {
   flex: 1;
@@ -1320,9 +1254,7 @@ p {
   color: var(--on-time);
 }
 
-.stations-item:last-child {
-  border-bottom: none;
-}
+.stations-item:last-child {border-bottom: none;}
 
 /* ─── HOME-VIEW ─────────────────────────────────────────── */
 
@@ -1427,23 +1359,14 @@ p {
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
 }
 
-.home-tile-favorites:hover {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);
-  border-color: #ffd700;
-}
+.home-tile-favorites:hover {background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);border-color: #ffd700;}
 
-.home-tile-departures {
-  background: linear-gradient(135deg, rgba(235, 0, 0, 0.1) 0%, rgba(235, 0, 0, 0.05) 100%);
-}
+.home-tile-departures {background: linear-gradient(135deg, rgba(235, 0, 0, 0.1) 0%, rgba(235, 0, 0, 0.05) 100%);}
 
-.home-tile-departures:hover {
-  background: linear-gradient(135deg, rgba(235, 0, 0, 0.15) 0%, rgba(235, 0, 0, 0.1) 100%);
-  border-color: var(--sbb-red);
-}
+.home-tile-departures:hover {background: linear-gradient(135deg, rgba(235, 0, 0, 0.15) 0%, rgba(235, 0, 0, 0.1) 100%);border-color: var(--sbb-red);}
 
 .home-tile-stations {
-  background: linear-gradient(135deg, rgba(45, 50, 125, 0.1) 0%, rgba(45, 50, 125, 0.05) 100%);
-}
+  background: linear-gradient(135deg, rgba(45, 50, 125, 0.1) 0%, rgba(45, 50, 125, 0.05) 100%);}
 
 .home-tile-stations:hover {
   background: linear-gradient(135deg, rgba(45, 50, 125, 0.15) 0%, rgba(45, 50, 125, 0.1) 100%);
@@ -1469,37 +1392,12 @@ p {
 
 /* Mobile Anpassungen */
 @media (max-width: 600px) {
-  .home-container {
-    padding: 16px;
-  }
-
-  .home-grid {
-    gap: 12px;
-  }
-
-  .home-tile {
-    min-height: 120px;
-    padding: 16px;
-  }
-
-  .home-tile-icon {
-    font-size: 2em;
-  }
-
-  .home-tile-label {
-    font-size: 1em;
-  }
-
-  .stations-header {
-    padding: 12px 14px;
-  }
-
-  .stations-header h2 {
-    font-size: 1em;
-  }
-
-  .stations-item {
-    padding: 14px 14px;
-    font-size: 0.95em;
-  }
+  .home-container {padding: 16px;}
+  .home-grid {gap: 12px;}
+  .home-tile {min-height: 120px;padding: 16px;}
+  .home-tile-icon {font-size: 2em;}
+  .home-tile-label {font-size: 1em;}
+  .stations-header {padding: 12px 14px;}
+  .stations-header h2 {font-size: 1em;}
+  .stations-item {padding: 14px 14px;font-size: 0.95em;}
 }
