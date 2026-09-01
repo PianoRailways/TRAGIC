@@ -907,7 +907,7 @@ function closeHomeView() {
 function checkAndRenderView() {
   const viewParam = params.get('view');
   
-  if (!viewParam || viewParam === 'home') {
+  if (viewParam === 'home') {
     renderHomeView();
   } else if (viewParam === 'stations') {
     closeHomeView();
@@ -916,6 +916,8 @@ function checkAndRenderView() {
     closeHomeView();
     renderFavoritesView();
   }
+  // Für alle anderen Views (departures, arrivals, settings, oder keine View) nichts machen
+  // Die default Panel wird sowieso angezeigt
 }
 
 document.addEventListener('DOMContentLoaded', () => {
