@@ -272,7 +272,7 @@ body {
   margin-bottom: 4px;
 }
 .mode-filter-label {
-  font-size: 0.75em;
+  font-size: 0.8rem;
   color: var(--text-muted);
   margin-right: 2px;
   flex-shrink: 0;
@@ -362,9 +362,9 @@ h1 {
   top: calc(100% + 0.5rem);
   width: 240px;
   height: 470px;
-  background: rgba(16, 20, 28, 0.96);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
+  background: var(--bg-main);
+  border: 1px solid var(--text-muted);
+  border-radius: 4px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   overflow: hidden;
   z-index: 70;
