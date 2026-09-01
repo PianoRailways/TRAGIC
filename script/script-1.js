@@ -898,6 +898,12 @@ function renderHomeView() {
   if (homeView) {
     homeView.style.display = 'flex';
   }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'home') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
+  }
 }
 
 function closeHomeView() {

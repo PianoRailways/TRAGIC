@@ -322,6 +322,7 @@ function selectStation(stopId, name, refEpoch) {
     return;
   }
 
+  closeHomeView();
   currentStopId = stopId;
   currentStationName = name;
   currentMainStationId = stopId;
@@ -338,6 +339,7 @@ function selectStation(stopId, name, refEpoch) {
   const currentEpoch = getSelectedEpoch();
 
   const url = new URL(location.href);
+  url.searchParams.set('view', 'departures');
   url.searchParams.set('stopId', stopId);
   
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
