@@ -490,7 +490,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   vertical-align: middle;
   text-overflow: ellipsis;
 }
-.col-dest  { width: auto; white-space: normal; }
+.col-dest  { width: auto; white-space: normal; font-weight:500 }
 .via {
   display: block;
   margin-top: 2px;
