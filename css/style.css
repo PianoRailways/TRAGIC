@@ -492,7 +492,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   font-family: monospace;
   color: var(--text-muted);
   font-weight: bold;
-  font-size: xx-small;
+  font-size: x-small;
   flex: 1;
   text-align: center;
   flex-shrink: 0;
@@ -798,6 +798,7 @@ p {margin: 3px;}
   padding: 0.4rem 0;
   position: relative;
   min-width: 0;
+  border-top: 1px solid #444;
 }
  
 .chain-stop.chain-cancelled {
