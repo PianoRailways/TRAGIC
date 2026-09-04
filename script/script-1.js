@@ -430,15 +430,9 @@ function getAbbrevsForName(stationName) {
 let geolocationSupported = 'geolocation' in navigator;
 
 function toggleNearbyView() {
-  const nearbyView = document.getElementById('nearby-view');
-  if (!nearbyView) return;
-  
-  if (nearbyView.style.display === 'flex') {
-    closeNearbyView();
-    return;
-  }
-  
-  const btn = document.getElementById('btn-nearby');
+  const homeView = document.getElementById('home-view');
+  const homeIsVisible = homeView && homeView.style.display === 'flex';
+  const btn = document.getElementById(homeIsVisible ? 'home-btn-nearby' : 'btn-nearby');
   if (!btn) return;
   
   btn.disabled = true;
@@ -477,62 +471,33 @@ async function fetchNearbyStations(lat, lon) {
       return;
     }
     
-    renderNearbyView(stations);
+    renderNearbySuggestions(stations);
   } catch (err) {
     console.error('Error fetching nearby stations:', err);
     alert('Fehler beim Laden der Stationen: ' + err.message);
   }
 }
 
-function renderNearbyView(stations) {
-  const nearbyView = document.getElementById('nearby-view');
-  const nearbyList = document.getElementById('nearby-list');
-  
-  if (!nearbyView || !nearbyList) return;
-  
-  nearbyList.innerHTML = '';
+function renderNearbySuggestions(stations) {
+  const homeView = document.getElementById('home-view');
+  const homeIsVisible = homeView && homeView.style.display === 'flex';
+  const list = document.getElementById(homeIsVisible ? 'home-suggestions' : 'suggestions');
+
+  if (!list) return;
+
+  list.innerHTML = '';
   
   stations.forEach(station => {
     const li = document.createElement('li');
     
-    const itemContainer = document.createElement('div');
-    itemContainer.style.display = 'flex';
-    itemContainer.style.flex = '1';
-    itemContainer.style.flexDirection = 'column';
-    itemContainer.style.gap = '4px';
-    
-    const link = document.createElement('a');
-    link.className = 'stations-item';
-    link.href = 'javascript:void(0);';
-    link.textContent = station.name;
-    link.style.flex = '1';
-    
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      selectStation(station.id, station.name, null);
-      closeNearbyView();
-    });
-    
-    const distanceLabel = document.createElement('div');
-    distanceLabel.style.fontSize = '0.85em';
-    distanceLabel.style.color = '#888';
-    const distance = station.distance ? Math.round(station.distance) : '?';
-    distanceLabel.textContent = `${distance}m entfernt`;
-    
-    itemContainer.appendChild(link);
-    itemContainer.appendChild(distanceLabel);
-    li.appendChild(itemContainer);
-    nearbyList.appendChild(li);
-  });
-  
-  nearbyView.style.display = 'flex';
-}
+    const distance = station.distance == null ? '?' : `${Math.round(station.distance)}m entfernt`;
+    li.innerHTML = `${escapeHtml(station.name)} <span class="suggestion-distance">${escapeHtml(distance)}</span>`;
 
-function closeNearbyView() {
-  const nearbyView = document.getElementById('nearby-view');
-  if (nearbyView) {
-    nearbyView.style.display = 'none';
-  }
+    li.addEventListener('click', () => {
+      selectStation(station.id, station.name, null);
+    });
+    list.appendChild(li);
+  });
 }
 
 // ─── Hamburger-Menü ─────────────────────────────────────────
@@ -758,21 +723,17 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCloseFavorites.addEventListener('click', closeFavoritesView);
   }
 
-  // Nearby-View Event-Listener
+  // Nearby-Button Event-Listener
   const btnNearby = document.getElementById('btn-nearby');
-  if (btnNearby) {
+  const nearbyButtons = [btnNearby, document.getElementById('home-btn-nearby')].filter(Boolean);
+  nearbyButtons.forEach(button => {
     if (!geolocationSupported) {
-      btnNearby.disabled = true;
-      btnNearby.title = 'Geolocation wird von diesem Browser nicht unterstützt';
+      button.disabled = true;
+      button.title = 'Geolocation wird von diesem Browser nicht unterstützt';
     } else {
-      btnNearby.addEventListener('click', toggleNearbyView);
+      button.addEventListener('click', toggleNearbyView);
     }
-  }
-
-  const btnCloseNearby = document.getElementById('btn-close-nearby');
-  if (btnCloseNearby) {
-    btnCloseNearby.addEventListener('click', closeNearbyView);
-  }
+  });
 
   // Check for view parameter and render accordingly
   checkAndRenderView();

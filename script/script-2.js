@@ -330,6 +330,8 @@ function selectStation(stopId, name, refEpoch) {
   
   const list = document.getElementById('suggestions');
   if (list) list.innerHTML = '';
+  const homeList = document.getElementById('home-suggestions');
+  if (homeList) homeList.innerHTML = '';
   if (queryInput) queryInput.value = '';
 
   if (refEpoch) {

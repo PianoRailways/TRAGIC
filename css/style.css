@@ -195,26 +195,6 @@ body {
   color: #666;
 }
 
-/* ═══════════════ NEARBY OVERLAY ═══════════════ */
-
-#nearby-view {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9000;
-}
-
-#nearby-view.stations-view {
-  flex-direction: column;
-  padding: 20px;
-}
-
 .stations-view .stations-container {
   background: var(--bg-primary, #0a0a0a);
   border: 1px solid #333;
@@ -488,7 +468,19 @@ h1 {
 }
 .station-title {font-weight: bold;}
 
-#search-box {position: relative;}
+#search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#search-box #query {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#search-box .btn-nearby {
+  margin-left: 0;
+}
 
 .time-picker-row {
   display: flex;
@@ -629,7 +621,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   margin: 0.2rem 0 0;
   padding: 0;
   position: absolute;
-  left: 0; right: 0;
+  left: 0;
+  right: 42px;
   background: var(--bg-surface);
   z-index: 20;
   max-height: 55vh;
@@ -654,6 +647,14 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   color: var(--text-muted);
   margin-left: auto;
   font-weight: normal;
+  flex-shrink: 0;
+}
+.suggestion-distance {
+  display: inline;
+  font-size: 0.78em;
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 .abbrev-label {
@@ -1655,6 +1656,10 @@ p {margin: 3px;}
 
 .home-search-btn:hover {
   background: var(--sbb-blue);
+}
+
+.home-search-row .btn-nearby {
+  margin-left: 6px;
 }
 
 .home-suggestions {
