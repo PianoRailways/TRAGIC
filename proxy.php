@@ -28,14 +28,12 @@ function callTransitous(string $path, array $params): array {
     $raw = @file_get_contents($url, false, $ctx);
 
     if ($raw === false) {
-        http_response_code(502);
         return ['error' => 'Transitous nicht erreichbar', 'url' => $url];
     }
 
     $data = json_decode($raw, true);
     if ($data === null) {
-        http_response_code(502);
-        return ['error' => 'Ungültige Antwort von Transitous', 'raw' => substr($raw, 0, 500)];
+        return ['error' => 'Ungültige Antwort von Transitous', 'raw' => substr($raw, 0, 200)];
     }
 
     return $data;
@@ -457,13 +455,19 @@ if ($action === 'reverse-geocode') {
         // Berechne Distanz falls nicht vorhanden
         $distance = $place['distance'] ?? null;
         if ($distance === null && isset($place['lat']) && isset($place['lon'])) {
-            // Haversine distance approximation
-            $dLat = deg2rad($place['lat'] - $lat);
-            $dLon = deg2rad($place['lon'] - $lon);
-            $a = sin($dLat/2) * sin($dLat/2) +
-                 cos(deg2rad($lat)) * cos(deg2rad($place['lat'])) *
-                 sin($dLon/2) * sin($dLon/2);
-            $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+            // Haversine distance approximation (in Metern)
+            $placeLatRad = deg2rad($place['lat']);
+            $placeLonRad = deg2rad($place['lon']);
+            $refLatRad = deg2rad($lat);
+            $refLonRad = deg2rad($lon);
+            
+            $dLat = $placeLatRad - $refLatRad;
+            $dLon = $placeLonRad - $refLonRad;
+            
+            $a = sin($dLat / 2) * sin($dLat / 2) +
+                 cos($refLatRad) * cos($placeLatRad) *
+                 sin($dLon / 2) * sin($dLon / 2);
+            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
             $distance = round(6371000 * $c);  // Earth radius in meters
         }
 
@@ -484,16 +488,18 @@ if ($action === 'reverse-geocode') {
     });
 
     // Filter by radius (Sicherheit)
-    $stations = array_filter($stations, function ($s) use ($radius) {
-        return $s['distance'] === null || $s['distance'] <= $radius;
-    });
-    $stations = array_values($stations);  // Re-index
+    $filtered = [];
+    foreach ($stations as $s) {
+        if ($s['distance'] === null || $s['distance'] <= $radius) {
+            $filtered[] = $s;
+        }
+    }
 
     echo json_encode([
         'lat'      => $lat,
         'lon'      => $lon,
         'radius'   => $radius,
-        'stations' => $stations,
+        'stations' => $filtered,
         '_raw_count' => count($rawPlaces),
     ]);
     exit;
