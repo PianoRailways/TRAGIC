@@ -69,6 +69,17 @@
     </div>
   </div>
 
+  <!-- ═══════════════ NEARBY-OVERLAY ═══════════════ -->
+  <div id="nearby-view" class="stations-view" style="display:none;">
+    <div class="stations-container">
+      <div class="stations-header">
+        <h2>Stationen in der Nähe</h2>
+        <button id="btn-close-nearby" class="btn-close-stations" title="Schließen">✕</button>
+      </div>
+      <ul id="nearby-list" class="stations-list"></ul>
+    </div>
+  </div>
+
   <!-- ═══════════════ HOME-VIEW ═══════════════ -->
   <div id="home-view" class="home-view" style="display:none;">
     <div class="home-container">
@@ -121,6 +132,7 @@
       <div id="search-box">
         <input type="text" id="query" placeholder="Station suchen…" autocomplete="off" inputmode="search">
         <ul id="suggestions"></ul>
+        <button id="btn-nearby" class="btn-nearby" title="Stationen in der Nähe (300m)">📍</button>
       </div>
       <div class="time-picker-row">
         <input type="date" id="datePicker">
