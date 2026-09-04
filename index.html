@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="line-container.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="tragic.png">
-    <link rel="apple-touch-icon" href="tragic.png">
+    <link rel="stylesheet" href="./css/line-container.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="icon" type="image/png" href="./tragic.png">
+    <link rel="apple-touch-icon" href="./tragic.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,7 +16,8 @@
   <!-- ═══════════════ HEADER ═══════════════ -->
   <header id="app-header">
     <div id="header-left">
-      <button id="btn-home" onClick="window.location = './?stopId=ch-opentransportdataswiss26_Parentch%3A1%3Asloid%3A82597'" title="Startseite">⌂ Home</button>
+      <button id="btn-menu-toggle" class="btn-menu-toggle" title="Menü öffnen">☰</button>
+      <a id="btn-home" href="./?view=home" class="btn-home" title="Startseite">⌂</a>
     </div>
     <div id="header-center"><span id="live-clock" onClick="window.location = './'">18:04:69</span></div>
     <div id="header-right">
@@ -24,51 +25,151 @@
     </div>
   </header>
 
+  <!-- ═══════════════ HAMBURGER-MENÜ ═══════════════ -->
+  <div id="menu-overlay" class="menu-overlay"></div>
+  <nav id="menu-sidebar" class="menu-sidebar">
+    <div class="menu-header">
+      <button id="btn-menu-close" class="btn-menu-close" title="Menü schließen">✕</button>
+      <h2 class="menu-title">OMNI</h2>
+    </div>
+    <ul class="menu-list">
+      <li><a href="./?view=home" class="menu-link">Startseite</a></li>
+      <li><a href="./?view=stations" class="menu-link">Wichtige Bahnhöfe</a></li>
+      <li><a href="./?view=departures" class="menu-link">Abfahrten</a></li>
+      <li><a href="./?view=arrivals&arrivals=true" class="menu-link">Ankünfte</a></li>
+      <li><a href="./?view=favorites" class="menu-link">Favoriten</a></li>
+      <li><a href="./?view=bvi" class="menu-link">Ereignisse</a></li>
+
+      <li class="menu-divider"></li>
+      <li><a href="/routing" class="menu-link">Routing</a></li>
+      <li><a href="./?view=settings" class="menu-link">Einstellungen</a></li>
+      <li><a href="./?view=help" class="menu-link">Hilfe</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══════════════ STATIONS-OVERLAY ═══════════════ -->
+  <div id="stations-view" class="stations-view" style="display:none;">
+    <div class="stations-container">
+      <div class="stations-header">
+        <h2>Wichtige Bahnhöfe</h2>
+        <button id="btn-close-stations" class="btn-close-stations" title="Schließen">✕</button>
+      </div>
+      <ul id="stations-list" class="stations-list"></ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════ FAVORITEN-OVERLAY ═══════════════ -->
+  <div id="favorites-view" class="stations-view" style="display:none;">
+    <div class="stations-container">
+      <div class="stations-header">
+        <h2>Favoriten</h2>
+        <button id="btn-close-favorites" class="btn-close-stations" title="Schließen">✕</button>
+      </div>
+      <ul id="favorites-list" class="stations-list"></ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════ HOME-VIEW ═══════════════ -->
+  <div id="home-view" class="home-view" style="display:none;">
+    <div class="home-container">
+      <div class="home-shell">
+        <div class="home-grid">
+          <a href="./?view=stations" class="home-tile home-tile-stations">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">◫</div>
+              <div class="home-tile-label">Wichtige<br>Bahnhöfe</div>
+            </div>
+          </a>
+          <a href="./?view=departures" class="home-tile home-tile-departures">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">◫</div>
+              <div class="home-tile-label">Alle Bahnhöfe</div>
+            </div>
+          </a>
+          <a href="./?view=favorites" class="home-tile home-tile-favorites">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">★</div>
+              <div class="home-tile-label">Favoriten</div>
+            </div>
+          </a>
+          <a href="./?view=bvi" class="home-tile home-tile-empty">
+            <div class="home-tile-content">
+              <div class="home-tile-icon">⚡</div>
+              <div class="home-tile-label">Ereignisse</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="home-search-panel" aria-label="Stationssuche">
+          <div class="home-search-row">
+            <input type="text" id="home-query" class="home-search-input" placeholder="Station suchen…" autocomplete="off" inputmode="search">
+            <button type="button" id="home-search-btn" class="home-search-btn" aria-label="Station suchen">⌕</button>
+            <button type="button" id="home-btn-nearby" class="btn-nearby" title="Stationen in der Nähe (300m)" aria-label="Stationen in der Nähe">📍</button>
+          </div>
+          <ul id="home-suggestions" class="home-suggestions"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="panel">
     <!-- ═══════════════ FAVORITEN ═══════════════ -->
     <nav id="fav-bar" aria-label="Favoriten"></nav>
-
+    
     <!-- ═══════════════ TOPBAR ═══════════════ -->
     <div class="topbar">
       <div id="stationTitle" class="station-title">Station wählen</div>
       <div id="search-box">
         <input type="text" id="query" placeholder="Station suchen…" autocomplete="off" inputmode="search">
         <ul id="suggestions"></ul>
+        <button id="btn-nearby" class="btn-nearby" title="Stationen in der Nähe (300m)">📍</button>
       </div>
       <div class="time-picker-row">
         <input type="date" id="datePicker">
         <input type="time" id="timePicker">
         <button id="btn-jetzt" title="Auf aktuelle Zeit setzen">JETZT</button>
         <button id="btn-refresh" title="Aktualisieren">GO</button>
+
+        <div class="filter-menu-wrap">
+          <button id="filter-menu-button" class="filter-menu-button" type="button" aria-expanded="false" aria-controls="departure-filter-popup" title="Filter öffnen">
+            <span aria-hidden="true">☰</span>
+            <span class="filter-indicator" aria-hidden="true"></span>
+          </button>
+
+          <div id="departure-filter-popup" class="filter-popup" role="dialog" aria-label="Filtermenü">
+            <div class="filter-popup-inner">
+              <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">Via: AUS</button>
+
+              <!-- ═══════════════ VERKEHRSMITTEL-FILTER ═══════════════ -->
+              <nav id="mode-filter-bar">
+                <span class="mode-filter-label">Filter:</span>
+                <button id="btn-mode-all" class="mode-btn mode-all active" title="Alle Filter">Alle</button>
+
+                <!-- Meta-group buttons -->
+                <button id="btn-mode-rail-all" class="mode-btn mode-meta-btn" title="Alle Zugarten (Highspeed, Regional, Nacht)">🚄 Alle Züge</button>
+                <button id="btn-mode-urban" class="mode-btn mode-meta-btn" title="U-Bahn & Tram">🚈 Urban</button>
+                <button id="btn-mode-transit" class="mode-btn mode-meta-btn" title="Alle öffentlichen Verkehrsmittel">🚊 Alle ÖPNV</button>
+
+                <!-- Individual mode buttons -->
+                <button class="mode-btn active" data-mode="HIGHSPEED" title="Hochgeschwindigkeit">Highspeed</button>
+                <button class="mode-btn active" data-mode="RAIL" title="Bahn">🚆 Bahn</button>
+                <button class="mode-btn active" data-mode="NIGHT" title="Nacht">🌙 Nacht</button>
+                <button class="mode-btn active" data-mode="SUBWAY" title="U-Bahn">🚇 U</button>
+                <button class="mode-btn active" data-mode="TRAM" title="Tram">🚊 Tram</button>
+                <button class="mode-btn active" data-mode="BUS" title="Bus">🚌 Bus</button>
+                <button class="mode-btn active" data-mode="FERRY" title="Schiff">⛴ Schiff</button>
+                <button class="mode-btn active" data-mode="GONDOLA" title="Seilbahn">🚡 Seilbahn</button>
+                <button class="mode-btn active" data-mode="OTHER" title="Andere">🚐 Andere</button>
+              </nav>
+
+              <!-- ═══════════════ ZIEL-FILTER ═══════════════ -->
+              <div id="dest-filter-row">
+                <input type="text" id="destFilter" placeholder="Filtern (z.B. Basel, IR26, 475)..." autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <!-- ═══════════════ VERKEHRSMITTEL-FILTER ═══════════════ -->
-    <nav id="mode-filter-bar">
-      <span class="mode-filter-label">Filter:</span>
-      <button id="btn-mode-all" class="mode-btn mode-all active" title="Alle Filter">Alle</button>
-      
-      <!-- Meta-group buttons -->
-      <button id="btn-mode-rail-all" class="mode-btn mode-meta-btn" title="Alle Zugarten (Highspeed, Regional, Nacht)">🚄 Alle Züge</button>
-      <button id="btn-mode-urban" class="mode-btn mode-meta-btn" title="U-Bahn & Tram">🚈 Urban</button>
-      <button id="btn-mode-transit" class="mode-btn mode-meta-btn" title="Alle öffentlichen Verkehrsmittel">🚊 Alle ÖPNV</button>
-      
-      <!-- Individual mode buttons -->
-      <button class="mode-btn active" data-mode="HIGHSPEED" title="Hochgeschwindigkeit">Highspeed</button>
-      <button class="mode-btn active" data-mode="RAIL" title="Bahn">🚆 Bahn</button>
-      <button class="mode-btn active" data-mode="NIGHT" title="Nacht">🌙 Nacht</button>
-      <button class="mode-btn active" data-mode="SUBWAY" title="U-Bahn">🚇 U</button>
-      <button class="mode-btn active" data-mode="TRAM" title="Tram">🚊 Tram</button>
-      <button class="mode-btn active" data-mode="BUS" title="Bus">🚌 Bus</button>
-      <button class="mode-btn active" data-mode="FERRY" title="Schiff">⛴ Schiff</button>
-      <button class="mode-btn active" data-mode="GONDOLA" title="Seilbahn">🚡 Seilbahn</button>
-      <button class="mode-btn active" data-mode="OTHER" title="Andere">🚐 Andere</button>
-    </nav>
-
-    <!-- ═══════════════ ZIEL-FILTER ═══════════════ -->
-    <div id="dest-filter-row">
-      <input type="text" id="destFilter" placeholder="Filtern (z.B. Basel, IR26, 475)..." autocomplete="off">
-      <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">$vias</button>
     </div>
     <hr>
     <div id="status"></div>
@@ -102,7 +203,46 @@
       <button id="btn-later-bottom" class="nav-btn nav-btn-later">Später →</button>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./script/script-1.js"></script>
+    <script src="./script/script-chain.js"></script>
+    <script src="./script/script-2.js"></script>
+    <script src="./script/script-cal.js"></script>
+    <script>
+      (function () {
+        const menuButton = document.getElementById('filter-menu-button');
+        const popup = document.getElementById('departure-filter-popup');
+
+        if (menuButton && popup) {
+          const closePopup = () => {
+            popup.classList.remove('is-open');
+            menuButton.setAttribute('aria-expanded', 'false');
+          };
+
+          menuButton.addEventListener('click', function (event) {
+            event.stopPropagation();
+            const isOpen = popup.classList.contains('is-open');
+            if (isOpen) {
+              closePopup();
+            } else {
+              popup.classList.add('is-open');
+              menuButton.setAttribute('aria-expanded', 'true');
+            }
+          });
+
+          document.addEventListener('click', function (event) {
+            if (!popup.contains(event.target) && !menuButton.contains(event.target)) {
+              closePopup();
+            }
+          });
+
+          document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+              closePopup();
+            }
+          });
+        }
+      })();
+    </script>
   </div>
 
   <footer class="page-footer">

@@ -28,14 +28,12 @@ function callTransitous(string $path, array $params): array {
     $raw = @file_get_contents($url, false, $ctx);
 
     if ($raw === false) {
-        http_response_code(502);
         return ['error' => 'Transitous nicht erreichbar', 'url' => $url];
     }
 
     $data = json_decode($raw, true);
     if ($data === null) {
-        http_response_code(502);
-        return ['error' => 'Ungültige Antwort von Transitous', 'raw' => substr($raw, 0, 500)];
+        return ['error' => 'Ungültige Antwort von Transitous', 'raw' => substr($raw, 0, 200)];
     }
 
     return $data;
@@ -373,5 +371,136 @@ if ($action === 'trip') {
     exit;
 }
 
+// ─────────────────────────── reverse-geocode --
+if ($action === 'reverse-geocode') {
+    $lat = trim($_GET['lat'] ?? '');
+    $lon = trim($_GET['lon'] ?? '');
+    $radius = (int)($_GET['radius'] ?? 900);
+
+    if ($lat === '' || $lon === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Parameter "lat" und "lon" erforderlich']);
+        exit;
+    }
+
+    if (!is_numeric($lat) || !is_numeric($lon)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Koordinaten müssen numerisch sein']);
+        exit;
+    }
+
+    $lat = (float)$lat;
+    $lon = (float)$lon;
+    $radius = max(100, min($radius, 5000));
+
+    // Strategy 1: Versuche reverse-geocode (primary)
+    $result = callTransitous('/api/v1/reverse-geocode', [
+        'place'      => $lat . ',' . $lon,
+        'type'       => 'STOP',
+        'numResults' => 50,
+    ]);
+
+    $stations = [];
+    $rawPlaces = [];
+
+    // Falls Fehler: Fallback Strategy 2
+    if (isset($result['error'])) {
+        error_log("reverse-geocode failed ({$result['error']}), trying map/stops fallback");
+        
+        // Fallback: Nutze map/stops endpoint mit BBox.
+        $radiusDeg = $radius / 111000;
+
+        $result = callTransitous('/api/v6/map/stops', [
+            'min' => ($lat - $radiusDeg) . ',' . ($lon - $radiusDeg),
+            'max' => ($lat + $radiusDeg) . ',' . ($lon + $radiusDeg),
+        ]);
+        
+        // Falls auch das fehlschlägt: Leere Response
+        if (isset($result['error'])) {
+            error_log("map/stops also failed, returning empty list");
+            echo json_encode([
+                'lat'      => $lat,
+                'lon'      => $lon,
+                'radius'   => $radius,
+                'stations' => [],
+                '_note'    => 'Nearby stations endpoint temporarily unavailable',
+                '_tried'   => 'reverse-geocode, map/stops'
+            ]);
+            exit;
+        }
+    }
+
+    // Verarbeite Ergebnis
+    $rawPlaces = is_array($result) ? $result : [];
+
+    // Handle verschiedene Response-Formate
+    if (isset($result['stops'])) {
+        $rawPlaces = $result['stops'];  // map/stops Format
+    }
+
+    foreach ($rawPlaces as $place) {
+        if (!is_array($place)) continue;
+
+        $id = $place['id'] ?? $place['stopId'] ?? null;
+        if (!$id) continue;
+
+        // Skip OSM elements
+        if (preg_match('/^(node|way|relation)\//i', $id)) {
+            continue;
+        }
+
+        // Berechne Distanz falls nicht vorhanden
+        $distance = $place['distance'] ?? null;
+        if ($distance === null && isset($place['lat']) && isset($place['lon'])) {
+            // Haversine distance approximation (in Metern)
+            $placeLatRad = deg2rad($place['lat']);
+            $placeLonRad = deg2rad($place['lon']);
+            $refLatRad = deg2rad($lat);
+            $refLonRad = deg2rad($lon);
+            
+            $dLat = $placeLatRad - $refLatRad;
+            $dLon = $placeLonRad - $refLonRad;
+            
+            $a = sin($dLat / 2) * sin($dLat / 2) +
+                 cos($refLatRad) * cos($placeLatRad) *
+                 sin($dLon / 2) * sin($dLon / 2);
+            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+            $distance = round(6371000 * $c);  // Earth radius in meters
+        }
+
+        $stations[] = [
+            'id'       => $id,
+            'name'     => $place['name'] ?? '(unbenannt)',
+            'distance' => $distance,
+            'lat'      => $place['lat'] ?? null,
+            'lon'      => $place['lon'] ?? null,
+        ];
+    }
+
+    // Sort by distance (closest first)
+    usort($stations, function ($a, $b) {
+        $distA = $a['distance'] ?? PHP_INT_MAX;
+        $distB = $b['distance'] ?? PHP_INT_MAX;
+        return $distA <=> $distB;
+    });
+
+    // Filter by radius (Sicherheit)
+    $filtered = [];
+    foreach ($stations as $s) {
+        if ($s['distance'] === null || $s['distance'] <= $radius) {
+            $filtered[] = $s;
+        }
+    }
+
+    echo json_encode([
+        'lat'      => $lat,
+        'lon'      => $lon,
+        'radius'   => $radius,
+        'stations' => $filtered,
+        '_raw_count' => count($rawPlaces),
+    ]);
+    exit;
+}
+
 http_response_code(400);
-echo json_encode(['error' => 'Unbekannte oder fehlende "action". Nutze "search", "departures" oder "trip".']);
+echo json_encode(['error' => 'Unbekannte oder fehlende "action". Nutze "search", "departures", "trip" oder "reverse-geocode".']);
