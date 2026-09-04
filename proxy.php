@@ -395,9 +395,9 @@ if ($action === 'reverse-geocode') {
 
     // Strategy 1: Versuche reverse-geocode (primary)
     $result = callTransitous('/api/v1/reverse-geocode', [
-        'lat'    => $lat,
-        'lon'    => $lon,
-        'radius' => $radius,
+        'place'      => $lat . ',' . $lon,
+        'type'       => 'STOP',
+        'numResults' => 50,
     ]);
 
     $stations = [];
@@ -407,15 +407,12 @@ if ($action === 'reverse-geocode') {
     if (isset($result['error'])) {
         error_log("reverse-geocode failed ({$result['error']}), trying map/stops fallback");
         
-        // Fallback: Nutze map/stops endpoint mit BBox
-        // Konstruiere Bounding Box um die Koordinaten (radius in degrees ~ 1 deg = 111km)
-        $radiusDeg = $radius / 111000; // Sehr grobe Approximation
-        
-        $result = callTransitous('/api/v1/map/stops', [
-            'sw_lat' => $lat - $radiusDeg,
-            'sw_lon' => $lon - $radiusDeg,
-            'ne_lat' => $lat + $radiusDeg,
-            'ne_lon' => $lon + $radiusDeg,
+        // Fallback: Nutze map/stops endpoint mit BBox.
+        $radiusDeg = $radius / 111000;
+
+        $result = callTransitous('/api/v6/map/stops', [
+            'min' => ($lat - $radiusDeg) . ',' . ($lon - $radiusDeg),
+            'max' => ($lat + $radiusDeg) . ',' . ($lon + $radiusDeg),
         ]);
         
         // Falls auch das fehlschlägt: Leere Response
