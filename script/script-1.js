@@ -536,6 +536,31 @@ function renderStationsView() {
   
   DEFAULT_FAVORITES.forEach(station => {
     const li = document.createElement('li');
+    const row = document.createElement('div');
+    row.className = 'station-row';
+
+    const favoriteToggle = document.createElement('button');
+    favoriteToggle.type = 'button';
+    favoriteToggle.className = 'station-favorite-toggle';
+    favoriteToggle.textContent = isFavoriteStation(station.stopId) ? '★' : '☆';
+    favoriteToggle.classList.toggle('is-favorite', isFavoriteStation(station.stopId));
+    favoriteToggle.setAttribute('aria-label', isFavoriteStation(station.stopId)
+      ? `${station.name} aus Favoriten entfernen`
+      : `${station.name} zu Favoriten hinzufügen`);
+
+    favoriteToggle.addEventListener('click', event => {
+      event.stopPropagation();
+
+      if (isFavoriteStation(station.stopId)) {
+        favoriteStations = favoriteStations.filter(entry => entry.stopId !== station.stopId);
+      } else {
+        favoriteStations = [...favoriteStations, { ...station }];
+      }
+
+      saveFavoritesToStorage();
+      renderStationsView();
+      renderFavoritesBar();
+    });
     
     const link = document.createElement('a');
     link.className = 'stations-item';
@@ -548,7 +573,9 @@ function renderStationsView() {
       closeStationsView();
     });
     
-    li.appendChild(link);
+    row.appendChild(favoriteToggle);
+    row.appendChild(link);
+    li.appendChild(row);
     stationsList.appendChild(li);
   });
   
@@ -583,6 +610,7 @@ function renderFavoritesView() {
     
     const link = document.createElement('a');
     link.className = 'stations-item';
+    link.classList.add('is-favorite');
     link.textContent = favorite.name;
     link.href = 'javascript:void(0);';
     link.style.flex = '1';
