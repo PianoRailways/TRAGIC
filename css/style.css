@@ -1550,8 +1550,9 @@ p {margin: 3px;}
   justify-content: center;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 10px;
-  min-height: 128px;
+  border-radius: 4px;
+  width: 100%;
+  aspect-ratio: 1;
   text-decoration: none;
   color: var(--text-main);
   cursor: pointer;
@@ -1695,9 +1696,8 @@ p {margin: 3px;}
 
 /* Mobile Anpassungen */
 @media (max-width: 600px) {
-  .home-container {padding: 20px 14px 14px;}
+  .home-container {padding: 15% 5% 5% 5%;}
   .home-grid {gap: 12px;}
-  .home-tile {min-height: 120px;}
   .home-tile-icon {font-size: 2em;}
   .home-tile-label {font-size: 0.96em;}
   .stations-header {padding: 12px 14px;}

@@ -375,7 +375,7 @@ if ($action === 'trip') {
 if ($action === 'reverse-geocode') {
     $lat = trim($_GET['lat'] ?? '');
     $lon = trim($_GET['lon'] ?? '');
-    $radius = (int)($_GET['radius'] ?? 300);
+    $radius = (int)($_GET['radius'] ?? 900);
 
     if ($lat === '' || $lon === '') {
         http_response_code(400);
