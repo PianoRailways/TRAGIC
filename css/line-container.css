@@ -608,7 +608,29 @@
 
 .line-container[data-line^="EST"] { background: #0C326F; color: #FCF5D8; }
 
-
+/* SOLEA Mulhouse */
+/* Lignes tramway */
+.line-container[data-agency-id="237"][data-line="1"] { background: #D01C24; color: white; }
+.line-container[data-agency-id="237"][data-line="2"] { background: #F8B300; color: black; }
+.line-container[data-agency-id="237"][data-line="3"] { background: #009639; color: white; }
+.line-container[data-agency-id="237"][data-line="TT"] { background: #A0C514; color: white; }
+/* Lignes bus chrono */
+.line-container[data-agency-id="237"][data-line="C4"] { background: #C8102E; color: white; }
+.line-container[data-agency-id="237"][data-line="C5"] { background: #EE7F00; color: white; }
+.line-container[data-agency-id="237"][data-line="C6"] { background: #E3007B; color: white; }
+.line-container[data-agency-id="237"][data-line="C7"] { background: #00A3E0; color: white; }
+/* Lignes bus principales */
+.line-container[data-agency-id="237"][data-line="8"] { background: #E3E500; color: black; }
+.line-container[data-agency-id="237"][data-line="9"] { background: #009A44; color: white; }
+.line-container[data-agency-id="237"][data-line="10"] { background: #7C69AC; color: white; }
+.line-container[data-agency-id="237"][data-line="11"] { background: #6D4C41; color: white; }
+.line-container[data-agency-id="237"][data-line="12"] { background: #E5A8C8; color: black; }
+.line-container[data-agency-id="237"][data-line="13"] { background: #9BB31C; color: white; }
+.line-container[data-agency-id="237"][data-line="14"] { background: #C87A51; color: white; }
+.line-container[data-agency-id="237"][data-line="15"] { background: #00A9E0; color: white; }
+.line-container[data-agency-id="237"][data-line="16"] { background: #2E3192; color: white; }
+/* Navette de proximité */
+.line-container[data-agency-id="237"][data-line="18"] { background: #1DBB9B; color: white; }
 
 /* Basel */
 /* BVB */
