@@ -425,6 +425,81 @@ function getAbbrevsForName(stationName) {
   return nameToAbbrevMap[normName] || [];
 }
 
+// ─── Geolocation & Nearby Stations ──────────────────────────────
+
+let geolocationSupported = 'geolocation' in navigator;
+
+function toggleNearbyView() {
+  const homeView = document.getElementById('home-view');
+  const homeIsVisible = homeView && homeView.style.display === 'flex';
+  const btn = document.getElementById(homeIsVisible ? 'home-btn-nearby' : 'btn-nearby');
+  if (!btn) return;
+  
+  btn.disabled = true;
+  btn.textContent = '📍 Lade…';
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      fetchNearbyStations(latitude, longitude);
+      btn.disabled = false;
+      btn.textContent = '📍';
+    },
+    (error) => {
+      console.warn('Geolocation error:', error);
+      btn.disabled = false;
+      btn.textContent = '📍';
+      alert(`Geolocation-Fehler: ${error.message}`);
+    },
+    { timeout: 8000, maximumAge: 60000 }
+  );
+}
+
+async function fetchNearbyStations(lat, lon) {
+  try {
+    const res = await fetch(`${PROXY}?action=reverse-geocode&lat=${lat}&lon=${lon}&radius=300`);
+    const data = await res.json();
+    
+    if (data.error) {
+      alert(`Fehler: ${data.error}`);
+      return;
+    }
+    
+    const stations = data.stations || [];
+    if (stations.length === 0) {
+      alert('Keine Stationen in der Nähe gefunden.');
+      return;
+    }
+    
+    renderNearbySuggestions(stations);
+  } catch (err) {
+    console.error('Error fetching nearby stations:', err);
+    alert('Fehler beim Laden der Stationen: ' + err.message);
+  }
+}
+
+function renderNearbySuggestions(stations) {
+  const homeView = document.getElementById('home-view');
+  const homeIsVisible = homeView && homeView.style.display === 'flex';
+  const list = document.getElementById(homeIsVisible ? 'home-suggestions' : 'suggestions');
+
+  if (!list) return;
+
+  list.innerHTML = '';
+  
+  stations.forEach(station => {
+    const li = document.createElement('li');
+    
+    const distance = station.distance == null ? '?' : `${Math.round(station.distance)}m entfernt`;
+    li.innerHTML = `${escapeHtml(station.name)} <span class="suggestion-distance">${escapeHtml(distance)}</span>`;
+
+    li.addEventListener('click', () => {
+      selectStation(station.id, station.name, null);
+    });
+    list.appendChild(li);
+  });
+}
+
 // ─── Hamburger-Menü ─────────────────────────────────────────
 
 function toggleMenu() {
@@ -647,6 +722,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCloseFavorites) {
     btnCloseFavorites.addEventListener('click', closeFavoritesView);
   }
+
+  // Nearby-Button Event-Listener
+  const btnNearby = document.getElementById('btn-nearby');
+  const nearbyButtons = [btnNearby, document.getElementById('home-btn-nearby')].filter(Boolean);
+  nearbyButtons.forEach(button => {
+    if (!geolocationSupported) {
+      button.disabled = true;
+      button.title = 'Geolocation wird von diesem Browser nicht unterstützt';
+    } else {
+      button.addEventListener('click', toggleNearbyView);
+    }
+  });
 
   // Check for view parameter and render accordingly
   checkAndRenderView();

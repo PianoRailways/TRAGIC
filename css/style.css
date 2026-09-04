@@ -159,6 +159,154 @@ body {
 
 #btn-jetzt:hover {background: var(--sob-green);}
 
+/* ═══════════════ GEOLOCATION BUTTON ═══════════════ */
+
+.btn-nearby {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin-left: 4px;
+  border: 1px solid #555;
+  background: var(--bg-secondary, #1a1a1a);
+  color: var(--sbb-red, #eb0000);
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 200ms ease;
+  flex-shrink: 0;
+}
+
+.btn-nearby:hover:not(:disabled) {
+  background: var(--bg-tertiary, #2a2a2a);
+  border-color: var(--sbb-red, #eb0000);
+  box-shadow: 0 0 8px rgba(235, 0, 0, 0.3);
+}
+
+.btn-nearby:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-nearby:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: #666;
+}
+
+.stations-view .stations-container {
+  background: var(--bg-primary, #0a0a0a);
+  border: 1px solid #333;
+  border-radius: 8px;
+  max-width: 500px;
+  max-height: 80vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+}
+
+.stations-view .stations-header {
+  padding: 16px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stations-view .stations-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.stations-view .btn-close-stations {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 200ms ease;
+  flex-shrink: 0;
+}
+
+.stations-view .btn-close-stations:hover {
+  background: rgba(235, 0, 0, 0.1);
+  color: var(--sbb-red, #eb0000);
+}
+
+.stations-view .stations-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.stations-view .stations-list li {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 0;
+}
+
+.stations-view .stations-list li:last-child {
+  border-bottom: none;
+}
+
+.stations-view .stations-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: var(--text-primary, #fff);
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 150ms ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.stations-view .stations-item:hover {
+  background: rgba(235, 0, 0, 0.08);
+}
+
+.stations-view .stations-item:active {
+  background: rgba(235, 0, 0, 0.15);
+}
+
+/* Distance label under station name */
+.stations-view li > div > div:last-child {
+  margin-top: 4px;
+}
+
+/* Responsive: Mobile */
+@media (max-width: 600px) {
+  .stations-view .stations-container {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .btn-nearby {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    margin-left: 2px;
+  }
+}
 
 /* ── FAVORITEN-BAR ─────────────────────────────────────────── */
 #fav-bar {
@@ -320,7 +468,19 @@ h1 {
 }
 .station-title {font-weight: bold;}
 
-#search-box {position: relative;}
+#search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#search-box #query {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#search-box .btn-nearby {
+  margin-left: 0;
+}
 
 .time-picker-row {
   display: flex;
@@ -461,7 +621,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   margin: 0.2rem 0 0;
   padding: 0;
   position: absolute;
-  left: 0; right: 0;
+  left: 0;
+  right: 42px;
   background: var(--bg-surface);
   z-index: 20;
   max-height: 55vh;
@@ -486,6 +647,14 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   color: var(--text-muted);
   margin-left: auto;
   font-weight: normal;
+  flex-shrink: 0;
+}
+.suggestion-distance {
+  display: inline;
+  font-size: 0.78em;
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 .abbrev-label {
@@ -1487,6 +1656,10 @@ p {margin: 3px;}
 
 .home-search-btn:hover {
   background: var(--sbb-blue);
+}
+
+.home-search-row .btn-nearby {
+  margin-left: 6px;
 }
 
 .home-suggestions {
