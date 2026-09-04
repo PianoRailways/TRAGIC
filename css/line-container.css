@@ -58,7 +58,7 @@
 
 /* 2. Agency-allgemein (mittler spezifisch) */
 .line-container[data-agency-id="865"] { background: #e2001a; color: white; } /* RhB */
-.line-container[data-agency-id="801"] { background: #ffcc00; color: black; } /* PAG */
+.line-container[data-agency-name^="PostAuto"] { background: #ffcc00; color: black; } /* PAG */
 
 /* 3. Agency + Line (sehr spezifisch - gewinnt immer) */
 /* VBZ */
