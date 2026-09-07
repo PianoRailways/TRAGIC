@@ -14,6 +14,62 @@ const boardHint = document.getElementById('board-hint');
 const selectedStations = new Map();
 let viaCount = 0;
 
+// ─── Abkürzungs-Mappings ───────────────────────────────────────────────────
+let abbrevMap = {};      // { abbrev: [{ name, country }, ...] }
+let nameToAbbrevMap = {}; // { normName: [{ abbrev, country }, ...] }
+
+/**
+ * Load all DIDOK JSON files from ../didok/ and merge into maps
+ * Creates two mappings for bidirectional lookup
+ */
+async function loadAbbreviations() {
+  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk'];
+  try {
+    for (const country of countries) {
+      try {
+        const res = await fetch(`../didok/${country}.json`);
+        if (res.ok) {
+          const data = await res.json();
+          Object.entries(data).forEach(([abbrev, name]) => {
+            if (!abbrevMap[abbrev]) {
+              abbrevMap[abbrev] = [];
+            }
+            const countryCode = country.toUpperCase();
+            abbrevMap[abbrev].push({ name, country: countryCode });
+
+            const normName = name.trim().toLowerCase();
+            if (!nameToAbbrevMap[normName]) {
+              nameToAbbrevMap[normName] = [];
+            }
+            nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
+          });
+        }
+      } catch (e) {
+        console.warn(`Konnte ../didok/${country}.json nicht laden:`, e);
+      }
+    }
+    console.log('Abkürzungs-Mappings geladen:', Object.keys(abbrevMap).length, 'Abkürzungen');
+  } catch (err) {
+    console.error('Fehler beim Laden der Abkürzungs-Mappings:', err);
+  }
+}
+
+/**
+ * Look up abbreviation in abbrevMap
+ * Returns array of matches: [{ name, country }, ...]
+ */
+function getAbbrevsForStation(abbrev) {
+  if (!abbrev) return [];
+  const upperAbbrev = abbrev.toUpperCase().trim();
+  const entries = abbrevMap[upperAbbrev] || [];
+  
+  // Sort by country: custom, CH, DE, AT, FR, UK
+  const countryOrder = { CUSTOM: 0, CH: 1, DE: 2, AT: 3, FR: 4, UK: 5 };
+  return entries.sort((a, b) => 
+    (countryOrder[a.country] || 999) - (countryOrder[b.country] || 999)
+  );
+}
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -47,14 +103,43 @@ function attachStationSearch(input, suggestions, key) {
     suggestions.innerHTML = '';
     suggestions.style.display = 'none';
     selectedStations.delete(key);
-    if (query.length < 2) return;
+    if (query.length < 1) return;
 
     try {
-      const stations = await searchStations(query);
-      stations.slice(0, 8).forEach(station => {
+      let results = [];
+
+      // First: Check if query matches a DIDOK abbreviation (case-insensitive)
+      if (query.length <= 6) { // Abbreviations are typically short
+        const abbrevMatches = getAbbrevsForStation(query);
+        if (abbrevMatches.length > 0) {
+          // Convert abbreviation results to station-like objects
+          results = abbrevMatches.map(match => ({
+            name: match.name,
+            country: match.country,
+            id: `didok:${match.country.toLowerCase()}:${query.toUpperCase()}`,
+            isAbbrev: true,
+            abbrev: query.toUpperCase()
+          }));
+        }
+      }
+
+      // Second: If no abbreviation match, search stations normally
+      if (results.length === 0 && query.length >= 2) {
+        results = await searchStations(query);
+      }
+
+      // Display results (max 8)
+      results.slice(0, 8).forEach(station => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
-        item.textContent = station.name;
+        
+        // Show abbreviation matches with country indicator
+        if (station.isAbbrev) {
+          item.textContent = `${station.name} (${station.abbrev} [${station.country}])`;
+        } else {
+          item.textContent = station.name;
+        }
+        
         item.addEventListener('click', () => {
           input.value = station.name;
           selectedStations.set(key, station);
@@ -63,7 +148,7 @@ function attachStationSearch(input, suggestions, key) {
         });
         suggestions.appendChild(item);
       });
-      suggestions.style.display = stations.length ? 'block' : 'none';
+      suggestions.style.display = results.length ? 'block' : 'none';
     } catch (error) {
       setHint(key === 'board' ? boardHint : routeHint, error.message, true);
     }
@@ -231,13 +316,31 @@ async function searchRoute() {
   setHint(routeHint, 'Suche Verbindungen...');
   routeResults.style.display = 'none';
   try {
-    const response = await fetch(`${PROXY}?${params}`);
+    const url = `${PROXY}?${params}`;
+    console.log('🔍 Routing Request URL:', url);
+    console.log('📍 From:', from);
+    console.log('📍 To:', to);
+    
+    const response = await fetch(url);
     const data = await response.json();
-    if (!response.ok || data.error) throw new Error(data.error || `Routing fehlgeschlagen (${response.status})`);
+    
+    console.log('📊 API Response:', data);
+    console.log('✅ Response OK:', response.ok);
+    console.log('❌ Data Error:', data.error);
+    
+    if (!response.ok || data.error) {
+      const errorMsg = data.error || `Routing fehlgeschlagen (${response.status})`;
+      console.error('🚨 Error:', errorMsg);
+      throw new Error(errorMsg);
+    }
+    
     const connections = data.connections || data.itineraries || [];
+    console.log('🚌 Connections found:', connections.length);
+    
     renderRoutes(connections);
     setHint(routeHint, connections.length ? `${connections.length} Verbindungen gefunden.` : 'Keine Verbindung gefunden.');
   } catch (error) {
+    console.error('💥 Catch Error:', error);
     setHint(routeHint, error.message, true);
   }
 }
@@ -298,6 +401,9 @@ function adjustRouteTime(minutes) {
   
   routeTimeInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
 }
+
+// Load abbreviations on page load
+loadAbbreviations();
 
 attachStationSearch(routeFromInput, document.getElementById('from-suggestions'), 'from');
 attachStationSearch(routeToInput, document.getElementById('to-suggestions'), 'to');
