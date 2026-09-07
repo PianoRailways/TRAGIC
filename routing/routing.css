@@ -184,7 +184,15 @@ input[type="datetime-local"]:focus {
     background-color: var(--bg-hover);
     color: var(--link-hover);
 }
-
+.abbrev-label {
+  font-family: monospace;
+  color: var(--text-muted);
+  font-weight: bold;
+  font-size: x-small;
+  flex: 1;
+  text-align: center;
+  flex-shrink: 0;
+}
 button.btn {
     background-color: var(--sob-green);
     color: white;

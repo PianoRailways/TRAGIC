@@ -137,7 +137,7 @@ function attachStationSearch(input, suggestions, key) {
         
         // Show abbreviation matches with country indicator
         if (station.isAbbrev) {
-          item.textContent = `${station.name} (${station.abbrev} [${station.country}])`;
+          item.innerHTML = `${station.name} <span class="abbrev-label">${station.abbrev} [${station.country}]</span>`;
         } else {
           item.textContent = station.name;
         }
