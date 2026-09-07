@@ -197,6 +197,48 @@ button.btn {
     width: 100%;
 }
 
+button.btn-secondary {
+    background-color: var(--bg-hover);
+    color: var(--text-main);
+    border: 1px solid var(--border-main);
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button.btn-secondary:hover {
+    background-color: var(--bg-card);
+}
+
+button.btn-nav {
+    background-color: var(--bg-hover);
+    color: var(--text-main);
+    border: 1px solid var(--border-main);
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+}
+
+button.btn-nav:hover {
+    background-color: var(--border-main);
+}
+
+.datetime-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.datetime-group input[type="datetime-local"] {
+    flex: 1;
+}
+
 .results-container {
     display: none;
     width: 100%;
@@ -240,54 +282,65 @@ td {
 
 .col-time { width: 65px; font-weight: 600; text-align: left; }
 .col-dur { width: 55px; text-align: center; color: var(--text-subtle); }
-.col-bar { width: auto; }
 .col-chg { width: 35px; text-align: center; color: var(--text-muted); }
 
-/* Container für den Gesamtbalken */
+.route-timeline {
+  width: auto;
+  padding: 8px 6px;
+  vertical-align: middle;
+}
+
+/* Timeline-Balken: proportional zur tatsächlichen Zeit */
 .timeline-bar {
   display: flex;
   align-items: center;
-  width: 100%;
-  height: 8px;
+  height: 12px;
   background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  overflow: hidden;
+  border-radius: 3px;
+  overflow: visible;
+  position: relative;
+  width: 100%;
 }
 
-/* Einzelne Fahrt-Segmente */
+/* Fahrt-Segment mit line-container Färbung */
 .timeline-segment {
   height: 100%;
+  border-radius: 2px;
+  background: var(--sbb-blue);
   transition: opacity 0.2s ease;
+  position: relative;
 }
 
 .timeline-segment:hover {
-  opacity: 0.8;
+  opacity: 0.85;
+  box-shadow: 0 0 6px rgba(45, 50, 125, 0.5);
 }
 
-/* Umsteige- und Wartebereiche */
+/* Umsteigepause (striped) */
 .timeline-wait {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
   background: repeating-linear-gradient(
     45deg,
     transparent,
-    transparent 3px,
-    rgba(255, 255, 255, 0.08) 3px,
-    rgba(255, 255, 255, 0.08) 6px
+    transparent 2px,
+    rgba(255, 255, 255, 0.1) 2px,
+    rgba(255, 255, 255, 0.1) 4px
   );
+  border-radius: 1px;
   position: relative;
-  flex-shrink: 0;
 }
 
+/* Fahrt-Punkt am Anfang */
 .timeline-dot {
     width: 6px;
     height: 6px;
     background: #fff;
     border-radius: 50%;
-    margin: 0 -2px;
-    z-index: 2;
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
     flex-shrink: 0;
 }
 

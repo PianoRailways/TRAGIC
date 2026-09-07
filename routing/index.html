@@ -46,15 +46,16 @@
       </div>
       <div class="form-grid">
         <div class="form-group">
-          <label for="route-time">Abfahrt (optional)</label>
-          <input type="datetime-local" id="route-time">
+          <label for="route-time">Abfahrt</label>
+          <div class="datetime-group">
+            <button type="button" id="btn-date-prev" class="btn-nav" title="Vortag">◀</button>
+            <input type="datetime-local" id="route-time">
+            <button type="button" id="btn-date-next" class="btn-nav" title="Nächster Tag">▶</button>
+          </div>
         </div>
-        <div class="form-group" style="justify-content: flex-end;">
+        <div class="form-group" style="justify-content: flex-end; gap: 6px;">
+          <button type="button" id="btn-swap" class="btn-secondary" title="Richtung wechseln">⇄</button>
           <button id="btn-search-route" class="btn">Suchen</button>
-        </div>
-        <div class="routing-navigation" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-          <button type="button" id="btn-earlier" class="btn" style="padding: 6px 12px; cursor: pointer;">← Früher</button>
-          <button type="button" id="btn-later" class="btn" style="padding: 6px 12px; cursor: pointer;">Später →</button>
         </div>
       </div>
 
@@ -66,7 +67,7 @@
               <th class="col-time">Ab</th>
               <th class="col-time">An</th>
               <th class="col-dur">Dauer</th>
-              <th class="col-bar">Verlauf</th>
+              <th>Reise</th>
               <th class="col-chg">Um</th>
             </tr>
           </thead>

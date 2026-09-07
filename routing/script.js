@@ -198,12 +198,11 @@ function getLineLabel(leg) {
   return leg.routeShortName || leg.line || leg.mode || '?';
 }
 
-function renderLineBadge(leg) {
-  const label = getLineLabel(leg);
-  const attributes = [
+function getLineAttributes(leg) {
+  return [
     ['data-mode', leg.mode],
     ['data-raw-mode', leg.mode],
-    ['data-line', label],
+    ['data-line', getLineLabel(leg)],
     ['data-agency-id', leg.agencyId],
     ['data-agency-name', leg.agencyName],
     ['data-route-id', leg.routeId],
@@ -212,12 +211,75 @@ function renderLineBadge(leg) {
     .filter(([, value]) => value !== undefined && value !== null && value !== '')
     .map(([name, value]) => `${name}="${escapeHtml(value)}"`)
     .join(' ');
+}
 
+function renderLineBadge(leg) {
+  const label = getLineLabel(leg);
+  const attributes = getLineAttributes(leg);
   return `<span class="route-leg line-container line-badge" ${attributes} title="${escapeHtml(leg.destination || '')}">${escapeHtml(label)}</span>`;
+}
+
+/**
+ * Render a proportional timeline bar showing journey duration relative to all connections.
+ * The bar starts at 0% and extends to (arrival - departure) / (maxArrival - minDeparture).
+ * Colors are applied via line-container CSS rules based on the first leg.
+ */
+function renderTimelineBar(connection, minDeparture, maxArrival) {
+  const legs = connection.legs || [];
+  if (legs.length === 0) return '';
+  
+  const firstLeg = legs[0];
+  const departure = firstLeg?.from?.departure || 0;
+  const arrival = legs[legs.length - 1]?.to?.arrival || 0;
+  
+  // Time range for proportional scaling
+  const timeRange = maxArrival - minDeparture;
+  if (timeRange <= 0) return '<!-- Empty time range -->';
+  
+  // Calculate start position (% from minDeparture) and width (% of timeRange)
+  const startPercent = ((departure - minDeparture) / timeRange) * 100;
+  const durationPercent = ((arrival - departure) / timeRange) * 100;
+  
+  // Get line attributes from first leg for coloring
+  const attributes = getLineAttributes(firstLeg);
+  
+  const barHTML = `
+    <div class="timeline-bar" style="width: 100%;">
+      <div class="timeline-dot"></div>
+      <div 
+        class="timeline-segment line-container" 
+        ${attributes}
+        style="
+          margin-left: ${startPercent}%;
+          width: ${durationPercent}%;
+          min-width: 2px;
+        "
+        title="Abfahrt: ${formatTime(departure)}, Ankunft: ${formatTime(arrival)}"
+      ></div>
+    </div>
+  `;
+  
+  return barHTML;
 }
 
 function renderRoutes(connections) {
   routeTbody.innerHTML = '';
+  
+  if (connections.length === 0) return;
+  
+  // Calculate min/max times for proportional timeline scaling
+  let minDeparture = Infinity;
+  let maxArrival = -Infinity;
+  
+  connections.forEach(conn => {
+    const legs = conn.legs || [];
+    if (legs.length === 0) return;
+    const dep = legs[0]?.from?.departure || 0;
+    const arr = legs[legs.length - 1]?.to?.arrival || 0;
+    minDeparture = Math.min(minDeparture, dep);
+    maxArrival = Math.max(maxArrival, arr);
+  });
+  
   connections.forEach((connection, connIdx) => {
     const legs = connection.legs || [];
     const first = legs[0]?.from || {};
@@ -230,7 +292,7 @@ function renderRoutes(connections) {
       <td>${formatTime(first.departure)}</td>
       <td>${formatTime(last.arrival)}</td>
       <td>${formatDuration(connection.duration || (last.arrival - first.departure))}</td>
-      <td class="route-legs">${legs.map(renderLineBadge).join('')}</td>
+      <td class="route-timeline">${renderTimelineBar(connection, minDeparture, maxArrival)}</td>
       <td>${Math.max(0, legs.length - 1)}</td>
     `;
     
@@ -391,7 +453,7 @@ async function loadBoard() {
   }
 }
 
-function adjustRouteTime(minutes) {
+function adjustRouteTime(days) {
   const currentTime = routeTimeInput.value;
   let date;
   
@@ -401,7 +463,7 @@ function adjustRouteTime(minutes) {
     date = new Date();
   }
   
-  date.setMinutes(date.getMinutes() + minutes);
+  date.setDate(date.getDate() + days);
   
   // Format: YYYY-MM-DDTHH:mm (HTML5 datetime-local format)
   const year = date.getFullYear();
@@ -411,6 +473,18 @@ function adjustRouteTime(minutes) {
   const mins = String(date.getMinutes()).padStart(2, '0');
   
   routeTimeInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
+}
+
+function swapFromTo() {
+  const from = selectedStations.get('from');
+  const to = selectedStations.get('to');
+  
+  if (from && to) {
+    selectedStations.set('from', to);
+    selectedStations.set('to', from);
+    routeFromInput.value = to.name;
+    routeToInput.value = from.name;
+  }
 }
 
 // Load abbreviations on page load
@@ -423,22 +497,16 @@ document.getElementById('btn-add-via').addEventListener('click', createViaInput)
 document.getElementById('btn-search-route').addEventListener('click', searchRoute);
 document.getElementById('btn-load-board').addEventListener('click', loadBoard);
 document.getElementById('btn-refresh').addEventListener('click', () => location.reload());
+document.getElementById('btn-swap').addEventListener('click', swapFromTo);
 
-const btnEarlier = document.getElementById('btn-earlier');
-if (btnEarlier) {
-  btnEarlier.addEventListener('click', () => {
-    adjustRouteTime(-30);
-    searchRoute();
-  });
-}
+// Date navigation
+document.getElementById('btn-date-prev').addEventListener('click', () => {
+  adjustRouteTime(-1);
+});
 
-const btnLater = document.getElementById('btn-later');
-if (btnLater) {
-  btnLater.addEventListener('click', () => {
-    adjustRouteTime(30);
-    searchRoute();
-  });
-}
+document.getElementById('btn-date-next').addEventListener('click', () => {
+  adjustRouteTime(1);
+});
 
 updateClock();
 setInterval(updateClock, 1000);
