@@ -118,7 +118,9 @@ function renderLineBadge(leg) {
     ['data-raw-mode', leg.mode],
     ['data-line', label],
     ['data-agency-id', leg.agencyId],
-    ['data-agency-name', leg.agencyName]
+    ['data-agency-name', leg.agencyName],
+    ['data-route-id', leg.routeId],
+    ['data-trip-number', leg.tripNumber]
   ]
     .filter(([, value]) => value !== undefined && value !== null && value !== '')
     .map(([name, value]) => `${name}="${escapeHtml(value)}"`)
@@ -129,12 +131,14 @@ function renderLineBadge(leg) {
 
 function renderRoutes(connections) {
   routeTbody.innerHTML = '';
-  connections.forEach(connection => {
+  connections.forEach((connection, connIdx) => {
     const legs = connection.legs || [];
     const first = legs[0]?.from || {};
     const last = legs[legs.length - 1]?.to || {};
+    
+    // Summary Row
     const row = document.createElement('tr');
-    row.className = 'route-row';
+    row.className = 'summary-row';
     row.innerHTML = `
       <td>${formatTime(first.departure)}</td>
       <td>${formatTime(last.arrival)}</td>
@@ -142,8 +146,70 @@ function renderRoutes(connections) {
       <td class="route-legs">${legs.map(renderLineBadge).join('')}</td>
       <td>${Math.max(0, legs.length - 1)}</td>
     `;
+    
+    row.addEventListener('click', () => {
+      const detailRow = document.getElementById(`detail-row-${connIdx}`);
+      if (detailRow) {
+        detailRow.style.display = detailRow.style.display === 'none' ? 'table-row' : 'none';
+      }
+    });
+    
     routeTbody.appendChild(row);
+    
+    // Detail Row
+    const detailRow = document.createElement('tr');
+    detailRow.className = 'detail-row';
+    detailRow.id = `detail-row-${connIdx}`;
+    detailRow.style.display = 'none';
+    
+    const detailContent = document.createElement('td');
+    detailContent.colSpan = 5;
+    detailContent.className = 'detail-content';
+    
+    const legsList = document.createElement('div');
+    legsList.className = 'trip-stops-list';
+    
+    legs.forEach((leg, legIdx) => {
+      const legItem = document.createElement('div');
+      legItem.className = 'leg-item';
+      
+      const from = leg.from || {};
+      const to = leg.to || {};
+      
+      const legHeader = document.createElement('div');
+      legHeader.className = 'leg-header';
+      legHeader.innerHTML = `
+        ${renderLineBadge(leg)}
+        <span>${escapeHtml(to.name || '')}</span>
+      `;
+      legItem.appendChild(legHeader);
+      
+      const legTimes = document.createElement('div');
+      legTimes.style.fontSize = '0.75rem';
+      legTimes.style.color = 'var(--text-muted)';
+      legTimes.innerHTML = `
+        ${escapeHtml(from.name || '')}: ${formatTime(from.departure)} →
+        ${escapeHtml(to.name || '')}: ${formatTime(to.arrival)}
+      `;
+      legItem.appendChild(legTimes);
+      
+      if (legIdx < legs.length - 1) {
+        const transfer = document.createElement('div');
+        transfer.className = 'transfer-info';
+        const nextLeg = legs[legIdx + 1];
+        const transferTime = (nextLeg?.from?.departure || 0) - (to.arrival || 0);
+        transfer.textContent = `Umstieg: ${formatDuration(transferTime)}`;
+        legItem.appendChild(transfer);
+      }
+      
+      legsList.appendChild(legItem);
+    });
+    
+    detailContent.appendChild(legsList);
+    detailRow.appendChild(detailContent);
+    routeTbody.appendChild(detailRow);
   });
+  
   routeResults.style.display = connections.length ? 'block' : 'none';
 }
 
@@ -192,10 +258,13 @@ async function loadBoard() {
         <td>${formatTime(departure.scheduled || departure.live)}</td>
         <td>${renderLineBadge({
           line: departure.line,
+          routeShortName: departure.line,
           mode: departure.mode,
           agencyId: departure.agencyId,
           agencyName: departure.agencyName,
-          destination: departure.destination
+          destination: departure.destination,
+          tripNumber: departure.tripNumber,
+          routeId: departure.routeId
         })}</td>
         <td>${escapeHtml(departure.destination || '')}</td>
         <td>${escapeHtml(departure.track || '')}</td>
@@ -208,6 +277,28 @@ async function loadBoard() {
   }
 }
 
+function adjustRouteTime(minutes) {
+  const currentTime = routeTimeInput.value;
+  let date;
+  
+  if (currentTime) {
+    date = new Date(currentTime);
+  } else {
+    date = new Date();
+  }
+  
+  date.setMinutes(date.getMinutes() + minutes);
+  
+  // Format: YYYY-MM-DDTHH:mm (HTML5 datetime-local format)
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const mins = String(date.getMinutes()).padStart(2, '0');
+  
+  routeTimeInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
+}
+
 attachStationSearch(routeFromInput, document.getElementById('from-suggestions'), 'from');
 attachStationSearch(routeToInput, document.getElementById('to-suggestions'), 'to');
 attachStationSearch(boardInput, document.getElementById('board-suggestions'), 'board');
@@ -215,6 +306,22 @@ document.getElementById('btn-add-via').addEventListener('click', createViaInput)
 document.getElementById('btn-search-route').addEventListener('click', searchRoute);
 document.getElementById('btn-load-board').addEventListener('click', loadBoard);
 document.getElementById('btn-refresh').addEventListener('click', () => location.reload());
+
+const btnEarlier = document.getElementById('btn-earlier');
+if (btnEarlier) {
+  btnEarlier.addEventListener('click', () => {
+    adjustRouteTime(-30);
+    searchRoute();
+  });
+}
+
+const btnLater = document.getElementById('btn-later');
+if (btnLater) {
+  btnLater.addEventListener('click', () => {
+    adjustRouteTime(30);
+    searchRoute();
+  });
+}
 
 updateClock();
 setInterval(updateClock, 1000);
