@@ -107,25 +107,27 @@ function attachStationSearch(input, suggestions, key) {
 
     try {
       let results = [];
+      let selectedAbbrev = null;
 
       // First: Check if query matches a DIDOK abbreviation (case-insensitive)
       if (query.length <= 6) { // Abbreviations are typically short
         const abbrevMatches = getAbbrevsForStation(query);
         if (abbrevMatches.length > 0) {
-          // Convert abbreviation results to station-like objects
-          results = abbrevMatches.map(match => ({
-            name: match.name,
-            country: match.country,
-            id: `didok:${match.country.toLowerCase()}:${query.toUpperCase()}`,
-            isAbbrev: true,
-            abbrev: query.toUpperCase()
-          }));
+          selectedAbbrev = abbrevMatches[0]; // Take first match
         }
       }
 
-      // Second: If no abbreviation match, search stations normally
-      if (results.length === 0 && query.length >= 2) {
-        results = await searchStations(query);
+      // Second: Search stations by name (using abbreviation's name if found)
+      if (query.length >= 2) {
+        const searchQuery = selectedAbbrev ? selectedAbbrev.name : query;
+        results = await searchStations(searchQuery);
+        
+        // If we matched an abbreviation, mark the first result as abbrev match
+        if (selectedAbbrev && results.length > 0) {
+          results[0].isAbbrev = true;
+          results[0].abbrev = query.toUpperCase();
+          results[0].country = selectedAbbrev.country;
+        }
       }
 
       // Display results (max 8)
@@ -301,6 +303,13 @@ function renderRoutes(connections) {
 async function searchRoute() {
   const from = selectedStations.get('from');
   const to = selectedStations.get('to');
+  
+  console.log('🔴 searchRoute called');
+  console.log('📍 From object:', from);
+  console.log('📍 To object:', to);
+  console.log('📍 From.id:', from?.id);
+  console.log('📍 To.id:', to?.id);
+  
   if (!from || !to) {
     setHint(routeHint, 'Bitte Start und Ziel aus den Vorschlägen auswählen.', true);
     return;
@@ -317,20 +326,21 @@ async function searchRoute() {
   routeResults.style.display = 'none';
   try {
     const url = `${PROXY}?${params}`;
-    console.log('🔍 Routing Request URL:', url);
-    console.log('📍 From:', from);
-    console.log('📍 To:', to);
+    console.log('🔍 Full URL:', url);
+    console.log('📍 fromPlace:', from.id);
+    console.log('📍 toPlace:', to.id);
     
     const response = await fetch(url);
     const data = await response.json();
     
-    console.log('📊 API Response:', data);
+    console.log('📊 Full API Response:', JSON.stringify(data, null, 2));
+    console.log('✅ Response status:', response.status);
     console.log('✅ Response OK:', response.ok);
-    console.log('❌ Data Error:', data.error);
+    console.log('❌ Data.error:', data.error);
     
     if (!response.ok || data.error) {
       const errorMsg = data.error || `Routing fehlgeschlagen (${response.status})`;
-      console.error('🚨 Error:', errorMsg);
+      console.error('🚨 Throwing Error:', errorMsg);
       throw new Error(errorMsg);
     }
     
@@ -340,7 +350,8 @@ async function searchRoute() {
     renderRoutes(connections);
     setHint(routeHint, connections.length ? `${connections.length} Verbindungen gefunden.` : 'Keine Verbindung gefunden.');
   } catch (error) {
-    console.error('💥 Catch Error:', error);
+    console.error('💥 Catch Error:', error.message);
+    console.error('💥 Full Error:', error);
     setHint(routeHint, error.message, true);
   }
 }
