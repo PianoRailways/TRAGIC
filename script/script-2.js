@@ -1,6 +1,69 @@
 
 // ─── Navigation Buttons (Früher / Später) ──────────────────────────────────
 
+const NEARBY_ENABLED_STORAGE_KEY = 'tragic_nearby_enabled';
+const NEARBY_RADIUS_STORAGE_KEY = 'tragic_nearby_radius';
+
+function loadNearbySettings() {
+  try {
+    return {
+      enabled: localStorage.getItem(NEARBY_ENABLED_STORAGE_KEY) === 'true',
+      radius: Number(localStorage.getItem(NEARBY_RADIUS_STORAGE_KEY)) || 500
+    };
+  } catch (_) {
+    return { enabled: false, radius: 500 };
+  }
+}
+
+let nearbySettings = loadNearbySettings();
+
+function saveNearbySettings() {
+  try {
+    localStorage.setItem(NEARBY_ENABLED_STORAGE_KEY, nearbySettings.enabled ? 'true' : 'false');
+    localStorage.setItem(NEARBY_RADIUS_STORAGE_KEY, String(nearbySettings.radius));
+  } catch (_) {}
+}
+
+function updateNearbyUI() {
+  document.querySelectorAll('#btn-toggle-nearby, .settings-nearby-toggle').forEach(button => {
+    button.textContent = nearbySettings.enabled ? 'Nearby: EIN' : 'Nearby: AUS';
+    button.classList.toggle('active', nearbySettings.enabled);
+  });
+  document.querySelectorAll('#nearby-radius, .settings-nearby-radius').forEach(radius => {
+    radius.value = String(nearbySettings.radius);
+  });
+}
+
+async function fetchNearbyDepartureGroups(refEpoch) {
+  const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(currentStationName)}`);
+  const searchData = await searchRes.json();
+  const station = (searchData.stations || []).find(item => item.name.toLowerCase() === currentStationName.toLowerCase()) || searchData.stations?.[0];
+  if (!station?.lat || !station?.lon) return [];
+
+  const nearbyRes = await fetch(`${PROXY}?action=reverse-geocode&lat=${encodeURIComponent(station.lat)}&lon=${encodeURIComponent(station.lon)}&radius=${nearbySettings.radius}`);
+  const nearbyData = await nearbyRes.json();
+  const stations = (nearbyData.stations || []).filter(item => (item.id || item.stopId) !== currentStopId);
+
+  return Promise.all(stations.map(async item => {
+    const stopId = item.id || item.stopId;
+    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stopId)}&n=10&nearby=true&radius=${nearbySettings.radius}`;
+    if (isArrivalsMode) q += '&arrivals=true';
+    if (refEpoch) q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+    const response = await fetch(q);
+    const data = await response.json();
+    return {
+      stopId,
+      name: item.name || stopId,
+      departures: (data.departures || []).map(dep => ({
+        ...dep,
+        _stopId: stopId,
+        _fromStation: item.name || stopId,
+        _isMainStation: false
+      }))
+    };
+  }));
+}
+
 function setupNavigationButtons() {
   const handleEarlier = () => {
     const currentEpoch = getSelectedEpoch();
@@ -45,9 +108,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnToggleArrivals = document.getElementById('btn-toggle-arrivals');
   if (btnToggleArrivals) btnToggleArrivals.addEventListener('click', toggleArrivalMode);
 
-  const btnToggleVias = document.getElementById('btn-toggle-vias');
-  if (btnToggleVias) btnToggleVias.addEventListener('click', toggleViaLoading);
+  document.querySelectorAll('#btn-toggle-vias, .settings-via-toggle').forEach(button => {
+    button.addEventListener('click', toggleViaLoading);
+  });
   updateViaToggleButton();
+
+  document.querySelectorAll('#btn-toggle-nearby, .settings-nearby-toggle').forEach(button => {
+    button.addEventListener('click', () => {
+      nearbySettings.enabled = !nearbySettings.enabled;
+      saveNearbySettings();
+      updateNearbyUI();
+      if (currentStopId) loadDepartures(getSelectedEpoch());
+    });
+  });
+  document.querySelectorAll('#nearby-radius, .settings-nearby-radius').forEach(radius => {
+    radius.addEventListener('change', () => {
+      nearbySettings.radius = Number(radius.value) || 500;
+      saveNearbySettings();
+      updateNearbyUI();
+      if (nearbySettings.enabled && currentStopId) loadDepartures(getSelectedEpoch());
+    });
+  });
+  updateNearbyUI();
 
   updateArrivalToggleUI();
 
@@ -727,7 +809,7 @@ async function loadDepartures(refEpoch) {
       departures = deduplicateDepartures(departures);
     } else {
       console.log('Using single station departures/arrivals for:', currentStationName);
-      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25&nearby=true`;
       if (isArrivalsMode) q += '&arrivals=true';
       if (refEpoch) {
         q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
@@ -742,12 +824,24 @@ async function loadDepartures(refEpoch) {
         return;
       }
 
-      departures = data.departures || [];
-      departures = departures.map(dep => ({
+      departures = (data.departures || []).map(dep => ({
         ...dep,
+        _stopId: currentStopId,
         _fromStation: currentStationName,
         _isMainStation: true
       }));
+    }
+
+    if (nearbySettings.enabled) {
+      try {
+        const nearby = await fetchNearbyDepartureGroups(refEpoch);
+        departures = mergeNearbyDepartures({
+          departures: departures.map(dep => ({ ...dep, _isMainStation: true })),
+          nearby
+        }, currentStopId, currentStationName);
+      } catch (err) {
+        console.warn('Nearby-Stationen konnten nicht geladen werden:', err);
+      }
     }
 
     allDepartures = departures;
@@ -857,6 +951,49 @@ function deduplicateDepartures(departures) {
   });
 
   return deduplicated;
+}
+
+function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
+  const mainEntries = [];
+  const nearbyEntries = [];
+  const addEntries = (items, stopId, stationName, isMainStation) => {
+    if (!Array.isArray(items)) return;
+    items.forEach(dep => {
+      if (!dep || typeof dep !== 'object') return;
+      const entry = {
+        ...dep,
+        _stopId: String(dep.stopId || dep._stopId || stopId || fallbackStopId),
+        _fromStation: dep._fromStation || stationName || fallbackStationName,
+        _isMainStation: dep._isMainStation ?? isMainStation
+      };
+      (entry._isMainStation ? mainEntries : nearbyEntries).push(entry);
+    });
+  };
+
+  addEntries(data.departures, fallbackStopId, fallbackStationName, true);
+  const nearby = Array.isArray(data.nearby) ? data.nearby : [];
+  nearby.forEach(station => {
+    const stop = station.stop || station.station || station;
+    addEntries(
+      station.departures || station.results || stop.departures,
+      stop.stopId || stop.id,
+      stop.name || stop.stationName,
+      String(stop.stopId || stop.id) === String(fallbackStopId)
+    );
+  });
+
+  const merged = new Map();
+  nearbyEntries.forEach(dep => {
+    const stopKey = dep._stopId || dep._fromStation || fallbackStopId;
+    const lineKey = String(dep.line || '').trim().toUpperCase();
+    const key = `${stopKey}:${lineKey}`;
+    const current = merged.get(key);
+    if (!current || (dep.scheduled || Infinity) < (current.scheduled || Infinity)) {
+      merged.set(key, dep);
+    }
+  });
+
+  return [...mainEntries, ...merged.values()];
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────

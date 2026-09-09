@@ -668,6 +668,37 @@ h1 {
   border-radius: 6px;
 }
 
+.nearby-controls { display: flex; gap: 6px; margin-bottom: 0.65rem; }
+.nearby-controls .mode-btn { flex: 1; }
+#nearby-radius {
+  flex: 0 0 78px;
+  width: 78px;
+  min-height: 2.1rem;
+  padding: 0.4rem 0.45rem;
+  font-size: 0.72rem;
+  font-family: inherit;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  color: var(--text-main);
+  cursor: pointer;
+  color-scheme: dark;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+#nearby-radius:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.24);
+}
+#nearby-radius:focus {
+  outline: none;
+  border-color: var(--line-accent);
+  box-shadow: 0 0 0 1px var(--line-accent);
+}
+#nearby-radius option {
+  background: var(--bg-surface);
+  color: var(--text-main);
+}
+
 input {
   width: 100%;
   padding: 0.4rem 0.5rem;
@@ -784,17 +815,6 @@ th, td {
   white-space: nowrap;
 }
 th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
-
-/* Stationsname im Tabellen-Header */
-.table-header-station {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-main);
-  padding: 0.8rem 0.4rem;
-  text-align: left;
-  white-space: normal;
-  border-bottom: 2px solid var(--border-main);
-}
 
 .station-hint {
   font-size: 0.6rem !important;
@@ -1582,6 +1602,102 @@ p {margin: 3px;}
 }
 
 .stations-item:last-child {border-bottom: none;}
+
+/* ─── SETTINGS-VIEW ───────────────────────────────────────── */
+
+.settings-view {
+  position: fixed;
+  top: 54px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  overflow-y: auto;
+  background: var(--bg-main);
+}
+
+.settings-container {
+  width: min(100%, 760px);
+  min-height: 100%;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 14px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-main);
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.settings-section {
+  padding: 1.25rem 1rem 0;
+}
+
+.settings-section h3 {
+  margin: 0 0 0.65rem;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.settings-control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.settings-control-row strong,
+.settings-control-row span {
+  display: block;
+}
+
+.settings-control-row strong {color: var(--text-main); font-size: 0.95rem;}
+.settings-control-row span {margin-top: 0.2rem; color: var(--text-muted); font-size: 0.78rem;}
+.settings-inline-controls {display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;}
+
+.settings-nearby-radius {
+  min-height: 2.1rem;
+  padding: 0.4rem 0.45rem;
+  color: var(--text-main);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  font: inherit;
+  color-scheme: dark;
+}
+
+.settings-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.settings-mode-grid .mode-btn {min-height: 2.35rem;}
+
+.settings-dest-filter {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  color: var(--text-main);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-main);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.settings-dest-filter:focus {outline: none; border-color: var(--line-accent);}
 
 /* ─── HOME-VIEW ─────────────────────────────────────────── */
 
