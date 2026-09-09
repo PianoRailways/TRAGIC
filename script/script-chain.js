@@ -376,6 +376,16 @@ function renderDepartures(departures) {
   });
 
   applyFilters();
+
+  const sharedTripId = new URL(location.href).searchParams.get('tripId');
+  if (sharedTripId) {
+    const sharedRow = [...tbody.querySelectorAll('tr.dep-row')]
+      .find(row => row.dataset.tripId === sharedTripId);
+    const sharedDeparture = departures.find(dep => dep.tripId === sharedTripId);
+    if (sharedRow && sharedDeparture && !sharedRow.nextElementSibling?.classList.contains('chain-row')) {
+      toggleChain(sharedRow, sharedDeparture);
+    }
+  }
 }
 
 // ─── Fahrt-Chain 	─────────────────────────────────────────────────────────────
@@ -384,6 +394,7 @@ async function toggleChain(tr, dep) {
   const existing = tr.nextElementSibling;
   if (existing && existing.classList.contains('chain-row')) {
     existing.remove();
+    syncTripToUrl(null);
     return;
   }
   document.querySelectorAll('.chain-row').forEach(r => r.remove());
@@ -392,6 +403,8 @@ async function toggleChain(tr, dep) {
     alert('Keine Fahrtnummer (tripId) vorhanden – Fahrtverlauf nicht möglich.');
     return;
   }
+
+  syncTripToUrl(dep.tripId);
 
   const chainTr = document.createElement('tr');
   chainTr.className = 'chain-row';

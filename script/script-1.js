@@ -1045,6 +1045,8 @@ function syncPickersToUrl() {
   if (isArrivalsMode) url.searchParams.set('arrivals', 'true');
   else                url.searchParams.delete('arrivals');
 
+  url.searchParams.delete('tripId');
+
   history.pushState({
     stopId: currentStopId, 
     stationName: currentStationName, 
@@ -1055,6 +1057,13 @@ function syncPickersToUrl() {
     calendarDest
   }, '', url);
   return refEpoch;
+}
+
+function syncTripToUrl(tripId) {
+  const url = new URL(location.href);
+  if (tripId) url.searchParams.set('tripId', tripId);
+  else url.searchParams.delete('tripId');
+  history.replaceState({ ...history.state, tripId: tripId || null }, '', url);
 }
 
 const triggerTimeChange = () => {

@@ -81,11 +81,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnRefresh = document.getElementById('btn-refresh');
   if (btnRefresh) btnRefresh.addEventListener('click', reloadDepartures);
 
+  const btnShare = document.getElementById('btn-share');
+  if (btnShare) btnShare.addEventListener('click', shareDepartureView);
+
   const btnExportCalendar = document.getElementById('btn-export-calendar');
   if (btnExportCalendar) {
     btnExportCalendar.addEventListener('click', exportCalendarJourney);
   }
 });
+
+async function shareDepartureView() {
+  const url = new URL(location.href);
+  const epoch = getSelectedEpoch();
+
+  if (currentStopId) url.searchParams.set('stopId', currentStopId);
+  if (epoch) url.searchParams.set('time', epoch);
+  else url.searchParams.delete('time');
+  url.searchParams.set('view', 'departures');
+  if (isArrivalsMode) url.searchParams.set('arrivals', 'true');
+  else url.searchParams.delete('arrivals');
+
+  const destination = destFilter?.value.trim();
+  if (destination) url.searchParams.set('dest', destination);
+  else url.searchParams.delete('dest');
+
+  const shareData = {
+    title: `${currentStationName || 'Abfahrtstabelle'} | OMNI`,
+    text: currentStationName ? `Abfahrten ab ${currentStationName}` : 'Abfahrtstabelle',
+    url: url.href
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(url.href);
+      alert('Link kopiert.');
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') console.error('Teilen fehlgeschlagen:', err);
+  }
+}
 
 // ─── Stationssuche ───────────────────────────────────────────────────────────
 
