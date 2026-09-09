@@ -725,7 +725,6 @@ async function loadDepartures(refEpoch) {
       departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
       // Deduplicate combined departures
       departures = deduplicateDepartures(departures);
-      departures = mergeNearbyDepartures({ departures }, currentStopId, currentStationName);
     } else {
       console.log('Using single station departures/arrivals for:', currentStationName);
       let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25&nearby=true`;
@@ -856,17 +855,19 @@ function deduplicateDepartures(departures) {
 }
 
 function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
-  const entries = [];
+  const mainEntries = [];
+  const nearbyEntries = [];
   const addEntries = (items, stopId, stationName, isMainStation) => {
     if (!Array.isArray(items)) return;
     items.forEach(dep => {
       if (!dep || typeof dep !== 'object') return;
-      entries.push({
+      const entry = {
         ...dep,
         _stopId: String(dep.stopId || dep._stopId || stopId || fallbackStopId),
         _fromStation: dep._fromStation || stationName || fallbackStationName,
         _isMainStation: dep._isMainStation ?? isMainStation
-      });
+      };
+      (entry._isMainStation ? mainEntries : nearbyEntries).push(entry);
     });
   };
 
@@ -883,7 +884,7 @@ function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
   });
 
   const merged = new Map();
-  entries.forEach(dep => {
+  nearbyEntries.forEach(dep => {
     const stopKey = dep._stopId || dep._fromStation || fallbackStopId;
     const lineKey = String(dep.line || '').trim().toUpperCase();
     const key = `${stopKey}:${lineKey}`;
@@ -893,7 +894,7 @@ function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
     }
   });
 
-  return [...merged.values()];
+  return [...mainEntries, ...merged.values()];
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
