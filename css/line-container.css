@@ -188,6 +188,9 @@
 
 /* FLP Lugano Ponte Tresa */
 .line-container[data-agency-name*="Tresa"] { background: #fff; color: #e95e0c; }
+/* Trasporti Luganesi SA */
+.line-container[data-agency-name="Trasporti Pubblici Luganesi SA"] { background: #004B93; color: #62B535; }
+.line-container[data-agency-name="Autolinee Regionali Luganesi"] { background: #e43b2d; color: #fff; }
 /* Bus Aarau */
 .line-container[data-agency-id="840"][data-line="1"] { background: rgb(219,57,49); color: white; }
 .line-container[data-agency-id="840"][data-line="2"] { background: rgb(86,176,88); color: white; }
