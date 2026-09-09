@@ -1603,6 +1603,102 @@ p {margin: 3px;}
 
 .stations-item:last-child {border-bottom: none;}
 
+/* ─── SETTINGS-VIEW ───────────────────────────────────────── */
+
+.settings-view {
+  position: fixed;
+  top: 54px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  overflow-y: auto;
+  background: var(--bg-main);
+}
+
+.settings-container {
+  width: min(100%, 760px);
+  min-height: 100%;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 14px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-main);
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.settings-section {
+  padding: 1.25rem 1rem 0;
+}
+
+.settings-section h3 {
+  margin: 0 0 0.65rem;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.settings-control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.settings-control-row strong,
+.settings-control-row span {
+  display: block;
+}
+
+.settings-control-row strong {color: var(--text-main); font-size: 0.95rem;}
+.settings-control-row span {margin-top: 0.2rem; color: var(--text-muted); font-size: 0.78rem;}
+.settings-inline-controls {display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;}
+
+.settings-nearby-radius {
+  min-height: 2.1rem;
+  padding: 0.4rem 0.45rem;
+  color: var(--text-main);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  font: inherit;
+  color-scheme: dark;
+}
+
+.settings-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.settings-mode-grid .mode-btn {min-height: 2.35rem;}
+
+.settings-dest-filter {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  color: var(--text-main);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-main);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.settings-dest-filter:focus {outline: none; border-color: var(--line-accent);}
+
 /* ─── HOME-VIEW ─────────────────────────────────────────── */
 
 .home-view {

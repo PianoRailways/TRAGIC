@@ -69,6 +69,69 @@
     </div>
   </div>
 
+  <!-- ═══════════════ SETTINGS-VIEW ═══════════════ -->
+  <div id="settings-view" class="settings-view" style="display:none;">
+    <div class="settings-container">
+      <div class="settings-header">
+        <h2>Einstellungen</h2>
+        <a href="./" class="btn-close-stations" title="Schließen" aria-label="Einstellungen schließen">✕</a>
+      </div>
+
+      <section class="settings-section" aria-labelledby="settings-data-title">
+        <h3 id="settings-data-title">Daten</h3>
+        <div class="settings-control-row">
+          <div>
+            <strong>Via-Nachladung</strong>
+            <span>Zusätzliche Zwischenhalte nachladen</span>
+          </div>
+          <button class="mode-btn settings-via-toggle" type="button">Via: AUS</button>
+        </div>
+        <div class="settings-control-row">
+          <div>
+            <strong>Nahe Haltestellen</strong>
+            <span>Weitere Haltestellen im Umkreis einbeziehen</span>
+          </div>
+          <div class="settings-inline-controls">
+            <button class="mode-btn settings-nearby-toggle" type="button">Nearby: AUS</button>
+            <select class="settings-nearby-radius" title="Radius für nahe Haltestellen" aria-label="Radius für nahe Haltestellen">
+              <option value="20">20 m</option>
+              <option value="50">50 m</option>
+              <option value="100">100 m</option>
+              <option value="250">250 m</option>
+              <option value="500">500 m</option>
+              <option value="1000">1000 m</option>
+              <option value="2000">2000 m</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section" aria-labelledby="settings-filter-title">
+        <h3 id="settings-filter-title">Verkehrsmittel</h3>
+        <div class="settings-mode-grid">
+          <button class="mode-btn settings-mode-all" type="button">Alle</button>
+          <button class="mode-btn settings-mode-meta" data-meta-group="RAIL_ALL" type="button">🚄 Alle Züge</button>
+          <button class="mode-btn settings-mode-meta" data-meta-group="URBAN" type="button">🚈 Urban</button>
+          <button class="mode-btn settings-mode-meta" data-meta-group="TRANSIT" type="button">🚊 Alle ÖPNV</button>
+          <button class="mode-btn settings-mode" data-mode="HIGHSPEED" type="button">Highspeed</button>
+          <button class="mode-btn settings-mode" data-mode="RAIL" type="button">🚆 Bahn</button>
+          <button class="mode-btn settings-mode" data-mode="NIGHT" type="button">🌙 Nacht</button>
+          <button class="mode-btn settings-mode" data-mode="SUBWAY" type="button">🚇 U</button>
+          <button class="mode-btn settings-mode" data-mode="TRAM" type="button">🚊 Tram</button>
+          <button class="mode-btn settings-mode" data-mode="BUS" type="button">🚌 Bus</button>
+          <button class="mode-btn settings-mode" data-mode="FERRY" type="button">⛴ Schiff</button>
+          <button class="mode-btn settings-mode" data-mode="GONDOLA" type="button">🚡 Seilbahn</button>
+          <button class="mode-btn settings-mode" data-mode="OTHER" type="button">🚐 Andere</button>
+        </div>
+      </section>
+
+      <section class="settings-section" aria-labelledby="settings-destination-title">
+        <h3 id="settings-destination-title">Ziel- und Linienfilter</h3>
+        <input class="settings-dest-filter" type="text" placeholder="Filtern (z.B. Basel, IR26, 475)..." autocomplete="off">
+      </section>
+    </div>
+  </div>
+
   <!-- ═══════════════ HOME-VIEW ═══════════════ -->
   <div id="home-view" class="home-view" style="display:none;">
     <div class="home-container">

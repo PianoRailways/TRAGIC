@@ -675,6 +675,24 @@ function closeFavoritesView() {
   }
 }
 
+function renderSettingsView() {
+  const settingsView = document.getElementById('settings-view');
+  if (settingsView) {
+    settingsView.style.display = 'flex';
+  }
+  updateModeButtons();
+  syncDestinationFilterInputs();
+  updateViaToggleButton();
+  updateNearbyUI();
+}
+
+function closeSettingsView() {
+  const settingsView = document.getElementById('settings-view');
+  if (settingsView) {
+    settingsView.style.display = 'none';
+  }
+}
+
 // ─── Home-View ────────────────────────────────────────────
 
 function renderHomeView() {
@@ -708,6 +726,9 @@ function checkAndRenderView() {
   } else if (viewParam === 'favorites') {
     closeHomeView();
     renderFavoritesView();
+  } else if (viewParam === 'settings') {
+    closeHomeView();
+    renderSettingsView();
   }
   // Für alle anderen Views (departures, arrivals, settings, oder keine View) nichts machen
   // Die default Panel wird sowieso angezeigt
@@ -784,7 +805,7 @@ const MODE_GROUPS = {
 
 // Meta-groups for quick filtering
 const MODE_META_GROUPS = {
-  RAIL_ALL: ['HIGHSPEED', 'RAIL', ,'SUBWAY', 'NIGHT'],
+  RAIL_ALL: ['HIGHSPEED', 'RAIL', 'SUBWAY', 'NIGHT'],
   URBAN: ['SUBWAY', 'TRAM', 'BUS'],
   TRANSIT: ['HIGHSPEED', 'RAIL', 'NIGHT', 'SUBWAY', 'TRAM', 'BUS', 'FERRY', 'GONDOLA']
 };
@@ -832,14 +853,13 @@ function saveViaLoadingToStorage() {
 }
 
 function updateViaToggleButton() {
-  const btn = document.getElementById('btn-toggle-vias');
-  if (!btn) return;
-
-  btn.classList.toggle('active', viaLoadingEnabled);
-  btn.textContent = viaLoadingEnabled ? '$vias ein' : '$vias';
-  btn.title = viaLoadingEnabled
-    ? 'Via-Nachladung ist aktiv (klick zum Deaktivieren)'
-    : 'Via-Nachladung ist deaktiviert (klick zum Aktivieren)';
+  document.querySelectorAll('#btn-toggle-vias, .settings-via-toggle').forEach(btn => {
+    btn.classList.toggle('active', viaLoadingEnabled);
+    btn.textContent = viaLoadingEnabled ? 'Via: EIN' : 'Via: AUS';
+    btn.title = viaLoadingEnabled
+      ? 'Via-Nachladung ist aktiv (klick zum Deaktivieren)'
+      : 'Via-Nachladung ist deaktiviert (klick zum Aktivieren)';
+  });
 }
 
 function toggleViaLoading() {
@@ -868,7 +888,18 @@ function updateModeButtons() {
     btn.classList.toggle('active', filterState.selectedModes.has(mode));
   });
 
+  document.querySelectorAll('.settings-mode-all').forEach(btn => {
+    btn.classList.toggle('active', filterState.alleModeActive);
+  });
+
   updateFilterMenuIndicator();
+}
+
+function syncDestinationFilterInputs() {
+  const value = destFilter ? destFilter.value : '';
+  document.querySelectorAll('.settings-dest-filter').forEach(input => {
+    if (input.value !== value) input.value = value;
+  });
 }
 
 function updateFilterMenuIndicator() {
@@ -895,12 +926,16 @@ function activateModesInGroup(groupModes) {
 document.addEventListener('DOMContentLoaded', () => {
   const btnAll = document.getElementById('btn-mode-all');
   if (btnAll) {
-    btnAll.addEventListener('click', () => {
+    const activateAllModes = () => {
       filterState.alleModeActive = true;
       filterState.selectedModes.clear();
       saveModesToStorage();
       updateModeButtons();
       applyFilters();
+    };
+    btnAll.addEventListener('click', activateAllModes);
+    document.querySelectorAll('.settings-mode-all').forEach(btn => {
+      btn.addEventListener('click', activateAllModes);
     });
   }
 
@@ -925,6 +960,12 @@ document.addEventListener('DOMContentLoaded', () => {
       activateModesInGroup(MODE_META_GROUPS.TRANSIT);
     });
   }
+
+  document.querySelectorAll('.settings-mode-meta').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activateModesInGroup(MODE_META_GROUPS[btn.dataset.metaGroup] || []);
+    });
+  });
 });
 
 document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
@@ -978,8 +1019,18 @@ if (destFilter) {
   destFilter.addEventListener('input', () => {
     applyFilters();
     updateFilterMenuIndicator();
+    syncDestinationFilterInputs();
   });
 }
+
+document.querySelectorAll('.settings-dest-filter').forEach(input => {
+  input.addEventListener('input', () => {
+    if (destFilter) destFilter.value = input.value;
+    applyFilters();
+    updateFilterMenuIndicator();
+    syncDestinationFilterInputs();
+  });
+});
 
 function applyFilters() {
   const destQuery = destFilter ? destFilter.value.trim().toLowerCase() : '';

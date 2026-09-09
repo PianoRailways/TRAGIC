@@ -25,13 +25,13 @@ function saveNearbySettings() {
 }
 
 function updateNearbyUI() {
-  const button = document.getElementById('btn-toggle-nearby');
-  const radius = document.getElementById('nearby-radius');
-  if (button) {
+  document.querySelectorAll('#btn-toggle-nearby, .settings-nearby-toggle').forEach(button => {
     button.textContent = nearbySettings.enabled ? 'Nearby: EIN' : 'Nearby: AUS';
     button.classList.toggle('active', nearbySettings.enabled);
-  }
-  if (radius) radius.value = String(nearbySettings.radius);
+  });
+  document.querySelectorAll('#nearby-radius, .settings-nearby-radius').forEach(radius => {
+    radius.value = String(nearbySettings.radius);
+  });
 }
 
 async function fetchNearbyDepartureGroups(refEpoch) {
@@ -108,27 +108,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnToggleArrivals = document.getElementById('btn-toggle-arrivals');
   if (btnToggleArrivals) btnToggleArrivals.addEventListener('click', toggleArrivalMode);
 
-  const btnToggleVias = document.getElementById('btn-toggle-vias');
-  if (btnToggleVias) btnToggleVias.addEventListener('click', toggleViaLoading);
+  document.querySelectorAll('#btn-toggle-vias, .settings-via-toggle').forEach(button => {
+    button.addEventListener('click', toggleViaLoading);
+  });
   updateViaToggleButton();
 
-  const btnToggleNearby = document.getElementById('btn-toggle-nearby');
-  const nearbyRadius = document.getElementById('nearby-radius');
-  if (btnToggleNearby) {
-    btnToggleNearby.addEventListener('click', () => {
+  document.querySelectorAll('#btn-toggle-nearby, .settings-nearby-toggle').forEach(button => {
+    button.addEventListener('click', () => {
       nearbySettings.enabled = !nearbySettings.enabled;
       saveNearbySettings();
       updateNearbyUI();
       if (currentStopId) loadDepartures(getSelectedEpoch());
     });
-  }
-  if (nearbyRadius) {
-    nearbyRadius.addEventListener('change', () => {
-      nearbySettings.radius = Number(nearbyRadius.value) || 500;
+  });
+  document.querySelectorAll('#nearby-radius, .settings-nearby-radius').forEach(radius => {
+    radius.addEventListener('change', () => {
+      nearbySettings.radius = Number(radius.value) || 500;
       saveNearbySettings();
+      updateNearbyUI();
       if (nearbySettings.enabled && currentStopId) loadDepartures(getSelectedEpoch());
     });
-  }
+  });
   updateNearbyUI();
 
   updateArrivalToggleUI();
