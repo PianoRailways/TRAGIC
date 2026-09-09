@@ -458,7 +458,7 @@ function toggleNearbyView() {
 
 async function fetchNearbyStations(lat, lon) {
   try {
-    const res = await fetch(`${PROXY}?action=reverse-geocode&lat=${lat}&lon=${lon}&radius=300`);
+    const res = await fetch(`${PROXY}?action=reverse-geocode&lat=${lat}&lon=${lon}&radius=500`);
     const data = await res.json();
     
     if (data.error) {
