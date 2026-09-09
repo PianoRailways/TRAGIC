@@ -349,7 +349,7 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
         continue;
       }
       
-      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stationStopId)}&n=${numResults}`;
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stationStopId)}&n=${numResults}&nearby=true`;
       if (isArrivalsMode) q += '&arrivals=true';
       if (refEpoch) {
         q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
@@ -366,6 +366,7 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
       if (data.departures && Array.isArray(data.departures)) {
         const departuresWithStation = data.departures.map(dep => ({
           ...dep,
+          _stopId: stationStopId,
           _fromStation: station,
           _isMainStation: station === stationName
         }));

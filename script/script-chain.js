@@ -286,12 +286,16 @@ function renderDepartures(departures) {
   }
 
   const sorted = [...departures].sort((a, b) => {
+    const stopA = a._stopId || (a._isMainStation ? currentStopId : a._fromStation) || '';
+    const stopB = b._stopId || (b._isMainStation ? currentStopId : b._fromStation) || '';
+    if (stopA !== stopB) return String(stopA).localeCompare(String(stopB));
     const timeA = a.scheduled || Infinity;
     const timeB = b.scheduled || Infinity;
     return timeA - timeB;
   });
 
   let lastDate = null;
+  let lastStopId = null;
 
   sorted.forEach((dep, depIdx) => {
     // Check if date changed and insert date separator
@@ -307,6 +311,20 @@ function renderDepartures(departures) {
         tbody.appendChild(separatorRow);
         lastDate = dateKey;
       }
+    }
+
+    const stopId = dep._stopId || (dep._isMainStation ? currentStopId : dep._fromStation);
+    if (stopId !== lastStopId) {
+      const stationRow = document.createElement('tr');
+      stationRow.className = 'station-separator-row';
+      const stationName = dep._fromStation || currentStationName;
+      const stationAbbrevs = getAbbrevsForName(stationName);
+      const stationLabel = stationAbbrevs.length > 0
+        ? `${stationName} · ${stationAbbrevs[0].abbrev}`
+        : stationName;
+      stationRow.innerHTML = `<td colspan="4"><div class="table-header-station">${escapeHtml(stationLabel)}</div></td>`;
+      tbody.appendChild(stationRow);
+      lastStopId = stopId;
     }
 
     const tr = document.createElement('tr');

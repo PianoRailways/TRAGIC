@@ -796,6 +796,8 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   border-bottom: 2px solid var(--border-main);
 }
 
+.station-separator-row td { padding-top: 0.9rem; }
+
 .station-hint {
   font-size: 0.6rem !important;
   color:var(--text-subtle);

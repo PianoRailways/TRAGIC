@@ -725,9 +725,10 @@ async function loadDepartures(refEpoch) {
       departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
       // Deduplicate combined departures
       departures = deduplicateDepartures(departures);
+      departures = mergeNearbyDepartures({ departures }, currentStopId, currentStationName);
     } else {
       console.log('Using single station departures/arrivals for:', currentStationName);
-      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25&nearby=true`;
       if (isArrivalsMode) q += '&arrivals=true';
       if (refEpoch) {
         q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
@@ -742,12 +743,7 @@ async function loadDepartures(refEpoch) {
         return;
       }
 
-      departures = data.departures || [];
-      departures = departures.map(dep => ({
-        ...dep,
-        _fromStation: currentStationName,
-        _isMainStation: true
-      }));
+      departures = mergeNearbyDepartures(data, currentStopId, currentStationName);
     }
 
     allDepartures = departures;
@@ -857,6 +853,47 @@ function deduplicateDepartures(departures) {
   });
 
   return deduplicated;
+}
+
+function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
+  const entries = [];
+  const addEntries = (items, stopId, stationName, isMainStation) => {
+    if (!Array.isArray(items)) return;
+    items.forEach(dep => {
+      if (!dep || typeof dep !== 'object') return;
+      entries.push({
+        ...dep,
+        _stopId: String(dep.stopId || dep._stopId || stopId || fallbackStopId),
+        _fromStation: dep._fromStation || stationName || fallbackStationName,
+        _isMainStation: dep._isMainStation ?? isMainStation
+      });
+    });
+  };
+
+  addEntries(data.departures, fallbackStopId, fallbackStationName, true);
+  const nearby = Array.isArray(data.nearby) ? data.nearby : [];
+  nearby.forEach(station => {
+    const stop = station.stop || station.station || station;
+    addEntries(
+      station.departures || station.results || stop.departures,
+      stop.stopId || stop.id,
+      stop.name || stop.stationName,
+      String(stop.stopId || stop.id) === String(fallbackStopId)
+    );
+  });
+
+  const merged = new Map();
+  entries.forEach(dep => {
+    const stopKey = dep._stopId || dep._fromStation || fallbackStopId;
+    const lineKey = String(dep.line || '').trim().toUpperCase();
+    const key = `${stopKey}:${lineKey}`;
+    const current = merged.get(key);
+    if (!current || (dep.scheduled || Infinity) < (current.scheduled || Infinity)) {
+      merged.set(key, dep);
+    }
+  });
+
+  return [...merged.values()];
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
