@@ -1,6 +1,69 @@
 
 // ─── Navigation Buttons (Früher / Später) ──────────────────────────────────
 
+const NEARBY_ENABLED_STORAGE_KEY = 'tragic_nearby_enabled';
+const NEARBY_RADIUS_STORAGE_KEY = 'tragic_nearby_radius';
+
+function loadNearbySettings() {
+  try {
+    return {
+      enabled: localStorage.getItem(NEARBY_ENABLED_STORAGE_KEY) === 'true',
+      radius: Number(localStorage.getItem(NEARBY_RADIUS_STORAGE_KEY)) || 500
+    };
+  } catch (_) {
+    return { enabled: false, radius: 500 };
+  }
+}
+
+let nearbySettings = loadNearbySettings();
+
+function saveNearbySettings() {
+  try {
+    localStorage.setItem(NEARBY_ENABLED_STORAGE_KEY, nearbySettings.enabled ? 'true' : 'false');
+    localStorage.setItem(NEARBY_RADIUS_STORAGE_KEY, String(nearbySettings.radius));
+  } catch (_) {}
+}
+
+function updateNearbyUI() {
+  const button = document.getElementById('btn-toggle-nearby');
+  const radius = document.getElementById('nearby-radius');
+  if (button) {
+    button.textContent = nearbySettings.enabled ? 'Nearby: EIN' : 'Nearby: AUS';
+    button.classList.toggle('active', nearbySettings.enabled);
+  }
+  if (radius) radius.value = String(nearbySettings.radius);
+}
+
+async function fetchNearbyDepartureGroups(refEpoch) {
+  const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(currentStationName)}`);
+  const searchData = await searchRes.json();
+  const station = (searchData.stations || []).find(item => item.name.toLowerCase() === currentStationName.toLowerCase()) || searchData.stations?.[0];
+  if (!station?.lat || !station?.lon) return [];
+
+  const nearbyRes = await fetch(`${PROXY}?action=reverse-geocode&lat=${encodeURIComponent(station.lat)}&lon=${encodeURIComponent(station.lon)}&radius=${nearbySettings.radius}`);
+  const nearbyData = await nearbyRes.json();
+  const stations = (nearbyData.stations || []).filter(item => (item.id || item.stopId) !== currentStopId);
+
+  return Promise.all(stations.map(async item => {
+    const stopId = item.id || item.stopId;
+    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stopId)}&n=10&nearby=true&radius=${nearbySettings.radius}`;
+    if (isArrivalsMode) q += '&arrivals=true';
+    if (refEpoch) q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+    const response = await fetch(q);
+    const data = await response.json();
+    return {
+      stopId,
+      name: item.name || stopId,
+      departures: (data.departures || []).map(dep => ({
+        ...dep,
+        _stopId: stopId,
+        _fromStation: item.name || stopId,
+        _isMainStation: false
+      }))
+    };
+  }));
+}
+
 function setupNavigationButtons() {
   const handleEarlier = () => {
     const currentEpoch = getSelectedEpoch();
@@ -48,6 +111,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnToggleVias = document.getElementById('btn-toggle-vias');
   if (btnToggleVias) btnToggleVias.addEventListener('click', toggleViaLoading);
   updateViaToggleButton();
+
+  const btnToggleNearby = document.getElementById('btn-toggle-nearby');
+  const nearbyRadius = document.getElementById('nearby-radius');
+  if (btnToggleNearby) {
+    btnToggleNearby.addEventListener('click', () => {
+      nearbySettings.enabled = !nearbySettings.enabled;
+      saveNearbySettings();
+      updateNearbyUI();
+      if (currentStopId) loadDepartures(getSelectedEpoch());
+    });
+  }
+  if (nearbyRadius) {
+    nearbyRadius.addEventListener('change', () => {
+      nearbySettings.radius = Number(nearbyRadius.value) || 500;
+      saveNearbySettings();
+      if (nearbySettings.enabled && currentStopId) loadDepartures(getSelectedEpoch());
+    });
+  }
+  updateNearbyUI();
 
   updateArrivalToggleUI();
 
@@ -742,7 +824,24 @@ async function loadDepartures(refEpoch) {
         return;
       }
 
-      departures = mergeNearbyDepartures(data, currentStopId, currentStationName);
+      departures = (data.departures || []).map(dep => ({
+        ...dep,
+        _stopId: currentStopId,
+        _fromStation: currentStationName,
+        _isMainStation: true
+      }));
+    }
+
+    if (nearbySettings.enabled) {
+      try {
+        const nearby = await fetchNearbyDepartureGroups(refEpoch);
+        departures = mergeNearbyDepartures({
+          departures: departures.map(dep => ({ ...dep, _isMainStation: true })),
+          nearby
+        }, currentStopId, currentStationName);
+      } catch (err) {
+        console.warn('Nearby-Stationen konnten nicht geladen werden:', err);
+      }
     }
 
     allDepartures = departures;

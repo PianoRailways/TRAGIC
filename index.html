@@ -140,6 +140,16 @@
           <div id="departure-filter-popup" class="filter-popup" role="dialog" aria-label="Filtermenü">
             <div class="filter-popup-inner">
               <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">Via: AUS</button>
+              <div class="nearby-controls">
+                <button id="btn-toggle-nearby" class="mode-btn" type="button" title="Nahe Haltestellen ein-/ausschalten">Nearby: AUS</button>
+                <select id="nearby-radius" title="Radius für nahe Haltestellen" aria-label="Radius für nahe Haltestellen">
+                  <option value="20">20 m</option>
+                  <option value="50">50 m</option>
+                  <option value="100">100 m</option>
+                  <option value="250">250 m</option>
+                  <option value="500" selected>500 m</option>
+                </select>
+              </div>
 
               <!-- ═══════════════ VERKEHRSMITTEL-FILTER ═══════════════ -->
               <nav id="mode-filter-bar">
