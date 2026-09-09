@@ -21,4 +21,10 @@ window.combinedStations = {
     'Vignogn, Baselgia': ['Vignogn, vitg', 'Vignogn, Baselgia'],
 	'Wildegg': ['Wildegg', 'Wildegg, Bahnhofplatz'],
 	'Wildegg, Bahnhofplatz': ['Wildegg', 'Wildegg, Bahnhofplatz'],
+    'Ponte Tresa, Stazione': ['Ponte Tresa', 'Ponte Tresa, Stazione'],
+    'Ponte Tresa': ['Ponte Tresa', 'Ponte Tresa, Stazione'],
+    'Luino, Stazione FS (I)': ['Luino', 'Luino, Stazione FS (I)', 'Luino (I)', 'Luino, Marconi,Stazione FS'],
+    'Luino': ['Luino', 'Luino, Stazione FS (I)', 'Luino (I)', 'Luino, Marconi,Stazione FS'],
+    'Luino (I)': ['Luino', 'Luino, Stazione FS (I)', 'Luino (I)', 'Luino, Marconi,Stazione FS'],
+    'Luino, Marconi,Stazione FS': ['Luino', 'Luino, Stazione FS (I)', 'Luino (I)', 'Luino, Marconi,Stazione FS'],
 	};
