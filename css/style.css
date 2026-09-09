@@ -794,19 +794,6 @@ th, td {
 }
 th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 
-/* Stationsname im Tabellen-Header */
-.table-header-station {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-main);
-  padding: 0.8rem 0.4rem;
-  text-align: left;
-  white-space: normal;
-  border-bottom: 2px solid var(--border-main);
-}
-
-.station-separator-row td { padding-top: 0.9rem; }
-
 .station-hint {
   font-size: 0.6rem !important;
   color:var(--text-subtle);
