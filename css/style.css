@@ -822,7 +822,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   margin-top: 2px;
 }
 
-.col-time { width: 55px; white-space: nowrap; }
+.col-time { width: 50px; white-space: nowrap; }
 .delay-badge {
   display: inline-block;
   font-size: 0.74em;
@@ -831,7 +831,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   vertical-align: baseline;
 }
 .col-line {
-  width: 70px;
+  width: 60px;
   text-align: center;
   vertical-align: middle;
   text-overflow: ellipsis;
@@ -846,7 +846,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   white-space: normal;
 }
 .col-platform {
-  width: 90px;
+  width: 10px;
   text-align: right;
   font-weight: 400;
   font-size: 1em;
