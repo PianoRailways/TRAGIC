@@ -1250,3 +1250,5 @@ const triggerTimeChange = () => {
 
 if (datePicker) datePicker.addEventListener('change', triggerTimeChange);
 if (timePicker) timePicker.addEventListener('change', triggerTimeChange);
+
+window.abbreviationsReady = loadAbbreviations();
