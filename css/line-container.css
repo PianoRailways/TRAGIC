@@ -63,57 +63,57 @@
 /* 3. Agency + Line (sehr spezifisch - gewinnt immer) */
 /* VBZ */
 
-.line-container[data-agency-id="3849"][data-line="50"], .line-container[data-agency-id="3849"][data-line="51"] { background: black; color: white; }
-.line-container[data-agency-id="3849"][data-line="2"] { background: #e7000e; color: white; }
-.line-container[data-agency-id="3849"][data-line="3"] { background: #009A38; color: white; }
-.line-container[data-agency-id="3849"][data-line="4"] { background: #46398e; color: white; }
-.line-container[data-agency-id="3849"][data-line="5"] { background: #955b29; color: white; }
-.line-container[data-agency-id="3849"][data-line="6"] { background: #d89d3e; color: white; }
-.line-container[data-agency-id="3849"][data-line="7"] { background: black; color: white; }
-.line-container[data-agency-id="3849"][data-line="8"] { background: #A6C700; color: black; }
-.line-container[data-agency-id="3849"][data-line="9"] { background: #46398e; color: white; }
-.line-container[data-agency-id="3849"][data-line="10"] { background: #e82788; color: white; }
-.line-container[data-agency-id="3849"][data-line="11"] { background: #009A38; color: white; }
-.line-container[data-agency-id="3849"][data-line="12"] { background: #85cfe0; color: black; }
-.line-container[data-agency-id="3849"][data-line="13"] { background: #ffd200; color: black; }
-.line-container[data-agency-id="3849"][data-line="14"] { background: #00A1E5; color: white; }
-.line-container[data-agency-id="3849"][data-line="15"] { background: #e7000e; color: white; }
-.line-container[data-agency-id="3849"][data-line="16"] { background: #004E67; color: white; }
-.line-container[data-agency-id="3849"][data-line="17"] { background: #9e1762; color: white; }
-.line-container[data-agency-id="3849"][data-line="20"] { background: rgb(142,34,77); color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="50"], .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="51"] { background: black; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="2"] { background: #e7000e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="3"] { background: #009A38; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="4"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="5"] { background: #955b29; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="6"] { background: #d89d3e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="7"] { background: black; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="8"] { background: #A6C700; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="9"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="10"] { background: #e82788; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="11"] { background: #009A38; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="12"] { background: #85cfe0; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="13"] { background: #ffd200; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="14"] { background: #00A1E5; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="15"] { background: #e7000e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="16"] { background: #004E67; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="17"] { background: #9e1762; color: white; }
+.line-container[data-agency-name*="Aargau"][data-line="20"][data-mode="TRAM"] { background: rgb(142,34,77); color: white; }
 
-.line-container[data-agency-id="849"][data-line="31"] { background: #9fa3cd; color: white; }
-.line-container[data-agency-id="849"][data-line="32"] { background: #dab2d2; color: black; }
-.line-container[data-agency-id="849"][data-line="33"] { background: #e9e6a5; color: black; }
-.line-container[data-agency-id="849"][data-line="46"] { background: #c5dfa5; color: black; }
-.line-container[data-agency-id="849"][data-line="61"] { background: #98908A; color: white; }
-.line-container[data-agency-id="849"][data-line="62"] { background: #D0C4B6; color: black; }
-.line-container[data-agency-id="849"][data-line="72"] { background: #D8AA99; color: black; }
-.line-container[data-agency-id="849"][data-line="80"] { background: #CDD7BB; color: black; }
-.line-container[data-agency-id="849"][data-line="89"] { background: #D0C4B6; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="31"] { background: #9fa3cd; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="32"] { background: #dab2d2; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="33"] { background: #e9e6a5; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="46"] { background: #c5dfa5; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="61"] { background: #98908A; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="62"] { background: #D0C4B6; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="72"] { background: #D8AA99; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="80"] { background: #CDD7BB; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="89"] { background: #D0C4B6; color: black; }
 
-.line-container[data-agency-id="849"][data-line="301"] { background: #A6C700; color: black; }
-.line-container[data-agency-id="849"][data-line="302"] { background: #009A38; color: white; }
-.line-container[data-agency-id="849"][data-line="303"] { background: #46398e; color: white; }
-.line-container[data-agency-id="849"][data-line="304"] { background: #e7000e; color: white; }
-.line-container[data-agency-id="849"][data-line="305"] { background: #955b29; color: white; }
-.line-container[data-agency-id="849"][data-line="306"] { background: #ffd200; color: black; }
-.line-container[data-agency-id="849"][data-line="307"] { background: #d89d3e; color: white; }
-.line-container[data-agency-id="849"][data-line="308"] { background: #e82788; color: white; }
-.line-container[data-agency-id="849"][data-line="309"] { background: #00A1E5; color: white; }
-.line-container[data-agency-id="849"][data-line="314"] { background: #f37b72; color: white; }
-.line-container[data-agency-id="849"][data-line="317"] { background: #46398e; color: white; }
-.line-container[data-agency-id="849"][data-line="325"] { background: #e82788; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="301"] { background: #A6C700; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="302"] { background: #009A38; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="303"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="304"] { background: #e7000e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="305"] { background: #955b29; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="306"] { background: #ffd200; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="307"] { background: #d89d3e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="308"] { background: #e82788; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="309"] { background: #00A1E5; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="314"] { background: #f37b72; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="317"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="325"] { background: #e82788; color: white; }
 
-.line-container[data-agency-id="849"], .line-container[data-agency-id="3849"] { background: white; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"], .line-container[data-agency-name^="Verkehrsbetriebe Zürich"] { background: white; color: black; }
 .line-container[data-agency-id="Zürich"][data-line="E"] { background: white; color: black; border: solid 1px rgb(144,190,227); }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 
-.line-container[data-agency-id="849"][data-line^="N"] {color:rgb(255,242,0); background-color:rgb(0,0,0);} /* VBZ Nachtnetz */
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="N"] {color:rgb(255,242,0); background-color:rgb(0,0,0);} /* VBZ Nachtnetz */
 
 /* Verkehrsbetriebe Glattal */
 .line-container[data-agency-name*="Glattal"] { background: #90c53e; color: white; }
-.line-container[data-agency-id="849"][data-line^="91"] { background: #D0B084; color: black; } /* AZZK */
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="91"] { background: #D0B084; color: black; } /* AZZK */
 
 /* Stadtbus Winterthur */
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line="1"] { background: #A8C42E; color: white; }
@@ -348,6 +348,7 @@
 
 /* TransN */
 .line-container[data-agency-name*="Neuchâtel"]{background: #7BB600; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-mode="FERRY"]{background: #006072; color:#ffbf00; border:#1a6ea8 solid 1px;}
 
 .line-container[data-agency-name*="Neuchâtel"][data-line="101"]{background: #2D3291; color:white;}
 .line-container[data-agency-name*="Neuchâtel"][data-line="102"]{background: #4696D2; color:white;}
@@ -762,3 +763,6 @@
 .line-container[data-agency-name="Arriva"] { background: #33cbd7; color: white; }
 
 .line-container[data-agency-name="European Sleeper"] { background: #40002c; color: white; } /* European Sleeper */
+
+/* Belgien */
+.line-container[data-agency-name*="SNCB"] { background: #006ab3; color: white; } /* SNCB */

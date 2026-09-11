@@ -1,0 +1,46 @@
+/* Responsive adjustments shared by the main views. */
+
+@media (max-width: 600px) {
+  .stations-view .stations-list {
+    margin: 0;
+  }
+
+  .stations-view .stations-container {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .stations-view .station-favorite-toggle {
+    width: 44px;
+    padding-left: 8px;
+  }
+
+  .btn-nearby {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    margin-left: 2px;
+  }
+
+  .menu-sidebar {width: 240px;}
+  .menu-link {padding: 12px 14px;font-size: 0.9em;}
+  .menu-title {font-size: 1em;}
+
+  .home-container {padding: 15% 5% 5% 5%;}
+  .home-grid {gap: 12px;}
+  .home-tile-icon {font-size: 2em;}
+  .home-tile-label {font-size: 0.96em;}
+  .stations-header {padding: 12px 14px;}
+  .stations-header h2 {font-size: 1em;}
+  .stations-view .stations-item {padding: 10px 8px;font-size: 0.95em;}
+}
+
+@media (max-width: 480px) {
+  .line {max-width: 70px;}
+  .tripnr {max-width: 90px;}
+}
+
+@media (max-width: 360px) {
+  th, td {font-size: 0.88rem;padding: 0.45rem 0.3rem;}
+}

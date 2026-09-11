@@ -982,18 +982,7 @@ function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
     );
   });
 
-  const merged = new Map();
-  nearbyEntries.forEach(dep => {
-    const stopKey = dep._stopId || dep._fromStation || fallbackStopId;
-    const lineKey = String(dep.line || '').trim().toUpperCase();
-    const key = `${stopKey}:${lineKey}`;
-    const current = merged.get(key);
-    if (!current || (dep.scheduled || Infinity) < (current.scheduled || Infinity)) {
-      merged.set(key, dep);
-    }
-  });
-
-  return [...mainEntries, ...merged.values()];
+  return [...mainEntries, ...deduplicateDepartures(nearbyEntries)];
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────

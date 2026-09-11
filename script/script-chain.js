@@ -311,6 +311,7 @@ function renderDepartures(departures) {
 
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
+    if (depIdx % 2 === 1) tr.classList.add('dep-row-alt');
 
     const needsDestinationFallback = !!dep.tripId && !dep.destination;
     const needsViaLoading = !!dep.tripId && viaLoadingEnabled && !Array.isArray(dep.vias);
