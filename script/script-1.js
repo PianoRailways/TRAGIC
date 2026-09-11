@@ -604,10 +604,12 @@ function renderFavoritesView() {
     const li = document.createElement('li');
     
     const itemContainer = document.createElement('div');
-    itemContainer.style.display = 'flex';
-    itemContainer.style.flex = '1';
-    itemContainer.style.alignItems = 'center';
-    itemContainer.style.justifyContent = 'space-between';
+    itemContainer.className = 'station-row';
+
+    const favoriteIcon = document.createElement('span');
+    favoriteIcon.className = 'station-favorite-toggle is-favorite';
+    favoriteIcon.textContent = '★';
+    favoriteIcon.setAttribute('aria-hidden', 'true');
     
     const link = document.createElement('a');
     link.className = 'stations-item';
@@ -627,7 +629,6 @@ function renderFavoritesView() {
     deleteBtn.className = 'fav-remove-btn';
     deleteBtn.title = `Favorit ${favorite.name} löschen`;
     deleteBtn.textContent = '×';
-    deleteBtn.style.marginRight = '10px';
     deleteBtn.dataset.stopId = favorite.stopId;
     deleteBtn.dataset.confirmPending = 'false';
     
@@ -659,6 +660,7 @@ function renderFavoritesView() {
       }
     });
     
+    itemContainer.appendChild(favoriteIcon);
     itemContainer.appendChild(link);
     itemContainer.appendChild(deleteBtn);
     li.appendChild(itemContainer);
