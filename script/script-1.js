@@ -599,9 +599,52 @@ function renderFavoritesView() {
   if (!favoritesView || !favoritesList) return;
   
   favoritesList.innerHTML = '';
+  let draggedRow = null;
   
   favoriteStations.forEach(favorite => {
     const li = document.createElement('li');
+    li.draggable = true;
+    li.dataset.stopId = favorite.stopId;
+
+    li.addEventListener('dragstart', event => {
+      draggedRow = li;
+      li.classList.add('favorite-dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', favorite.stopId);
+    });
+
+    li.addEventListener('dragover', event => {
+      event.preventDefault();
+      if (draggedRow && draggedRow !== li) {
+        event.dataTransfer.dropEffect = 'move';
+        li.classList.add('favorite-drag-over');
+      }
+    });
+
+    li.addEventListener('dragleave', () => {
+      li.classList.remove('favorite-drag-over');
+    });
+
+    li.addEventListener('drop', event => {
+      event.preventDefault();
+      if (!draggedRow || draggedRow === li) return;
+
+      favoritesList.insertBefore(draggedRow, li);
+      favoriteStations = [...favoritesList.querySelectorAll('li[data-stop-id]')]
+        .map(row => favoriteStations.find(entry => entry.stopId === row.dataset.stopId))
+        .filter(Boolean);
+      saveFavoritesToStorage();
+      renderFavoritesView();
+      renderFavoritesBar();
+    });
+
+    li.addEventListener('dragend', () => {
+      draggedRow = null;
+      favoritesList.querySelectorAll('.favorite-drag-over').forEach(row => {
+        row.classList.remove('favorite-drag-over');
+      });
+      li.classList.remove('favorite-dragging');
+    });
     
     const itemContainer = document.createElement('div');
     itemContainer.className = 'station-row';

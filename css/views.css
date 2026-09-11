@@ -254,6 +254,18 @@
   border-bottom: 1px solid var(--border-soft);
 }
 
+.stations-view .stations-list li[draggable="true"] {
+  cursor: grab;
+}
+
+.stations-view .stations-list li.favorite-dragging {
+  opacity: 0.5;
+}
+
+.stations-view .stations-list li.favorite-drag-over {
+  border-top-color: var(--line-accent);
+}
+
 .stations-view .stations-item {
   display: flex;
   align-items: center;
