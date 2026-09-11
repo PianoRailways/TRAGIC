@@ -7,7 +7,7 @@
 
   .stations-view .stations-container {
     max-width: 100%;
-    max-height: 70vh;
+    height: 100%;
     border-radius: 8px 8px 0 0;
   }
 
