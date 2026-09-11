@@ -80,7 +80,7 @@
 .line-container[data-agency-id="3849"][data-line="15"] { background: #e7000e; color: white; }
 .line-container[data-agency-id="3849"][data-line="16"] { background: #004E67; color: white; }
 .line-container[data-agency-id="3849"][data-line="17"] { background: #9e1762; color: white; }
-.line-container[data-agency-id="3849"][data-line="20"] { background: rgb(142,34,77); color: white; }
+.line-container[data-agency-name*="Aargau"][data-line="20"][data-mode="TRAM"] { background: rgb(142,34,77); color: white; }
 
 .line-container[data-agency-id="849"][data-line="31"] { background: #9fa3cd; color: white; }
 .line-container[data-agency-id="849"][data-line="32"] { background: #dab2d2; color: black; }
