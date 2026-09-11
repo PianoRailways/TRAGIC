@@ -7,7 +7,7 @@ let allDepartures = [];
 let abbrevMap = {};
 let nameToAbbrevMap = {};
 
-const DEFAULT_FAVORITES = [
+const IMPORTANT_STATIONS = [
   // SCHWEIZ - Hauptknotenpunkte
   { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'Basel SBB', name: 'Basel SBB', country: 'CH', type: 'major_hub', lat: 47.547413, lon: 7.5895605 },
   { stopId: 'at-Railway-Current-Reference-Data-2026_ch:23026:688:91:3', label: 'Zürich HB', name: 'Zürich HB', country: 'CH', type: 'major_hub', lat: 47.37814, lon: 8.537462 },
@@ -84,6 +84,18 @@ const DEFAULT_FAVORITES = [
   // ITALIEN
   { stopId: 'it-trenitalia_IT::StopPlace:otherTRENITALIA:830001700', label: 'Milano Centrale', name: 'Milano Centrale', country: 'IT', type: 'major_hub', lat: 45.486341, lon: 9.204544 },
   { stopId: 'at-Railway-Current-Reference-Data-2026_it:22101:7010:51:32073', label: 'Verona Porta Nuova', name: 'Verona Porta Nuova', country: 'IT', type: 'regional_hub', lat: 45.428707, lon: 10.982668 },
+];
+
+const DEFAULT_FAVORITES = [
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:8100', label: 'Langenthal', name: 'Langenthal' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5000', label: 'Luzern', name: 'Luzern' },
+  { stopId: 'de-DELFI_ch:23005:6', label: 'Basel Badischer Bhf', name: 'Basel Badischer Bhf' },
+  { stopId: 'fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF:OCETrainTER87182063', label: 'Mulhouse-Ville', name: 'Mulhouse-Ville' },
+  { stopId: 'ch-opentransportdataswiss26_Parent8721202', label: 'Strasbourg', name: 'Strasbourg' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'Basel SBB', name: 'Basel SBB' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3000', label: 'Zürich HB', name: 'Zürich HB' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:7000', label: 'Bern', name: 'Bern' },
+  { stopId: 'pl-PKP-Intercity_1008_parent', label: 'Świnoujście', name: 'Świnoujście' },
 ];
 const FAVORITES_STORAGE_KEY = 'tragic_favorites';
 const VIA_LOADING_STORAGE_KEY = 'tragic_via_loading_enabled';
@@ -602,7 +614,7 @@ function renderStationsView() {
   
   stationsList.innerHTML = '';
   
-  DEFAULT_FAVORITES.forEach(station => {
+  IMPORTANT_STATIONS.forEach(station => {
     const li = document.createElement('li');
     const row = document.createElement('div');
     row.className = 'station-row';
