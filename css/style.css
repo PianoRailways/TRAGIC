@@ -824,7 +824,21 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   color:var(--text-subtle);
   margin-top: 2px;
 }
-.date-separator {border-top:2px solid;}
+.date-separator-row td {
+  padding: 8px 3px 4px;
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid var(--border-main);
+  border-bottom: none;
+  background: var(--bg-surface);
+}
+.date-separator {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
 .col-time { width: 20px; white-space: nowrap; vertical-align: top; text-align: top; border-left: none; }
 .delay-badge {
   display: inline-block;
