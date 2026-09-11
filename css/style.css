@@ -825,7 +825,7 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   margin-top: 2px;
 }
 .date-separator {border-top:2px solid;}
-.col-time { width: auto; white-space: nowrap; vertical-align:top; text-align:top;border-left:none;}
+.col-time { width: 20px; white-space: nowrap; vertical-align: top; text-align: top; border-left: none; }
 .delay-badge {
   display: inline-block;
   font-size: 0.74em;
