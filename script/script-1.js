@@ -8,15 +8,82 @@ let abbrevMap = {};
 let nameToAbbrevMap = {};
 
 const DEFAULT_FAVORITES = [
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:8100', label: 'Langenthal', name: 'Langenthal' },
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5000', label: 'Luzern', name: 'Luzern' },
-  { stopId: 'de-DELFI_ch:23005:6', label: 'Basel Badischer Bhf', name: 'Basel Badischer Bhf' },
-  { stopId: 'fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF:OCETrainTER87182063', label: 'Mulhouse-Ville', name: 'Mulhouse-Ville' },
-  { stopId: 'ch-opentransportdataswiss26_Parent8721202', label: 'Strasbourg', name: 'Strasbourg' },
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'Basel SBB', name: 'Basel SBB' },
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3000', label: 'Zürich HB', name: 'Zürich HB' },
-  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:7000', label: 'Bern', name: 'Bern' },
-  { stopId: 'pl-PKP-Intercity_1008_parent', label: 'Świnoujście', name: 'Świnoujście' },
+  // SCHWEIZ - Hauptknotenpunkte
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'Basel SBB', name: 'Basel SBB', country: 'CH', type: 'major_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3000', label: 'Zürich HB', name: 'Zürich HB', country: 'CH', type: 'major_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:7000', label: 'Bern', name: 'Bern', country: 'CH', type: 'major_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5000', label: 'Luzern', name: 'Luzern', country: 'CH', type: 'major_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5213', label: 'Bellinzona', name: 'Bellinzona', country: 'CH', type: 'major_hub' },
+  
+  // SCHWEIZ - Regionale Knotenpunkte
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:4300', label: 'Biel/Bienne', name: 'Biel/Bienne', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:1609', label: 'Brig', name: 'Brig', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:218', label: 'Olten', name: 'Olten', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:7483', label: 'Spiez', name: 'Spiez', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:6000', label: 'Winterthur', name: 'Winterthur', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:2204', label: 'Zug', name: 'Zug', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:2001', label: 'Zofingen', name: 'Zofingen', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3001', label: 'Zürich Altstetten', name: 'Zürich Altstetten', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3016', label: 'Zürich Flughafen', name: 'Zürich Flughafen', country: 'CH', type: 'airport_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3006', label: 'Zürich Oerlikon', name: 'Zürich Oerlikon', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:2113', label: 'Aarau', name: 'Aarau', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:5004', label: 'Arth-Goldau', name: 'Arth-Goldau', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3504', label: 'Baden', name: 'Baden', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:309', label: 'Brugg AG', name: 'Brugg AG', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:9404', label: 'Buchs SG', name: 'Buchs SG', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:9000', label: 'Chur', name: 'Chur', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:1008', label: 'Genève', name: 'Genève', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:1026', label: 'Genève-Aéroport', name: 'Genève-Aéroport', country: 'CH', type: 'airport_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:9002', label: 'Landquart', name: 'Landquart', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:1120', label: 'Lausanne', name: 'Lausanne', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:4221', label: 'Neuchâtel', name: 'Neuchâtel', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:1118', label: 'Renens VD', name: 'Renens VD', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:6121', label: 'Romanshorn', name: 'Romanshorn', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:9411', label: 'Sargans', name: 'Sargans', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3424', label: 'Schaffhausen', name: 'Schaffhausen', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:6302', label: 'St. Gallen', name: 'St. Gallen', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:6314', label: 'St. Margrethen', name: 'St. Margrethen', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3202', label: 'Thalwil', name: 'Thalwil', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:7100', label: 'Thun', name: 'Thun', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:1605', label: 'Visp', name: 'Visp', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:6105', label: 'Weinfelden', name: 'Weinfelden', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:4200', label: 'Yverdon-les-Bains', name: 'Yverdon-les-Bains', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:3225', label: 'Ziegelbrücke', name: 'Ziegelbrücke', country: 'CH', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:8100', label: 'Langenthal', name: 'Langenthal', country: 'CH', type: 'regional_hub' },
+
+  // DEUTSCHLAND - Hauptknotenpunkte
+  { stopId: 'de-DELFI_8000105', label: 'Berlin Hbf', name: 'Berlin Hauptbahnhof', country: 'DE', type: 'major_hub' },
+  { stopId: 'de-DELFI_8002143', label: 'Hamburg Hbf', name: 'Hamburg Hauptbahnhof', country: 'DE', type: 'major_hub' },
+  { stopId: 'de-DELFI_8000155', label: 'Frankfurt (Main) Hbf', name: 'Frankfurt (Main) Hauptbahnhof', country: 'DE', type: 'major_hub' },
+  { stopId: 'de-DELFI_8000261', label: 'München Hbf', name: 'München Hauptbahnhof', country: 'DE', type: 'major_hub' },
+  { stopId: 'de-DELFI_8000207', label: 'Stuttgart Hbf', name: 'Stuttgart Hauptbahnhof', country: 'DE', type: 'major_hub' },
+  { stopId: 'de-DELFI_ch:23005:6', label: 'Basel Badischer Bhf', name: 'Basel Badischer Bahnhof', country: 'DE', type: 'border_hub' },
+  { stopId: 'de-DELFI_8000080', label: 'Köln Hbf', name: 'Köln Hauptbahnhof', country: 'DE', type: 'regional_hub' },
+  { stopId: 'de-DELFI_8000148', label: 'Düsseldorf Hbf', name: 'Düsseldorf Hauptbahnhof', country: 'DE', type: 'regional_hub' },
+  { stopId: 'de-DELFI_8000087', label: 'Hannover Hbf', name: 'Hannover Hauptbahnhof', country: 'DE', type: 'regional_hub' },
+  { stopId: 'de-DELFI_8000309', label: 'Karlsruhe Hbf', name: 'Karlsruhe Hauptbahnhof', country: 'DE', type: 'regional_hub' },
+  { stopId: 'de-DELFI_8002554', label: 'Dortmund Hbf', name: 'Dortmund Hauptbahnhof', country: 'DE', type: 'regional_hub' },
+  { stopId: 'de-DELFI_8000272', label: 'Nürnberg Hbf', name: 'Nürnberg Hauptbahnhof', country: 'DE', type: 'regional_hub' },
+  { stopId: 'de-DELFI_8002006', label: 'Mannheim Hbf', name: 'Mannheim Hauptbahnhof', country: 'DE', type: 'regional_hub' },
+
+  // FRANKREICH - Wichtige Knoten
+  { stopId: 'fr-agregat-des-reseaux-urbains-et-interurbains-en-region-grand-est_SNCF:OCETrainTER87182063', label: 'Mulhouse-Ville', name: 'Mulhouse-Ville', country: 'FR', type: 'regional_hub' },
+  { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:8721202', label: 'Strasbourg', name: 'Strasbourg', country: 'FR', type: 'regional_hub' },
+  { stopId: 'fr-SNCF-ConnectStations_FRXLS', label: 'Lyon Part-Dieu', name: 'Lyon Part-Dieu', country: 'FR', type: 'regional_hub' },
+  { stopId: 'fr-SNCF-ConnectStations_FRPST', label: 'Paris Gare de l\'Est', name: 'Paris Gare de l\'Est', country: 'FR', type: 'major_hub' },
+  { stopId: 'fr-SNCF-ConnectStations_FRPLY', label: 'Paris Gare de Lyon', name: 'Paris Gare de Lyon', country: 'FR', type: 'major_hub' },
+
+  // ÖSTERREICH - Wichtige Knoten
+  { stopId: 'at-oepnv_1191501', label: 'Wien Hbf', name: 'Wien Hauptbahnhof', country: 'AT', type: 'major_hub' },
+  { stopId: 'at-oepnv_1020000', label: 'Innsbruck Hbf', name: 'Innsbruck Hauptbahnhof', country: 'AT', type: 'regional_hub' },
+  { stopId: 'at-oepnv_1040000', label: 'Linz Hbf', name: 'Linz Hauptbahnhof', country: 'AT', type: 'regional_hub' },
+  { stopId: 'at-oepnv_1050000', label: 'Salzburg Hbf', name: 'Salzburg Hauptbahnhof', country: 'AT', type: 'regional_hub' },
+  { stopId: 'at-oepnv_1192007', label: 'Wien Westbahnhof', name: 'Wien Westbahnhof', country: 'AT', type: 'regional_hub' },
+
+  // ITALIEN - Gotthard-Anbindung
+  { stopId: 'it-oepnv_8300011', label: 'Milano Centrale', name: 'Milano Centrale', country: 'IT', type: 'major_hub' },
+  { stopId: 'it-oepnv_8300013', label: 'Milano P. Garibaldi', name: 'Milano Porta Garibaldi', country: 'IT', type: 'regional_hub' },
+  { stopId: 'it-oepnv_8300086', label: 'Verona Porta Nuova', name: 'Verona Porta Nuova', country: 'IT', type: 'regional_hub' },
 ];
 const FAVORITES_STORAGE_KEY = 'tragic_favorites';
 const VIA_LOADING_STORAGE_KEY = 'tragic_via_loading_enabled';
