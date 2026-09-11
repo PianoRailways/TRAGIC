@@ -348,6 +348,7 @@
 
 /* TransN */
 .line-container[data-agency-name*="Neuchâtel"]{background: #7BB600; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-mode="FERRY"]{background: #006072; color:#ffbf00; border:#1a6ea8 solid 1px;}
 
 .line-container[data-agency-name*="Neuchâtel"][data-line="101"]{background: #2D3291; color:white;}
 .line-container[data-agency-name*="Neuchâtel"][data-line="102"]{background: #4696D2; color:white;}
