@@ -80,29 +80,30 @@ stations = [
     'Verona Porta Nuova',
 ]
 
-def query_transitous(station_name):
-    """Abfrage einzelner Station bei Transitous API"""
+def query_transitous(station_name, proxy_url):
+    """Abfrage einzelner Station via PHP-Proxy"""
     try:
-        url = 'https://api.transitous.org/v1/stops'
-        params = {'query': station_name, 'limit': 1}
-        response = requests.get(url, params=params, timeout=5)
+        params = {'action': 'search', 'query': station_name}
+        response = requests.get(proxy_url, params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
         
-        if data.get('stops') and len(data['stops']) > 0:
-            stop = data['stops'][0]
+        if data.get('stations') and len(data['stations']) > 0:
+            stop = data['stations'][0]
             return {
                 'name': station_name,
                 'id': stop.get('id'),
                 'transitousName': stop.get('name'),
-                'country': stop.get('country', 'unknown')
+                'lat': stop.get('lat'),
+                'lon': stop.get('lon'),
             }
         else:
+            error_msg = data.get('error', 'Not found')
             return {
                 'name': station_name,
                 'id': None,
                 'transitousName': None,
-                'error': 'Not found'
+                'error': error_msg
             }
     except Exception as e:
         return {
@@ -112,11 +113,16 @@ def query_transitous(station_name):
         }
 
 def main():
-    print('Fetching Transitous IDs...\n')
+    proxy_url = input('PHP-Proxy URL (z.B. http://localhost/tragic/proxy.php): ').strip()
+    if not proxy_url:
+        print('Fehler: Proxy-URL erforderlich')
+        return
+    
+    print(f'\nFetching via: {proxy_url}\n')
     results = []
     
     for i, station in enumerate(stations, 1):
-        result = query_transitous(station)
+        result = query_transitous(station, proxy_url)
         results.append(result)
         
         if result.get('id'):
