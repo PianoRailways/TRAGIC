@@ -736,25 +736,28 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 #suggestions:empty { display: none; }
 #suggestions li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
   padding: 0.6rem 0.7rem;
   cursor: pointer;
   border-bottom: 1px solid var(--border-soft);
   font-size: 0.95rem;
   line-height: 1.3;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.8rem;
 }
 #suggestions li:last-child { border-bottom: none; }
 #suggestions li:active, #suggestions li:hover { background: var(--bg-hover); }
 .suggestion-id {
-  display: inline;
+  display: block;
   font-size: 0.72em;
   color: var(--text-muted);
-  margin-left: auto;
   font-weight: normal;
-  flex-shrink: 0;
+  margin-top: 0.25em;
+  margin-left: 0;
+  flex-basis: 100%;
+  order: 3;
 }
 .suggestion-distance {
   display: inline;
@@ -770,7 +773,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   font-weight: bold;
   font-size: x-small;
   flex: 1;
-  text-align: center;
+  text-align: right;
   flex-shrink: 0;
 }
 /* ── NAVIGATION BUTTONS ────────────────────────────────────── */
