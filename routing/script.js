@@ -157,6 +157,19 @@ function attachStationSearch(input, suggestions, key) {
           suggestions.style.display = 'none';
         });
         suggestions.appendChild(item);
+
+        if (station.isAbbrev) {
+          searchStations(station.name)
+            .then(stations => stations.find(match =>
+              match.name.trim().toLowerCase() === station.name.trim().toLowerCase()
+            ) || stations[0])
+            .then(match => {
+              if (!match || !item.isConnected) return;
+              station.id = match.id;
+              item.innerHTML = `${escapeHtml(station.name)} <span class="abbrev-label">${escapeHtml(station.abbrev)} [${escapeHtml(station.country)}]</span> <span class="suggestion-id">(${escapeHtml(station.id)})</span>`;
+            })
+            .catch(() => {});
+        }
       });
       suggestions.style.display = results.length ? 'block' : 'none';
     } catch (error) {

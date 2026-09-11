@@ -221,6 +221,7 @@ function getLocalAbbreviationMatches(query) {
 function renderStationSuggestions(list, matches) {
   list.innerHTML = '';
   const seen = new Set();
+  const renderedMatches = [];
 
   matches.slice(0, 8).forEach(match => {
     const key = `${match.name.toLowerCase()}|${match.country || ''}`;
@@ -238,7 +239,28 @@ function renderStationSuggestions(list, matches) {
     li.innerHTML = html;
     li.onclick = () => selectStation(match.id, match.name, null);
     list.appendChild(li);
+    match.element = li;
+    renderedMatches.push(match);
   });
+
+  return renderedMatches;
+}
+
+async function enrichLocalStationSuggestions(matches) {
+  await Promise.all(matches.map(async match => {
+    try {
+      const stations = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`)
+        .then(response => response.json())
+        .then(data => data.stations || []);
+      const exactMatch = stations.find(station =>
+        station.name.trim().toLowerCase() === match.name.trim().toLowerCase()
+      );
+      if (!exactMatch || !match.element?.isConnected) return;
+
+      match.id = exactMatch.id;
+      match.element.innerHTML = `${escapeHtml(match.name)} <span class="abbrev-label">${escapeHtml(match.abbrev)} [${escapeHtml(match.country)}]</span> <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
+    } catch (_) {}
+  }));
 }
 
 function attachMainStationSearch(input, list) {
@@ -251,17 +273,23 @@ function attachMainStationSearch(input, list) {
 
     const sequence = ++searchSequence;
     const localMatches = getLocalAbbreviationMatches(query);
-    renderStationSuggestions(list, localMatches);
+    const renderedLocalMatches = renderStationSuggestions(list, localMatches);
     list.style.display = localMatches.length ? 'block' : '';
-    if (localMatches.length) return;
+    if (localMatches.length) {
+      enrichLocalStationSuggestions(renderedLocalMatches);
+      return;
+    }
 
     if (window.abbreviationsReady) {
       await window.abbreviationsReady;
       if (sequence !== searchSequence || input.value.trim() !== query) return;
       const loadedMatches = getLocalAbbreviationMatches(query);
-      renderStationSuggestions(list, loadedMatches);
+      const renderedLoadedMatches = renderStationSuggestions(list, loadedMatches);
       list.style.display = loadedMatches.length ? 'block' : '';
-      if (loadedMatches.length) return;
+      if (loadedMatches.length) {
+        enrichLocalStationSuggestions(renderedLoadedMatches);
+        return;
+      }
     }
 
     clearTimeout(input.searchTimer);
