@@ -207,81 +207,113 @@ async function shareDepartureView() {
 
 // ─── Stationssuche ───────────────────────────────────────────────────────────
 
-const queryInput = document.getElementById('query');
-if (queryInput) {
-  queryInput.addEventListener('input', debounce(async (e) => {
-    const q = e.target.value.trim();
-    const list = document.getElementById('suggestions');
-    if (!list) return;
-    list.innerHTML = '';
-    if (q.length < 2) return;
-   
-    try {
-      const abbrevMatches = [];
-      const qUpper = q.toUpperCase();
-      if (abbrevMap[qUpper]) {
-        for (const match of abbrevMap[qUpper]) {
-          try {
-            const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`);
-            const searchData = await searchRes.json();
-            const station = (searchData.stations || []).find(s => s.name.toLowerCase() === match.name.toLowerCase());
-            
-            if (station) {
-              abbrevMatches.push({
-                id: station.id,
-                name: match.name,
-                abbrev: qUpper,
-                country: match.country,
-                source: 'abbrev'
-              });
-            }
-          } catch (_) {}
-        }
-      }
-   
-      const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      
-      const apiMatches = (data.stations || []).map(st => {
-        const foundAbbrevs = getAbbrevsForName(st.name);
-        const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
-        return {
-          id: st.id,
-          name: st.name,
-          abbrev: primary ? primary.abbrev : null,
-          country: primary ? primary.country : null,
-          source: 'api'
-        };
-      });
-   
-      const seen = new Set();
-      const allMatches = [...abbrevMatches, ...apiMatches];
-      
-      allMatches.forEach(match => {
-        const key = (match.id || match.name).toLowerCase();
-        if (seen.has(key)) return;
-        seen.add(key);
-   
-        const li = document.createElement('li');
-        let html = escapeHtml(match.name);
-        
-        if (match.abbrev) {
-          html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
-        }
-        
-        if (match.id) {
-          html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
-        }
-        
-        li.innerHTML = html;
-        li.onclick = () => selectStation(match.id, match.name, null);
-        list.appendChild(li);
-      });
-    } catch (err) {
-      setStatus('Fehler bei der Stationssuche: ' + err.message);
-    }
-  }, 350));
+function getLocalAbbreviationMatches(query) {
+  const abbreviation = query.toUpperCase();
+  return (abbrevMap[abbreviation] || []).map(match => ({
+    id: null,
+    name: match.name.trim(),
+    abbrev: abbreviation,
+    country: match.country,
+    source: 'abbrev'
+  }));
 }
+
+function renderStationSuggestions(list, matches) {
+  list.innerHTML = '';
+  const seen = new Set();
+  const renderedMatches = [];
+
+  matches.slice(0, 8).forEach(match => {
+    const key = `${match.name.toLowerCase()}|${match.country || ''}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    const li = document.createElement('li');
+    let html = escapeHtml(match.name);
+    if (match.abbrev) {
+      html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
+    }
+    if (match.id) {
+      html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
+    }
+    li.innerHTML = html;
+    li.onclick = () => selectStation(match.id, match.name, null);
+    list.appendChild(li);
+    match.element = li;
+    renderedMatches.push(match);
+  });
+
+  return renderedMatches;
+}
+
+async function enrichLocalStationSuggestions(matches) {
+  await Promise.all(matches.map(async match => {
+    try {
+      const stations = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`)
+        .then(response => response.json())
+        .then(data => data.stations || []);
+      const exactMatch = stations.find(station =>
+        station.name.trim().toLowerCase() === match.name.trim().toLowerCase()
+      );
+      if (!exactMatch || !match.element?.isConnected) return;
+
+      match.id = exactMatch.id;
+      match.element.innerHTML = `${escapeHtml(match.name)} <span class="abbrev-label">${escapeHtml(match.abbrev)} [${escapeHtml(match.country)}]</span> <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
+    } catch (_) {}
+  }));
+}
+
+function attachMainStationSearch(input, list) {
+  let searchSequence = 0;
+  input.addEventListener('input', async event => {
+    const query = event.target.value.trim();
+    list.innerHTML = '';
+    list.style.display = '';
+    if (query.length < 2) return;
+
+    const sequence = ++searchSequence;
+    const localMatches = getLocalAbbreviationMatches(query);
+    const renderedLocalMatches = renderStationSuggestions(list, localMatches);
+    list.style.display = localMatches.length ? 'block' : '';
+    if (localMatches.length) {
+      enrichLocalStationSuggestions(renderedLocalMatches);
+      return;
+    }
+
+    if (window.abbreviationsReady) {
+      await window.abbreviationsReady;
+      if (sequence !== searchSequence || input.value.trim() !== query) return;
+      const loadedMatches = getLocalAbbreviationMatches(query);
+      const renderedLoadedMatches = renderStationSuggestions(list, loadedMatches);
+      list.style.display = loadedMatches.length ? 'block' : '';
+      if (loadedMatches.length) {
+        enrichLocalStationSuggestions(renderedLoadedMatches);
+        return;
+      }
+    }
+
+    clearTimeout(input.searchTimer);
+    input.searchTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (sequence !== searchSequence || input.value.trim() !== query) return;
+        const apiMatches = (data.stations || []).map(st => {
+          const foundAbbrevs = getAbbrevsForName(st.name);
+          const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
+          return { id: st.id, name: st.name, abbrev: primary?.abbrev || null, country: primary?.country || null, source: 'api' };
+        });
+        renderStationSuggestions(list, apiMatches);
+        list.style.display = apiMatches.length ? 'block' : '';
+      } catch (err) {
+        setStatus('Fehler bei der Stationssuche: ' + err.message);
+      }
+    }, 350);
+  });
+}
+
+const queryInput = document.getElementById('query');
+if (queryInput) attachMainStationSearch(queryInput, document.getElementById('suggestions'));
 
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#search-box')) {
@@ -297,78 +329,7 @@ document.addEventListener('click', (e) => {
 
 const homeQueryInput = document.getElementById('home-query');
 if (homeQueryInput) {
-  homeQueryInput.addEventListener('input', debounce(async (e) => {
-    const q = e.target.value.trim();
-    const list = document.getElementById('home-suggestions');
-    if (!list) return;
-    list.innerHTML = '';
-    if (q.length < 2) return;
-
-    try {
-      const abbrevMatches = [];
-      const qUpper = q.toUpperCase();
-      if (abbrevMap[qUpper]) {
-        for (const match of abbrevMap[qUpper]) {
-          try {
-            const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`);
-            const searchData = await searchRes.json();
-            const station = (searchData.stations || []).find(s => s.name.toLowerCase() === match.name.toLowerCase());
-
-            if (station) {
-              abbrevMatches.push({
-                id: station.id,
-                name: match.name,
-                abbrev: qUpper,
-                country: match.country,
-                source: 'abbrev'
-              });
-            }
-          } catch (_) {}
-        }
-      }
-
-      const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
-      const data = await res.json();
-
-      const apiMatches = (data.stations || []).map(st => {
-        const foundAbbrevs = getAbbrevsForName(st.name);
-        const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
-        return {
-          id: st.id,
-          name: st.name,
-          abbrev: primary ? primary.abbrev : null,
-          country: primary ? primary.country : null,
-          source: 'api'
-        };
-      });
-
-      const seen = new Set();
-      const allMatches = [...abbrevMatches, ...apiMatches];
-
-      allMatches.forEach(match => {
-        const key = (match.id || match.name).toLowerCase();
-        if (seen.has(key)) return;
-        seen.add(key);
-
-        const li = document.createElement('li');
-        let html = escapeHtml(match.name);
-
-        if (match.abbrev) {
-          html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
-        }
-
-        if (match.id) {
-          html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
-        }
-
-        li.innerHTML = html;
-        li.onclick = () => selectStation(match.id, match.name, null);
-        list.appendChild(li);
-      });
-    } catch (err) {
-      setStatus('Fehler bei der Stationssuche: ' + err.message);
-    }
-  }, 350));
+  attachMainStationSearch(homeQueryInput, document.getElementById('home-suggestions'));
 
   const homeSearchBtn = document.getElementById('home-search-btn');
   if (homeSearchBtn) {
@@ -494,9 +455,21 @@ async function selectStationByName(name, refEpoch) {
 
 // ─── Line Normalization ──────────────────────────────────────────────────────
 
-function normalizeLineDisplay(line) {
+const LINE_DISPLAY_OVERRIDES = {
+  'Dampfbahn Bern': { R: 'Regio', EXT: 'EXT' },
+  'rvo': { S12: 'Regio'},
+};
+
+function normalizeLineDisplay(line, agencyName = '') {
   if (!line) return '';
   const upper = line.toUpperCase();
+  const overrideLine = upper.replace(/\s*\(\d+\)\s*$/g, '').trim();
+
+  const agencyOverride = Object.entries(LINE_DISPLAY_OVERRIDES)
+    .find(([agency]) => String(agencyName).toUpperCase().includes(agency.toUpperCase()))?.[1];
+  if (agencyOverride && Object.prototype.hasOwnProperty.call(agencyOverride, overrideLine)) {
+    return agencyOverride[overrideLine];
+  }
   
   if (upper.startsWith('TGV LYRIA')) return 'TGV Lyria';
   if (upper.startsWith('TER')) return 'TER';
@@ -509,6 +482,8 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('GATWICK EXPRESS')) return 'GX';
   if (upper.startsWith('ELIZABETH LINE')) return 'ELZ';
   if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
+  if (upper.startsWith('HEATHROW EXPRESS')) return 'LHR';
+  if (upper.startsWith('THAMESLINK')) return 'TL';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }

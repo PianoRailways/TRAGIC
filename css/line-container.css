@@ -114,6 +114,7 @@
 /* Verkehrsbetriebe Glattal */
 .line-container[data-agency-name*="Glattal"] { background: #90c53e; color: white; }
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="91"] { background: #D0B084; color: black; } /* AZZK */
+.line-container[data-agency-name^="Verkehrsbetriebe Zürichsee"] { background: #002e77; color: white; } /* VBZ */
 
 /* Stadtbus Winterthur */
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line="1"] { background: #A8C42E; color: white; }
@@ -201,7 +202,19 @@
 .line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
 .line-container[data-agency-id="840"][data-line^="N"] { background: #231F20; color: #EBE835; }
-
+/* BOGG Olten */
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="501"] { background: #EE0023; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="502"] { background: #79BE52; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="503"] { background: #EB7729; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="505"] { background: #24703D; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="506"] { background: #673182; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="507"] { background: #FFD734; color: black; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="508"] { background: #00539E; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="509"] { background: #09A4C6; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="513"] { background: #F077A8; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="517"] { background: #9A70AD; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="519"] { background: #DA1888; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="555"] { background: #913E23; color: white; }
 /* RVBW */
 .line-container[data-agency-name*="Wettingen"][data-line="1"] { background: #EE1D23; color: white; }
 .line-container[data-agency-name*="Wettingen"][data-line="2"] { background: #0097D8; color: white; }
@@ -392,10 +405,10 @@
 .line-container[data-agency-name*="Neuchâtel"][data-line="R24"]{background: #D282B4; color:white;}
 
 /* TL Lausanne */
-.line-container[data-agency-id="151"][data-line^="m"] {position: relative;background-color: #0152A3;color: white;}
-.line-container[data-agency-id="151"][data-line^="m"]::after {content: "";position: absolute;top: 62%;right: 2px;transform: translateY(-50%);width: 13px;height: 13px;background-size: contain;background-repeat: no-repeat;background-position: center;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23e3007b' d='M83.4 16.6C65 -1.9 35 -1.9 16.6 16.6c-18.5 18.5-18.5 48.4 0 66.9 18.5 18.5 48.4 18.5 66.9 0 18.4-18.5 18.4-48.4-.1-66.9zM22.8 77.2L68 32c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L28.9 83.3c-2.3-1.8-4.4-3.8-6.1-6.1zm11.9 11.9L79.9 43.9c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L40.8 95.2c-2.2-1.8-4.2-3.9-6.1-6.1zM6.8 45.1L52 0c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L12.9 51.2c-2.2-1.9-4.3-3.9-6.1-6.1z'/%3E%3C/svg%3E");}
+.line-container[data-agency-name*="Lausannoise"][data-line^="m"] {position: relative;background-color: #0152A3;color: white;}
+.line-container[data-agency-name*="Lausannoise"][data-line^="m"]::after {content: "";position: absolute;top: 62%;right: 2px;transform: translateY(-50%);width: 13px;height: 13px;background-size: contain;background-repeat: no-repeat;background-position: center;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23e3007b' d='M83.4 16.6C65 -1.9 35 -1.9 16.6 16.6c-18.5 18.5-18.5 48.4 0 66.9 18.5 18.5 48.4 18.5 66.9 0 18.4-18.5 18.4-48.4-.1-66.9zM22.8 77.2L68 32c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L28.9 83.3c-2.3-1.8-4.4-3.8-6.1-6.1zm11.9 11.9L79.9 43.9c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L40.8 95.2c-2.2-1.8-4.2-3.9-6.1-6.1zM6.8 45.1L52 0c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L12.9 51.2c-2.2-1.9-4.3-3.9-6.1-6.1z'/%3E%3C/svg%3E");}
 
-.line-container[data-agency-id="55"] {color: #5AB031;background: white;}
+.line-container[data-agency-name="Lausanne-Echallens-Bercher"] {color: #5AB031;background: white;}
 /* BOB / Jungfraubahnen */
 .line-container[data-agency-name="Berner Oberland-Bahnen"],
 .line-container[data-agency-name^="Wengernalpbahn"],
@@ -521,8 +534,8 @@
 .line-container[data-agency-id="11"][data-line^="CNL"],
 .line-container[data-agency-id="11"][data-line^="RJ"],
 .line-container[data-agency-id="11"][data-line^="RJX"],
-.line-container[data-agency-id="11"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
 .line-container[data-agency-id="11"][data-line*="N"] { font-style: italic; background: transparent; color: #FFDE15; }
+.line-container[data-agency-id="11"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
 .line-container[data-agency-name*="SBB"][data-line^="SN"] { background: transparent; color: #FFDE15; border: 0.5px solid #FFDE15; }
 
 .line-container[data-line="GEX"],
@@ -554,6 +567,26 @@
 .line-container[data-agency-id="833"][data-line="123"] { background: rgb(41,54,141); color: white; }
 .line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
+/* Emmentalbahn / Dampfbahn Bern */
+.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Dampfbahn Bern"] {position: relative;padding-right: 1.7rem;}
+.line-container[data-agency-name*="Dampfbahn Bern"]::after {
+  content: "DBB";
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  font-size: 0.45rem;
+  line-height: 1;
+  font-weight: bold;
+  background: #4b2b1d;
+  color: #e2c878;
+  padding: 3px 4px;
+  display: inline-block;
+  letter-spacing: 0.02em;
+  border: 1px solid #a88a4b;
+  border-radius: 3px;
+}
 /* Thurbo inkl. DELFI Thurbo */
 .line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-name="THURBO"][data-line^="S"] { background: white; color: black; }
@@ -608,6 +641,8 @@
 .line-container[data-line="GWR"] { background: #0A493E; color: white; }
 .line-container[data-line="Southeastern"] { background: #1E1E50; color: white; }
 .line-container[data-line="EMR"] { background: #4C2F48; color: white; }
+.line-container[data-line="CrossCountry"] { background: #ca123f; color: #f8efe3; }
+.line-container[data-line="Heathrow Express"] { background: #5d226c; color: white; }
 
 .line-container[data-agency-name="Elizabeth line"] { background: #6F4B9E; color: white; }
 .line-container[data-line="DLR"] { background: #00AFA9; color: black; }
@@ -752,7 +787,7 @@
 }
 
 /* Österreich */
-.line-container[data-agency-id="02"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
+.line-container[data-agency-name^="WESTbahn"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
 
 /* Niederlanden */
 .line-container[data-agency-name="NS"] { background: #ffc917; color: #003082; }

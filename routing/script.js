@@ -97,6 +97,15 @@ async function searchStations(query) {
   return data.stations || [];
 }
 
+async function resolveStationId(station) {
+  if (station?.id) return station.id;
+  const matches = await searchStations(station?.name || '');
+  const exactMatch = matches.find(match =>
+    match.name.trim().toLowerCase() === station.name.trim().toLowerCase()
+  );
+  return (exactMatch || matches[0])?.id || null;
+}
+
 function attachStationSearch(input, suggestions, key) {
   const search = debounce(async () => {
     const query = input.value.trim();
@@ -117,17 +126,16 @@ function attachStationSearch(input, suggestions, key) {
         }
       }
 
-      // Second: Search stations by name (using abbreviation's name if found)
-      if (query.length >= 2) {
-        const searchQuery = selectedAbbrev ? selectedAbbrev.name : query;
-        results = await searchStations(searchQuery);
-        
-        // If we matched an abbreviation, mark the first result as abbrev match
-        if (selectedAbbrev && results.length > 0) {
-          results[0].isAbbrev = true;
-          results[0].abbrev = query.toUpperCase();
-          results[0].country = selectedAbbrev.country;
-        }
+      if (selectedAbbrev) {
+        results = [{
+          id: null,
+          name: selectedAbbrev.name.trim(),
+          isAbbrev: true,
+          abbrev: query.toUpperCase(),
+          country: selectedAbbrev.country
+        }];
+      } else if (query.length >= 2) {
+        results = await searchStations(query);
       }
 
       // Display results (max 8)
@@ -149,6 +157,19 @@ function attachStationSearch(input, suggestions, key) {
           suggestions.style.display = 'none';
         });
         suggestions.appendChild(item);
+
+        if (station.isAbbrev) {
+          searchStations(station.name)
+            .then(stations => stations.find(match =>
+              match.name.trim().toLowerCase() === station.name.trim().toLowerCase()
+            ) || stations[0])
+            .then(match => {
+              if (!match || !item.isConnected) return;
+              station.id = match.id;
+              item.innerHTML = `${escapeHtml(station.name)} <span class="abbrev-label">${escapeHtml(station.abbrev)} [${escapeHtml(station.country)}]</span> <span class="suggestion-id">(${escapeHtml(station.id)})</span>`;
+            })
+            .catch(() => {});
+        }
       });
       suggestions.style.display = results.length ? 'block' : 'none';
     } catch (error) {
@@ -363,8 +384,8 @@ function renderRoutes(connections) {
 }
 
 async function searchRoute() {
-  const from = selectedStations.get('from');
-  const to = selectedStations.get('to');
+  let from = selectedStations.get('from');
+  let to = selectedStations.get('to');
   
   console.log('🔴 searchRoute called');
   console.log('📍 From object:', from);
@@ -374,6 +395,17 @@ async function searchRoute() {
   
   if (!from || !to) {
     setHint(routeHint, 'Bitte Start und Ziel aus den Vorschlägen auswählen.', true);
+    return;
+  }
+
+  try {
+    from = { ...from, id: await resolveStationId(from) };
+    to = { ...to, id: await resolveStationId(to) };
+    if (!from.id || !to.id) throw new Error('Start oder Ziel konnte nicht aufgelöst werden.');
+    selectedStations.set('from', from);
+    selectedStations.set('to', to);
+  } catch (error) {
+    setHint(routeHint, error.message, true);
     return;
   }
 
@@ -419,13 +451,16 @@ async function searchRoute() {
 }
 
 async function loadBoard() {
-  const station = selectedStations.get('board');
+  let station = selectedStations.get('board');
   if (!station) {
     setHint(boardHint, 'Bitte eine Haltestelle aus den Vorschlägen auswählen.', true);
     return;
   }
   setHint(boardHint, 'Lade Abfahrten...');
   try {
+    station = { ...station, id: await resolveStationId(station) };
+    if (!station.id) throw new Error('Haltestelle konnte nicht aufgelöst werden.');
+    selectedStations.set('board', station);
     const response = await fetch(`${PROXY}?action=departures&stopId=${encodeURIComponent(station.id)}&n=25`);
     const data = await response.json();
     if (!response.ok || data.error) throw new Error(data.error || `Abfahrten konnten nicht geladen werden (${response.status})`);

@@ -338,7 +338,7 @@ function renderDepartures(departures) {
 
     const iconHtml = getModeIcon(dep.mode);
     const destName = getDestinationName(dep.destination);
-    const displayLine = normalizeLineDisplay(dep.line);
+    const displayLine = normalizeLineDisplay(dep.line, dep.agencyName);
 
     const tripNumDisplay = formatTripNumber(dep.tripNumber, dep.line);
 
@@ -395,10 +395,12 @@ async function toggleChain(tr, dep) {
   const existing = tr.nextElementSibling;
   if (existing && existing.classList.contains('chain-row')) {
     existing.remove();
+    tr.classList.remove('chain-open');
     syncTripToUrl(null);
     return;
   }
   document.querySelectorAll('.chain-row').forEach(r => r.remove());
+  document.querySelectorAll('tr.chain-open').forEach(r => r.classList.remove('chain-open'));
 
   if (!dep.tripId) {
     alert('Keine Fahrtnummer (tripId) vorhanden – Fahrtverlauf nicht möglich.');
@@ -406,6 +408,7 @@ async function toggleChain(tr, dep) {
   }
 
   syncTripToUrl(dep.tripId);
+  tr.classList.add('chain-open');
 
   const chainTr = document.createElement('tr');
   chainTr.className = 'chain-row';
