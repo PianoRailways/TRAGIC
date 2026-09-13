@@ -766,6 +766,40 @@
 
 /* === Frankreich === */
 
+/* RATP Paris */
+.line-container[data-agency-name="RATP"] {background: #00AB91;position: relative;}
+.line-container[data-agency-name="RATP"]::before {position: absolute;left: 0;top: 50%;transform: translateY(-50%);display: flex;align-items: center;justify-content: center;width: 24px;height: 24px;border-radius: 50%;font-weight: bold;font-size: 12px;z-index: 1;color:white}
+
+.line-container[data-agency-name="RATP"][data-line="A"]::before {content:"A";background:#FF1400;}
+.line-container[data-agency-name="RATP"][data-line="B"]::before {content:"B";background:#3C91DC;}
+.line-container[data-agency-name="RATP"][data-line="C"]::before {content:"C";background:#FFBE00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="D"]::before {content:"D";background:#00643C;}
+.line-container[data-agency-name="RATP"][data-line="E"]::before {content:"E";background:#00643C;}
+.line-container[data-agency-name="RATP"][data-line="H"]::before {content:"H";background:#6E491E;}
+.line-container[data-agency-name="RATP"][data-line="J"]::before {content:"J";background:#D2D200;color:black;}
+.line-container[data-agency-name="RATP"][data-line="K"]::before {content:"K";background:#6E6E00;}
+.line-container[data-agency-name="RATP"][data-line="L"]::before {content:"L";background:#D282BE;color:black;}
+.line-container[data-agency-name="RATP"][data-line="N"]::before {content:"N";background:#00A092;}
+.line-container[data-agency-name="RATP"][data-line="P"]::before {content:"P";background:#FF5A00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="R"]::before {content:"R";background:#FF82B4;color:black;}
+.line-container[data-agency-name="RATP"][data-line="U"]::before {content:"U";background:#A50034;}
+.line-container[data-agency-name="RATP"][data-line="V"]::before {content:"V";background:#6E6E00;}
+
+.line-container[data-agency-name="RATP"][data-line="1"]::before {content:"1";background:#FFBE00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="2"]::before {content:"2";background:#0055C8;}
+.line-container[data-agency-name="RATP"][data-line="3"]::before {content:"3";background:#6E6E00;}
+.line-container[data-agency-name="RATP"][data-line="4"]::before {content:"4";background:#A0006E;}
+.line-container[data-agency-name="RATP"][data-line="5"]::before {content:"5";background:#FF5A00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="6"]::before {content:"6";background:#82DC73;color:black;}
+.line-container[data-agency-name="RATP"][data-line="7"]::before {content:"7";background:#FF82B4;color:black;}
+.line-container[data-agency-name="RATP"][data-line="8"]::before {content:"8";background:#D282BE;color:black;}
+.line-container[data-agency-name="RATP"][data-line="9"]::before {content:"9";background:#D2D200;color:black;}
+.line-container[data-agency-name="RATP"][data-line="10"]::before {content:"10";background:#DC9600;color:black;}
+.line-container[data-agency-name="RATP"][data-line="11"]::before {content:"11";background:#6E491E;}
+.line-container[data-agency-name="RATP"][data-line="12"]::before {content:"12";background:#00643C;}
+.line-container[data-agency-name="RATP"][data-line="13"]::before {content:"13";background:#82C8E6;}
+.line-container[data-agency-name="RATP"][data-line="14"]::before {content:"14";background:#640082;}
+
 /* SNCF – TER Linien */
 .line-container[data-agency-name="SNCF VOYAGEURS"][data-line^="TER"] {
   background: #004b87; color: white;
