@@ -470,6 +470,7 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('GATWICK EXPRESS')) return 'GX';
   if (upper.startsWith('ELIZABETH LINE')) return 'ELZ';
   if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
+  if (upper.startsWith('Heathrow Express')) return 'LHR';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
