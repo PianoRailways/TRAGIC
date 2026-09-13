@@ -1121,6 +1121,7 @@ document.querySelectorAll('.settings-dest-filter').forEach(input => {
 
 function applyFilters() {
   const destQuery = destFilter ? destFilter.value.trim().toLowerCase() : '';
+  let visibleDepIdx = 0;
 
   document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
     const mode   = tr.dataset.mode   || 'OTHER';
@@ -1149,6 +1150,8 @@ function applyFilters() {
 
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
+    const isVisible = !modeHide && !destHide;
+    tr.classList.toggle('dep-row-alt', isVisible && visibleDepIdx++ % 2 === 1);
   });
 
   updateFilterMenuIndicator();
