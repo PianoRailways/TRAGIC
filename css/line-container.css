@@ -568,13 +568,10 @@
 .line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
 /* Emmentalbahn / Dampfbahn Bern */
-/*.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }*/
-.line-container[data-agency-name*="Dampfbahn Bern"] {
-  position: relative;
-  padding-right: 2.25rem;
-}
+.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Dampfbahn Bern"] {position: relative;padding-right: 1.7rem;}
 .line-container[data-agency-name*="Dampfbahn Bern"]::after {
-  content: "ETB";
+  content: "DBB";
   position: absolute;
   top: 50%;
   right: 4px;
