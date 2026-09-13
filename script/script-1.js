@@ -226,44 +226,7 @@ function renderFavoritesBar() {
       window.location = `./?stopId=${encodeURIComponent(favorite.stopId)}`;
     });
 
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'fav-remove-btn';
-    removeBtn.title = `Favorit ${getFavoriteLabel(favorite)} entfernen`;
-    removeBtn.setAttribute('aria-label', `Favorit ${getFavoriteLabel(favorite)} entfernen`);
-    removeBtn.textContent = '×';
-    removeBtn.dataset.stopId = favorite.stopId;
-    removeBtn.dataset.confirmPending = 'false';
-
-    removeBtn.addEventListener('click', event => {
-      event.stopPropagation();
-      
-      const isConfirmPending = removeBtn.dataset.confirmPending === 'true';
-      
-      if (!isConfirmPending) {
-        // Erster Klick: In Bestätigungs-State wechseln
-        removeBtn.dataset.confirmPending = 'true';
-        removeBtn.textContent = '✓ Löschen?';
-        removeBtn.classList.add('fav-remove-btn-confirm');
-        
-        // Nach 3 Sekunden zurücksetzen wenn nicht bestätigt
-        setTimeout(() => {
-          if (removeBtn.dataset.confirmPending === 'true') {
-            removeBtn.dataset.confirmPending = 'false';
-            removeBtn.textContent = '×';
-            removeBtn.classList.remove('fav-remove-btn-confirm');
-          }
-        }, 3000);
-      } else {
-        // Zweiter Klick: Wirklich löschen
-        favoriteStations = favoriteStations.filter(entry => entry.stopId !== favorite.stopId);
-        saveFavoritesToStorage();
-        renderFavoritesBar();
-      }
-    });
-
     item.appendChild(btn);
-    item.appendChild(removeBtn);
     favoritesList.appendChild(item);
   });
 
@@ -1158,6 +1121,7 @@ document.querySelectorAll('.settings-dest-filter').forEach(input => {
 
 function applyFilters() {
   const destQuery = destFilter ? destFilter.value.trim().toLowerCase() : '';
+  let visibleDepIdx = 0;
 
   document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
     const mode   = tr.dataset.mode   || 'OTHER';
@@ -1186,6 +1150,8 @@ function applyFilters() {
 
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
+    const isVisible = !modeHide && !destHide;
+    tr.classList.toggle('dep-row-alt', isVisible && visibleDepIdx++ % 2 === 1);
   });
 
   updateFilterMenuIndicator();
