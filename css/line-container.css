@@ -567,6 +567,26 @@
 .line-container[data-agency-id="833"][data-line="123"] { background: rgb(41,54,141); color: white; }
 .line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
+/* Emmentalbahn / Dampfbahn Bern */
+.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Dampfbahn Bern"] {position: relative;padding-right: 1.7rem;}
+.line-container[data-agency-name*="Dampfbahn Bern"]::after {
+  content: "DBB";
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  font-size: 0.45rem;
+  line-height: 1;
+  font-weight: bold;
+  background: #4b2b1d;
+  color: #e2c878;
+  padding: 3px 4px;
+  display: inline-block;
+  letter-spacing: 0.02em;
+  border: 1px solid #a88a4b;
+  border-radius: 3px;
+}
 /* Thurbo inkl. DELFI Thurbo */
 .line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-name="THURBO"][data-line^="S"] { background: white; color: black; }
@@ -621,6 +641,8 @@
 .line-container[data-line="GWR"] { background: #0A493E; color: white; }
 .line-container[data-line="Southeastern"] { background: #1E1E50; color: white; }
 .line-container[data-line="EMR"] { background: #4C2F48; color: white; }
+.line-container[data-line="CrossCountry"] { background: #ca123f; color: #f8efe3; }
+.line-container[data-line="Heathrow Express"] { background: #5d226c; color: white; }
 
 .line-container[data-agency-name="Elizabeth line"] { background: #6F4B9E; color: white; }
 .line-container[data-line="DLR"] { background: #00AFA9; color: black; }

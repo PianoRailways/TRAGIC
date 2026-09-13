@@ -455,9 +455,21 @@ async function selectStationByName(name, refEpoch) {
 
 // ─── Line Normalization ──────────────────────────────────────────────────────
 
-function normalizeLineDisplay(line) {
+const LINE_DISPLAY_OVERRIDES = {
+  'Dampfbahn Bern': { R: 'Regio', EXT: 'EXT' },
+  'rvo': { S12: 'Regio'},
+};
+
+function normalizeLineDisplay(line, agencyName = '') {
   if (!line) return '';
   const upper = line.toUpperCase();
+  const overrideLine = upper.replace(/\s*\(\d+\)\s*$/g, '').trim();
+
+  const agencyOverride = Object.entries(LINE_DISPLAY_OVERRIDES)
+    .find(([agency]) => String(agencyName).toUpperCase().includes(agency.toUpperCase()))?.[1];
+  if (agencyOverride && Object.prototype.hasOwnProperty.call(agencyOverride, overrideLine)) {
+    return agencyOverride[overrideLine];
+  }
   
   if (upper.startsWith('TGV LYRIA')) return 'TGV Lyria';
   if (upper.startsWith('TER')) return 'TER';
@@ -470,6 +482,8 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('GATWICK EXPRESS')) return 'GX';
   if (upper.startsWith('ELIZABETH LINE')) return 'ELZ';
   if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
+  if (upper.startsWith('HEATHROW EXPRESS')) return 'LHR';
+  if (upper.startsWith('THAMESLINK')) return 'TL';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
