@@ -567,6 +567,19 @@
 .line-container[data-agency-id="833"][data-line="123"] { background: rgb(41,54,141); color: white; }
 .line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
+/* Emmentalbahn / Dampfbahn Bern */
+/*.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }*/
+.line-container[data-agency-name*="Dampfbahn Bern"]::after {
+  content: "SB";
+  font-size: 10px;
+  font-weight: bold;
+  background: #392112;
+  color: #ab985f;
+  padding: 2px 5px;
+  display: inline-block;
+  letter-spacing: -1px;
+  border-radius: 5px;
+}
 /* Thurbo inkl. DELFI Thurbo */
 .line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-name="THURBO"][data-line^="S"] { background: white; color: black; }
