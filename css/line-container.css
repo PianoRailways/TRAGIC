@@ -569,16 +569,26 @@
 
 /* Emmentalbahn / Dampfbahn Bern */
 /*.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }*/
+.line-container[data-agency-name*="Dampfbahn Bern"] {
+  position: relative;
+  padding-right: 2.25rem;
+}
 .line-container[data-agency-name*="Dampfbahn Bern"]::after {
-  content: "SB";
-  font-size: 10px;
+  content: "ETB";
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  font-size: 0.45rem;
+  line-height: 1;
   font-weight: bold;
-  background: #392112;
-  color: #ab985f;
-  padding: 2px 5px;
+  background: #4b2b1d;
+  color: #e2c878;
+  padding: 3px 4px;
   display: inline-block;
-  letter-spacing: -1px;
-  border-radius: 5px;
+  letter-spacing: 0.02em;
+  border: 1px solid #a88a4b;
+  border-radius: 3px;
 }
 /* Thurbo inkl. DELFI Thurbo */
 .line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
