@@ -201,7 +201,19 @@
 .line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
 .line-container[data-agency-id="840"][data-line^="N"] { background: #231F20; color: #EBE835; }
-
+/* BOGG Olten */
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="501"] { background: #EE0023; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="502"] { background: #79BE52; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="503"] { background: #EB7729; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="505"] { background: #24703D; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="506"] { background: #673182; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="507"] { background: #FFD734; color: black; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="508"] { background: #00539E; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="509"] { background: #09A4C6; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="513"] { background: #F077A8; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="517"] { background: #9A70AD; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="519"] { background: #DA1888; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="555"] { background: #913E23; color: white; }
 /* RVBW */
 .line-container[data-agency-name*="Wettingen"][data-line="1"] { background: #EE1D23; color: white; }
 .line-container[data-agency-name*="Wettingen"][data-line="2"] { background: #0097D8; color: white; }
