@@ -800,6 +800,11 @@ async function loadDepartures(refEpoch) {
         return;
       }
 
+      if (currentStationName === 'Station wählen' && data.station?.name) {
+        currentStationName = data.station.name;
+        updateStationTitle(currentStationName);
+      }
+
       departures = (data.departures || []).map(dep => ({
         ...dep,
         _stopId: currentStopId,
@@ -808,7 +813,7 @@ async function loadDepartures(refEpoch) {
       }));
     }
 
-    if (nearbySettings.enabled) {
+    if (nearbySettings.enabled && currentStationName !== 'Station wählen') {
       try {
         const nearby = await fetchNearbyDepartureGroups(refEpoch);
         departures = mergeNearbyDepartures({

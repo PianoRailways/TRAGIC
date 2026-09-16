@@ -176,11 +176,20 @@ if ($action === 'departures' || $action === 'arrivals') {
 
     $departures = [];
     $typeKey = $arrivals ? 'arrival' : 'departure';
+    $station = null;
 
     foreach ($rawEntries as $entry) {
         if (!is_array($entry)) continue;
 
         $place = $entry['place'] ?? $entry;
+
+        if ($station === null && is_array($place)) {
+            $station = [
+                'name' => $place['name'] ?? null,
+                'lat'  => $place['lat'] ?? null,
+                'lon'  => $place['lon'] ?? null,
+            ];
+        }
 
         [$schedEpoch, $liveEpoch] = extractPair($place, $typeKey);
 
@@ -246,6 +255,7 @@ if ($action === 'departures' || $action === 'arrivals') {
     echo json_encode([
         'stopId'     => $stopId,
         'arrivals'   => $arrivals,
+        'station'    => $station,
         'departures' => $departures,
         '_raw_count' => count($rawEntries),
     ]);
