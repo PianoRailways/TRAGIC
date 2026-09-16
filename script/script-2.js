@@ -484,6 +484,7 @@ function normalizeLineDisplay(line, agencyName = '') {
   if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
   if (upper.startsWith('HEATHROW EXPRESS')) return 'LHR';
   if (upper.startsWith('THAMESLINK')) return 'TL';
+  if (upper.startsWith('FLIXTRAIN')) return 'FLX';
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
