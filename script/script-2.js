@@ -432,7 +432,7 @@ function selectStation(stopId, name, refEpoch) {
   history.pushState({stopId, stationName: name, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
 
   loadDepartures(currentEpoch);
-  window.scrollTo({top: 250, behavior: 'smooth'});
+  window.scrollTo({top: 240, behavior: 'smooth'}); // Automatisch nach unten scrollen, um die Abfahrten anzuzeigen
 }
 
 async function selectStationByName(name, refEpoch) {
