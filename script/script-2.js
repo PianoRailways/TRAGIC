@@ -432,7 +432,7 @@ function selectStation(stopId, name, refEpoch) {
   history.pushState({stopId, stationName: name, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
 
   loadDepartures(currentEpoch);
-  window.scrollTo({top: 250, behavior: 'smooth'});
+  window.scrollTo({top: 240, behavior: 'smooth'}); // Automatisch nach unten scrollen, um die Abfahrten anzuzeigen
 }
 
 async function selectStationByName(name, refEpoch) {
@@ -484,6 +484,10 @@ function normalizeLineDisplay(line, agencyName = '') {
   if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
   if (upper.startsWith('HEATHROW EXPRESS')) return 'LHR';
   if (upper.startsWith('THAMESLINK')) return 'TL';
+  if (upper.startsWith('FLIXTRAIN')) {
+    const flixLine = line.replace(/^FLIXTRAIN\s*/i, '');
+    return /^FLX\d/i.test(flixLine) ? flixLine : `FLX ${flixLine}`.trim();
+  }
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
@@ -799,6 +803,11 @@ async function loadDepartures(refEpoch) {
         return;
       }
 
+      if (currentStationName === 'Station wählen' && data.station?.name) {
+        currentStationName = data.station.name;
+        updateStationTitle(currentStationName);
+      }
+
       departures = (data.departures || []).map(dep => ({
         ...dep,
         _stopId: currentStopId,
@@ -807,7 +816,7 @@ async function loadDepartures(refEpoch) {
       }));
     }
 
-    if (nearbySettings.enabled) {
+    if (nearbySettings.enabled && currentStationName !== 'Station wählen') {
       try {
         const nearby = await fetchNearbyDepartureGroups(refEpoch);
         departures = mergeNearbyDepartures({

@@ -1,0 +1,155 @@
+/* Calendar export and chain action controls. */
+
+.btn-export-calendar {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: linear-gradient(135deg, var(--sbb-green, #4CAF50), #45a049);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-export-calendar:active {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transform: scale(0.98);
+}
+
+.btn-export-calendar:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-export-calendar:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+@media (max-width: 600px) {
+  .btn-export-calendar {
+    font-size: 14px;
+    padding: 10px 12px;
+    margin: 6px 0;
+  }
+}
+
+.chain-actions {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.cal-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--sbb-green, #4CAF50);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cal-menu-toggle:hover,
+.chain-actions[open] .cal-menu-toggle {
+  background: #45a049;
+}
+
+.cal-menu-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.cal-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 88px;
+  padding: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-main);
+  border-radius: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+
+.cal-menu button {
+  padding: 6px 9px;
+  background: transparent;
+  color: var(--text-main);
+  border: 0;
+  border-radius: 2px;
+  text-align: left;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.cal-menu button:hover {
+  background: var(--bg-hover);
+}
+
+@media (max-width: 600px) {
+  .chain-actions {
+    margin-left: 2px;
+  }
+
+  .cal-menu-toggle {
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+.chain-leg-toggle-wrap,
+.chain-stops-toggle-wrap {margin: 6px 0 6px 28px;}
+
+.btn-toggle-past-leg,
+.btn-toggle-past,
+.btn-toggle-future-leg {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-toggle-past-leg:hover,
+.btn-toggle-past:hover,
+.btn-toggle-future-leg:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.chain-stop.chain-past-stop,
+.chain-past-leg-body .chain-stop {
+  opacity: 0.82;
+  transition: opacity 0.15s ease;
+}
+
+.chain-stop.chain-past-stop:hover,
+.chain-past-leg-body .chain-stop:hover {opacity: 1;}
