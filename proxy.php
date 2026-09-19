@@ -113,8 +113,15 @@ function callTransitous(string $path, array $params): array {
         return ['error' => 'Transitous nicht erreichbar', 'url' => $url];
     }
 
+    // ← NEU: Wenn HTML zurückkommt, das flaggen
+    if (strpos($raw, '<') === 0 || strpos($raw, '<!DOCTYPE') === 0) {
+        error_log("HTML response from Transitous (expected JSON): " . substr($raw, 0, 200));
+        return ['error' => 'Transitous returned HTML (HTTP error?)', 'raw' => substr($raw, 0, 100)];
+    }
+
     $data = json_decode($raw, true);
     if ($data === null) {
+        error_log("JSON decode failed for URL: $url, raw: " . substr($raw, 0, 200));
         return ['error' => 'Ungültige Antwort von Transitous', 'raw' => substr($raw, 0, 200)];
     }
 
