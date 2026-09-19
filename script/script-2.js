@@ -16,6 +16,73 @@ function loadNearbySettings() {
 }
 
 let nearbySettings = loadNearbySettings();
+let customDepartures = null;
+
+function parseCustomJsonTime(value) {
+  if (typeof value === 'number') return value > 100000000000 ? Math.floor(value / 1000) : value;
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? Number(value) || 0 : Math.floor(parsed / 1000);
+}
+
+function normalizeCustomTrip(trip) {
+  if (!trip || typeof trip !== 'object') return trip;
+  return {
+    ...trip,
+    stops: (trip.stops || []).map(stop => ({
+      ...stop,
+      arrivalSched: parseCustomJsonTime(stop.arrivalSched),
+      arrivalLive: parseCustomJsonTime(stop.arrivalLive),
+      departureSched: parseCustomJsonTime(stop.departureSched),
+      departureLive: parseCustomJsonTime(stop.departureLive),
+      arrivalDelaySec: stop.arrivalDelaySec ?? null,
+      departureDelaySec: stop.departureDelaySec ?? null
+    }))
+  };
+}
+
+function normalizeCustomDeparture(departure, index, stationName) {
+  const scheduled = parseCustomJsonTime(departure.scheduled ?? departure.departure ?? departure.time);
+  const live = parseCustomJsonTime(departure.live ?? departure.estimated ?? departure.departureLive) || scheduled;
+  const trip = normalizeCustomTrip(departure.trip || departure.tripData);
+  return {
+    ...departure,
+    tripId: departure.tripId || `custom-${index + 1}`,
+    line: departure.line || departure.route || '?',
+    tripNumber: departure.tripNumber || departure.routeNumber || '',
+    destination: departure.destination || departure.to || '',
+    scheduled,
+    live,
+    delaySec: departure.delaySec ?? (departure.delayMin ? departure.delayMin * 60 : Math.round(live - scheduled)),
+    delayMin: departure.delayMin ?? Math.round((live - scheduled) / 60),
+    track: departure.track || departure.platform || '',
+    mode: departure.mode || 'OTHER',
+    cancelled: Boolean(departure.cancelled),
+    _stopId: departure.stopId || `custom-${index + 1}`,
+    _fromStation: stationName,
+    _isMainStation: true,
+    ...(trip ? { trip } : {})
+  };
+}
+
+async function loadCustomDepartures(file) {
+  const text = await file.text();
+  const data = JSON.parse(text);
+  const entries = Array.isArray(data) ? data : data.departures;
+  if (!Array.isArray(entries)) {
+    throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit "departures" enthalten.');
+  }
+
+  const stationName = data.station?.name || data.stationName || 'Eigene Daten';
+  currentStationName = stationName;
+  currentStopId = data.station?.id || data.stopId || 'custom-json';
+  updateStationTitle(currentStationName);
+  customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, stationName));
+  allDepartures = customDepartures;
+  renderDepartures(allDepartures);
+  setStatus(`${allDepartures.length} eigene Fahrt${allDepartures.length === 1 ? '' : 'en'} aus ${file.name}`);
+  updateNavButtonsVisibility();
+}
 
 function saveNearbySettings() {
   try {
@@ -105,6 +172,23 @@ function setupNavigationButtons() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const customJsonFile = document.getElementById('custom-json-file');
+  const loadCustomJsonButton = document.getElementById('btn-load-custom-json');
+  if (loadCustomJsonButton && customJsonFile) {
+    loadCustomJsonButton.addEventListener('click', () => customJsonFile.click());
+    customJsonFile.addEventListener('change', async () => {
+      const file = customJsonFile.files?.[0];
+      if (!file) return;
+      try {
+        await loadCustomDepartures(file);
+      } catch (error) {
+        renderError(`JSON konnte nicht geladen werden: ${error.message}`);
+      } finally {
+        customJsonFile.value = '';
+      }
+    });
+  }
+
   const btnToggleArrivals = document.getElementById('btn-toggle-arrivals');
   if (btnToggleArrivals) btnToggleArrivals.addEventListener('click', toggleArrivalMode);
 
@@ -402,6 +486,7 @@ function selectStation(stopId, name, refEpoch) {
   }
 
   closeHomeView();
+  customDepartures = null;
   currentStopId = stopId;
   currentStationName = name;
   currentMainStationId = stopId;
@@ -771,6 +856,12 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
 // ─── Abfahrten/Ankünfte laden ────────────────────────────────────────────────
 
 async function loadDepartures(refEpoch) {
+  if (customDepartures) {
+    allDepartures = customDepartures;
+    renderDepartures(allDepartures);
+    updateNavButtonsVisibility();
+    return;
+  }
   if (!currentStopId) return;
   setStatus(isArrivalsMode ? 'Lade Ankünfte…' : 'Lade Abfahrten…');
 

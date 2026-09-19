@@ -418,6 +418,11 @@ async function toggleChain(tr, dep) {
   chainTr.appendChild(td);
   tr.after(chainTr);
 
+  if (dep.trip) {
+    td.innerHTML = `<div class="chain-wrap">${renderChain(dep.trip)}</div>`;
+    return;
+  }
+
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
     const data = await res.json();
