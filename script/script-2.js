@@ -18,6 +18,7 @@ function loadNearbySettings() {
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
 const CUSTOM_JSON_URL = '/cache/demo-fahrten.js';
+const CUSTOM_STATION_NAME = 'Demo-Bahnhof';
 
 function parseCustomJsonTime(value) {
   if (typeof value === 'number') return value > 100000000000 ? Math.floor(value / 1000) : value;
@@ -328,7 +329,15 @@ function renderStationSuggestions(list, matches) {
       html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
     }
     li.innerHTML = html;
-    li.onclick = () => selectStation(match.id, match.name, null);
+    li.onclick = () => {
+      if (match.source === 'custom') {
+        loadCustomDeparturesFromUrl(CUSTOM_JSON_URL).catch(error => {
+          renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
+        });
+        return;
+      }
+      selectStation(match.id, match.name, null);
+    };
     list.appendChild(li);
     match.element = li;
     renderedMatches.push(match);
@@ -338,7 +347,7 @@ function renderStationSuggestions(list, matches) {
 }
 
 async function enrichLocalStationSuggestions(matches) {
-  await Promise.all(matches.map(async match => {
+  await Promise.all(matches.filter(match => match.source !== 'custom').map(async match => {
     try {
       const stations = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`)
         .then(response => response.json())
@@ -364,6 +373,13 @@ function attachMainStationSearch(input, list) {
 
     const sequence = ++searchSequence;
     const localMatches = getLocalAbbreviationMatches(query);
+    if (CUSTOM_STATION_NAME.toLowerCase().includes(query.toLowerCase())) {
+      localMatches.unshift({
+        id: 'custom-json',
+        name: CUSTOM_STATION_NAME,
+        source: 'custom'
+      });
+    }
     const renderedLocalMatches = renderStationSuggestions(list, localMatches);
     list.style.display = localMatches.length ? 'block' : '';
     if (localMatches.length) {
