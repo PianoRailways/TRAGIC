@@ -733,7 +733,7 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
     
     const { finalDestination, isFromLastStop } = resolveDestinationForLeg(data, dep, dep._fromStation || currentStationName);
 
-    const destName = getDestinationName(finalDestination);
+    const destName = getDestinationName(finalDestination || data.lastHalt || '');
     const viaNames = viaLoadingEnabled
       ? extractViasFromTripData(data, dep, dep._fromStation || currentStationName, destName)
       : [];

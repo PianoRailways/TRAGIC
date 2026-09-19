@@ -13,6 +13,64 @@ header('Access-Control-Allow-Origin: *');
 
 const BASE_URL   = 'https://api.transitous.org';
 const USER_AGENT = 'NOWE-TRAGIC/0.2 (+https://tragic.stellwerksim.ch; piano@stellwerksim.ch)';
+const CACHE_DIR  = __DIR__ . '/cache';
+const TRIP_CACHE_FILE = CACHE_DIR . '/trips.json';
+const TRIP_CACHE_TTL = 21600;
+
+function getCachedTrip(string $tripId): ?array {
+    if (!is_file(TRIP_CACHE_FILE)) return null;
+
+    $raw = @file_get_contents(TRIP_CACHE_FILE);
+    $cache = json_decode($raw ?: '', true);
+    $entry = is_array($cache) ? ($cache[$tripId] ?? null) : null;
+
+    if (!is_array($entry) || (int)($entry['expiresAt'] ?? 0) <= time()) {
+        return null;
+    }
+
+    return $entry;
+}
+
+function cacheTrip(string $tripId, ?string $destination, ?string $lastHalt): void {
+    if (!is_dir(CACHE_DIR)) @mkdir(CACHE_DIR, 0775, true);
+
+    $raw = @file_get_contents(TRIP_CACHE_FILE);
+    $cache = json_decode($raw ?: '', true);
+    if (!is_array($cache)) $cache = [];
+
+    $cache[$tripId] = [
+        'destination' => $destination,
+        'lastHalt'    => $lastHalt,
+        'expiresAt'   => time() + TRIP_CACHE_TTL,
+    ];
+
+    @file_put_contents(
+        TRIP_CACHE_FILE,
+        json_encode($cache, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+        LOCK_EX
+    );
+}
+
+function cleanupCache(): void {
+    if (!is_file(TRIP_CACHE_FILE)) return;
+
+    $raw = @file_get_contents(TRIP_CACHE_FILE);
+    $cache = json_decode($raw ?: '', true);
+    if (!is_array($cache)) return;
+
+    $now = time();
+    $cache = array_filter($cache, static function ($entry) use ($now): bool {
+        return is_array($entry) && (int)($entry['expiresAt'] ?? 0) > $now;
+    });
+
+    @file_put_contents(
+        TRIP_CACHE_FILE,
+        json_encode($cache, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+        LOCK_EX
+    );
+}
+
+if (random_int(1, 100) === 1) cleanupCache();
 
 function callTransitous(string $path, array $params): array {
     $url = BASE_URL . $path . '?' . http_build_query($params);
@@ -273,6 +331,17 @@ if ($action === 'trip') {
 
     $decodedTripId = urldecode($tripId);
 
+    $cachedTrip = getCachedTrip($decodedTripId);
+    if ($cachedTrip !== null) {
+        echo json_encode([
+            'tripId'      => $decodedTripId,
+            'destination' => $cachedTrip['destination'] ?? null,
+            'lastHalt'    => $cachedTrip['lastHalt'] ?? null,
+            'cached'      => true,
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $params = [
         'tripId'             => $decodedTripId,
         'joinInterlinedLegs' => 'false',
@@ -342,6 +411,15 @@ if ($action === 'trip') {
     }
 
     $leg = $legs[0] ?? [];
+    $lastHalt = null;
+    if (!empty($stops)) {
+        $lastStop = $stops[count($stops) - 1];
+        $lastHalt = isset($lastStop['name']) ? (string)$lastStop['name'] : null;
+    }
+    $tripDestination = $leg['headsign'] ?? null;
+    if (!$tripDestination) $tripDestination = $lastHalt;
+
+    cacheTrip($decodedTripId, $tripDestination, $lastHalt);
     
     // VBZ-spezifisch: Linie aus tripId extrahieren, falls nicht vorhanden
     $line = $leg['routeShortName'] ?? '?';
@@ -364,7 +442,8 @@ if ($action === 'trip') {
         'tripId'      => $decodedTripId,
         'line'        => $line,
         'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
-        'destination' => $leg['headsign'] ?? null,
+        'destination' => $tripDestination,
+        'lastHalt'    => $lastHalt,
         'routeType'            => $leg['routeType'] ?? null,
         'bikesAllowed'         => $leg['bikesAllowed'] ?? null,
         'wheelchairAccessible' => $leg['wheelchairAccessible'] ?? null,
