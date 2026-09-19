@@ -421,7 +421,7 @@ function attachMainStationSearch(input, list) {
         if (!station.name || !station.name.toLowerCase().includes(query.toLowerCase())) return;
         if (localMatches.some(match => match.name.toLowerCase() === station.name.toLowerCase())) return;
         localMatches.unshift({
-          id: station.id || station.stopId || 'custom-json',
+          id: station.id || station.stopId || null,
           name: station.name,
           source: 'custom'
         });
