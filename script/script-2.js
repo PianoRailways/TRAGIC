@@ -110,12 +110,51 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
   const resolvedStationName = selected?.name || data.station?.name || data.stationName || 'Eigene Daten';
   currentStationName = resolvedStationName;
   currentStopId = selected?.id || selected?.stopId || data.station?.id || data.stopId || 'custom-json';
+  currentMainStationId = currentStopId;
   updateStationTitle(currentStationName);
   customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, resolvedStationName));
   allDepartures = customDepartures;
   renderDepartures(allDepartures);
   setStatus(`${allDepartures.length} eigene Fahrt${allDepartures.length === 1 ? '' : 'en'} aus ${sourceName}`);
   updateNavButtonsVisibility();
+}
+
+function clearStationSuggestions() {
+  document.querySelectorAll('#suggestions, #home-suggestions').forEach(list => {
+    list.innerHTML = '';
+    list.style.display = '';
+  });
+  document.querySelectorAll('#query, #home-query').forEach(input => {
+    input.value = '';
+  });
+}
+
+function selectCustomStation(stationId, stationName) {
+  closeHomeView();
+  clearStationSuggestions();
+  currentStopId = stationId || 'custom-json';
+  currentMainStationId = currentStopId;
+  currentStationName = stationName;
+  updateStationTitle(stationName);
+
+  const url = new URL(location.href);
+  url.searchParams.set('view', 'departures');
+  url.searchParams.set('stopId', currentStopId);
+  url.searchParams.set('customJson', CUSTOM_JSON_URL);
+  history.pushState({
+    stopId: currentStopId,
+    stationName,
+    customJson: CUSTOM_JSON_URL,
+    epoch: getSelectedEpoch(),
+    arrivals: isArrivalsMode,
+    calendarStart,
+    calendarVias,
+    calendarDest
+  }, '', url);
+
+  loadCustomDeparturesFromUrl(CUSTOM_JSON_URL, stationId, stationName).catch(error => {
+    renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
+  });
 }
 
 async function loadCustomDeparturesFromUrl(url, stationId = null, stationName = null) {
@@ -365,9 +404,7 @@ function renderStationSuggestions(list, matches) {
     li.innerHTML = html;
     li.onclick = () => {
       if (match.source === 'custom') {
-        loadCustomDeparturesFromUrl(CUSTOM_JSON_URL, match.id, match.name).catch(error => {
-          renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
-        });
+        selectCustomStation(match.id, match.name);
         return;
       }
       selectStation(match.id, match.name, null);
