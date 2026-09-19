@@ -2,6 +2,8 @@
 /**
  * Transitous-Proxy für NOWE-Weltweit
  * -----------------------------------
+ * Mit Trip-Destination Caching
+ * 
  * Aktionen:
  *   ?action=search&query=Zuerich
  *   ?action=departures&stopId=XYZ&n=12&time=2026-07-04T14:23:00Z
@@ -13,6 +15,86 @@ header('Access-Control-Allow-Origin: *');
 
 const BASE_URL   = 'https://api.transitous.org';
 const USER_AGENT = 'NOWE-TRAGIC/0.2 (+https://tragic.stellwerksim.ch; piano@stellwerksim.ch)';
+const CACHE_DIR = __DIR__ . '/cache';
+const TRIPS_CACHE_FILE = CACHE_DIR . '/trips.json';
+const CACHE_TTL = 6 * 3600; // 6 Stunden
+
+// Cache-Dir beim Start sicherstellen
+if (!is_dir(CACHE_DIR)) {
+  @mkdir(CACHE_DIR, 0755, true);
+}
+
+// ─── CACHE-FUNKTIONEN ──────────────────────────────────────────────────────
+
+function getCachedTrip($tripId) {
+  if (!file_exists(TRIPS_CACHE_FILE)) {
+    return null;
+  }
+
+  try {
+    $cache = json_decode(file_get_contents(TRIPS_CACHE_FILE), true);
+    if (!isset($cache[$tripId])) {
+      return null;
+    }
+
+    $entry = $cache[$tripId];
+    
+    // Prüfen, ob abgelaufen
+    if ($entry['expiresAt'] < time()) {
+      return null;
+    }
+
+    return $entry['data'];
+  } catch (Exception $e) {
+    error_log("Cache read error: {$e->getMessage()}");
+    return null;
+  }
+}
+
+function cacheTrip($tripId, $data) {
+  try {
+    $cache = [];
+    if (file_exists(TRIPS_CACHE_FILE)) {
+      $cache = json_decode(file_get_contents(TRIPS_CACHE_FILE), true) ?? [];
+    }
+
+    $cache[$tripId] = [
+      'data' => $data,
+      'cachedAt' => time(),
+      'expiresAt' => time() + CACHE_TTL
+    ];
+
+    file_put_contents(
+      TRIPS_CACHE_FILE,
+      json_encode($cache, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
+      LOCK_EX
+    );
+  } catch (Exception $e) {
+    error_log("Cache write error: {$e->getMessage()}");
+  }
+}
+
+function cleanupCache() {
+  if (!file_exists(TRIPS_CACHE_FILE)) {
+    return;
+  }
+
+  try {
+    $cache = json_decode(file_get_contents(TRIPS_CACHE_FILE), true) ?? [];
+    $now = time();
+    $filtered = array_filter($cache, fn($entry) => $entry['expiresAt'] >= $now);
+
+    file_put_contents(
+      TRIPS_CACHE_FILE,
+      json_encode($filtered, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
+      LOCK_EX
+    );
+  } catch (Exception $e) {
+    error_log("Cache cleanup error: {$e->getMessage()}");
+  }
+}
+
+// ─── BESTEHENDE FUNKTIONEN ─────────────────────────────────────────────────
 
 function callTransitous(string $path, array $params): array {
     $url = BASE_URL . $path . '?' . http_build_query($params);
@@ -82,7 +164,7 @@ function delaySeconds(?int $sched, ?int $live): ?int {
 
 $action = $_GET['action'] ?? '';
 
-// ---------------------------------------------------------------- search --
+// ─────────────────────────────────────────────────────── search --
 if ($action === 'search') {
     $query = trim($_GET['query'] ?? '');
     if ($query === '') {
@@ -117,7 +199,7 @@ if ($action === 'search') {
     exit;
 }
 
-// ------------------------------------------------------------ departures / arrivals --
+// ───────────────────────────────────────── departures / arrivals --
 if ($action === 'departures' || $action === 'arrivals') {
     $stopId   = trim($_GET['stopId'] ?? '');
     $n        = (int)($_GET['n'] ?? 25);
@@ -158,7 +240,7 @@ if ($action === 'departures' || $action === 'arrivals') {
         'stopId'    => $stopId,
         'n'         => max(1, min($n, 50)),
         'arriveBy'  => $arrivals ? 'true' : 'false',
-        'direction' => 'LATER', // Zwingt MOTIS, vorwärts ab dem Zeitpunkt zu suchen
+        'direction' => 'LATER',
     ];
 
     if ($formattedTime !== '') {
@@ -209,21 +291,18 @@ if ($action === 'departures' || $action === 'arrivals') {
 
         $delaySec = delaySeconds($schedEpoch, $liveEpoch);
 
-        // Herkunft / Ziel je nach Modus bestimmen
         $destination = $arrivals 
             ? ($entry['tripFrom'] ?? $entry['origin'] ?? $entry['headsign'] ?? '')
             : ($entry['headsign'] ?? $entry['tripTo'] ?? '');
 
-        // VBZ-spezifisch: Linie aus tripId extrahieren, falls nicht vorhanden
         $line = $entry['routeShortName'] ?? '?';
         $agencyId = $entry['agencyId'] ?? null;
         $tripId = $entry['tripId'] ?? null;
         
         if ($line === '?' && $tripId && preg_match('/:(\d+):(\d+)_ch:/', $tripId, $m)) {
-            $possibleAgency = $m[1];  // z.B. 3849
-            $extractedLine = ltrim($m[2], '0') ?: '0';  // z.B. 016 → 16
+            $possibleAgency = $m[1];
+            $extractedLine = ltrim($m[2], '0') ?: '0';
             
-            // Nur für VBZ anwenden (3849 = Tram, 849 = Bus)
             if ($possibleAgency === '3849' || $possibleAgency === '849') {
                 $line = $extractedLine;
                 if (!$agencyId) {
@@ -262,7 +341,7 @@ if ($action === 'departures' || $action === 'arrivals') {
     exit;
 }
 
-// ------------------------------------------------------------------ trip --
+// ──────────────────────────────────────────────────────── trip --
 if ($action === 'trip') {
     $tripId = trim($_GET['tripId'] ?? '');
     if ($tripId === '') {
@@ -272,6 +351,13 @@ if ($action === 'trip') {
     }
 
     $decodedTripId = urldecode($tripId);
+
+    // Cache prüfen
+    $cached = getCachedTrip($decodedTripId);
+    if ($cached) {
+        echo json_encode($cached);
+        exit;
+    }
 
     $params = [
         'tripId'             => $decodedTripId,
@@ -343,15 +429,13 @@ if ($action === 'trip') {
 
     $leg = $legs[0] ?? [];
     
-    // VBZ-spezifisch: Linie aus tripId extrahieren, falls nicht vorhanden
     $line = $leg['routeShortName'] ?? '?';
     $agencyId = $leg['agencyId'] ?? null;
     
     if ($line === '?' && preg_match('/:(\d+):(\d+)_ch:/', $decodedTripId, $m)) {
-        $possibleAgency = $m[1];  // z.B. 3849
-        $extractedLine = ltrim($m[2], '0') ?: '0';  // z.B. 016 → 16
+        $possibleAgency = $m[1];
+        $extractedLine = ltrim($m[2], '0') ?: '0';
         
-        // Nur für VBZ anwenden (3849 = Tram, 849 = Bus)
         if ($possibleAgency === '3849' || $possibleAgency === '849') {
             $line = $extractedLine;
             if (!$agencyId) {
@@ -360,7 +444,7 @@ if ($action === 'trip') {
         }
     }
 
-    echo json_encode([
+    $responseData = [
         'tripId'      => $decodedTripId,
         'line'        => $line,
         'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
@@ -377,11 +461,16 @@ if ($action === 'trip') {
         'legInfos'    => $legInfos,
         'legCount'    => count($legs),
         '_raw_leg_count' => count($legs),
-    ]);
+    ];
+
+    // In Cache speichern
+    cacheTrip($decodedTripId, $responseData);
+
+    echo json_encode($responseData);
     exit;
 }
 
-// ─────────────────────────── reverse-geocode --
+// ─────────────────────────────────────── reverse-geocode --
 if ($action === 'reverse-geocode') {
     $lat = trim($_GET['lat'] ?? '');
     $lon = trim($_GET['lon'] ?? '');
@@ -403,7 +492,6 @@ if ($action === 'reverse-geocode') {
     $lon = (float)$lon;
     $radius = max(100, min($radius, 5000));
 
-    // Strategy 1: Versuche reverse-geocode (primary)
     $result = callTransitous('/api/v1/reverse-geocode', [
         'place'      => $lat . ',' . $lon,
         'type'       => 'STOP',
@@ -413,11 +501,9 @@ if ($action === 'reverse-geocode') {
     $stations = [];
     $rawPlaces = [];
 
-    // Falls Fehler: Fallback Strategy 2
     if (isset($result['error'])) {
         error_log("reverse-geocode failed ({$result['error']}), trying map/stops fallback");
         
-        // Fallback: Nutze map/stops endpoint mit BBox.
         $radiusDeg = $radius / 111000;
 
         $result = callTransitous('/api/v6/map/stops', [
@@ -425,7 +511,6 @@ if ($action === 'reverse-geocode') {
             'max' => ($lat + $radiusDeg) . ',' . ($lon + $radiusDeg),
         ]);
         
-        // Falls auch das fehlschlägt: Leere Response
         if (isset($result['error'])) {
             error_log("map/stops also failed, returning empty list");
             echo json_encode([
@@ -440,12 +525,10 @@ if ($action === 'reverse-geocode') {
         }
     }
 
-    // Verarbeite Ergebnis
     $rawPlaces = is_array($result) ? $result : [];
 
-    // Handle verschiedene Response-Formate
     if (isset($result['stops'])) {
-        $rawPlaces = $result['stops'];  // map/stops Format
+        $rawPlaces = $result['stops'];
     }
 
     foreach ($rawPlaces as $place) {
@@ -454,15 +537,12 @@ if ($action === 'reverse-geocode') {
         $id = $place['id'] ?? $place['stopId'] ?? null;
         if (!$id) continue;
 
-        // Skip OSM elements
         if (preg_match('/^(node|way|relation)\//i', $id)) {
             continue;
         }
 
-        // Berechne Distanz falls nicht vorhanden
         $distance = $place['distance'] ?? null;
         if ($distance === null && isset($place['lat']) && isset($place['lon'])) {
-            // Haversine distance approximation (in Metern)
             $placeLatRad = deg2rad($place['lat']);
             $placeLonRad = deg2rad($place['lon']);
             $refLatRad = deg2rad($lat);
@@ -475,7 +555,7 @@ if ($action === 'reverse-geocode') {
                  cos($refLatRad) * cos($placeLatRad) *
                  sin($dLon / 2) * sin($dLon / 2);
             $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-            $distance = round(6371000 * $c);  // Earth radius in meters
+            $distance = round(6371000 * $c);
         }
 
         $stations[] = [
@@ -487,14 +567,12 @@ if ($action === 'reverse-geocode') {
         ];
     }
 
-    // Sort by distance (closest first)
     usort($stations, function ($a, $b) {
         $distA = $a['distance'] ?? PHP_INT_MAX;
         $distB = $b['distance'] ?? PHP_INT_MAX;
         return $distA <=> $distB;
     });
 
-    // Filter by radius (Sicherheit)
     $filtered = [];
     foreach ($stations as $s) {
         if ($s['distance'] === null || $s['distance'] <= $radius) {
@@ -510,6 +588,12 @@ if ($action === 'reverse-geocode') {
         '_raw_count' => count($rawPlaces),
     ]);
     exit;
+}
+
+// ─── CLEANUP ────────────────────────────────────────────────────────────────
+// Cleanup mit 1% Chance beim Request
+if (random_int(1, 100) === 1) {
+  cleanupCache();
 }
 
 http_response_code(400);
