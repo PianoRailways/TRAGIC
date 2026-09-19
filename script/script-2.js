@@ -724,10 +724,17 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
   
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
-    const data = await res.json();
-    
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      // Wenn JSON-Parse fehlschlägt (HTML statt JSON)
+      console.warn(`Invalid JSON response for trip ${dep.tripId}:`, parseErr.message);
+      return;
+    }
+
     if (data.error) {
-      console.warn(`Failed to load trip ${dep.tripId}:`, data.error);
+      console.warn(`Trip API error for ${dep.tripId}:`, data.error);
       return;
     }
     
