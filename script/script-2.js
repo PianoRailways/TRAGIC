@@ -381,7 +381,7 @@ function renderStationSuggestions(list, matches) {
 }
 
 async function enrichLocalStationSuggestions(matches) {
-  await Promise.all(matches.filter(match => match.source !== 'custom').map(async match => {
+  await Promise.all(matches.filter(match => match.source === 'abbrev').map(async match => {
     try {
       const stations = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`)
         .then(response => response.json())
@@ -427,9 +427,10 @@ function attachMainStationSearch(input, list) {
         });
       });
     } catch (_) {}
+    const hasCustomMatches = localMatches.some(match => match.source === 'custom');
     const renderedLocalMatches = renderStationSuggestions(list, localMatches);
     list.style.display = localMatches.length ? 'block' : '';
-    if (localMatches.length) {
+    if (localMatches.length && !hasCustomMatches) {
       enrichLocalStationSuggestions(renderedLocalMatches);
       return;
     }
@@ -438,9 +439,14 @@ function attachMainStationSearch(input, list) {
       await window.abbreviationsReady;
       if (sequence !== searchSequence || input.value.trim() !== query) return;
       const loadedMatches = getLocalAbbreviationMatches(query);
-      const renderedLoadedMatches = renderStationSuggestions(list, loadedMatches);
-      list.style.display = loadedMatches.length ? 'block' : '';
-      if (loadedMatches.length) {
+      loadedMatches.forEach(match => {
+        if (!localMatches.some(existing => existing.name.toLowerCase() === match.name.toLowerCase())) {
+          localMatches.push(match);
+        }
+      });
+      if (loadedMatches.length && !hasCustomMatches) {
+        const renderedLoadedMatches = renderStationSuggestions(list, localMatches);
+        list.style.display = localMatches.length ? 'block' : '';
         enrichLocalStationSuggestions(renderedLoadedMatches);
         return;
       }
@@ -457,10 +463,21 @@ function attachMainStationSearch(input, list) {
           const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
           return { id: st.id, name: st.name, abbrev: primary?.abbrev || null, country: primary?.country || null, source: 'api' };
         });
-        renderStationSuggestions(list, apiMatches);
-        list.style.display = apiMatches.length ? 'block' : '';
+        const existingNames = new Set(localMatches.map(match => match.name.toLowerCase()));
+        const mergedMatches = [
+          ...localMatches,
+          ...apiMatches.filter(match => !existingNames.has(match.name.toLowerCase()))
+        ];
+        const renderedMatches = renderStationSuggestions(list, mergedMatches);
+        list.style.display = mergedMatches.length ? 'block' : '';
+        enrichLocalStationSuggestions(renderedMatches);
       } catch (err) {
-        setStatus('Fehler bei der Stationssuche: ' + err.message);
+        if (hasCustomMatches) {
+          renderStationSuggestions(list, localMatches);
+          list.style.display = 'block';
+        } else {
+          setStatus('Fehler bei der Stationssuche: ' + err.message);
+        }
       }
     }, 350);
   });
