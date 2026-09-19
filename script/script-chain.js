@@ -419,7 +419,7 @@ async function toggleChain(tr, dep) {
   tr.after(chainTr);
 
   try {
-    const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
+    const res = await fetch(`${PROXY}?action=trip&details=true&tripId=${encodeURIComponent(dep.tripId)}`);
     const data = await res.json();
 
     if (data.error) {

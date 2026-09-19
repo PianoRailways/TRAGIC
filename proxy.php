@@ -45,7 +45,7 @@ function getCachedTrip(string $tripId): ?array {
     return $entry;
 }
 
-function cacheTrip(string $tripId, ?string $destination, ?string $lastHalt): void {
+function cacheTrip(string $tripId, ?string $destination, ?string $tripNumber, ?string $lastHalt): void {
     if (!ensureCacheStorage()) return;
 
     $raw = @file_get_contents(TRIP_CACHE_FILE);
@@ -54,6 +54,7 @@ function cacheTrip(string $tripId, ?string $destination, ?string $lastHalt): voi
 
     $cache[$tripId] = [
         'destination' => $destination,
+        'tripNumber'  => $tripNumber,
         'lastHalt'    => $lastHalt,
         'expiresAt'   => time() + TRIP_CACHE_TTL,
     ];
@@ -350,10 +351,12 @@ if ($action === 'trip') {
     $decodedTripId = urldecode($tripId);
 
     $cachedTrip = getCachedTrip($decodedTripId);
-    if ($cachedTrip !== null) {
+    $forceDetails = filter_var($_GET['details'] ?? false, FILTER_VALIDATE_BOOLEAN);
+    if ($cachedTrip !== null && !$forceDetails) {
         echo json_encode([
             'tripId'      => $decodedTripId,
             'destination' => $cachedTrip['destination'] ?? null,
+            'tripNumber'  => $cachedTrip['tripNumber'] ?? null,
             'lastHalt'    => $cachedTrip['lastHalt'] ?? null,
             'cached'      => true,
         ], JSON_UNESCAPED_UNICODE);
@@ -436,8 +439,9 @@ if ($action === 'trip') {
     }
     $tripDestination = $leg['headsign'] ?? null;
     if (!$tripDestination) $tripDestination = $lastHalt;
+    $tripNumber = $leg['tripShortName'] ?? $leg['displayName'] ?? null;
 
-    cacheTrip($decodedTripId, $tripDestination, $lastHalt);
+    cacheTrip($decodedTripId, $tripDestination, $tripNumber, $lastHalt);
     
     // VBZ-spezifisch: Linie aus tripId extrahieren, falls nicht vorhanden
     $line = $leg['routeShortName'] ?? '?';
@@ -459,7 +463,7 @@ if ($action === 'trip') {
     echo json_encode([
         'tripId'      => $decodedTripId,
         'line'        => $line,
-        'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
+        'tripNumber'  => $tripNumber,
         'destination' => $tripDestination,
         'lastHalt'    => $lastHalt,
         'routeType'            => $leg['routeType'] ?? null,
