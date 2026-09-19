@@ -17,6 +17,7 @@ function loadNearbySettings() {
 
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
+const CUSTOM_JSON_URL = '/cache/demo-fahrten.js';
 
 function parseCustomJsonTime(value) {
   if (typeof value === 'number') return value > 100000000000 ? Math.floor(value / 1000) : value;
@@ -65,9 +66,7 @@ function normalizeCustomDeparture(departure, index, stationName) {
   };
 }
 
-async function loadCustomDepartures(file) {
-  const text = await file.text();
-  const data = JSON.parse(text);
+async function loadCustomDeparturesData(data, sourceName) {
   const entries = Array.isArray(data) ? data : data.departures;
   if (!Array.isArray(entries)) {
     throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit "departures" enthalten.');
@@ -80,8 +79,15 @@ async function loadCustomDepartures(file) {
   customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, stationName));
   allDepartures = customDepartures;
   renderDepartures(allDepartures);
-  setStatus(`${allDepartures.length} eigene Fahrt${allDepartures.length === 1 ? '' : 'en'} aus ${file.name}`);
+  setStatus(`${allDepartures.length} eigene Fahrt${allDepartures.length === 1 ? '' : 'en'} aus ${sourceName}`);
   updateNavButtonsVisibility();
+}
+
+async function loadCustomDeparturesFromUrl(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Server antwortet mit HTTP ${response.status}.`);
+  const data = await response.json();
+  await loadCustomDeparturesData(data, url);
 }
 
 function saveNearbySettings() {
@@ -172,20 +178,21 @@ function setupNavigationButtons() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const customJsonFile = document.getElementById('custom-json-file');
   const loadCustomJsonButton = document.getElementById('btn-load-custom-json');
-  if (loadCustomJsonButton && customJsonFile) {
-    loadCustomJsonButton.addEventListener('click', () => customJsonFile.click());
-    customJsonFile.addEventListener('change', async () => {
-      const file = customJsonFile.files?.[0];
-      if (!file) return;
+  if (loadCustomJsonButton) {
+    loadCustomJsonButton.addEventListener('click', async () => {
       try {
-        await loadCustomDepartures(file);
+        await loadCustomDeparturesFromUrl(CUSTOM_JSON_URL);
       } catch (error) {
-        renderError(`JSON konnte nicht geladen werden: ${error.message}`);
-      } finally {
-        customJsonFile.value = '';
+        renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
       }
+    });
+  }
+
+  const customJsonUrl = params.get('customJson');
+  if (customJsonUrl) {
+    loadCustomDeparturesFromUrl(customJsonUrl).catch(error => {
+      renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
     });
   }
 
