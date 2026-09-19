@@ -420,10 +420,17 @@ async function toggleChain(tr, dep) {
 
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
-    const data = await res.json();
+    const responseText = await res.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (_) {
+      throw new Error(`Ungültige Trip-Antwort (${res.status})`);
+    }
 
-    if (data.error) {
-      td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler: ${escapeHtml(data.error)}</div></div>`;
+    if (!res.ok || data.error) {
+      const errorMessage = data.error || `Trip konnte nicht geladen werden (${res.status})`;
+      td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler: ${escapeHtml(errorMessage)}</div></div>`;
       return;
     }
 

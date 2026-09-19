@@ -32,7 +32,11 @@ function getCachedTrip($tripId) {
   }
 
   try {
-    $cache = json_decode(file_get_contents(TRIPS_CACHE_FILE), true);
+        $contents = @file_get_contents(TRIPS_CACHE_FILE);
+        if ($contents === false) {
+            return null;
+        }
+        $cache = json_decode($contents, true);
     if (!isset($cache[$tripId])) {
       return null;
     }
@@ -45,7 +49,7 @@ function getCachedTrip($tripId) {
     }
 
     return $entry['data'];
-  } catch (Exception $e) {
+    } catch (Throwable $e) {
     error_log("Cache read error: {$e->getMessage()}");
     return null;
   }
@@ -55,7 +59,8 @@ function cacheTrip($tripId, $data) {
   try {
     $cache = [];
     if (file_exists(TRIPS_CACHE_FILE)) {
-      $cache = json_decode(file_get_contents(TRIPS_CACHE_FILE), true) ?? [];
+            $contents = @file_get_contents(TRIPS_CACHE_FILE);
+            $cache = $contents === false ? [] : (json_decode($contents, true) ?? []);
     }
 
     $cache[$tripId] = [
@@ -64,12 +69,12 @@ function cacheTrip($tripId, $data) {
       'expiresAt' => time() + CACHE_TTL
     ];
 
-    file_put_contents(
+        @file_put_contents(
       TRIPS_CACHE_FILE,
       json_encode($cache, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
       LOCK_EX
     );
-  } catch (Exception $e) {
+    } catch (Throwable $e) {
     error_log("Cache write error: {$e->getMessage()}");
   }
 }
@@ -80,11 +85,12 @@ function cleanupCache() {
   }
 
   try {
-    $cache = json_decode(file_get_contents(TRIPS_CACHE_FILE), true) ?? [];
+    $contents = @file_get_contents(TRIPS_CACHE_FILE);
+    $cache = $contents === false ? [] : (json_decode($contents, true) ?? []);
     $now = time();
     $filtered = array_filter($cache, fn($entry) => $entry['expiresAt'] >= $now);
 
-    file_put_contents(
+        @file_put_contents(
       TRIPS_CACHE_FILE,
       json_encode($filtered, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
       LOCK_EX
