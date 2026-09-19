@@ -55,8 +55,13 @@ function getCachedTrip($tripId) {
   }
 }
 
-function cacheTrip($tripId, $data) {
+function cacheTrip($tripId, $data): bool {
   try {
+        if (!is_dir(CACHE_DIR) && !@mkdir(CACHE_DIR, 0755, true)) {
+            error_log('Trip cache directory could not be created: ' . CACHE_DIR);
+            return false;
+        }
+
     $cache = [];
     if (file_exists(TRIPS_CACHE_FILE)) {
             $contents = @file_get_contents(TRIPS_CACHE_FILE);
@@ -69,13 +74,20 @@ function cacheTrip($tripId, $data) {
       'expiresAt' => time() + CACHE_TTL
     ];
 
-        @file_put_contents(
+        $json = json_encode($cache, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        $written = $json !== false && @file_put_contents(
       TRIPS_CACHE_FILE,
-      json_encode($cache, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
+            $json,
       LOCK_EX
     );
+        if ($written === false) {
+            error_log('Trip cache could not be written: ' . TRIPS_CACHE_FILE);
+            return false;
+        }
+        return true;
     } catch (Throwable $e) {
     error_log("Cache write error: {$e->getMessage()}");
+        return false;
   }
 }
 
@@ -367,10 +379,12 @@ if ($action === 'trip') {
 
     // Cache prüfen
     $cached = getCachedTrip($decodedTripId);
-    if ($cached) {
+    if (is_array($cached)) {
+        header('X-Trip-Cache: HIT');
         echo json_encode($cached);
         exit;
     }
+    header('X-Trip-Cache: MISS');
 
     $params = [
         'tripId'             => $decodedTripId,
@@ -477,7 +491,7 @@ if ($action === 'trip') {
     ];
 
     // In Cache speichern
-    cacheTrip($decodedTripId, $responseData);
+    header('X-Trip-Cache-Write: ' . (cacheTrip($decodedTripId, $responseData) ? 'OK' : 'FAILED'));
 
     echo json_encode($responseData);
     exit;
