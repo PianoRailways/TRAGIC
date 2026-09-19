@@ -17,6 +17,20 @@ const CACHE_DIR  = __DIR__ . '/cache';
 const TRIP_CACHE_FILE = CACHE_DIR . '/trips.json';
 const TRIP_CACHE_TTL = 21600;
 
+function ensureCacheStorage(): bool {
+    if (!is_dir(CACHE_DIR) && !mkdir(CACHE_DIR, 0775, true) && !is_dir(CACHE_DIR)) {
+        error_log('Trip cache: cache directory could not be created: ' . CACHE_DIR);
+        return false;
+    }
+
+    if (!is_file(TRIP_CACHE_FILE) && file_put_contents(TRIP_CACHE_FILE, '{}', LOCK_EX) === false) {
+        error_log('Trip cache: cache file could not be created: ' . TRIP_CACHE_FILE);
+        return false;
+    }
+
+    return is_writable(CACHE_DIR) && is_writable(TRIP_CACHE_FILE);
+}
+
 function getCachedTrip(string $tripId): ?array {
     if (!is_file(TRIP_CACHE_FILE)) return null;
 
@@ -32,7 +46,7 @@ function getCachedTrip(string $tripId): ?array {
 }
 
 function cacheTrip(string $tripId, ?string $destination, ?string $lastHalt): void {
-    if (!is_dir(CACHE_DIR)) @mkdir(CACHE_DIR, 0775, true);
+    if (!ensureCacheStorage()) return;
 
     $raw = @file_get_contents(TRIP_CACHE_FILE);
     $cache = json_decode($raw ?: '', true);
@@ -44,11 +58,14 @@ function cacheTrip(string $tripId, ?string $destination, ?string $lastHalt): voi
         'expiresAt'   => time() + TRIP_CACHE_TTL,
     ];
 
-    @file_put_contents(
+    $written = file_put_contents(
         TRIP_CACHE_FILE,
         json_encode($cache, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
         LOCK_EX
     );
+    if ($written === false) {
+        error_log('Trip cache: cache file could not be written: ' . TRIP_CACHE_FILE);
+    }
 }
 
 function cleanupCache(): void {
@@ -70,6 +87,7 @@ function cleanupCache(): void {
     );
 }
 
+ensureCacheStorage();
 if (random_int(1, 100) === 1) cleanupCache();
 
 function callTransitous(string $path, array $params): array {
