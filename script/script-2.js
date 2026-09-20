@@ -418,7 +418,7 @@ function renderStationSuggestions(list, matches) {
     li.innerHTML = html;
     li.onclick = () => {
       if (match.source === 'custom') {
-        selectCustomStation(match.id, match.name);
+        selectCustomStation(match.id, match.name, match._customJsonUrl);
         return;
       }
       selectStation(match.id, match.name, null);
@@ -462,7 +462,8 @@ function attachMainStationSearch(input, list) {
       localMatches.unshift({
         id: 'custom-json',
         name: CUSTOM_STATION_NAME,
-        source: 'custom'
+        source: 'custom',
+        _customJsonUrl: CUSTOM_JSON_URL
       });
     }
     try {
@@ -474,7 +475,8 @@ function attachMainStationSearch(input, list) {
         localMatches.unshift({
           id: station.id || station.stopId || null,
           name: station.name,
-          source: 'custom'
+          source: 'custom',
+          _customJsonUrl: station._customJsonUrl
         });
       });
     } catch (_) {}
