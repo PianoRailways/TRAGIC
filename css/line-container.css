@@ -730,6 +730,21 @@
 .line-container[data-agency-id="823"][data-mode="BUS"] { background: #C7C8CA; color: black; } /* BVB Bus */
 .line-container[data-agency-name*="Liestal"] { background: #FFF064; color: black; } /* Auto AG Liestal */
 
+/* Distribus */
+.line-container[data-agency-name="DISTRIBUS"][data-line="1"] { background: rgb(53,105,176); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="2"] { background: rgb(218,59,52); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="5"] { background: rgb(84,38,98); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="6"] { background: rgb(226,117,62); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="9"] { background: rgb(93, 93, 92); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="10"] { background: rgb(93, 93, 92); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="10"] { background: rgb(153,82,154); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="12"] { background: rgb(117,193,200); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="13"] { background: rgb(117,193,200); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="15"] { background: rgb(155,193,84); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="15"] { background: rgb(117,193,200); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="604"] { background: rgb(63,134,74); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="604"] { background: rgb(248,211,80); color: black; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="608"] { background: rgb(191,144,187); color: black; }
 /* Polen */
 .line-container[data-agency-id="12617"],
 .line-container[data-agency-name="PKP Intercity"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
