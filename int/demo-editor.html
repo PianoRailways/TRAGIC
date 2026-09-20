@@ -1,741 +1,877 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transit Data Editor</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #0a0a0a;
-            color: #eee;
-            padding: 16px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .panel {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            overflow-y: auto;
-            max-height: 90vh;
-        }
-        
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 24px;
-            grid-column: 1 / -1;
-            text-align: center;
-        }
-        
-        h2 {
-            font-size: 1.1rem;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #333;
-            color: #0aa;
-        }
-        
-        h3 {
-            font-size: 1rem;
-            margin-bottom: 12px;
-            color: #0aa;
-        }
-        
-        h4, h5 {
-            color: #888;
-            margin-bottom: 8px;
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        label {
-            display: block;
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-        
-        input, textarea, select {
-            width: 100%;
-            padding: 8px 12px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            color: #eee;
-            font-size: 0.95rem;
-            font-family: inherit;
-        }
-        
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #0aa;
-            box-shadow: 0 0 4px rgba(0, 170, 170, 0.3);
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        
-        button {
-            flex: 1;
-            padding: 10px;
-            background: #0aa;
-            color: #000;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        button:hover {
-            background: #099;
-        }
-        
-        button:active {
-            opacity: 0.8;
-        }
-        
-        button.secondary {
-            background: #333;
-            color: #eee;
-            flex: 1;
-        }
-        
-        button.secondary:hover {
-            background: #444;
-        }
-        
-        button.danger {
-            background: #c33;
-            color: #fff;
-            flex: 1;
-        }
-        
-        button.danger:hover {
-            background: #b22;
-        }
-        
-        .station-item {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        
-        .departure-item {
-            background: #151515;
-            border: 1px solid #222;
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 8px;
-        }
-        
-        .stops-section {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 12px;
-            margin-top: 12px;
-        }
-        
-        .stop-item {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 6px;
-        }
-        
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        
-        .row.full {
-            grid-template-columns: 1fr;
-        }
-        
-        .json-output {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 12px;
-            font-family: "Monaco", "Courier New", monospace;
-            font-size: 0.85rem;
-            max-height: 100%;
-            overflow: auto;
-            color: #8f8;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        
-        .preview-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        
-        .preview-title h2 {
-            margin: 0;
-            border: none;
-            padding: 0;
-        }
-        
-        .copy-btn {
-            background: #0aa;
-            color: #000;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-        
-        .copy-btn:hover {
-            background: #099;
-        }
-        
-        .status-msg {
-            font-size: 0.85rem;
-            padding: 8px;
-            border-radius: 4px;
-            margin-top: 8px;
-            display: none;
-        }
-        
-        .status-msg.show {
-            display: block;
-        }
-        
-        .status-msg.success {
-            background: #0aa;
-            color: #000;
-        }
-        
-        .status-msg.error {
-            background: #c33;
-            color: #fff;
-        }
-        
-        .small-button {
-            padding: 6px 10px;
-            font-size: 0.85rem;
-            flex: 0;
-            min-width: 100px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>öV Dispatcher & Station Manager</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & React DOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
-    <h1>Transit Data Editor (Multi-Station)</h1>
-    
-    <div class="container">
-        <!-- Editor Panel -->
-        <div class="panel">
-            <h2>Stationen</h2>
-            
-            <div id="stationsList"></div>
-            
-            <button onclick="addStation()">+ Station hinzufügen</button>
-            <div id="statusMsg" class="status-msg"></div>
-            
-            <div class="button-group" style="margin-top: 20px;">
-                <button class="secondary" onclick="downloadJSON()">⬇ Download JSON</button>
-                <button class="danger" onclick="clearAll()">🗑 Zurücksetzen</button>
-            </div>
-        </div>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+
+    // --- ICONS ---
+    const IconTrain = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="3" width="16" height="16" rx="2" />
+        <path d="M4 11h16" />
+        <path d="M12 3v8" />
+        <path d="M8 19l-3 3" />
+        <path d="M16 19l3 3" />
+        <circle cx="8" cy="15" r="1" />
+        <circle cx="16" cy="15" r="1" />
+      </svg>
+    );
+
+    const IconMapPin = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    );
+
+    const IconPlus = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    );
+
+    const IconTrash = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+      </svg>
+    );
+
+    const IconBuilding = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+        <path d="M9 22v-4h6v4" />
+        <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" />
+      </svg>
+    );
+
+    const IconCode = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </svg>
+    );
+
+    const IconCopy = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+      </svg>
+    );
+
+    const IconCheck = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    );
+
+    const IconX = ({ className = "w-4 h-4" }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    );
+
+    // --- ANFANGSDATEN DER HALTESTELLEN ---
+    const INITIAL_STATIONS = [
+      { id: "custom_pinu_s_OFWF", name: "Otelfingen FEF" },
+      { id: "custom_pinu_s_OFWFS", name: "Otelfingen FWF Süd" },
+      { id: "custom_p_z", name: "Otelfingen Zentrum" },
+      { id: "8503500", name: "Baden" },
+      { id: "8503504", name: "Wettingen" },
+      { id: "8503000", name: "Zürich HB" },
+      { id: "8503509", name: "Regensdorf-Watt" }
+    ];
+
+    // --- ANFANGSDATEN DER TRIPS ---
+    const INITIAL_TRIPS = [
+      {
+        tripId: "custom_pinu_t_1",
+        line: "FEXT",
+        tripNumber: "1",
+        mode: "RAIL",
+        agencyId: "sbb",
+        agencyName: "Schweizerische Bundesbahnen SBB",
+        agencyShort: "SBB",
+        stops: [
+          {
+            stopId: "custom_pinu_s_OFWF",
+            scheduled: "2026-08-30T12:00:00+02:00",
+            departureLive: "2026-08-30T12:00:00+02:00",
+            track: "F",
+            legIndex: null,
+            delayMin: 0
+          },
+          {
+            stopId: "custom_pinu_s_OFWFS",
+            scheduled: "2026-08-30T12:04:00+02:00",
+            departureLive: "2026-08-30T12:04:00+02:00",
+            track: "A",
+            legIndex: 0,
+            delayMin: 0
+          },
+          {
+            stopId: "custom_p_z",
+            scheduled: "2026-08-30T12:12:00+02:00",
+            departureLive: "2026-08-30T12:12:00+02:00",
+            track: "1",
+            legIndex: 1,
+            delayMin: 0
+          }
+        ]
+      },
+      {
+        tripId: "custom_pinu_t_2",
+        line: "S6",
+        tripNumber: "18190",
+        mode: "RAIL",
+        agencyId: "sbb",
+        agencyName: "Schweizerische Bundesbahnen SBB",
+        agencyShort: "SBB",
+        stops: [
+          {
+            stopId: "8503500",
+            scheduled: "2026-08-30T14:15:00+02:00",
+            departureLive: "2026-08-30T14:15:00+02:00",
+            track: "4",
+            legIndex: null,
+            delayMin: 0
+          },
+          {
+            stopId: "custom_pinu_s_OFWF",
+            scheduled: "2026-08-30T14:26:00+02:00",
+            departureLive: "2026-08-30T14:29:00+02:00",
+            track: "2",
+            legIndex: 0,
+            delayMin: 3
+          },
+          {
+            stopId: "8503000",
+            scheduled: "2026-08-30T14:45:00+02:00",
+            departureLive: "2026-08-30T14:48:00+02:00",
+            track: "41",
+            legIndex: 1,
+            delayMin: 3
+          }
+        ]
+      }
+    ];
+
+    function App() {
+      const [stations, setStations] = useState(INITIAL_STATIONS);
+      const [trips, setTrips] = useState(INITIAL_TRIPS);
+      const [selectedStationId, setSelectedStationId] = useState("custom_pinu_s_OFWF");
+      
+      const [copied, setCopied] = useState(false);
+      const [activeTab, setActiveTab] = useState('editor'); // 'editor', 'stations', 'json'
+      
+      // Modal zum Erstellen einer neuen Station
+      const [showNewStationModal, setShowNewStationModal] = useState(false);
+      const [newStationName, setNewStationName] = useState('');
+      const [newStationId, setNewStationId] = useState('');
+
+      // Formularzustand für Trip-Editor
+      const [editingTripId, setEditingTripId] = useState(null);
+      const [formLine, setFormLine] = useState('FEXT');
+      const [formTripNumber, setFormTripNumber] = useState('2');
+      const [formMode, setFormMode] = useState('RAIL');
+      const [formAgencyShort, setFormAgencyShort] = useState('SBB');
+      const [formAgencyName, setFormAgencyName] = useState('Schweizerische Bundesbahnen SBB');
+      const [formStops, setFormStops] = useState([
+        { stopId: 'custom_pinu_s_OFWF', time: '12:00', track: 'F', delayMin: 0 },
+        { stopId: 'custom_p_z', time: '12:10', track: '1', delayMin: 0 }
+      ]);
+
+      // Hilfsfunktion: Station nach ID finden
+      const getStationName = (id) => {
+        const found = stations.find(s => s.id === id);
+        return found ? found.name : id;
+      };
+
+      // Inline / Quick-Creation einer Station
+      const handleRegisterStation = (nameInput, customId = null) => {
+        if (!nameInput.trim()) return null;
         
-        <!-- Preview Panel -->
-        <div class="panel">
-            <div class="preview-title">
-                <h2>JSON Preview</h2>
-                <button class="copy-btn" onclick="copyToClipboard()">📋 Kopieren</button>
-            </div>
-            <div class="json-output" id="jsonOutput">{ }</div>
-        </div>
-    </div>
-    
-    <script>
-        let stations = [];
+        const existing = stations.find(s => s.name.toLowerCase() === nameInput.trim().toLowerCase());
+        if (existing) return existing.id;
+
+        const generatedId = customId && customId.trim() !== '' 
+          ? customId.trim() 
+          : `custom_s_${Date.now().toString().slice(-5)}`;
+
+        const newEntry = { id: generatedId, name: nameInput.trim() };
+        setStations(prev => [...prev, newEntry]);
+        return generatedId;
+      };
+
+      const handleCreateStationFromModal = (e) => {
+        e.preventDefault();
+        if (!newStationName) return;
+        handleRegisterStation(newStationName, newStationId);
+        setNewStationName('');
+        setNewStationId('');
+        setShowNewStationModal(false);
+      };
+
+      // HALTESTELLE ZUM AKTUELLEN TRIP-FORMULAR HINZUFÜGEN
+      const addStopToForm = () => {
+        const defaultStationId = stations[0]?.id || '';
+        setFormStops([...formStops, { stopId: defaultStationId, time: '12:15', track: '1', delayMin: 0 }]);
+      };
+
+      const updateFormStop = (index, field, value) => {
+        const updated = [...formStops];
+        updated[index][field] = value;
+        setFormStops(updated);
+      };
+
+      const removeFormStop = (index) => {
+        if (formStops.length <= 2) {
+          alert('Ein Trip sollte mindestens 2 Haltestellen haben (Start -> Ziel).');
+          return;
+        }
+        setFormStops(formStops.filter((_, i) => i !== index));
+      };
+
+      // SPEICHERN ODER ERSTELLEN EINES TRIPS
+      const handleSaveTrip = (e) => {
+        e.preventDefault();
+
+        const tripId = editingTripId || `custom_pinu_t_${Date.now().toString().slice(-4)}`;
+        const baseDate = "2026-08-30";
+
+        const processedStops = formStops.map((st, idx) => {
+          const timeString = st.time || "12:00";
+          const scheduledIso = `${baseDate}T${timeString}:00+02:00`;
+          
+          let depLiveIso = scheduledIso;
+          if (st.delayMin > 0) {
+            const [h, m] = timeString.split(':').map(Number);
+            const totalM = h * 60 + m + parseInt(st.delayMin, 10);
+            const newH = Math.floor(totalM / 60) % 24;
+            const newM = totalM % 60;
+            depLiveIso = `${baseDate}T${newH.toString().padStart(2, '0')}:${newM.toString().padStart(2, '0')}:00+02:00`;
+          }
+
+          return {
+            stopId: st.stopId,
+            scheduled: scheduledIso,
+            departureLive: depLiveIso,
+            track: st.track || "",
+            delayMin: parseInt(st.delayMin, 10) || 0,
+            legIndex: idx === 0 ? null : idx - 1
+          };
+        });
+
+        const newTripObj = {
+          tripId,
+          line: formLine,
+          tripNumber: formTripNumber,
+          mode: formMode,
+          agencyId: formAgencyShort.toLowerCase(),
+          agencyName: formAgencyName,
+          agencyShort: formAgencyShort,
+          stops: processedStops
+        };
+
+        if (editingTripId) {
+          setTrips(trips.map(t => t.tripId === editingTripId ? newTripObj : t));
+          setEditingTripId(null);
+        } else {
+          setTrips([...trips, newTripObj]);
+        }
+      };
+
+      const handleEditTripClick = (trip) => {
+        setEditingTripId(trip.tripId);
+        setFormLine(trip.line);
+        setFormTripNumber(trip.tripNumber);
+        setFormMode(trip.mode);
+        setFormAgencyShort(trip.agencyShort);
+        setFormAgencyName(trip.agencyName);
         
-        function initDemo() {
-            stations = [
-                {
-                    id: 'demo-bahnhof',
-                    name: 'Demo-Bahnhof',
-                    departures: [
-                        {
-                            tripId: 'demo-s1-001',
-                            line: 'S1',
-                            tripNumber: '1001',
-                            destination: 'Seestadt',
-                            scheduled: '2099-06-21T08:15:00+02:00',
-                            live: '2099-06-21T08:16:00+02:00',
-                            delaySec: 60,
-                            track: '3',
-                            mode: 'RAIL',
-                            trip: {
-                                tripId: 'demo-s1-001',
-                                line: 'S1',
-                                tripNumber: '1001',
-                                destination: 'Seestadt',
-                                stops: [
-                                    { stopId: 'demo-bahnhof', name: 'Demo-Bahnhof', departureSched: '2099-06-21T08:15:00+02:00', departureLive: '2099-06-21T08:16:00+02:00', track: '3', legIndex: 0 },
-                                    { stopId: 'demo-mitte', name: 'Demo-Mitte', arrivalSched: '2099-06-21T08:22:00+02:00', departureSched: '2099-06-21T08:23:00+02:00', legIndex: 0 },
-                                    { stopId: 'demo-seestadt', name: 'Seestadt', arrivalSched: '2099-06-21T08:35:00+02:00', legIndex: 0 }
-                                ]
-                            }
-                        },
-                        {
-                            tripId: 'demo-bus-042',
-                            line: '42',
-                            destination: 'Bergdorf',
-                            scheduled: '2099-06-21T08:28:00+02:00',
-                            track: 'B',
-                            mode: 'BUS'
-                        }
-                    ]
-                },
-                {
-                    id: 'seehafen',
-                    name: 'Seehafen',
-                    departures: [
-                        {
-                            tripId: 'demo-ferry-007',
-                            line: 'F7',
-                            destination: 'Inselblick',
-                            scheduled: '2099-06-21T08:40:00+02:00',
-                            track: 'Steg 2',
-                            mode: 'FERRY'
-                        }
-                    ]
+        const convertedStops = trip.stops.map(st => {
+          const time = st.scheduled ? st.scheduled.substring(11, 16) : '12:00';
+          return {
+            stopId: st.stopId,
+            time: time,
+            track: st.track || '',
+            delayMin: st.delayMin || 0
+          };
+        });
+        setFormStops(convertedStops);
+      };
+
+      const handleDeleteTrip = (tripId) => {
+        setTrips(trips.filter(t => t.tripId !== tripId));
+        if (editingTripId === tripId) {
+          setEditingTripId(null);
+        }
+      };
+
+      // DYNAMISCHES ERZEUGEN DES WUNSCH-JSON-FORMATS (STATIONEN UND DERIVED DEPARTURES)
+      const generatedSchemaJSON = useMemo(() => {
+        const outputStations = stations.map(st => {
+          // Finde alle Abfahrten für diese Station aus allen Trips
+          const departures = [];
+
+          trips.forEach(trip => {
+            const stopIndex = trip.stops.findIndex(s => s.stopId === st.id);
+            
+            // Wenn Halt existiert und nicht die Endstation ist
+            if (stopIndex !== -1 && stopIndex < trip.stops.length - 1) {
+              const currentStop = trip.stops[stopIndex];
+              const destinationStop = trip.stops[trip.stops.length - 1];
+
+              departures.push({
+                tripId: trip.tripId,
+                line: trip.line,
+                tripNumber: trip.tripNumber,
+                agency: trip.agencyShort,
+                destination: getStationName(destinationStop.stopId),
+                scheduled: currentStop.scheduled,
+                track: currentStop.track,
+                mode: trip.mode,
+                trip: {
+                  agency: {
+                    id: trip.agencyId,
+                    name: trip.agencyName
+                  },
+                  stops: trip.stops.map(s => ({
+                    stopId: s.stopId,
+                    name: getStationName(s.stopId),
+                    departureLive: s.departureLive,
+                    track: s.track,
+                    legIndex: s.legIndex
+                  }))
                 }
-            ];
-            renderStations();
-            updatePreview();
-        }
-        
-        function addStation() {
-            stations.push({ id: '', name: '', departures: [] });
-            renderStations();
-        }
-        
-        function removeStation(stIdx) {
-            stations.splice(stIdx, 1);
-            renderStations();
-            updatePreview();
-        }
-        
-        function addDeparture(stIdx) {
-            if (!stations[stIdx]) return;
-            stations[stIdx].departures.push({
-                tripId: '', line: '', tripNumber: '', destination: '', scheduled: '', live: '', 
-                delaySec: null, track: '', mode: 'RAIL', trip: { tripId: '', line: '', tripNumber: '', destination: '', stops: [] }
-            });
-            renderStations();
-        }
-        
-        function removeDeparture(stIdx, depIdx) {
-            if (stations[stIdx]) {
-                stations[stIdx].departures.splice(depIdx, 1);
-                renderStations();
-                updatePreview();
+              });
             }
-        }
-        
-        function addStop(stIdx, depIdx) {
-            if (stations[stIdx] && stations[stIdx].departures[depIdx]) {
-                const dep = stations[stIdx].departures[depIdx];
-                if (!dep.trip) dep.trip = { tripId: '', line: '', tripNumber: '', destination: '', stops: [] };
-                dep.trip.stops.push({ stopId: '', name: '', arrivalSched: '', arrivalLive: '', departureSched: '', departureLive: '', track: '', legIndex: 0 });
-                renderStations();
-            }
-        }
-        
-        function removeStop(stIdx, depIdx, stopIdx) {
-            if (stations[stIdx] && stations[stIdx].departures[depIdx] && stations[stIdx].departures[depIdx].trip) {
-                stations[stIdx].departures[depIdx].trip.stops.splice(stopIdx, 1);
-                renderStations();
-                updatePreview();
-            }
-        }
-        
-        function renderStations() {
-            const list = document.getElementById('stationsList');
-            list.innerHTML = '';
+          });
+
+          return {
+            id: st.id,
+            name: st.name,
+            departures: departures
+          };
+        });
+
+        return { stations: outputStations };
+      }, [stations, trips]);
+
+      // Abfahrten für die aktuell gewählte Station auf der rechten Seite
+      const currentStationDepartures = useMemo(() => {
+        const stationObj = generatedSchemaJSON.stations.find(s => s.id === selectedStationId);
+        return stationObj ? stationObj.departures : [];
+      }, [generatedSchemaJSON, selectedStationId]);
+
+      const copyToClipboard = () => {
+        navigator.clipboard.writeText(JSON.stringify(generatedSchemaJSON, null, 2));
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <div className="flex flex-col h-screen w-screen bg-slate-950 text-slate-100 overflow-hidden">
+          
+          {/* HEADER */}
+          <header className="h-16 border-b border-slate-800 bg-slate-900/90 px-6 flex items-center justify-between flex-shrink-0 z-10 backdrop-blur">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-600/20 text-blue-400 rounded-lg border border-blue-500/30">
+                <IconTrain className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="font-semibold text-base leading-none">öV Dispatcher & Station Manager</h1>
+                <span className="text-xs text-slate-400">Live JSON Generator & Multi-Station Matrix</span>
+              </div>
+            </div>
+
+            {/* HALTESTELLEN AKTIONEN & NAVIGATION */}
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setShowNewStationModal(true)}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 font-medium text-xs rounded-lg flex items-center gap-1.5 border border-slate-700 transition"
+              >
+                <IconPlus className="w-3.5 h-3.5" /> Neue Station definieren
+              </button>
+
+              <div className="h-5 w-px bg-slate-800"></div>
+
+              <div className="flex bg-slate-950 p-1 border border-slate-800 rounded-lg text-xs">
+                <button 
+                  onClick={() => setActiveTab('editor')}
+                  className={`px-3 py-1 rounded-md transition ${activeTab === 'editor' ? 'bg-blue-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'}`}
+                >
+                  Trip Editor
+                </button>
+                <button 
+                  onClick={() => setActiveTab('stations')}
+                  className={`px-3 py-1 rounded-md transition ${activeTab === 'stations' ? 'bg-blue-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'}`}
+                >
+                  Stationen ({stations.length})
+                </button>
+                <button 
+                  onClick={() => setActiveTab('json')}
+                  className={`px-3 py-1 rounded-md transition flex items-center gap-1 ${activeTab === 'json' ? 'bg-blue-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'}`}
+                >
+                  <IconCode className="w-3.5 h-3.5" /> JSON Output
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* HAUPT-SPLIT-BEREICH */}
+          <div className="flex-1 flex overflow-hidden">
             
-            stations.forEach((station, stIdx) => {
-                const stationEl = document.createElement('div');
-                stationEl.className = 'station-item';
-                
-                stationEl.innerHTML = `
-                    <h3>Station ${stIdx + 1}</h3>
-                    <div class="row">
-                        <div class="form-group">
-                            <label>Station ID</label>
-                            <input type="text" value="${station.id || ''}" onchange="stations[${stIdx}].id = this.value; updatePreview()">
-                        </div>
-                        <div class="form-group">
-                            <label>Station Name</label>
-                            <input type="text" value="${station.name || ''}" onchange="stations[${stIdx}].name = this.value; updatePreview()">
-                        </div>
+            {/* LINKES PANEL: TRIPS & STATIONS EDITOR */}
+            <div className="w-7/12 border-r border-slate-800 flex flex-col bg-slate-900/30 overflow-y-auto p-6 space-y-6">
+              
+              {/* TAB 1: TRIP FORMULAR & LISTE */}
+              {activeTab === 'editor' && (
+                <>
+                  {/* FORMULAR ZUM ERSTELLEN/BEARBEITEN EINERS TRIPS */}
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                      <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                        <IconTrain className="w-4 h-4 text-blue-400" />
+                        {editingTripId ? `Fahrt bearbeiten (${editingTripId})` : 'Neue Fahrt erstellen'}
+                      </h2>
+                      {editingTripId && (
+                        <button 
+                          onClick={() => setEditingTripId(null)}
+                          className="text-xs text-slate-400 hover:text-slate-200 underline"
+                        >
+                          Abbrechen / Neu
+                        </button>
+                      )}
                     </div>
-                    <h4 style="margin-top: 16px;">Abfahrten</h4>
-                    <div id="departures-${stIdx}"></div>
-                    <button class="secondary small-button" onclick="addDeparture(${stIdx})" style="width: 100%; margin: 8px 0;">+ Abfahrt</button>
-                    <button class="danger small-button" onclick="removeStation(${stIdx})" style="width: 100%; margin-top: 12px;">× Station</button>
-                `;
+
+                    <form onSubmit={handleSaveTrip} className="space-y-4 text-xs">
+                      <div className="grid grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-slate-400 mb-1 font-medium">Linie</label>
+                          <input 
+                            type="text" 
+                            value={formLine} 
+                            onChange={(e) => setFormLine(e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100 focus:outline-none focus:border-blue-500 font-semibold"
+                            placeholder="z.B. FEXT, S6"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-400 mb-1 font-medium">Fahrt- / Zug-Nr.</label>
+                          <input 
+                            type="text" 
+                            value={formTripNumber} 
+                            onChange={(e) => setFormTripNumber(e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100 focus:outline-none focus:border-blue-500"
+                            placeholder="z.B. 1, 18190"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-400 mb-1 font-medium">Transportunternehmen (Agency Kürzel)</label>
+                          <input 
+                            type="text" 
+                            value={formAgencyShort} 
+                            onChange={(e) => setFormAgencyShort(e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100 focus:outline-none focus:border-blue-500 font-semibold text-blue-400"
+                            placeholder="z.B. SBB, PostAuto"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-400 mb-1 font-medium">Modus</label>
+                          <select 
+                            value={formMode} 
+                            onChange={(e) => setFormMode(e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100 focus:outline-none focus:border-blue-500"
+                          >
+                            <option value="RAIL">RAIL (Zug)</option>
+                            <option value="BUS">BUS (Bus / Postauto)</option>
+                            <option value="TRAM">TRAM</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-400 mb-1 font-medium">EVU Name (Langbezeichnung)</label>
+                        <input 
+                          type="text" 
+                          value={formAgencyName} 
+                          onChange={(e) => setFormAgencyName(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100 focus:outline-none focus:border-blue-500"
+                          placeholder="z.B. Schweizerische Bundesbahnen SBB"
+                        />
+                      </div>
+
+                      {/* ZWISCHENHALTE UND DROPDOWN-STATIONEN */}
+                      <div className="space-y-2 pt-3 border-t border-slate-800">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-semibold text-slate-200">Fahrweg / Haltestellen-Sequenz</span>
+                          <button 
+                            type="button" 
+                            onClick={addStopToForm}
+                            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded text-xs flex items-center gap-1 transition"
+                          >
+                            <IconPlus className="w-3.5 h-3.5" /> Halt hinzufügen
+                          </button>
+                        </div>
+
+                        <div className="space-y-2">
+                          {formStops.map((st, idx) => (
+                            <div key={idx} className="p-3 bg-slate-950 border border-slate-800 rounded-lg flex items-center gap-3">
+                              <span className="font-mono text-slate-500 text-xs w-5 font-bold">{idx + 1}.</span>
+                              
+                              {/* DYNAMISCHES STATIONS DROPDOWN */}
+                              <div className="flex-1">
+                                <select 
+                                  value={st.stopId}
+                                  onChange={(e) => updateFormStop(idx, 'stopId', e.target.value)}
+                                  className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-100 focus:outline-none focus:border-blue-500"
+                                >
+                                  {stations.map(station => (
+                                    <option key={station.id} value={station.id}>
+                                      {station.name} ({station.id})
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {/* ZEIT (HH:MM) */}
+                              <div className="w-24">
+                                <input 
+                                  type="text" 
+                                  value={st.time}
+                                  onChange={(e) => updateFormStop(idx, 'time', e.target.value)}
+                                  placeholder="12:00"
+                                  className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-100 font-mono text-center"
+                                />
+                              </div>
+
+                              {/* GLEIS */}
+                              <div className="w-16">
+                                <input 
+                                  type="text" 
+                                  value={st.track}
+                                  onChange={(e) => updateFormStop(idx, 'track', e.target.value)}
+                                  placeholder="Gleis"
+                                  className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-100 text-center"
+                                />
+                              </div>
+
+                              {/* VERSPÄTUNG IN MINUTEN */}
+                              <div className="w-20">
+                                <input 
+                                  type="number" 
+                                  value={st.delayMin}
+                                  onChange={(e) => updateFormStop(idx, 'delayMin', e.target.value)}
+                                  placeholder="+Min"
+                                  className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-amber-400 font-mono text-center"
+                                />
+                              </div>
+
+                              <button 
+                                type="button" 
+                                onClick={() => removeFormStop(idx)}
+                                className="text-slate-500 hover:text-red-400 p-1 transition"
+                                title="Halt entfernen"
+                              >
+                                <IconTrash className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-2">
+                        <button 
+                          type="submit" 
+                          className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold shadow-lg shadow-blue-600/20 transition"
+                        >
+                          {editingTripId ? 'Fahrt-Änderungen speichern' : 'Fahrt im System registrieren'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* VORHANDENE TRIPS LISTE */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Aktuell angelegte Fahrten ({trips.length})
+                    </h3>
+
+                    <div className="grid gap-3">
+                      {trips.map(t => (
+                        <div key={t.tripId} className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm text-blue-400">{t.line}</span>
+                              <span className="text-xs text-slate-400 font-mono">#{t.tripNumber}</span>
+                              <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                                {t.agencyShort}
+                              </span>
+                            </div>
+                            <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                              <span>Fahrweg:</span>
+                              <strong className="text-slate-200">
+                                {getStationName(t.stops[0]?.stopId)} &rarr; {getStationName(t.stops[t.stops.length - 1]?.stopId)}
+                              </strong>
+                              <span>({t.stops.length} Haltestellen)</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => handleEditTripClick(t)}
+                              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-md border border-slate-700"
+                            >
+                              Bearbeiten
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteTrip(t.tripId)}
+                              className="p-1.5 text-slate-500 hover:text-red-400"
+                            >
+                              <IconTrash className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* TAB 2: STATIONS VERZEICHNIS & SPEICHER */}
+              {activeTab === 'stations' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div>
+                      <h2 className="text-sm font-bold text-slate-100">Stationen-Verzeichnis</h2>
+                      <p className="text-xs text-slate-400">Alle hier gelisteten Stationen stehen in allen Dropdowns zur Auswahl.</p>
+                    </div>
+                    <button 
+                      onClick={() => setShowNewStationModal(true)}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg flex items-center gap-1.5 transition"
+                    >
+                      <IconPlus className="w-3.5 h-3.5" /> Station hinzufügen
+                    </button>
+                  </div>
+
+                  <div className="grid gap-2">
+                    {stations.map((st) => (
+                      <div key={st.id} className="p-3 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-3">
+                          <IconMapPin className="w-4 h-4 text-blue-400" />
+                          <div>
+                            <div className="font-semibold text-slate-100">{st.name}</div>
+                            <div className="font-mono text-[10px] text-slate-500">ID: {st.id}</div>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={() => setStations(stations.filter(s => s.id !== st.id))}
+                          className="text-slate-600 hover:text-red-400 p-1"
+                          title="Station löschen"
+                        >
+                          <IconTrash className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: LIVE JSON OUTPUT */}
+              {activeTab === 'json' && (
+                <div className="h-full flex flex-col space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-slate-400 font-mono">Generiertes Stations-Schema</span>
+                    <button 
+                      onClick={copyToClipboard}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded flex items-center gap-1.5 transition"
+                    >
+                      {copied ? <IconCheck className="w-3.5 h-3.5" /> : <IconCopy className="w-3.5 h-3.5" />}
+                      {copied ? 'Kopiert!' : 'JSON Kopieren'}
+                    </button>
+                  </div>
+                  <textarea 
+                    value={JSON.stringify(generatedSchemaJSON, null, 2)}
+                    readOnly
+                    className="flex-1 w-full bg-slate-950 border border-slate-800 p-4 font-mono text-xs text-emerald-400 rounded-xl leading-relaxed focus:outline-none resize-none"
+                  />
+                </div>
+              )}
+
+            </div>
+
+            {/* RECHTES PANEL: VORSCHAU DER GENERIERTEN ABFAHRTEN FÜR EINE GEWÄHLTE STATION */}
+            <div className="w-5/12 flex flex-col bg-slate-950 p-6 overflow-y-auto space-y-6">
+              
+              {/* DROPDOWN SURROUNDING DYNAMISCH */}
+              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl space-y-2">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Vorschau Abfahrtsmonitor
+                </label>
                 
-                list.appendChild(stationEl);
-                
-                const depsContainer = document.getElementById(`departures-${stIdx}`);
-                station.departures.forEach((dep, depIdx) => {
-                    const depEl = document.createElement('div');
-                    depEl.className = 'departure-item';
+                <div className="flex items-center gap-2">
+                  <IconMapPin className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                  <select 
+                    value={selectedStationId}
+                    onChange={(e) => setSelectedStationId(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-bold text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
+                  >
+                    {stations.map(st => (
+                      <option key={st.id} value={st.id}>{st.name} ({st.id})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* GENERIERTE ABFAHRTEN FÜR DIE SELEKTIERTE STATION */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Automatisch abgeleitete Abfahrten
+                  </h3>
+                  <span className="text-xs text-slate-500 font-mono">{currentStationDepartures.length} Einträge</span>
+                </div>
+
+                {currentStationDepartures.length === 0 ? (
+                  <div className="p-8 text-center border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
+                    Keine Abfahrten an der Station <strong className="text-slate-300">{getStationName(selectedStationId)}</strong> vorhanden.
+                  </div>
+                ) : (
+                  currentStationDepartures.map((dep, idx) => {
+                    const scheduledTime = dep.scheduled ? dep.scheduled.substring(11, 16) : '--:--';
                     
-                    depEl.innerHTML = `
-                        <h5>Abfahrt ${depIdx + 1}</h5>
-                        <div class="row">
-                            <div class="form-group">
-                                <label>Trip ID</label>
-                                <input type="text" value="${dep.tripId || ''}" onchange="stations[${stIdx}].departures[${depIdx}].tripId = this.value; updatePreview()">
+                    return (
+                      <div key={idx} className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-10 bg-blue-600/20 border border-blue-500/30 rounded-lg text-blue-400 font-bold flex flex-col items-center justify-center text-xs">
+                              {dep.line}
                             </div>
-                            <div class="form-group">
-                                <label>Linie</label>
-                                <input type="text" value="${dep.line || ''}" onchange="stations[${stIdx}].departures[${depIdx}].line = this.value; updatePreview()">
+                            <div>
+                              <div className="font-bold text-slate-100 text-sm">{dep.destination}</div>
+                              <div className="text-xs text-slate-400 flex items-center gap-2">
+                                <span className="text-blue-400 font-semibold">{dep.agency}</span>
+                                {dep.track && <span>• Gleis {dep.track}</span>}
+                              </div>
                             </div>
+                          </div>
+
+                          <div className="text-right font-mono">
+                            <div className="text-sm font-bold text-slate-100">{scheduledTime}</div>
+                            <div className="text-[10px] text-emerald-400">pünktlich</div>
+                          </div>
                         </div>
-                        <div class="row">
-                            <div class="form-group">
-                                <label>Fahrtnummer</label>
-                                <input type="text" value="${dep.tripNumber || ''}" onchange="stations[${stIdx}].departures[${depIdx}].tripNumber = this.value; updatePreview()">
-                            </div>
-                            <div class="form-group">
-                                <label>Ziel</label>
-                                <input type="text" value="${dep.destination || ''}" onchange="stations[${stIdx}].departures[${depIdx}].destination = this.value; updatePreview()">
-                            </div>
+
+                        {/* TRIP STOPS INSPEKTOR */}
+                        <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+                          <div className="font-semibold text-slate-300 text-[10px] uppercase">Zulauf-Sequenz (Stops):</div>
+                          <div className="flex flex-wrap items-center gap-1.5 font-mono">
+                            {dep.trip.stops.map((s, sIdx) => (
+                              <React.Fragment key={sIdx}>
+                                <span className={s.stopId === selectedStationId ? 'text-blue-400 font-bold underline' : 'text-slate-400'}>
+                                  {s.name}
+                                </span>
+                                {sIdx < dep.trip.stops.length - 1 && <span className="text-slate-600">&rarr;</span>}
+                              </React.Fragment>
+                            ))}
+                          </div>
                         </div>
-                        <div class="row">
-                            <div class="form-group">
-                                <label>Fahrplanzeit</label>
-                                <input type="text" value="${dep.scheduled || ''}" placeholder="2099-06-21T08:15:00+02:00" onchange="stations[${stIdx}].departures[${depIdx}].scheduled = this.value; updatePreview()">
-                            </div>
-                            <div class="form-group">
-                                <label>Aktuelle Zeit</label>
-                                <input type="text" value="${dep.live || ''}" placeholder="2099-06-21T08:16:00+02:00" onchange="stations[${stIdx}].departures[${depIdx}].live = this.value; updatePreview()">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group">
-                                <label>Verspätung (Sek)</label>
-                                <input type="number" value="${dep.delaySec || ''}" onchange="stations[${stIdx}].departures[${depIdx}].delaySec = this.value ? parseInt(this.value) : null; updatePreview()">
-                            </div>
-                            <div class="form-group">
-                                <label>Gleis</label>
-                                <input type="text" value="${dep.track || ''}" onchange="stations[${stIdx}].departures[${depIdx}].track = this.value; updatePreview()">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Verkehrsmittel</label>
-                            <select onchange="stations[${stIdx}].departures[${depIdx}].mode = this.value; updatePreview()">
-                                <option value="RAIL" ${dep.mode === 'RAIL' ? 'selected' : ''}>RAIL</option>
-                                <option value="BUS" ${dep.mode === 'BUS' ? 'selected' : ''}>BUS</option>
-                                <option value="TRAM" ${dep.mode === 'TRAM' ? 'selected' : ''}>TRAM</option>
-                                <option value="SUBWAY" ${dep.mode === 'SUBWAY' ? 'selected' : ''}>SUBWAY</option>
-                                <option value="FERRY" ${dep.mode === 'FERRY' ? 'selected' : ''}>FERRY</option>
-                                <option value="HIGHSPEED" ${dep.mode === 'HIGHSPEED' ? 'selected' : ''}>HIGHSPEED</option>
-                            </select>
-                        </div>
-                        <div class="stops-section">
-                            <h5>Haltestellen</h5>
-                            <div id="stops-${stIdx}-${depIdx}"></div>
-                            <button class="secondary small-button" onclick="addStop(${stIdx}, ${depIdx})" style="width: 100%; margin-top: 6px;">+ Halt</button>
-                        </div>
-                        <button class="danger small-button" onclick="removeDeparture(${stIdx}, ${depIdx})" style="width: 100%; margin-top: 8px;">× Abfahrt</button>
-                    `;
-                    
-                    depsContainer.appendChild(depEl);
-                    
-                    const stopsContainer = document.getElementById(`stops-${stIdx}-${depIdx}`);
-                    const trip = dep.trip || { stops: [] };
-                    if (trip.stops && trip.stops.length > 0) {
-                        trip.stops.forEach((stop, stopIdx) => {
-                            const stopEl = document.createElement('div');
-                            stopEl.className = 'stop-item';
-                            stopEl.innerHTML = `
-                                <h5 style="margin: 0 0 6px;">Halt ${stopIdx + 1}</h5>
-                                <div class="row">
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Stop ID</label>
-                                        <input type="text" value="${stop.stopId || ''}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].stopId = this.value; updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Name</label>
-                                        <input type="text" value="${stop.name || ''}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].name = this.value; updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Ankunft geplant</label>
-                                        <input type="text" value="${stop.arrivalSched || ''}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].arrivalSched = this.value; updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Ankunft aktuell</label>
-                                        <input type="text" value="${stop.arrivalLive || ''}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].arrivalLive = this.value; updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Abfahrt geplant</label>
-                                        <input type="text" value="${stop.departureSched || ''}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].departureSched = this.value; updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Abfahrt aktuell</label>
-                                        <input type="text" value="${stop.departureLive || ''}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].departureLive = this.value; updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Gleis</label>
-                                        <input type="text" value="${stop.track || ''}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].track = this.value; updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 6px;">
-                                        <label style="font-size: 0.8rem;">Leg Index</label>
-                                        <input type="number" value="${stop.legIndex || 0}" onchange="stations[${stIdx}].departures[${depIdx}].trip.stops[${stopIdx}].legIndex = parseInt(this.value); updatePreview()" style="padding: 6px 8px; font-size: 0.9rem;">
-                                    </div>
-                                </div>
-                                <button class="danger small-button" onclick="removeStop(${stIdx}, ${depIdx}, ${stopIdx})" style="width: 100%; padding: 4px; font-size: 0.85rem;">× Halt</button>
-                            `;
-                            stopsContainer.appendChild(stopEl);
-                        });
-                    }
-                });
-            });
-        }
-        
-        function updatePreview() {
-            const data = {
-                stations: stations.map(station => {
-                    const stationObj = {
-                        id: station.id || undefined,
-                        name: station.name || undefined,
-                        departures: (station.departures || []).map(dep => {
-                            const depObj = { tripId: dep.tripId || undefined, line: dep.line || undefined, tripNumber: dep.tripNumber || undefined, 
-                                destination: dep.destination || undefined, scheduled: dep.scheduled || undefined, live: dep.live || undefined, 
-                                delaySec: dep.delaySec || undefined, track: dep.track || undefined, mode: dep.mode || 'RAIL' };
-                            
-                            if (dep.trip && (dep.trip.stops?.length > 0 || dep.trip.tripId)) {
-                                depObj.trip = { tripId: dep.trip.tripId || undefined, line: dep.trip.line || undefined, tripNumber: dep.trip.tripNumber || undefined, 
-                                    destination: dep.trip.destination || undefined, stops: (dep.trip.stops || []).map(stop => {
-                                        const stopObj = { stopId: stop.stopId || undefined, name: stop.name || undefined, arrivalSched: stop.arrivalSched || undefined, 
-                                            arrivalLive: stop.arrivalLive || undefined, departureSched: stop.departureSched || undefined, 
-                                            departureLive: stop.departureLive || undefined, track: stop.track || undefined, legIndex: stop.legIndex ?? undefined };
-                                        Object.keys(stopObj).forEach(k => stopObj[k] === undefined && delete stopObj[k]);
-                                        return stopObj;
-                                    }) };
-                                Object.keys(depObj.trip).forEach(k => depObj.trip[k] === undefined && delete depObj.trip[k]);
-                            }
-                            
-                            Object.keys(depObj).forEach(k => depObj[k] === undefined && delete depObj[k]);
-                            return depObj;
-                        })
-                    };
-                    Object.keys(stationObj).forEach(k => stationObj[k] === undefined && delete stationObj[k]);
-                    return stationObj;
-                })
-            };
-            
-            document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
-        }
-        
-        function copyToClipboard() {
-            navigator.clipboard.writeText(document.getElementById('jsonOutput').textContent).then(() => {
-                showStatus('Kopiert!', 'success');
-            }).catch(() => showStatus('Fehler beim Kopieren', 'error'));
-        }
-        
-        function downloadJSON() {
-            const blob = new Blob([document.getElementById('jsonOutput').textContent], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `transit-data-${Date.now()}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showStatus('Download gestartet', 'success');
-        }
-        
-        function clearAll() {
-            if (confirm('Wirklich alles löschen?')) {
-                stations = [];
-                renderStations();
-                updatePreview();
-            }
-        }
-        
-        function showStatus(msg, type) {
-            const el = document.getElementById('statusMsg');
-            el.textContent = msg;
-            el.className = `status-msg show ${type}`;
-            setTimeout(() => el.classList.remove('show'), 2000);
-        }
-        
-        function addStation() {
-            stations.push({
-                id: '',
-                name: '',
-                departures: []
-            });
-            renderStations();
-        }
-        
-        function removeStation(idx) {
-            stations.splice(idx, 1);
-            renderStations();
-            updatePreview();
-        }
-        
-        function addDeparture(stIdx) {
-            if (!stations[stIdx]) return;
-            stations[stIdx].departures.push({
-                tripId: '',
-                line: '',
-                tripNumber: '',
-                destination: '',
-                scheduled: '',
-                live: '',
-                delaySec: null,
-                track: '',
-                mode: 'RAIL',
-                trip: { tripId: '', line: '', tripNumber: '', destination: '', stops: [] }
-            });
-            renderStations();
-        }
-        
-        function removeDeparture(stIdx, depIdx) {
-            if (stations[stIdx] && stations[stIdx].departures) {
-                stations[stIdx].departures.splice(depIdx, 1);
-                renderStations();
-                updatePreview();
-            }
-        }
-        
-        function addStop(stIdx, depIdx) {
-            if (stations[stIdx]?.departures[depIdx]?.trip) {
-                stations[stIdx].departures[depIdx].trip.stops.push({
-                    stopId: '',
-                    name: '',
-                    arrivalSched: '',
-                    arrivalLive: '',
-                    departureSched: '',
-                    departureLive: '',
-                    track: '',
-                    legIndex: 0
-                });
-                renderStations();
-            }
-        }
-        
-        function removeStop(stIdx, depIdx, stopIdx) {
-            if (stations[stIdx]?.departures[depIdx]?.trip?.stops) {
-                stations[stIdx].departures[depIdx].trip.stops.splice(stopIdx, 1);
-                renderStations();
-                updatePreview();
-            }
-        }
-        
-        function initDemo() {
-            stations = [
-                {
-                    id: 'demo-bahnhof',
-                    name: 'Demo-Bahnhof',
-                    departures: [
-                        {
-                            tripId: 'demo-s1-001',
-                            line: 'S1',
-                            tripNumber: '1001',
-                            destination: 'Seestadt',
-                            scheduled: '2099-06-21T08:15:00+02:00',
-                            live: '2099-06-21T08:16:00+02:00',
-                            delaySec: 60,
-                            track: '3',
-                            mode: 'RAIL',
-                            trip: {
-                                tripId: 'demo-s1-001',
-                                line: 'S1',
-                                tripNumber: '1001',
-                                destination: 'Seestadt',
-                                stops: [
-                                    { stopId: 'demo-bahnhof', name: 'Demo-Bahnhof', departureSched: '2099-06-21T08:15:00+02:00', departureLive: '2099-06-21T08:16:00+02:00', track: '3', legIndex: 0 },
-                                    { stopId: 'demo-mitte', name: 'Demo-Mitte', arrivalSched: '2099-06-21T08:22:00+02:00', departureSched: '2099-06-21T08:23:00+02:00', legIndex: 0 },
-                                    { stopId: 'demo-seestadt', name: 'Seestadt', arrivalSched: '2099-06-21T08:35:00+02:00', legIndex: 0 }
-                                ]
-                            }
-                        },
-                        {
-                            tripId: 'demo-bus-042',
-                            line: '42',
-                            destination: 'Bergdorf',
-                            scheduled: '2099-06-21T08:28:00+02:00',
-                            track: 'B',
-                            mode: 'BUS'
-                        }
-                    ]
-                },
-                {
-                    id: 'seehafen',
-                    name: 'Seehafen',
-                    departures: [
-                        {
-                            tripId: 'demo-ferry-007',
-                            line: 'F7',
-                            destination: 'Inselblick',
-                            scheduled: '2099-06-21T08:40:00+02:00',
-                            track: 'Steg 2',
-                            mode: 'FERRY'
-                        }
-                    ]
-                }
-            ];
-            renderStations();
-            updatePreview();
-        }
-        
-        initDemo();
-    </script>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* MODAL: NEUE STATION ERSTELLEN */}
+          {showNewStationModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <IconMapPin className="w-4 h-4 text-blue-400" /> Neue Station registrieren
+                  </h3>
+                  <button onClick={() => setShowNewStationModal(false)} className="text-slate-400 hover:text-slate-200">
+                    <IconX className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleCreateStationFromModal} className="space-y-4 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-medium">Station Name</label>
+                    <input 
+                      type="text" 
+                      value={newStationName} 
+                      onChange={(e) => setNewStationName(e.target.value)}
+                      placeholder="z.B. Otelfingen, Golfpark"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-blue-500 text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-medium">Custom Station-ID (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={newStationId} 
+                      onChange={(e) => setNewStationId(e.target.value)}
+                      placeholder="z.B. custom_pinu_s_OFGP (wird sonst automatisch erzeugt)"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex justify-end gap-2">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowNewStationModal(false)}
+                      className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded-lg"
+                    >
+                      Abbrechen
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg shadow-md"
+                    >
+                      Station speichern & vorbereiten
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
