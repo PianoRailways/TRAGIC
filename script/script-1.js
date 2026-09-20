@@ -778,6 +778,12 @@ function closeSettingsView() {
   if (settingsView) {
     settingsView.style.display = 'none';
   }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'settings') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
+  }
 }
 
 // ─── Home-View ────────────────────────────────────────────
@@ -814,10 +820,9 @@ function checkAndRenderView() {
     closeHomeView();
     renderFavoritesView();
   } else if (viewParam === 'settings') {
-    closeHomeView();
     renderSettingsView();
   }
-  // Für alle anderen Views (departures, arrivals, settings, oder keine View) nichts machen
+  // Für alle anderen Views (departures, arrivals oder keine View) nichts machen
   // Die default Panel wird sowieso angezeigt
 }
 
@@ -848,6 +853,17 @@ document.addEventListener('DOMContentLoaded', () => {
     link.addEventListener('click', closeMenu);
   });
 
+  const settingsLink = document.querySelector('[data-settings-link]');
+  if (settingsLink) {
+    settingsLink.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'settings');
+      history.pushState({}, '', url);
+      renderSettingsView();
+    });
+  }
+
   // Stations-View Event-Listener
   const btnCloseStations = document.getElementById('btn-close-stations');
   if (btnCloseStations) {
@@ -858,6 +874,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseFavorites = document.getElementById('btn-close-favorites');
   if (btnCloseFavorites) {
     btnCloseFavorites.addEventListener('click', closeFavoritesView);
+  }
+
+  const btnCloseSettings = document.getElementById('btn-close-settings');
+  if (btnCloseSettings) {
+    btnCloseSettings.addEventListener('click', closeSettingsView);
   }
 
   // Nearby-Button Event-Listener
