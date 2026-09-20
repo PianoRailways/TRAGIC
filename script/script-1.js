@@ -630,6 +630,12 @@ function closeStationsView() {
   if (stationsView) {
     stationsView.style.display = 'none';
   }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'stations') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
+  }
 }
 
 // ─── Favorites-View (Benutzerdefinierte Favoriten) ────────────────────
@@ -820,7 +826,6 @@ function checkAndRenderView() {
   if (viewParam === 'home') {
     renderHomeView();
   } else if (viewParam === 'stations') {
-    closeHomeView();
     renderStationsView();
   } else if (viewParam === 'favorites') {
     renderFavoritesView();
@@ -876,6 +881,16 @@ document.addEventListener('DOMContentLoaded', () => {
       url.searchParams.set('view', 'favorites');
       history.pushState({}, '', url);
       renderFavoritesView();
+    });
+  });
+
+  document.querySelectorAll('[data-stations-link]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'stations');
+      history.pushState({}, '', url);
+      renderStationsView();
     });
   });
 
