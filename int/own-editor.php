@@ -51,19 +51,33 @@ if (isset($_GET['api'])) {
   <script type="text/babel">
     const { useState, useEffect, useMemo } = React;
 
+    // --- ZEITKONVERTIERUNG ---
+    const toUnixTimestamp = (dateTimeLocalStr) => {
+      if (!dateTimeLocalStr) return null;
+      const d = new Date(dateTimeLocalStr);
+      return Math.floor(d.getTime() / 1000);
+    };
+
+    const fromUnixTimestamp = (unixSec) => {
+      if (!unixSec) return "";
+      const d = new Date(unixSec * 1000);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const hours = String(d.getHours()).padStart(2, "0");
+      const mins = String(d.getMinutes()).padStart(2, "0");
+      return `${year}-${month}-${day}T${hours}:${mins}`;
+    };
+
     // --- ICONS ---
     const IconTrain = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16M12 3v8M8 19l-3 3M16 19l3 3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>;
-    const IconBus = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M8 6v6M16 6v6M2 12h20"/><rect x="4" y="3" width="16" height="15" rx="2"/><path d="M6 18l-2 3M18 18l2 3"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/></svg>;
     const IconPlus = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
     const IconTrash = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>;
     const IconSave = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
     const IconMapPin = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>;
-    const IconBuilding = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>;
-    const IconCode = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>;
-    const IconDashboard = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>;
-    const IconChevronRight = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>;
+    const IconAlertTriangle = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
 
-    // INITIALE STAMMDATEN
+    // INITIALE STAMMDATEN (mit UNIX-Timestamps)
     const DEFAULT_STATIONS = [
       { id: "custom_pinu_s_OFWFS", name: "Otelfingen FWF Süd" },
       { id: "custom_pinu_s_OFWF", name: "Otelfingen FEF" },
@@ -80,9 +94,9 @@ if (isset($_GET['api'])) {
         mode: "RAIL",
         agency: { id: "sbb", name: "Schweizerische Bundesbahnen SBB" },
         stops: [
-          { stopId: "custom_pinu_s_OFWFS", name: "Otelfingen FWF Süd", scheduled: "2026-08-30T12:00:00+02:00", track: "A", legIndex: null },
-          { stopId: "custom_pinu_s_OFWF", name: "Otelfingen FEF", scheduled: "2026-08-30T12:05:00+02:00", track: "F", legIndex: 0 },
-          { stopId: "custom_p_z", name: "Otelfingen Zentrum", scheduled: "2026-08-30T12:12:00+02:00", track: "1", legIndex: 1 }
+          { stopId: "custom_pinu_s_OFWFS", name: "Otelfingen FWF Süd", scheduled: 1725015600, track: "A", legIndex: null },
+          { stopId: "custom_pinu_s_OFWF", name: "Otelfingen FEF", scheduled: 1725015900, track: "F", legIndex: 0 },
+          { stopId: "custom_p_z", name: "Otelfingen Zentrum", scheduled: 1725016320, track: "1", legIndex: 1 }
         ]
       }
     ];
@@ -92,75 +106,109 @@ if (isset($_GET['api'])) {
       const [trips, setTrips] = useState(DEFAULT_TRIPS);
       
       const [activeStationId, setActiveStationId] = useState("custom_pinu_s_OFWF");
-      const [viewTab, setViewTab] = useState("split"); // "split", "trips", "stations", "json"
+      const [viewTab, setViewTab] = useState("split");
       
       const [saveStatus, setSaveStatus] = useState({ type: "", message: "" });
       const [isSaving, setIsSaving] = useState(false);
+      const [validationErrors, setValidationErrors] = useState({});
 
-      // NEUE STATION MODAL / FORM
       const [newStationId, setNewStationId] = useState("");
       const [newStationName, setNewStationName] = useState("");
       const [showStationModal, setShowStationModal] = useState(false);
 
       // BEIM START VOM SERVER LADEN
       useEffect(() => {
-        fetch("own-editor.php?api=load")
-          .then(res => res.json())
-          .then(data => {
-            if (data && data.stations && data.stations.length > 0) {
-              // Rekonstruiere Stamm-Stationen und Trips aus Server-JSON
-              const extractedStationsMap = {};
-              const extractedTripsMap = {};
-
-              data.stations.forEach(st => {
-                extractedStationsMap[st.id] = { id: st.id, name: st.name };
-                if (st.departures) {
-                  st.departures.forEach(dep => {
-                    if (dep.tripId && !extractedTripsMap[dep.tripId]) {
-                      extractedTripsMap[dep.tripId] = {
-                        tripId: dep.tripId,
-                        line: dep.line,
-                        tripNumber: dep.tripNumber || "",
-                        mode: dep.mode || "RAIL",
-                        agency: dep.trip?.agency || { id: dep.agency?.toLowerCase() || "sbb", name: dep.agency || "SBB" },
-                        stops: dep.trip?.stops?.map(s => ({
-                          stopId: s.stopId,
-                          name: s.name,
-                          scheduled: s.departureLive || dep.scheduled || "",
-                          track: s.track || "",
-                          legIndex: s.legIndex
-                        })) || []
-                      };
-                    }
-                  });
-                }
-              });
-
-              if (Object.keys(extractedStationsMap).length > 0) {
-                setStations(Object.values(extractedStationsMap));
-              }
-              if (Object.keys(extractedTripsMap).length > 0) {
-                setTrips(Object.values(extractedTripsMap));
-              }
-            }
-          })
-          .catch(err => console.log("Standard-Fahrplan wird genutzt:", err));
+        loadFromServer();
       }, []);
 
-      // AUTOMATISCHE GENERIERUNG DES SLLEN JSON-FORMATS
+      const loadFromServer = async () => {
+        try {
+          const res = await fetch("own-editor.php?api=load");
+          const data = await res.json();
+          
+          if (data && data.stations && data.stations.length > 0) {
+            const extractedStationsMap = {};
+            const extractedTripsMap = {};
+
+            data.stations.forEach(st => {
+              extractedStationsMap[st.id] = { id: st.id, name: st.name };
+              if (st.departures) {
+                st.departures.forEach(dep => {
+                  if (dep.tripId && !extractedTripsMap[dep.tripId]) {
+                    extractedTripsMap[dep.tripId] = {
+                      tripId: dep.tripId,
+                      line: dep.line,
+                      tripNumber: dep.tripNumber || "",
+                      mode: dep.mode || "RAIL",
+                      agency: dep.trip?.agency || { id: dep.agency?.toLowerCase() || "sbb", name: dep.agency || "SBB" },
+                      stops: dep.trip?.stops?.map(s => ({
+                        stopId: s.stopId,
+                        name: s.name,
+                        scheduled: s.departureLive || s.departureSched || 0,
+                        track: s.track || "",
+                        legIndex: s.legIndex
+                      })) || []
+                    };
+                  }
+                });
+              }
+            });
+
+            if (Object.keys(extractedStationsMap).length > 0) {
+              setStations(Object.values(extractedStationsMap));
+            }
+            if (Object.keys(extractedTripsMap).length > 0) {
+              setTrips(Object.values(extractedTripsMap));
+            }
+            setSaveStatus({ type: "success", message: "Daten vom Server geladen" });
+            setTimeout(() => setSaveStatus({ type: "", message: "" }), 3000);
+          }
+        } catch (err) {
+          console.log("Standard-Fahrplan wird genutzt:", err);
+          setSaveStatus({ type: "info", message: "Standard-Daten laden (kein Server)" });
+          setTimeout(() => setSaveStatus({ type: "", message: "" }), 3000);
+        }
+      };
+
+      // VALIDIERUNG: Chronologische Ordnung pro Trip
+      const validateTrips = (tripsToCheck) => {
+        const errors = {};
+        tripsToCheck.forEach((trip, tripIdx) => {
+          const stops = trip.stops || [];
+          for (let i = 0; i < stops.length - 1; i++) {
+            const curr = stops[i].scheduled || 0;
+            const next = stops[i + 1].scheduled || 0;
+            if (next <= curr) {
+              errors[`trip_${tripIdx}`] = `Halt ${i + 2} muss nach Halt ${i + 1} sein`;
+              break;
+            }
+          }
+        });
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+      };
+
+      // legIndex AUTOMATISCH BERECHNEN
+      const calculateLegIndices = (stops) => {
+        return stops.map((stop, idx) => ({
+          ...stop,
+          legIndex: idx === 0 ? null : idx - 1
+        }));
+      };
+
+      // JSON-GENERIERUNG mit Arrivals
       const generatedFullJSON = useMemo(() => {
         const stationsMap = {};
 
-        // Alle Stationen initialisieren
         stations.forEach(st => {
           stationsMap[st.id] = {
             id: st.id,
             name: st.name,
-            departures: []
+            departures: [],
+            arrivals: []
           };
         });
 
-        // Fahrten auf die Stationen verteilen
         trips.forEach(trip => {
           const stops = trip.stops || [];
           if (stops.length === 0) return;
@@ -168,23 +216,28 @@ if (isset($_GET['api'])) {
           const destStop = stops[stops.length - 1];
           const destinationName = destStop ? destStop.name : "Unbekannt";
 
-          const formattedStops = stops.map((s, idx) => ({
+          const stopsWithLegIndex = calculateLegIndices(stops);
+          const formattedStops = stopsWithLegIndex.map(s => ({
             stopId: s.stopId,
             name: s.name,
-            departureLive: s.scheduled || null,
+            departureLive: s.legIndex === null ? null : s.scheduled,
+            departureSched: s.legIndex === null ? null : s.scheduled,
+            arrivalSched: s.legIndex === null ? s.scheduled : s.scheduled,
+            arrivalLive: s.legIndex === null ? s.scheduled : s.scheduled,
             track: s.track || "",
-            legIndex: s.legIndex !== undefined ? s.legIndex : (idx === 0 ? null : idx - 1)
+            legIndex: s.legIndex
           }));
 
+          // DEPARTURES
           stops.forEach((stop, idx) => {
-            // Am Zielort gibt es keine Abfahrt mehr
+            // Letzter Halt: kein Departure
             if (idx === stops.length - 1) return;
 
             const stId = stop.stopId;
             if (!stId) return;
 
             if (!stationsMap[stId]) {
-              stationsMap[stId] = { id: stId, name: stop.name || stId, departures: [] };
+              stationsMap[stId] = { id: stId, name: stop.name || stId, departures: [], arrivals: [] };
             }
 
             const agencyObj = typeof trip.agency === 'object' ? trip.agency : { id: 'sbb', name: trip.agency || 'SBB' };
@@ -195,7 +248,41 @@ if (isset($_GET['api'])) {
               tripNumber: trip.tripNumber || "",
               agency: agencyObj.id?.toUpperCase() || agencyObj.name || "SBB",
               destination: destinationName,
-              scheduled: stop.scheduled || new Date().toISOString(),
+              scheduled: stop.scheduled || 0,
+              track: stop.track || "",
+              mode: trip.mode || "RAIL",
+              trip: {
+                agency: agencyObj,
+                stops: formattedStops
+              }
+            });
+          });
+
+          // ARRIVALS: Für jeden Halt (außer dem ersten) die Ankunft eintragen
+          stops.forEach((stop, idx) => {
+            // Erster Halt: keine Ankunft
+            if (idx === 0) return;
+
+            const stId = stop.stopId;
+            if (!stId) return;
+
+            if (!stationsMap[stId]) {
+              stationsMap[stId] = { id: stId, name: stop.name || stId, departures: [], arrivals: [] };
+            }
+
+            const agencyObj = typeof trip.agency === 'object' ? trip.agency : { id: 'sbb', name: trip.agency || 'SBB' };
+            
+            // Herkunft ist der vorherige Halt
+            const originStop = stops[idx - 1];
+            const originName = originStop ? originStop.name : "Unbekannt";
+
+            stationsMap[stId].arrivals.push({
+              tripId: trip.tripId,
+              line: trip.line,
+              tripNumber: trip.tripNumber || "",
+              agency: agencyObj.id?.toUpperCase() || agencyObj.name || "SBB",
+              origin: originName,  // ← Origin statt Destination
+              scheduled: stop.scheduled || 0,
               track: stop.track || "",
               mode: trip.mode || "RAIL",
               trip: {
@@ -211,8 +298,14 @@ if (isset($_GET['api'])) {
         };
       }, [stations, trips]);
 
-      // AUF DEN SERVER SPEICHERN
+      // SPEICHERN MIT VALIDIERUNG
       const saveToServer = async () => {
+        if (!validateTrips(trips)) {
+          setSaveStatus({ type: "error", message: "Validierungsfehler: Überprüfe Haltesreihenfolge" });
+          setTimeout(() => setSaveStatus({ type: "", message: "" }), 4000);
+          return;
+        }
+
         setIsSaving(true);
         setSaveStatus({ type: "", message: "" });
 
@@ -236,7 +329,6 @@ if (isset($_GET['api'])) {
         }
       };
 
-      // NEUE STATION HINZUFÜGEN
       const handleAddStation = (e) => {
         e.preventDefault();
         if (!newStationId || !newStationName) return;
@@ -246,11 +338,11 @@ if (isset($_GET['api'])) {
         setShowStationModal(false);
       };
 
-      // NEUEN TRIP HINZUFÜGEN
       const handleAddTrip = () => {
         const newId = `custom_pinu_t_${Date.now().toString().slice(-4)}`;
         const st1 = stations[0] || { id: "custom_s_1", name: "Station A" };
         const st2 = stations[1] || { id: "custom_s_2", name: "Station B" };
+        const now = Math.floor(Date.now() / 1000);
 
         const newTrip = {
           tripId: newId,
@@ -259,14 +351,13 @@ if (isset($_GET['api'])) {
           mode: "RAIL",
           agency: { id: "sbb", name: "Schweizerische Bundesbahnen SBB" },
           stops: [
-            { stopId: st1.id, name: st1.name, scheduled: new Date().toISOString(), track: "1", legIndex: null },
-            { stopId: st2.id, name: st2.name, scheduled: new Date(Date.now() + 600000).toISOString(), track: "2", legIndex: 0 }
+            { stopId: st1.id, name: st1.name, scheduled: now, track: "1", legIndex: null },
+            { stopId: st2.id, name: st2.name, scheduled: now + 600, track: "2", legIndex: 0 }
           ]
         };
         setTrips([...trips, newTrip]);
       };
 
-      // TRIP FELD AKTUALISIEREN
       const updateTripField = (tripIdx, field, value) => {
         const updated = [...trips];
         if (field.startsWith("agency.")) {
@@ -278,7 +369,13 @@ if (isset($_GET['api'])) {
         setTrips(updated);
       };
 
-      // TRIP HALT AKTUALISIEREN
+      // DATETIME PICKER STATE
+      const [activeTimePicker, setActiveTimePicker] = useState(null);
+      const [pickerDate, setPickerDate] = useState("");
+      const [pickerHour, setPickerHour] = useState(0);
+      const [pickerMinute, setPickerMinute] = useState(0);
+      const [pickerTimestamp, setPickerTimestamp] = useState(0);
+
       const updateTripStop = (tripIdx, stopIdx, field, value) => {
         const updated = [...trips];
         const stop = updated[tripIdx].stops[stopIdx];
@@ -287,41 +384,113 @@ if (isset($_GET['api'])) {
           const st = stations.find(s => s.id === value);
           stop.stopId = value;
           if (st) stop.name = st.name;
+        } else if (field === "scheduled_input") {
+          stop.scheduled = toUnixTimestamp(value);
         } else {
           stop[field] = value;
         }
         setTrips(updated);
       };
 
-      // HALT ZU TRIP HINZUFÜGEN
+      const openTimePicker = (tripIdx, stopIdx, currentValue) => {
+        const d = new Date(currentValue * 1000);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const hour = d.getHours();
+        const minute = d.getMinutes();
+        
+        setActiveTimePicker({ tripIdx, stopIdx });
+        setPickerDate(`${year}-${month}-${day}`);
+        setPickerHour(hour);
+        setPickerMinute(minute);
+        setPickerTimestamp(currentValue);
+      };
+
+      const confirmTimePicker = () => {
+        if (activeTimePicker && pickerDate) {
+          const { tripIdx, stopIdx } = activeTimePicker;
+          const dateTimeStr = `${pickerDate}T${String(pickerHour).padStart(2, "0")}:${String(pickerMinute).padStart(2, "0")}`;
+          updateTripStop(tripIdx, stopIdx, "scheduled_input", dateTimeStr);
+          setActiveTimePicker(null);
+        }
+      };
+
+      const adjustTime = (field, delta) => {
+        if (field === "hour") {
+          const newHour = (pickerHour + delta + 24) % 24;
+          setPickerHour(newHour);
+          const d = new Date(pickerTimestamp * 1000);
+          d.setHours(newHour);
+          setPickerTimestamp(Math.floor(d.getTime() / 1000));
+        } else if (field === "minute") {
+          const newMinute = (pickerMinute + delta + 60) % 60;
+          setPickerMinute(newMinute);
+          const d = new Date(pickerTimestamp * 1000);
+          d.setMinutes(newMinute);
+          setPickerTimestamp(Math.floor(d.getTime() / 1000));
+        }
+      };
+
+      const handleTimeInput = (field, value) => {
+        const num = parseInt(value) || 0;
+        const d = new Date(pickerTimestamp * 1000);
+        
+        if (field === "hour") {
+          const validHour = Math.max(0, Math.min(23, num));
+          setPickerHour(validHour);
+          d.setHours(validHour);
+        } else if (field === "minute") {
+          const validMinute = Math.max(0, Math.min(59, num));
+          setPickerMinute(validMinute);
+          d.setMinutes(validMinute);
+        }
+        setPickerTimestamp(Math.floor(d.getTime() / 1000));
+      };
+
+      const handleTimestampInput = (value) => {
+        const ts = parseInt(value) || 0;
+        if (ts > 0) {
+          const d = new Date(ts * 1000);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const hour = d.getHours();
+          const minute = d.getMinutes();
+          
+          setPickerTimestamp(ts);
+          setPickerDate(`${year}-${month}-${day}`);
+          setPickerHour(hour);
+          setPickerMinute(minute);
+        }
+      };
+
       const addStopToTrip = (tripIdx) => {
         const updated = [...trips];
         const lastStop = updated[tripIdx].stops[updated[tripIdx].stops.length - 1];
         const nextSt = stations.find(s => s.id !== lastStop?.stopId) || stations[0];
+        const newTime = (lastStop?.scheduled || 0) + 300;
 
         updated[tripIdx].stops.push({
           stopId: nextSt ? nextSt.id : "custom_new_st",
           name: nextSt ? nextSt.name : "Neue Station",
-          scheduled: new Date().toISOString(),
+          scheduled: newTime,
           track: "1",
-          legIndex: updated[tripIdx].stops.length - 1
+          legIndex: updated[tripIdx].stops.length
         });
         setTrips(updated);
       };
 
-      // HALT VON TRIP ENTFERNEN
       const removeStopFromTrip = (tripIdx, stopIdx) => {
         const updated = [...trips];
         updated[tripIdx].stops.splice(stopIdx, 1);
         setTrips(updated);
       };
 
-      // ENTFERNE TRIP
       const removeTrip = (tripIdx) => {
         setTrips(trips.filter((_, i) => i !== tripIdx));
       };
 
-      // GEFUNDER BAHNHOF FÜR MONITOR
       const activeStationData = useMemo(() => {
         return generatedFullJSON.stations.find(s => s.id === activeStationId) || generatedFullJSON.stations[0];
       }, [generatedFullJSON, activeStationId]);
@@ -337,14 +506,13 @@ if (isset($_GET['api'])) {
               </div>
               <div>
                 <h1 className="font-semibold text-sm text-slate-100">öV Trip & Station Studio</h1>
-                <p className="text-[11px] text-slate-400">Direktes PHP File-Saving & Derivation</p>
+                <p className="text-[11px] text-slate-400">UNIX-Timestamps, datetime-local UI</p>
               </div>
             </div>
 
-            {/* BAHNHOF SELEKTOR */}
             <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 border border-slate-800 rounded-lg">
               <IconMapPin />
-              <span className="text-xs text-slate-400">Monitor-Bahnhof:</span>
+              <span className="text-xs text-slate-400">Monitor:</span>
               <select 
                 value={activeStationId} 
                 onChange={(e) => setActiveStationId(e.target.value)}
@@ -356,62 +524,68 @@ if (isset($_GET['api'])) {
               </select>
             </div>
 
-            {/* BUTTONS & TAB SWITCHER */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 bg-slate-950 p-1 border border-slate-800 rounded-lg">
                 <button 
                   onClick={() => setViewTab("split")}
                   className={`px-3 py-1 rounded text-xs transition ${viewTab === "split" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
                 >
-                  Split View
+                  Split
                 </button>
                 <button 
                   onClick={() => setViewTab("trips")}
                   className={`px-3 py-1 rounded text-xs transition ${viewTab === "trips" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
                 >
-                  Fahrten ({trips.length})
+                  Trips ({trips.length})
                 </button>
                 <button 
                   onClick={() => setViewTab("stations")}
                   className={`px-3 py-1 rounded text-xs transition ${viewTab === "stations" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
                 >
-                  Stationen ({stations.length})
+                  Stationen
                 </button>
                 <button 
                   onClick={() => setViewTab("json")}
                   className={`px-3 py-1 rounded text-xs transition ${viewTab === "json" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"}`}
                 >
-                  JSON Output
+                  JSON
                 </button>
               </div>
 
-              {/* SAVE TO PHP SERVER BUTTON */}
+              <button 
+                onClick={loadFromServer}
+                disabled={isSaving}
+                className="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-md transition disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Laden
+              </button>
+
               <button 
                 onClick={saveToServer}
                 disabled={isSaving}
                 className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-md transition disabled:opacity-50"
               >
-                <IconSave /> {isSaving ? "Speichert..." : "Auf Server speichern"}
+                <IconSave /> {isSaving ? "Speichert..." : "Speichern"}
               </button>
 
               {saveStatus.message && (
-                <span className={`text-xs px-2 py-1 rounded ${saveStatus.type === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                <span className={`text-xs px-2 py-1 rounded ${saveStatus.type === "success" ? "bg-emerald-500/20 text-emerald-400" : saveStatus.type === "error" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
                   {saveStatus.message}
                 </span>
               )}
             </div>
           </header>
 
-          {/* MAIN CONTENT AREA */}
+          {/* MAIN CONTENT */}
           <div className="flex-1 flex overflow-hidden">
             
-            {/* LINKES PANEL: FAHRTEN EDITOR */}
             {(viewTab === "split" || viewTab === "trips") && (
               <div className={`${viewTab === "split" ? "w-1/2" : "w-full"} border-r border-slate-800 flex flex-col bg-slate-900/40 overflow-y-auto p-4 space-y-4`}>
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                   <div>
-                    <h2 className="text-sm font-semibold text-slate-100">Fahrten-Editor (Trips)</h2>
-                    <p className="text-xs text-slate-400">Erstelle Züge & Busse von A nach B. Abfahrten werden automatisch abgeleitet.</p>
+                    <h2 className="text-sm font-semibold text-slate-100">Fahrten-Editor</h2>
+                    <p className="text-xs text-slate-400">Zeitangaben: Datum + Uhrzeit (wird zu UNIX-Timestamp)</p>
                   </div>
                   <button 
                     onClick={handleAddTrip}
@@ -423,7 +597,14 @@ if (isset($_GET['api'])) {
 
                 <div className="space-y-4">
                   {trips.map((trip, tripIdx) => (
-                    <div key={trip.tripId} className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-3 relative group">
+                    <div key={trip.tripId} className={`p-4 bg-slate-900 border rounded-xl space-y-3 relative group ${validationErrors[`trip_${tripIdx}`] ? "border-red-500/50" : "border-slate-800"}`}>
+                      {validationErrors[`trip_${tripIdx}`] && (
+                        <div className="text-xs bg-red-500/20 border border-red-500/50 text-red-400 p-2 rounded flex items-start gap-2">
+                          <IconAlertTriangle />
+                          {validationErrors[`trip_${tripIdx}`]}
+                        </div>
+                      )}
+
                       <button 
                         onClick={() => removeTrip(tripIdx)}
                         className="absolute top-3 right-3 text-slate-500 hover:text-red-400 transition"
@@ -448,7 +629,7 @@ if (isset($_GET['api'])) {
                             type="text" 
                             value={trip.tripNumber} 
                             onChange={(e) => updateTripField(tripIdx, "tripNumber", e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-100 font-mono"
+                            className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-100"
                           />
                         </div>
                         <div>
@@ -471,57 +652,78 @@ if (isset($_GET['api'])) {
                         </div>
                       </div>
 
-                      {/* ZUGLAUF / HALTE */}
                       <div className="space-y-2 pt-2 border-t border-slate-800/80">
                         <div className="flex justify-between items-center text-[11px] font-semibold text-slate-400">
-                          <span>Haltestellen-Reihenfolge ({trip.stops.length})</span>
+                          <span>Haltestellen ({trip.stops.length})</span>
                           <button 
                             onClick={() => addStopToTrip(tripIdx)}
                             className="text-blue-400 hover:underline flex items-center gap-0.5 text-[10px]"
                           >
-                            <IconPlus /> Halt anfügen
+                            <IconPlus /> Anfügen
                           </button>
                         </div>
 
                         {trip.stops.map((st, stopIdx) => (
-                          <div key={stopIdx} className="p-2 bg-slate-950 border border-slate-800 rounded-lg flex items-center gap-2 text-xs">
-                            <span className="font-mono text-slate-600 text-[10px] w-4">{stopIdx + 1}.</span>
-                            
-                            {/* STATION DROPDOWN */}
-                            <select 
-                              value={st.stopId}
-                              onChange={(e) => updateTripStop(tripIdx, stopIdx, "stopId", e.target.value)}
-                              className="flex-1 bg-slate-900 border border-slate-800 rounded p-1 text-slate-200 text-xs"
-                            >
-                              {stations.map(s => (
-                                <option key={s.id} value={s.id}>{s.name} ({s.id})</option>
-                              ))}
-                            </select>
-
-                            <input 
-                              type="text" 
-                              placeholder="ISO Zeit" 
-                              value={st.scheduled} 
-                              onChange={(e) => updateTripStop(tripIdx, stopIdx, "scheduled", e.target.value)}
-                              className="w-40 bg-slate-900 border border-slate-800 rounded p-1 font-mono text-[11px] text-slate-300"
-                            />
-
-                            <input 
-                              type="text" 
-                              placeholder="Gleis" 
-                              value={st.track} 
-                              onChange={(e) => updateTripStop(tripIdx, stopIdx, "track", e.target.value)}
-                              className="w-12 bg-slate-900 border border-slate-800 rounded p-1 text-center font-mono text-xs"
-                            />
-
-                            {trip.stops.length > 2 && (
-                              <button 
-                                onClick={() => removeStopFromTrip(tripIdx, stopIdx)}
-                                className="text-slate-600 hover:text-red-400 p-1"
+                          <div key={stopIdx} className="p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-mono text-slate-600 text-[10px] w-4">{stopIdx + 1}.</span>
+                              
+                              <select 
+                                value={st.stopId}
+                                onChange={(e) => updateTripStop(tripIdx, stopIdx, "stopId", e.target.value)}
+                                className="flex-1 min-w-[200px] bg-slate-900 border border-slate-800 rounded p-1 text-slate-200 text-xs"
                               >
-                                <IconTrash />
-                              </button>
-                            )}
+                                {stations.map(s => (
+                                  <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                              </select>
+
+                              <input 
+                                type="text" 
+                                placeholder="Gleis" 
+                                value={st.track} 
+                                onChange={(e) => updateTripStop(tripIdx, stopIdx, "track", e.target.value)}
+                                className="w-12 bg-slate-900 border border-slate-800 rounded p-1 text-center text-xs"
+                              />
+
+                              {trip.stops.length > 2 && (
+                                <button 
+                                  onClick={() => removeStopFromTrip(tripIdx, stopIdx)}
+                                  className="text-slate-600 hover:text-red-400 p-1"
+                                >
+                                  <IconTrash />
+                                </button>
+                              )}
+                            </div>
+
+                            {/* ANKUNFT / ABFAHRT ZEITEN */}
+                            <div className="flex gap-2 text-xs">
+                              {stopIdx > 0 && (
+                                <div className="flex-1">
+                                  <label className="text-slate-500 text-[10px] block mb-1">Ankunft</label>
+                                  <button 
+                                    onClick={() => openTimePicker(tripIdx, stopIdx, st.arrivalSched || st.scheduled || Math.floor(Date.now() / 1000))}
+                                    className={`w-full px-2 py-1 rounded text-xs font-mono ${st.arrivalSched ? "bg-emerald-600/20 border border-emerald-500/30 text-emerald-400" : "bg-slate-900 border border-slate-700 text-slate-500"}`}
+                                    title="Ankunftszeit"
+                                  >
+                                    {st.arrivalSched ? fromUnixTimestamp(st.arrivalSched).split('T')[1] : "—"}
+                                  </button>
+                                </div>
+                              )}
+                              
+                              {stopIdx < trip.stops.length - 1 && (
+                                <div className="flex-1">
+                                  <label className="text-slate-500 text-[10px] block mb-1">Abfahrt</label>
+                                  <button 
+                                    onClick={() => openTimePicker(tripIdx, stopIdx, st.departureSched || st.scheduled || Math.floor(Date.now() / 1000), true)}
+                                    className={`w-full px-2 py-1 rounded text-xs font-mono ${st.departureSched ? "bg-blue-600/20 border border-blue-500/30 text-blue-400" : "bg-slate-900 border border-slate-700 text-slate-500"}`}
+                                    title="Abfahrtszeit"
+                                  >
+                                    {st.departureSched ? fromUnixTimestamp(st.departureSched).split('T')[1] : "—"}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -531,7 +733,6 @@ if (isset($_GET['api'])) {
               </div>
             )}
 
-            {/* RECHTES PANEL: LIVE STATIONBOARD & INSPECTOR */}
             {(viewTab === "split" || viewTab === "json") && (
               <div className={`${viewTab === "split" ? "w-1/2" : "w-full"} flex flex-col bg-slate-950 overflow-y-auto`}>
                 
@@ -552,7 +753,6 @@ if (isset($_GET['api'])) {
                         </span>
                       </div>
 
-                      {/* ABFAHRTS-LISTE */}
                       <div className="grid gap-2.5">
                         {!activeStationData?.departures || activeStationData.departures.length === 0 ? (
                           <div className="p-8 text-center border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
@@ -579,7 +779,7 @@ if (isset($_GET['api'])) {
 
                               <div className="text-right">
                                 <div className="text-sm font-mono font-bold text-slate-100">
-                                  {dep.scheduled ? new Date(dep.scheduled).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+                                  {dep.scheduled ? new Date(dep.scheduled * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
                                 </div>
                                 <div className="text-[10px] text-emerald-400 font-mono">pünktlich</div>
                               </div>
@@ -590,15 +790,14 @@ if (isset($_GET['api'])) {
                     </div>
                   </div>
                 ) : (
-                  /* RAW JSON OUTPUT TAB */
                   <div className="p-4 flex-1 flex flex-col">
                     <div className="mb-2 text-xs text-slate-400 flex justify-between items-center">
-                      <span>Live Server JSON Output:</span>
+                      <span>JSON Output (UNIX-Timestamps):</span>
                       <button 
                         onClick={() => navigator.clipboard.writeText(JSON.stringify(generatedFullJSON, null, 2))}
                         className="text-blue-400 hover:underline"
                       >
-                        JSON Kopieren
+                        Kopieren
                       </button>
                     </div>
                     <textarea 
@@ -612,13 +811,12 @@ if (isset($_GET['api'])) {
               </div>
             )}
 
-            {/* STATIONS TAB */}
             {viewTab === "stations" && (
               <div className="w-full p-6 space-y-4 overflow-y-auto">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                   <div>
-                    <h2 className="text-sm font-semibold text-slate-100">Stationen-Stammverzeichnis</h2>
-                    <p className="text-xs text-slate-400">Verwalte alle verfügbaren Bahnhöfe & Haltestellen.</p>
+                    <h2 className="text-sm font-semibold text-slate-100">Stationen</h2>
+                    <p className="text-xs text-slate-400">Bahnhöfe & Haltestellen</p>
                   </div>
                   <button 
                     onClick={() => setShowStationModal(true)}
@@ -649,11 +847,121 @@ if (isset($_GET['api'])) {
 
           </div>
 
-          {/* MODAL: NEUE STATION */}
+          {/* TIME PICKER MODAL WITH SPINNERS */}
+          {activeTimePicker && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-sm space-y-5">
+                <h3 className="text-sm font-semibold text-slate-100">Zeit & Datum</h3>
+                
+                {/* DATUM INPUT */}
+                <div>
+                  <label className="text-slate-400 text-xs block mb-2">Datum</label>
+                  <input 
+                    type="date" 
+                    value={pickerDate}
+                    onChange={(e) => setPickerDate(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                {/* UHRZEIT SPINNER + INPUT */}
+                <div>
+                  <label className="text-slate-400 text-xs block mb-3">Uhrzeit</label>
+                  <div className="flex items-center justify-center gap-4 bg-slate-950 p-6 rounded-lg border border-slate-800">
+                    
+                    {/* STUNDEN */}
+                    <div className="flex flex-col items-center gap-2">
+                      <button 
+                        onClick={() => adjustTime("hour", 1)}
+                        className="text-slate-400 hover:text-slate-200 p-1"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                      </button>
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="23" 
+                        value={String(pickerHour).padStart(2, "0")}
+                        onChange={(e) => handleTimeInput("hour", e.target.value)}
+                        className="w-16 text-2xl font-bold text-blue-400 font-mono text-center py-2 px-1 bg-slate-900 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500"
+                      />
+                      <button 
+                        onClick={() => adjustTime("hour", -1)}
+                        className="text-slate-400 hover:text-slate-200 p-1"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      <div className="text-[10px] text-slate-500">Stunden</div>
+                    </div>
+
+                    {/* TRENNZEICHEN */}
+                    <div className="text-2xl font-bold text-slate-500">:</div>
+
+                    {/* MINUTEN */}
+                    <div className="flex flex-col items-center gap-2">
+                      <button 
+                        onClick={() => adjustTime("minute", 1)}
+                        className="text-slate-400 hover:text-slate-200 p-1"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                      </button>
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="59" 
+                        value={String(pickerMinute).padStart(2, "0")}
+                        onChange={(e) => handleTimeInput("minute", e.target.value)}
+                        className="w-16 text-2xl font-bold text-emerald-400 font-mono text-center py-2 px-1 bg-slate-900 rounded-lg border border-slate-700 focus:outline-none focus:border-emerald-500"
+                      />
+                      <button 
+                        onClick={() => adjustTime("minute", -1)}
+                        className="text-slate-400 hover:text-slate-200 p-1"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      <div className="text-[10px] text-slate-500">Minuten</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* PREVIEW */}
+                <div className="space-y-2">
+                  <label className="text-slate-400 text-xs block">UNIX-Timestamp</label>
+                  <input 
+                    type="number" 
+                    value={pickerTimestamp}
+                    onChange={(e) => handleTimestampInput(e.target.value)}
+                    className="w-full font-mono text-sm bg-slate-900 p-3 rounded border border-slate-700 text-emerald-400 focus:outline-none focus:border-emerald-500"
+                  />
+                  <div className="text-xs text-slate-500">
+                    {new Date(pickerTimestamp * 1000).toLocaleString('de-CH')}
+                  </div>
+                </div>
+
+                {/* BUTTONS */}
+                <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                  <button 
+                    onClick={() => setActiveTimePicker(null)}
+                    className="px-3 py-1.5 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700 transition"
+                  >
+                    Abbrechen
+                  </button>
+                  <button 
+                    onClick={confirmTimePicker}
+                    className="px-4 py-1.5 bg-blue-600 text-white text-xs rounded-lg font-medium hover:bg-blue-500 transition"
+                  >
+                    Speichern
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STATION MODAL */}
           {showStationModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <form onSubmit={handleAddStation} className="bg-slate-900 border border-slate-800 rounded-xl p-5 w-full max-w-md space-y-4">
-                <h3 className="text-sm font-semibold text-slate-100">Neue Station hinzufügen</h3>
+                <h3 className="text-sm font-semibold text-slate-100">Neue Station</h3>
                 <div className="space-y-3 text-xs">
                   <div>
                     <label className="text-slate-400 block mb-1">Station ID</label>
