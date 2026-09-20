@@ -113,6 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   updateViaToggleButton();
 
+  document.querySelectorAll('.settings-hidden-operator-lines-toggle').forEach(button => {
+    button.addEventListener('click', toggleHiddenOperatorLinesVisibility);
+  });
+  updateHiddenOperatorLinesToggleButton();
+
   document.querySelectorAll('#btn-toggle-nearby, .settings-nearby-toggle').forEach(button => {
     button.addEventListener('click', () => {
       nearbySettings.enabled = !nearbySettings.enabled;

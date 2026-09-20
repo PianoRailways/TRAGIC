@@ -103,6 +103,7 @@ const DEFAULT_FAVORITES = [
 ];
 const FAVORITES_STORAGE_KEY = 'tragic_favorites';
 const VIA_LOADING_STORAGE_KEY = 'tragic_via_loading_enabled';
+const HIDDEN_OPERATOR_LINES_STORAGE_KEY = 'tragic_hidden_operator_lines_visible';
 
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
@@ -953,6 +954,39 @@ function updateViaToggleButton() {
   });
 }
 
+function loadHiddenOperatorLinesVisibilityFromStorage() {
+  try {
+    return localStorage.getItem(HIDDEN_OPERATOR_LINES_STORAGE_KEY) === 'true';
+  } catch (_) {
+    return false;
+  }
+}
+
+let hiddenOperatorLinesVisible = loadHiddenOperatorLinesVisibilityFromStorage();
+
+function saveHiddenOperatorLinesVisibility() {
+  try {
+    localStorage.setItem(HIDDEN_OPERATOR_LINES_STORAGE_KEY, hiddenOperatorLinesVisible ? 'true' : 'false');
+  } catch (_) {}
+}
+
+function updateHiddenOperatorLinesToggleButton() {
+  document.querySelectorAll('.settings-hidden-operator-lines-toggle').forEach(btn => {
+    btn.classList.toggle('active', hiddenOperatorLinesVisible);
+    btn.textContent = hiddenOperatorLinesVisible ? 'Anzeigen: EIN' : 'Anzeigen: AUS';
+    btn.title = hiddenOperatorLinesVisible
+      ? 'Konfigurierte versteckte Betreiber/Linien werden angezeigt'
+      : 'Konfigurierte Betreiber/Linien werden ausgeblendet';
+  });
+}
+
+function toggleHiddenOperatorLinesVisibility() {
+  hiddenOperatorLinesVisible = !hiddenOperatorLinesVisible;
+  saveHiddenOperatorLinesVisibility();
+  updateHiddenOperatorLinesToggleButton();
+  applyFilters();
+}
+
 function toggleViaLoading() {
   viaLoadingEnabled = !viaLoadingEnabled;
   saveViaLoadingToStorage();
@@ -1140,7 +1174,7 @@ function applyFilters() {
     const routeId = (tr.dataset.routeId || '').toLowerCase();
 
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
-    const hiddenOperatorLine = HIDDEN_OPERATOR_LINES.some(({ operator, line: hiddenLine }) =>
+    const hiddenOperatorLine = !hiddenOperatorLinesVisible && HIDDEN_OPERATOR_LINES.some(({ operator, line: hiddenLine }) =>
       agencyName.trim() === operator.trim().toLowerCase() && line.trim() === hiddenLine.trim().toLowerCase()
     );
     
