@@ -1,5 +1,5 @@
 <?php
-$dataFile = __DIR__ . '/data.json';
+$dataFile = __DIR__ . '/cache/data.json';
 
 // API ENDPUNKTE FÜR PHP
 if (isset($_GET['api'])) {
