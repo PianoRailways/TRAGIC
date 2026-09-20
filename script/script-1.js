@@ -641,6 +641,12 @@ function closeStationsView() {
   if (stationsView) {
     stationsView.style.display = 'none';
   }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'stations') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
+  }
 }
 
 // ─── Favorites-View (Benutzerdefinierte Favoriten) ────────────────────
@@ -771,6 +777,12 @@ function closeFavoritesView() {
   if (favoritesView) {
     favoritesView.style.display = 'none';
   }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'favorites') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
+  }
 }
 
 function renderSettingsView() {
@@ -789,6 +801,12 @@ function closeSettingsView() {
   const settingsView = document.getElementById('settings-view');
   if (settingsView) {
     settingsView.style.display = 'none';
+  }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'settings') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
   }
 }
 
@@ -820,16 +838,13 @@ function checkAndRenderView() {
   if (viewParam === 'home') {
     renderHomeView();
   } else if (viewParam === 'stations') {
-    closeHomeView();
     renderStationsView();
   } else if (viewParam === 'favorites') {
-    closeHomeView();
     renderFavoritesView();
   } else if (viewParam === 'settings') {
-    closeHomeView();
     renderSettingsView();
   }
-  // Für alle anderen Views (departures, arrivals, settings, oder keine View) nichts machen
+  // Für alle anderen Views (departures, arrivals oder keine View) nichts machen
   // Die default Panel wird sowieso angezeigt
 }
 
@@ -860,6 +875,37 @@ document.addEventListener('DOMContentLoaded', () => {
     link.addEventListener('click', closeMenu);
   });
 
+  const settingsLink = document.querySelector('[data-settings-link]');
+  if (settingsLink) {
+    settingsLink.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'settings');
+      history.pushState({}, '', url);
+      renderSettingsView();
+    });
+  }
+
+  document.querySelectorAll('[data-favorites-link]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'favorites');
+      history.pushState({}, '', url);
+      renderFavoritesView();
+    });
+  });
+
+  document.querySelectorAll('[data-stations-link]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'stations');
+      history.pushState({}, '', url);
+      renderStationsView();
+    });
+  });
+
   // Stations-View Event-Listener
   const btnCloseStations = document.getElementById('btn-close-stations');
   if (btnCloseStations) {
@@ -870,6 +916,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseFavorites = document.getElementById('btn-close-favorites');
   if (btnCloseFavorites) {
     btnCloseFavorites.addEventListener('click', closeFavoritesView);
+  }
+
+  const btnCloseSettings = document.getElementById('btn-close-settings');
+  if (btnCloseSettings) {
+    btnCloseSettings.addEventListener('click', closeSettingsView);
   }
 
   // Nearby-Button Event-Listener
