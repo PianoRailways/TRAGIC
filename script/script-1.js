@@ -103,8 +103,11 @@ const HIDDEN_FILTERS_ENABLED_STORAGE_KEY = 'tragic_hidden_filters_enabled';
 
 // Feste, redaktionell gepflegte Ausblendungen.
 const HIDDEN_FILTERS = {
-  agencies: ['DISTRIBUS'],
-  lines: ['T3', 'TT3'],
+  agencies: [],
+  lines: [],
+  agencyLines: [
+    { agency: 'DISTRIBUS', lines: ['T3', 'TT3'] },
+  ],
   trips: []
 };
 
@@ -1172,6 +1175,10 @@ function applyFilters() {
   const excludedAgencies = HIDDEN_FILTERS.agencies.map(value => value.toLowerCase());
   const excludedLines = HIDDEN_FILTERS.lines.map(value => value.toLowerCase());
   const excludedTrips = HIDDEN_FILTERS.trips.map(value => value.toLowerCase());
+  const excludedAgencyLines = HIDDEN_FILTERS.agencyLines.map(rule => ({
+    agency: rule.agency.toLowerCase(),
+    lines: rule.lines.map(value => value.toLowerCase())
+  }));
   let visibleDepIdx = 0;
 
   document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
@@ -1189,6 +1196,11 @@ function applyFilters() {
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
     const agencyHide = hiddenFiltersEnabled && (excludedAgencies.some(value => agencyName.includes(value)) || excludedAgencies.some(value => agencyId.includes(value)));
     const lineHide = hiddenFiltersEnabled && (excludedLines.includes(line) || excludedLines.includes(visibleLine) || excludedLines.some(value => routeId.includes(value)));
+    const agencyLineHide = hiddenFiltersEnabled && excludedAgencyLines.some(rule => {
+      const matchingAgency = agencyName.includes(rule.agency) || agencyId.includes(rule.agency);
+      const matchingLine = rule.lines.includes(line) || rule.lines.includes(visibleLine) || rule.lines.some(value => routeId.includes(value));
+      return matchingAgency && matchingLine;
+    });
     const tripHide = hiddenFiltersEnabled && (excludedTrips.includes(trip) || excludedTrips.includes(tripId));
     
     const destHide = destQuery && 
@@ -1204,8 +1216,8 @@ function applyFilters() {
 
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
-    tr.classList.toggle('filtered-exclude', agencyHide || lineHide || tripHide);
-    const isVisible = !modeHide && !destHide && !agencyHide && !lineHide && !tripHide;
+    tr.classList.toggle('filtered-exclude', agencyHide || lineHide || agencyLineHide || tripHide);
+    const isVisible = !modeHide && !destHide && !agencyHide && !lineHide && !agencyLineHide && !tripHide;
     tr.classList.toggle('dep-row-alt', isVisible && visibleDepIdx++ % 2 === 1);
   });
 
