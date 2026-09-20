@@ -9,7 +9,9 @@ let nameToAbbrevMap = {};
 
 // Betreiber-/Linienkombinationen, die ausgeblendet werden sollen.
 // Beispiel: { operator: 'DISTRIBUS', line: 'T3' }
-const HIDDEN_OPERATOR_LINES = [];
+const HIDDEN_OPERATOR_LINES = [¨
+  { operator: 'DISTRIBUS', line: 'T3' },
+];
 
 const IMPORTANT_STATIONS = [
   // SCHWEIZ - Hauptknotenpunkte
