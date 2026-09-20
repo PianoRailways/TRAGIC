@@ -118,47 +118,57 @@ if (isset($_GET['api'])) {
 
       // BEIM START VOM SERVER LADEN
       useEffect(() => {
-        fetch("own-editor.php?api=load")
-          .then(res => res.json())
-          .then(data => {
-            if (data && data.stations && data.stations.length > 0) {
-              const extractedStationsMap = {};
-              const extractedTripsMap = {};
-
-              data.stations.forEach(st => {
-                extractedStationsMap[st.id] = { id: st.id, name: st.name };
-                if (st.departures) {
-                  st.departures.forEach(dep => {
-                    if (dep.tripId && !extractedTripsMap[dep.tripId]) {
-                      extractedTripsMap[dep.tripId] = {
-                        tripId: dep.tripId,
-                        line: dep.line,
-                        tripNumber: dep.tripNumber || "",
-                        mode: dep.mode || "RAIL",
-                        agency: dep.trip?.agency || { id: dep.agency?.toLowerCase() || "sbb", name: dep.agency || "SBB" },
-                        stops: dep.trip?.stops?.map(s => ({
-                          stopId: s.stopId,
-                          name: s.name,
-                          scheduled: s.departureLive || s.departureSched || 0,
-                          track: s.track || "",
-                          legIndex: s.legIndex
-                        })) || []
-                      };
-                    }
-                  });
-                }
-              });
-
-              if (Object.keys(extractedStationsMap).length > 0) {
-                setStations(Object.values(extractedStationsMap));
-              }
-              if (Object.keys(extractedTripsMap).length > 0) {
-                setTrips(Object.values(extractedTripsMap));
-              }
-            }
-          })
-          .catch(err => console.log("Standard-Fahrplan wird genutzt:", err));
+        loadFromServer();
       }, []);
+
+      const loadFromServer = async () => {
+        try {
+          const res = await fetch("own-editor.php?api=load");
+          const data = await res.json();
+          
+          if (data && data.stations && data.stations.length > 0) {
+            const extractedStationsMap = {};
+            const extractedTripsMap = {};
+
+            data.stations.forEach(st => {
+              extractedStationsMap[st.id] = { id: st.id, name: st.name };
+              if (st.departures) {
+                st.departures.forEach(dep => {
+                  if (dep.tripId && !extractedTripsMap[dep.tripId]) {
+                    extractedTripsMap[dep.tripId] = {
+                      tripId: dep.tripId,
+                      line: dep.line,
+                      tripNumber: dep.tripNumber || "",
+                      mode: dep.mode || "RAIL",
+                      agency: dep.trip?.agency || { id: dep.agency?.toLowerCase() || "sbb", name: dep.agency || "SBB" },
+                      stops: dep.trip?.stops?.map(s => ({
+                        stopId: s.stopId,
+                        name: s.name,
+                        scheduled: s.departureLive || s.departureSched || 0,
+                        track: s.track || "",
+                        legIndex: s.legIndex
+                      })) || []
+                    };
+                  }
+                });
+              }
+            });
+
+            if (Object.keys(extractedStationsMap).length > 0) {
+              setStations(Object.values(extractedStationsMap));
+            }
+            if (Object.keys(extractedTripsMap).length > 0) {
+              setTrips(Object.values(extractedTripsMap));
+            }
+            setSaveStatus({ type: "success", message: "Daten vom Server geladen" });
+            setTimeout(() => setSaveStatus({ type: "", message: "" }), 3000);
+          }
+        } catch (err) {
+          console.log("Standard-Fahrplan wird genutzt:", err);
+          setSaveStatus({ type: "info", message: "Standard-Daten laden (kein Server)" });
+          setTimeout(() => setSaveStatus({ type: "", message: "" }), 3000);
+        }
+      };
 
       // VALIDIERUNG: Chronologische Ordnung pro Trip
       const validateTrips = (tripsToCheck) => {
@@ -328,6 +338,7 @@ if (isset($_GET['api'])) {
       const [pickerDate, setPickerDate] = useState("");
       const [pickerHour, setPickerHour] = useState(0);
       const [pickerMinute, setPickerMinute] = useState(0);
+      const [pickerTimestamp, setPickerTimestamp] = useState(0);
 
       const updateTripStop = (tripIdx, stopIdx, field, value) => {
         const updated = [...trips];
@@ -357,6 +368,7 @@ if (isset($_GET['api'])) {
         setPickerDate(`${year}-${month}-${day}`);
         setPickerHour(hour);
         setPickerMinute(minute);
+        setPickerTimestamp(currentValue);
       };
 
       const confirmTimePicker = () => {
@@ -370,9 +382,50 @@ if (isset($_GET['api'])) {
 
       const adjustTime = (field, delta) => {
         if (field === "hour") {
-          setPickerHour(prev => (prev + delta + 24) % 24);
+          const newHour = (pickerHour + delta + 24) % 24;
+          setPickerHour(newHour);
+          const d = new Date(pickerTimestamp * 1000);
+          d.setHours(newHour);
+          setPickerTimestamp(Math.floor(d.getTime() / 1000));
         } else if (field === "minute") {
-          setPickerMinute(prev => (prev + delta + 60) % 60);
+          const newMinute = (pickerMinute + delta + 60) % 60;
+          setPickerMinute(newMinute);
+          const d = new Date(pickerTimestamp * 1000);
+          d.setMinutes(newMinute);
+          setPickerTimestamp(Math.floor(d.getTime() / 1000));
+        }
+      };
+
+      const handleTimeInput = (field, value) => {
+        const num = parseInt(value) || 0;
+        const d = new Date(pickerTimestamp * 1000);
+        
+        if (field === "hour") {
+          const validHour = Math.max(0, Math.min(23, num));
+          setPickerHour(validHour);
+          d.setHours(validHour);
+        } else if (field === "minute") {
+          const validMinute = Math.max(0, Math.min(59, num));
+          setPickerMinute(validMinute);
+          d.setMinutes(validMinute);
+        }
+        setPickerTimestamp(Math.floor(d.getTime() / 1000));
+      };
+
+      const handleTimestampInput = (value) => {
+        const ts = parseInt(value) || 0;
+        if (ts > 0) {
+          const d = new Date(ts * 1000);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const hour = d.getHours();
+          const minute = d.getMinutes();
+          
+          setPickerTimestamp(ts);
+          setPickerDate(`${year}-${month}-${day}`);
+          setPickerHour(hour);
+          setPickerMinute(minute);
         }
       };
 
@@ -464,6 +517,15 @@ if (isset($_GET['api'])) {
               </div>
 
               <button 
+                onClick={loadFromServer}
+                disabled={isSaving}
+                className="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-md transition disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Laden
+              </button>
+
+              <button 
                 onClick={saveToServer}
                 disabled={isSaving}
                 className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-md transition disabled:opacity-50"
@@ -472,7 +534,7 @@ if (isset($_GET['api'])) {
               </button>
 
               {saveStatus.message && (
-                <span className={`text-xs px-2 py-1 rounded ${saveStatus.type === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                <span className={`text-xs px-2 py-1 rounded ${saveStatus.type === "success" ? "bg-emerald-500/20 text-emerald-400" : saveStatus.type === "error" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
                   {saveStatus.message}
                 </span>
               )}
@@ -743,62 +805,78 @@ if (isset($_GET['api'])) {
                   />
                 </div>
 
-                {/* UHRZEIT SPINNER */}
+                {/* UHRZEIT SPINNER + INPUT */}
                 <div>
                   <label className="text-slate-400 text-xs block mb-3">Uhrzeit</label>
                   <div className="flex items-center justify-center gap-4 bg-slate-950 p-6 rounded-lg border border-slate-800">
                     
-                    {/* STUNDEN SPINNER */}
-                    <div className="flex flex-col items-center">
+                    {/* STUNDEN */}
+                    <div className="flex flex-col items-center gap-2">
                       <button 
                         onClick={() => adjustTime("hour", 1)}
-                        className="text-slate-400 hover:text-slate-200 mb-2 p-1"
+                        className="text-slate-400 hover:text-slate-200 p-1"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
                       </button>
-                      <div className="text-3xl font-bold text-blue-400 font-mono w-12 text-center py-2 bg-slate-900 rounded-lg border border-slate-700">
-                        {String(pickerHour).padStart(2, "0")}
-                      </div>
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="23" 
+                        value={String(pickerHour).padStart(2, "0")}
+                        onChange={(e) => handleTimeInput("hour", e.target.value)}
+                        className="w-16 text-2xl font-bold text-blue-400 font-mono text-center py-2 px-1 bg-slate-900 rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500"
+                      />
                       <button 
                         onClick={() => adjustTime("hour", -1)}
-                        className="text-slate-400 hover:text-slate-200 mt-2 p-1"
+                        className="text-slate-400 hover:text-slate-200 p-1"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                       </button>
-                      <div className="text-[10px] text-slate-500 mt-3">Stunden</div>
+                      <div className="text-[10px] text-slate-500">Stunden</div>
                     </div>
 
                     {/* TRENNZEICHEN */}
                     <div className="text-2xl font-bold text-slate-500">:</div>
 
-                    {/* MINUTEN SPINNER */}
-                    <div className="flex flex-col items-center">
+                    {/* MINUTEN */}
+                    <div className="flex flex-col items-center gap-2">
                       <button 
                         onClick={() => adjustTime("minute", 1)}
-                        className="text-slate-400 hover:text-slate-200 mb-2 p-1"
+                        className="text-slate-400 hover:text-slate-200 p-1"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
                       </button>
-                      <div className="text-3xl font-bold text-emerald-400 font-mono w-12 text-center py-2 bg-slate-900 rounded-lg border border-slate-700">
-                        {String(pickerMinute).padStart(2, "0")}
-                      </div>
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="59" 
+                        value={String(pickerMinute).padStart(2, "0")}
+                        onChange={(e) => handleTimeInput("minute", e.target.value)}
+                        className="w-16 text-2xl font-bold text-emerald-400 font-mono text-center py-2 px-1 bg-slate-900 rounded-lg border border-slate-700 focus:outline-none focus:border-emerald-500"
+                      />
                       <button 
                         onClick={() => adjustTime("minute", -1)}
-                        className="text-slate-400 hover:text-slate-200 mt-2 p-1"
+                        className="text-slate-400 hover:text-slate-200 p-1"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                       </button>
-                      <div className="text-[10px] text-slate-500 mt-3">Minuten</div>
+                      <div className="text-[10px] text-slate-500">Minuten</div>
                     </div>
                   </div>
                 </div>
 
                 {/* PREVIEW */}
-                <div className="text-xs bg-slate-950 p-3 rounded border border-slate-800 text-slate-400">
-                  <span>Zeitstempel: </span>
-                  <span className="font-mono text-emerald-400">
-                    {toUnixTimestamp(`${pickerDate}T${String(pickerHour).padStart(2, "0")}:${String(pickerMinute).padStart(2, "0")}`) || "—"}
-                  </span>
+                <div className="space-y-2">
+                  <label className="text-slate-400 text-xs block">UNIX-Timestamp</label>
+                  <input 
+                    type="number" 
+                    value={pickerTimestamp}
+                    onChange={(e) => handleTimestampInput(e.target.value)}
+                    className="w-full font-mono text-sm bg-slate-900 p-3 rounded border border-slate-700 text-emerald-400 focus:outline-none focus:border-emerald-500"
+                  />
+                  <div className="text-xs text-slate-500">
+                    {new Date(pickerTimestamp * 1000).toLocaleString('de-CH')}
+                  </div>
                 </div>
 
                 {/* BUTTONS */}
