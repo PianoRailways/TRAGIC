@@ -196,7 +196,7 @@ if (isset($_GET['api'])) {
         }));
       };
 
-      // JSON-GENERIERUNG mit legIndex-Berechnung
+      // JSON-GENERIERUNG mit Arrivals
       const generatedFullJSON = useMemo(() => {
         const stationsMap = {};
 
@@ -204,7 +204,8 @@ if (isset($_GET['api'])) {
           stationsMap[st.id] = {
             id: st.id,
             name: st.name,
-            departures: []
+            departures: [],
+            arrivals: []
           };
         });
 
@@ -227,6 +228,7 @@ if (isset($_GET['api'])) {
             legIndex: s.legIndex
           }));
 
+          // DEPARTURES
           stops.forEach((stop, idx) => {
             // Letzter Halt: kein Departure
             if (idx === stops.length - 1) return;
@@ -235,7 +237,7 @@ if (isset($_GET['api'])) {
             if (!stId) return;
 
             if (!stationsMap[stId]) {
-              stationsMap[stId] = { id: stId, name: stop.name || stId, departures: [] };
+              stationsMap[stId] = { id: stId, name: stop.name || stId, departures: [], arrivals: [] };
             }
 
             const agencyObj = typeof trip.agency === 'object' ? trip.agency : { id: 'sbb', name: trip.agency || 'SBB' };
@@ -246,6 +248,40 @@ if (isset($_GET['api'])) {
               tripNumber: trip.tripNumber || "",
               agency: agencyObj.id?.toUpperCase() || agencyObj.name || "SBB",
               destination: destinationName,
+              scheduled: stop.scheduled || 0,
+              track: stop.track || "",
+              mode: trip.mode || "RAIL",
+              trip: {
+                agency: agencyObj,
+                stops: formattedStops
+              }
+            });
+          });
+
+          // ARRIVALS: Für jeden Halt (außer dem ersten) die Ankunft eintragen
+          stops.forEach((stop, idx) => {
+            // Erster Halt: keine Ankunft
+            if (idx === 0) return;
+
+            const stId = stop.stopId;
+            if (!stId) return;
+
+            if (!stationsMap[stId]) {
+              stationsMap[stId] = { id: stId, name: stop.name || stId, departures: [], arrivals: [] };
+            }
+
+            const agencyObj = typeof trip.agency === 'object' ? trip.agency : { id: 'sbb', name: trip.agency || 'SBB' };
+            
+            // Herkunft ist der vorherige Halt
+            const originStop = stops[idx - 1];
+            const originName = originStop ? originStop.name : "Unbekannt";
+
+            stationsMap[stId].arrivals.push({
+              tripId: trip.tripId,
+              line: trip.line,
+              tripNumber: trip.tripNumber || "",
+              agency: agencyObj.id?.toUpperCase() || agencyObj.name || "SBB",
+              origin: originName,  // ← Origin statt Destination
               scheduled: stop.scheduled || 0,
               track: stop.track || "",
               mode: trip.mode || "RAIL",
@@ -628,43 +664,66 @@ if (isset($_GET['api'])) {
                         </div>
 
                         {trip.stops.map((st, stopIdx) => (
-                          <div key={stopIdx} className="p-2 bg-slate-950 border border-slate-800 rounded-lg flex items-center gap-2 text-xs flex-wrap">
-                            <span className="font-mono text-slate-600 text-[10px] w-4">{stopIdx + 1}.</span>
-                            
-                            <select 
-                              value={st.stopId}
-                              onChange={(e) => updateTripStop(tripIdx, stopIdx, "stopId", e.target.value)}
-                              className="flex-1 min-w-[200px] bg-slate-900 border border-slate-800 rounded p-1 text-slate-200 text-xs"
-                            >
-                              {stations.map(s => (
-                                <option key={s.id} value={s.id}>{s.name}</option>
-                              ))}
-                            </select>
-
-                            <button 
-                              onClick={() => openTimePicker(tripIdx, stopIdx, st.scheduled)}
-                              className="px-2 py-1 bg-blue-600/20 border border-blue-500/30 text-blue-400 rounded hover:bg-blue-600/40 transition text-xs font-mono"
-                              title="Zeit wählen"
-                            >
-                              {fromUnixTimestamp(st.scheduled).split('T')[1] || "--:--"}
-                            </button>
-
-                            <input 
-                              type="text" 
-                              placeholder="Gleis" 
-                              value={st.track} 
-                              onChange={(e) => updateTripStop(tripIdx, stopIdx, "track", e.target.value)}
-                              className="w-12 bg-slate-900 border border-slate-800 rounded p-1 text-center text-xs"
-                            />
-
-                            {trip.stops.length > 2 && (
-                              <button 
-                                onClick={() => removeStopFromTrip(tripIdx, stopIdx)}
-                                className="text-slate-600 hover:text-red-400 p-1"
+                          <div key={stopIdx} className="p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-mono text-slate-600 text-[10px] w-4">{stopIdx + 1}.</span>
+                              
+                              <select 
+                                value={st.stopId}
+                                onChange={(e) => updateTripStop(tripIdx, stopIdx, "stopId", e.target.value)}
+                                className="flex-1 min-w-[200px] bg-slate-900 border border-slate-800 rounded p-1 text-slate-200 text-xs"
                               >
-                                <IconTrash />
-                              </button>
-                            )}
+                                {stations.map(s => (
+                                  <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                              </select>
+
+                              <input 
+                                type="text" 
+                                placeholder="Gleis" 
+                                value={st.track} 
+                                onChange={(e) => updateTripStop(tripIdx, stopIdx, "track", e.target.value)}
+                                className="w-12 bg-slate-900 border border-slate-800 rounded p-1 text-center text-xs"
+                              />
+
+                              {trip.stops.length > 2 && (
+                                <button 
+                                  onClick={() => removeStopFromTrip(tripIdx, stopIdx)}
+                                  className="text-slate-600 hover:text-red-400 p-1"
+                                >
+                                  <IconTrash />
+                                </button>
+                              )}
+                            </div>
+
+                            {/* ANKUNFT / ABFAHRT ZEITEN */}
+                            <div className="flex gap-2 text-xs">
+                              {stopIdx > 0 && (
+                                <div className="flex-1">
+                                  <label className="text-slate-500 text-[10px] block mb-1">Ankunft</label>
+                                  <button 
+                                    onClick={() => openTimePicker(tripIdx, stopIdx, st.arrivalSched || st.scheduled || Math.floor(Date.now() / 1000))}
+                                    className={`w-full px-2 py-1 rounded text-xs font-mono ${st.arrivalSched ? "bg-emerald-600/20 border border-emerald-500/30 text-emerald-400" : "bg-slate-900 border border-slate-700 text-slate-500"}`}
+                                    title="Ankunftszeit"
+                                  >
+                                    {st.arrivalSched ? fromUnixTimestamp(st.arrivalSched).split('T')[1] : "—"}
+                                  </button>
+                                </div>
+                              )}
+                              
+                              {stopIdx < trip.stops.length - 1 && (
+                                <div className="flex-1">
+                                  <label className="text-slate-500 text-[10px] block mb-1">Abfahrt</label>
+                                  <button 
+                                    onClick={() => openTimePicker(tripIdx, stopIdx, st.departureSched || st.scheduled || Math.floor(Date.now() / 1000), true)}
+                                    className={`w-full px-2 py-1 rounded text-xs font-mono ${st.departureSched ? "bg-blue-600/20 border border-blue-500/30 text-blue-400" : "bg-slate-900 border border-slate-700 text-slate-500"}`}
+                                    title="Abfahrtszeit"
+                                  >
+                                    {st.departureSched ? fromUnixTimestamp(st.departureSched).split('T')[1] : "—"}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
