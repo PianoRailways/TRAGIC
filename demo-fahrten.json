@@ -1,0 +1,54 @@
+{
+  "stations": [
+    {
+      "id": "demo-bahnhof",
+      "name": "Demo-Bahnhof",
+      "departures": [
+        {
+          "tripId": "demo-s1-001",
+          "line": "S1",
+          "tripNumber": "1001",
+          "destination": "Seestadt",
+          "scheduled": "2099-06-21T08:15:00+02:00",
+          "live": "2099-06-21T08:16:00+02:00",
+          "delaySec": 60,
+          "track": "3",
+          "mode": "RAIL",
+          "trip": {
+            "tripId": "demo-s1-001",
+            "line": "S1",
+            "tripNumber": "1001",
+            "destination": "Seestadt",
+            "stops": [
+              { "stopId": "demo-bahnhof", "name": "Demo-Bahnhof", "departureSched": "2099-06-21T08:15:00+02:00", "departureLive": "2099-06-21T08:16:00+02:00", "track": "3", "legIndex": 0 },
+              { "stopId": "demo-mitte", "name": "Demo-Mitte", "arrivalSched": "2099-06-21T08:22:00+02:00", "departureSched": "2099-06-21T08:23:00+02:00", "legIndex": 0 },
+              { "stopId": "demo-seestadt", "name": "Seestadt", "arrivalSched": "2099-06-21T08:35:00+02:00", "legIndex": 0 }
+            ]
+          }
+        },
+        {
+          "tripId": "demo-bus-042",
+          "line": "42",
+          "destination": "Bergdorf",
+          "scheduled": "2099-06-21T08:28:00+02:00",
+          "track": "B",
+          "mode": "BUS"
+        }
+      ]
+    },
+    {
+      "id": "seehafen",
+      "name": "Seehafen",
+      "departures": [
+        {
+          "tripId": "demo-ferry-007",
+          "line": "F7",
+          "destination": "Inselblick",
+          "scheduled": "2099-06-21T08:40:00+02:00",
+          "track": "Steg 2",
+          "mode": "FERRY"
+        }
+      ]
+    }
+  ]
+}
