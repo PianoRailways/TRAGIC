@@ -237,7 +237,7 @@
 /* VBL Luzern Passepartout */
 .line-container[data-agency-name*="Luzern"] { background: #0f65a6; color: white}
 .line-container[data-agency-name*="Luzern"][data-line^="N"] { background: #000000; color: #FFED00} /* Nachtstern */
-.line-container[data-agency-name*="Rottal"] { background: #e42322; color: white} /* Rottal */
+.line-container[data-agency-name*="Rottal"] { background: #e42322; color: white} /* Rottal / Willisau */
 .line-container[data-agency-name*="Rottal"][data-line^="N"] { background: #e42322; color: white; border: dotted 1px white; } /* Rottal Nacht */
 
 /* Zug */
