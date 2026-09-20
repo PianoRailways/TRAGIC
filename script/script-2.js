@@ -18,8 +18,8 @@ function loadNearbySettings() {
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
 const CUSTOM_JSON_URLS = [
-  '/cache/demo-fahrten.js'
-  // Weitere Dateien hier ergänzen, z. B. '/cache/weitere-fahrten.json'
+  '/cache/demo-fahrten.js',
+  '/cache/data.json',
 ];
 const CUSTOM_JSON_URL = CUSTOM_JSON_URLS[0];
 const CUSTOM_STATION_NAME = 'Demo-Bahnhof';
