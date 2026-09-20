@@ -17,7 +17,11 @@ function loadNearbySettings() {
 
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
-const CUSTOM_JSON_URL = '/cache/demo-fahrten.js';
+const CUSTOM_JSON_URLS = [
+  '/cache/demo-fahrten.js'
+  // Weitere Dateien hier ergänzen, z. B. '/cache/weitere-fahrten.json'
+];
+const CUSTOM_JSON_URL = CUSTOM_JSON_URLS[0];
 const CUSTOM_STATION_NAME = 'Demo-Bahnhof';
 let customStationIndexPromise = null;
 
@@ -85,12 +89,22 @@ function getCustomStationDefinitions(data) {
 
 async function getCustomStationIndex() {
   if (!customStationIndexPromise) {
-    customStationIndexPromise = fetch(CUSTOM_JSON_URL, { cache: 'no-store' })
-      .then(response => {
-        if (!response.ok) throw new Error(`Server antwortet mit HTTP ${response.status}.`);
-        return response.json();
-      })
-      .then(data => ({ data, stations: getCustomStationDefinitions(data) }));
+    customStationIndexPromise = Promise.all(CUSTOM_JSON_URLS.map(async url => {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Server antwortet mit HTTP ${response.status}.`);
+      const data = await response.json();
+      return {
+        data,
+        url,
+        stations: getCustomStationDefinitions(data).map(station => ({
+          ...station,
+          _customJsonUrl: url
+        }))
+      };
+    })).then(sources => ({
+      sources,
+      stations: sources.flatMap(source => source.stations)
+    }));
   }
   return customStationIndexPromise;
 }
@@ -129,7 +143,7 @@ function clearStationSuggestions() {
   });
 }
 
-function selectCustomStation(stationId, stationName) {
+function selectCustomStation(stationId, stationName, customJsonUrl = CUSTOM_JSON_URL) {
   closeHomeView();
   clearStationSuggestions();
   currentStopId = stationId || 'custom-json';
@@ -140,11 +154,11 @@ function selectCustomStation(stationId, stationName) {
   const url = new URL(location.href);
   url.searchParams.set('view', 'departures');
   url.searchParams.set('stopId', currentStopId);
-  url.searchParams.set('customJson', CUSTOM_JSON_URL);
+  url.searchParams.set('customJson', customJsonUrl);
   history.pushState({
     stopId: currentStopId,
     stationName,
-    customJson: CUSTOM_JSON_URL,
+    customJson: customJsonUrl,
     epoch: getSelectedEpoch(),
     arrivals: isArrivalsMode,
     calendarStart,
@@ -152,7 +166,7 @@ function selectCustomStation(stationId, stationName) {
     calendarDest
   }, '', url);
 
-  loadCustomDeparturesFromUrl(CUSTOM_JSON_URL, stationId, stationName).catch(error => {
+  loadCustomDeparturesFromUrl(customJsonUrl, stationId, stationName).catch(error => {
     renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
   });
 }
