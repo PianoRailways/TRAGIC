@@ -273,7 +273,7 @@
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="651"] { color: white; background: #F39200}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="652"] { color: white; background: #253182}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="653"] { color: white; background: #94B2C3}
-ED6839.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line^="N"] { color: #FFED00; background: #1D1D1B}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line^="N"] { color: #FFED00; background: #1D1D1B}
 /* Bernmobil + RBS */
 .line-container[data-agency-id="827"][data-line^="3"] { background: #AABDC7; color: white; }
 .line-container[data-agency-id="827"][data-line^="6"] { background: rgb(56,127,196); color: white; }
