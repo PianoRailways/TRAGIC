@@ -398,7 +398,7 @@
 }
 
 .settings-view {overflow-y: auto;}
-.home-view {display: flex;flex-direction: column;overflow: hidden;}
+.home-view {display: flex;flex-direction: column;overflow: hidden;z-index: 20;}
 
 .settings-container {
   width: min(100%, 760px);
