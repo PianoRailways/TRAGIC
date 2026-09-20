@@ -729,10 +729,12 @@ tr.dep-row.chain-open td { background: inherit; }
 
 /* Versteckte Zeilen durch Filter */
 tr.dep-row.filtered-mode,
-tr.dep-row.filtered-dest { display: none; }
+tr.dep-row.filtered-dest,
+tr.dep-row.filtered-exclude { display: none; }
 /* Folgende chain-row soll auch versteckt sein wenn dep-row versteckt */
 tr.dep-row.filtered-mode + tr.chain-row,
-tr.dep-row.filtered-dest + tr.chain-row { display: none; }
+tr.dep-row.filtered-dest + tr.chain-row,
+tr.dep-row.filtered-exclude + tr.chain-row { display: none; }
 
 tr.chain-row td { background: var(--bg-chain); padding: 0; }
 .chain-wrap {
