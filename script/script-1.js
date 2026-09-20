@@ -7,12 +7,6 @@ let allDepartures = [];
 let abbrevMap = {};
 let nameToAbbrevMap = {};
 
-// Betreiber-/Linienkombinationen, die ausgeblendet werden sollen.
-// Beispiel: { operator: 'DISTRIBUS', line: 'T3' }
-const HIDDEN_OPERATOR_LINES = [¨
-  { operator: 'DISTRIBUS', line: 'T3' },
-];
-
 const IMPORTANT_STATIONS = [
   // SCHWEIZ - Hauptknotenpunkte
   { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'Basel SBB', name: 'Basel SBB', country: 'CH', type: 'major_hub', lat: 47.547413, lon: 7.5895605 },
@@ -1142,10 +1136,6 @@ function applyFilters() {
     const routeId = (tr.dataset.routeId || '').toLowerCase();
 
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
-    const hiddenOperatorLine = HIDDEN_OPERATOR_LINES.some(({ operator, line: hiddenLine }) =>
-      agencyName.trim() === String(operator).trim().toLowerCase() &&
-      line.trim() === String(hiddenLine).trim().toLowerCase()
-    );
     
     const destHide = destQuery && 
       !dest.includes(destQuery) && 
@@ -1160,8 +1150,7 @@ function applyFilters() {
 
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
-    tr.classList.toggle('filtered-operator-line', hiddenOperatorLine);
-    const isVisible = !modeHide && !destHide && !hiddenOperatorLine;
+    const isVisible = !modeHide && !destHide;
     tr.classList.toggle('dep-row-alt', isVisible && visibleDepIdx++ % 2 === 1);
   });
 
