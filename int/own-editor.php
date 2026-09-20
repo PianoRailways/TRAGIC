@@ -104,7 +104,7 @@ if (isset($_GET['api'])) {
 
       // BEIM START VOM SERVER LADEN
       useEffect(() => {
-        fetch("index.php?api=load")
+        fetch("own-editor.php?api=load")
           .then(res => res.json())
           .then(data => {
             if (data && data.stations && data.stations.length > 0) {
@@ -217,7 +217,7 @@ if (isset($_GET['api'])) {
         setSaveStatus({ type: "", message: "" });
 
         try {
-          const res = await fetch("index.php?api=save", {
+          const res = await fetch("own-editor.php?api=save", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(generatedFullJSON, null, 2)
