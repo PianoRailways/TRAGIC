@@ -7,10 +7,6 @@ let allDepartures = [];
 let abbrevMap = {};
 let nameToAbbrevMap = {};
 
-const HIDDEN_OPERATOR_LINES = [
-  { operator: 'DISTRIBUS', line: 'T3' },
-];
-
 const IMPORTANT_STATIONS = [
   // SCHWEIZ - Hauptknotenpunkte
   { stopId: 'ch-opentransportdataswiss26_Parentch:1:sloid:10', label: 'Basel SBB', name: 'Basel SBB', country: 'CH', type: 'major_hub', lat: 47.547413, lon: 7.5895605 },
@@ -103,7 +99,6 @@ const DEFAULT_FAVORITES = [
 ];
 const FAVORITES_STORAGE_KEY = 'tragic_favorites';
 const VIA_LOADING_STORAGE_KEY = 'tragic_via_loading_enabled';
-const HIDDEN_OPERATOR_LINES_STORAGE_KEY = 'tragic_hidden_operator_lines_visible';
 
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
@@ -436,7 +431,7 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
 // ─── Abkürzungs-Mappings laden ──────────────────────────────────────────────
 
 async function loadAbbreviations() {
-  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk', 'libero'];
+  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk'];
   try {
     for (const country of countries) {
       try {
@@ -954,39 +949,6 @@ function updateViaToggleButton() {
   });
 }
 
-function loadHiddenOperatorLinesVisibilityFromStorage() {
-  try {
-    return localStorage.getItem(HIDDEN_OPERATOR_LINES_STORAGE_KEY) === 'true';
-  } catch (_) {
-    return false;
-  }
-}
-
-let hiddenOperatorLinesVisible = loadHiddenOperatorLinesVisibilityFromStorage();
-
-function saveHiddenOperatorLinesVisibility() {
-  try {
-    localStorage.setItem(HIDDEN_OPERATOR_LINES_STORAGE_KEY, hiddenOperatorLinesVisible ? 'true' : 'false');
-  } catch (_) {}
-}
-
-function updateHiddenOperatorLinesToggleButton() {
-  document.querySelectorAll('.settings-hidden-operator-lines-toggle').forEach(btn => {
-    btn.classList.toggle('active', hiddenOperatorLinesVisible);
-    btn.textContent = hiddenOperatorLinesVisible ? 'Anzeigen: EIN' : 'Anzeigen: AUS';
-    btn.title = hiddenOperatorLinesVisible
-      ? 'Konfigurierte versteckte Betreiber/Linien werden angezeigt'
-      : 'Konfigurierte Betreiber/Linien werden ausgeblendet';
-  });
-}
-
-function toggleHiddenOperatorLinesVisibility() {
-  hiddenOperatorLinesVisible = !hiddenOperatorLinesVisible;
-  saveHiddenOperatorLinesVisibility();
-  updateHiddenOperatorLinesToggleButton();
-  applyFilters();
-}
-
 function toggleViaLoading() {
   viaLoadingEnabled = !viaLoadingEnabled;
   saveViaLoadingToStorage();
@@ -1174,9 +1136,6 @@ function applyFilters() {
     const routeId = (tr.dataset.routeId || '').toLowerCase();
 
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
-    const hiddenOperatorLine = !hiddenOperatorLinesVisible && HIDDEN_OPERATOR_LINES.some(({ operator, line: hiddenLine }) =>
-      agencyName.trim() === operator.trim().toLowerCase() && line.trim() === hiddenLine.trim().toLowerCase()
-    );
     
     const destHide = destQuery && 
       !dest.includes(destQuery) && 
@@ -1191,8 +1150,7 @@ function applyFilters() {
 
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
-    tr.classList.toggle('filtered-operator-line', hiddenOperatorLine);
-    const isVisible = !modeHide && !destHide && !hiddenOperatorLine;
+    const isVisible = !modeHide && !destHide;
     tr.classList.toggle('dep-row-alt', isVisible && visibleDepIdx++ % 2 === 1);
   });
 
