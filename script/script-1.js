@@ -1107,6 +1107,38 @@ function activateModesInGroup(groupModes) {
   applyFilters();
 }
 
+function resetFilterDefaults() {
+  const nearbyWasEnabled = typeof nearbySettings !== 'undefined' && nearbySettings.enabled;
+
+  filterState.alleModeActive = true;
+  filterState.selectedModes.clear();
+  saveModesToStorage();
+
+  hiddenFiltersEnabled = true;
+  saveHiddenFiltersEnabled();
+
+  viaLoadingEnabled = false;
+  saveViaLoadingToStorage();
+
+  if (typeof nearbySettings !== 'undefined') {
+    nearbySettings.enabled = false;
+    nearbySettings.radius = 500;
+    saveNearbySettings();
+  }
+
+  if (destFilter) destFilter.value = '';
+  updateModeButtons();
+  updateHiddenFiltersToggleButton();
+  updateViaToggleButton();
+  if (typeof updateNearbyUI === 'function') updateNearbyUI();
+  syncDestinationFilterInputs();
+  applyFilters();
+
+  if (nearbyWasEnabled && typeof currentStopId !== 'undefined' && currentStopId) {
+    loadDepartures(getSelectedEpoch());
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const btnAll = document.getElementById('btn-mode-all');
   if (btnAll) {
@@ -1173,6 +1205,8 @@ document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
 document.querySelectorAll('.settings-hidden-filters-toggle').forEach(button => {
   button.addEventListener('click', toggleHiddenFilters);
 });
+
+document.getElementById('btn-reset-filters')?.addEventListener('click', resetFilterDefaults);
 
 updateModeButtons();
 updateHiddenFiltersToggleButton();

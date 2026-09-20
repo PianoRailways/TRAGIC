@@ -427,6 +427,8 @@ h1 {
   display: block;
 }
 .filter-popup-inner {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   padding: 0.75rem 0.65rem 0.65rem;
   overflow-y: auto;
@@ -461,6 +463,25 @@ h1 {
   color: var(--text-main);
 }
 #destFilter:focus { outline: none; border-color: var(--line-accent); }
+
+.filter-reset-btn {
+  margin-top: auto;
+  padding: 0.55rem 0.25rem 0.1rem;
+  border: 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: #ff7777;
+  font: inherit;
+  font-size: 0.72rem;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.85;
+}
+.filter-reset-btn:hover,
+.filter-reset-btn:focus-visible {
+  color: #ff9a9a;
+  opacity: 1;
+}
 
 .btn-toggle-vias {
   min-width: 90px;
