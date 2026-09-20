@@ -241,7 +241,7 @@
 .line-container[data-agency-name*="Rottal"][data-line^="N"] { background: #e42322; color: white; border: dotted 1px white; } /* Rottal Nacht */
 
 /* Zug */
-.line-container[data-agency-name="Zugerland Verkehrsbetriebe"] { color: white; background: #878787}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"] { color: white; background: #878787; border: solid 1px #004986;}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="347"] { color: white; background: #008AC9}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="348"] { color: white; background: #9D0F12}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="525"] { color: white; background: #005F27}
@@ -273,7 +273,7 @@
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="651"] { color: white; background: #F39200}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="652"] { color: white; background: #253182}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="653"] { color: white; background: #94B2C3}
-.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line^="N"] { color: #FFED00; background: #1D1D1B}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line^="N"] { color: #FFC600; background: #000; } /* Nachtbusse */
 /* Bernmobil + RBS */
 .line-container[data-agency-id="827"][data-line^="3"] { background: #AABDC7; color: white; }
 .line-container[data-agency-id="827"][data-line^="6"] { background: rgb(56,127,196); color: white; }
