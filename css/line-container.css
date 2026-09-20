@@ -236,7 +236,44 @@
 .line-container[data-agency-name^="Aargau Verkehr"][data-mode="BUS"] { background: #000066; color: white; }
 /* VBL Luzern Passepartout */
 .line-container[data-agency-name*="Luzern"] { background: #0f65a6; color: white}
-.line-container[data-agency-name*="Luzern"][data-line^="N"] { background: #000000; color: #FFED00}
+.line-container[data-agency-name*="Luzern"][data-line^="N"] { background: #000000; color: #FFED00} /* Nachtstern */
+.line-container[data-agency-name*="Rottal"] { background: #e42322; color: white} /* Rottal / Willisau */
+.line-container[data-agency-name*="Rottal"][data-line^="N"] { background: #e42322; color: white; border: dotted 1px white; } /* Rottal Nacht */
+
+/* Zug */
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"] { color: white; background: #878787; border: solid 1px #004986;}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="347"] { color: white; background: #008AC9}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="348"] { color: white; background: #9D0F12}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="525"] { color: white; background: #005F27}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="526"] { color: white; background: #D0A9D0}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="601"] { color: white; background: #D20B11}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="602"] { color: white; background: #5BC5F2}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="603"] { color: white; background: #AFCC46}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="604"] { color: white; background: #F39200}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="605"] { color: white; background: #008237}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="606"] { color: white; background: #253182}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="607"] { color: white; background: #5F8F55}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="609"] { color: white; background: #79211D}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="610"] { color: white; background: #CF96C3}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="611"] { color: white; background: #8C3D87}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="612"] { color: white; background: #C3A673}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="613"] { color: white; background: #007EC6}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="614"] { color: white; background: #A91A51}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="616"] { color: white; background: #ED6839}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="622"] { color: white; background: #E30614}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="626"] { color: white; background: #F39200}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="627"] { color: white; background: #253182}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="631"] { color: white; background: #E94290}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="632"] { color: white; background: #005F8B}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="634"] { color: white; background: #005F27}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="636"] { color: white; background: #5BC5F2}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="641"] { color: white; background: #009CD6}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="642"] { color: white; background: #611C70}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="648"] { color: white; background: #D20B11}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="651"] { color: white; background: #F39200}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="652"] { color: white; background: #253182}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="653"] { color: white; background: #94B2C3}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line^="N"] { color: #FFC600; background: #000; } /* Nachtbusse */
 /* Bernmobil + RBS */
 .line-container[data-agency-id="827"][data-line^="3"] { background: #AABDC7; color: white; }
 .line-container[data-agency-id="827"][data-line^="6"] { background: rgb(56,127,196); color: white; }
@@ -686,8 +723,9 @@
 .line-container[data-agency-id="823"][data-line="14"] { background: rgb(230,136,60); color: white; }
 .line-container[data-agency-id="823"][data-line="15"] { background: rgb(73,163,89); color: white; }
 .line-container[data-agency-id="823"][data-line="16"] { background: rgb(174,205,84); color: white; }
-.line-container[data-agency-id="823"][data-line="17"] { background: rgb(78,172,233); color: white; }
-.line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT */
+.line-container[data-agency-id="37"][data-line="17"] { background: rgb(78,172,233); color: white; }
+
+.line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT Waldenburg*/
 
 .line-container[data-agency-id="823"][data-mode="BUS"] { background: #C7C8CA; color: black; } /* BVB Bus */
 .line-container[data-agency-name*="Liestal"] { background: #FFF064; color: black; } /* Auto AG Liestal */
