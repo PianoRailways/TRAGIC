@@ -987,6 +987,12 @@ function toggleHiddenOperatorLinesVisibility() {
   applyFilters();
 }
 
+document.addEventListener('click', event => {
+  if (event.target.closest('.settings-hidden-operator-lines-toggle')) {
+    toggleHiddenOperatorLinesVisibility();
+  }
+});
+
 updateHiddenOperatorLinesToggleButton();
 
 function toggleViaLoading() {
