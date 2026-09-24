@@ -442,7 +442,7 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
 // ─── Abkürzungs-Mappings laden ──────────────────────────────────────────────
 
 async function loadAbbreviations() {
-  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk', 'libero'];
+  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk', 'libero', 'zvv'];
   try {
     for (const country of countries) {
       try {
