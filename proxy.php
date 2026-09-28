@@ -95,15 +95,20 @@ function parseOjpTripId(?string $tripId): array {
     $r = ['line' => null, 'tripNumber' => null, 'agencyId' => null];
     if (!$tripId) return $r;
 
-    // Linie: ojp:93048 -> 48
+    // Linie: ojp:93048 -> 48, ojp:91070 -> 70
     if (preg_match('/ojp:\d{2}(\d{3}):/', $tripId, $m)) {
         $r['line'] = ltrim($m[1], '0') ?: '0';
     }
 
-    // Land:Agency_Fahrt_Land:Agency:Fahrt:Variante (Wiederholung = Validierung)
+    // Form 1 (Bergbahnen u.a.): 85:121_285_85:121:285:000
     if (preg_match('/(\d{2}):(\d+)_(\d+)_\1:\2:\3:\d+/', $tripId, $m)) {
         $r['agencyId']   = $m[2];
         $r['tripNumber'] = ltrim($m[3], '0') ?: '0';
+    }
+    // Form 2 (SBB): 11_72643_ch:1:sjyid:100001:72643-889
+    elseif (preg_match('/[:.](\d+)_(\d+)_ch:1:sjyid:\d+:\2-\d+/', $tripId, $m)) {
+        $r['agencyId']   = $m[1];
+        $r['tripNumber'] = ltrim($m[2], '0') ?: '0';
     }
 
     return $r;
