@@ -1,18 +1,81 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <script>
+      function hideLoadingScreen() {
+        const screen = document.getElementById('loadingstartscreen');
+        screen.classList.add('hidden');
+        setTimeout(() => {
+          screen.style.display = 'none';
+        }, 300);
+      }
+
+      function waitForStylesheets() {
+        const cssLinks = [...document.querySelectorAll('link[data-loading-critical]')];
+
+        if (cssLinks.length === 0) {
+          return;
+        }
+
+        const pendingLinks = new Set(cssLinks);
+        const settleLink = (link) => {
+          if (!pendingLinks.delete(link)) return;
+          if (pendingLinks.size === 0) hideLoadingScreen();
+        };
+
+        cssLinks.forEach((link) => {
+          link.addEventListener('load', () => settleLink(link), { once: true });
+
+          // The preload may have finished before this script can attach listeners.
+          if (link.dataset.loaded === 'true') settleLink(link);
+        });
+      }
+
+      // The script is in the head, so the stylesheet links do not exist yet.
+      document.addEventListener('DOMContentLoaded', waitForStylesheets, { once: true });
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="./css/line-container.css">
-    <link rel="stylesheet" href="./css/style.css">
-    <link rel="stylesheet" href="./css/views.css">
-    <link rel="stylesheet" href="./css/responsive.css">
+    <link rel="preload" as="style" href="./css/line-container.css" data-loading-style onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';" onerror="this.dataset.loaded='true';">
+    <link rel="preload" as="style" href="./css/base.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
+    <link rel="preload" as="style" href="./css/style.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
+    <link rel="preload" as="style" href="./css/views.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
+    <link rel="preload" as="style" href="./css/responsive.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
     <link rel="icon" type="image/png" href="./tragic.png">
     <link rel="apple-touch-icon" href="./tragic.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>OMNI (NOWE)</title>
+    <style>
+      #loadingstartscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #32d7d3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+        transition: opacity 0.3s ease-out;
+      }
+      #loadingstartscreen.hidden {opacity: 0; pointer-events: none;}
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f0f0f0;
+        border-top: 4px solid #333;
+        border-radius: 100%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {transform:rotate(0deg);}
+        100% {transform:rotate(360deg);}
+      }
+
+    </style>
 </head>
 <body>
   <!-- ═══════════════ HEADER ═══════════════ -->
@@ -27,6 +90,10 @@
     </div>
   </header>
 
+  <!-- ═══════════════ Loadingscreen ═══════════════ -->
+   <div id="loadingstartscreen">
+    <div class="spinner"></div>
+   </div>
   <!-- ═══════════════ HAMBURGER-MENÜ ═══════════════ -->
   <div id="menu-overlay" class="menu-overlay"></div>
   <nav id="menu-sidebar" class="menu-sidebar">
@@ -294,11 +361,10 @@
       <button id="btn-earlier-bottom" class="nav-btn nav-btn-earlier">← Früher</button>
       <button id="btn-later-bottom" class="nav-btn nav-btn-later">Später →</button>
     </div>
-
-    <script src="./script/script-1.js"></script>
-    <script src="./script/script-chain.js"></script>
-    <script src="./script/script-2.js"></script>
-    <script src="./script/script-cal.js"></script>
+    <script src="./script/script-1.js" defer></script>
+    <script src="./script/script-chain.js" defer></script>
+    <script src="./script/script-2.js" defer></script>
+    <script src="./script/script-cal.js" defer></script>
     <script>
       (function () {
         const menuButton = document.getElementById('filter-menu-button');
