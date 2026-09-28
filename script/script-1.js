@@ -107,6 +107,8 @@ const HIDDEN_FILTERS = {
   lines: [],
   agencyLines: [
     { agency: 'DISTRIBUS', lines: ['T3', 'TT3'] },
+    { agency: '10492', lines: ['RE1', '9'] },
+    { agency: '10785', lines: ['IR75'] },
   ],
   trips: []
 };
