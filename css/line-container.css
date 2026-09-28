@@ -35,6 +35,7 @@
   --pifas-timenav: #eef;
   --live-red:   #ff3b30;
   --plat-change:#fcbb00;
+  --sbb-night: #FFDE15;
 }
 /* 1. Mode-basiert (niedrig spezifisch) */
 .line-container[data-mode="HIGHSPEED"]  { background: var(--sbb-red); }
@@ -558,27 +559,37 @@
 .line-container[data-agency-id="86"][data-line="R70"] { background: #009767; color: white; }
 .line-container[data-agency-id="86"][data-line="R71"] { background: #76B72A; color: white; }
 /* SBB */
-.line-container[data-agency-id="11"][data-line^="TER"] { background: white; color: black; }
+.line-container[data-agency-id="11"][data-line^="TER"],
+.line-container[data-agency-id="11"][data-line^="S"],
 .line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
+
 .line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
-.line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
-.line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
-.line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; }
+
+.line-container[data-agency-id="11"][data-line^="IR"],
+.line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; font-style: italic; }
+
 .line-container[data-agency-id="11"][data-line^="EC"],
-.line-container[data-agency-id="11"][data-line^="EN"],
+.line-container[data-agency-id="11"][data-line^="EN"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+
 .line-container[data-agency-id="11"][data-line^="ICN"],
+.line-container[data-agency-id="11"][data-line^="ICE"],
 .line-container[data-agency-id="11"][data-line^="TGV"],
 .line-container[data-agency-id="11"][data-line^="CNL"],
 .line-container[data-agency-id="11"][data-line^="RJ"],
 .line-container[data-agency-id="11"][data-line^="RJX"] { background: #eb0000; color: white; font-style: italic; }
-.line-container[data-agency-name*="SBB"][data-line*="N"] { background: transparent; color: #FFDE15; border: 0.5px solid #FFDE15; font-style: italic; }
+.line-container[data-agency-id="11"][data-line^="RX"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+.line-container[data-agency-name*="SBB"][data-line*="SN"],
+.line-container[data-agency-name*="SBB"][data-line*="REN"] { background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); }
+.line-container[data-agency-name*="SBB"][data-line^="IRN"] {background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); font-style: italic; font-weight: bold; }
+
 .line-container[data-agency-id="11"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
 
 .line-container[data-line="GEX"],
 .line-container[data-line="BEX"],
-.line-container[data-agency-id="11"][data-line^="PE"] { background: #eb0000; color: white; }
+.line-container[data-agency-id="11"][data-line^="PE"] { background: #eb0000; color: white; font-style: italic; }
+
 .line-container[data-line^="EXT"],
-.line-container[data-line^="AG"] { background: #eb0000; color: white; }
+.line-container[data-line^="AG"] { background: #eb0000; color: white; font-style: italic; }
 .line-container[data-line^="MAT"],
 .line-container[data-line^="DZ"] { background: black; color: white; }
 
