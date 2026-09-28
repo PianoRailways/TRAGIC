@@ -686,6 +686,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'THURBO': { 14: 'S14', 44: 'S44', 1: 'RE1'},
   'SBB': { 75: 'IR75', N1: 'IRN1'},
   'Wengernalpbahn': { 63: 'CC63'},
+  'Forchbahn': { 18: 'S18'},
 };
 
 function normalizeLineDisplay(line, agencyName = '') {
