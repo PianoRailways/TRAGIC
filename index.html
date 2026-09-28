@@ -1,6 +1,40 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <script>
+      function hideLoadingScreen() {
+        const screen = document.getElementById('loadingstartscreen');
+        screen.classList.add('hidden');
+        setTimeout(() => {
+          screen.style.display = 'none';
+        }, 300);
+      }
+
+      // Zähle alle CSS-Links
+      const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
+      let loadedCount = 0;
+
+      cssLinks.forEach((link) => {
+        link.addEventListener('load', () => {
+          loadedCount++;
+          if (loadedCount === cssLinks.length) {
+            hideLoadingScreen();
+          }
+        });
+        
+        link.addEventListener('error', () => {
+          loadedCount++;
+          if (loadedCount === cssLinks.length) {
+            hideLoadingScreen();
+          }
+        });
+      });
+
+      // Fallback nach 3 Sekunden
+      setTimeout(() => {
+        hideLoadingScreen();
+      }, 6000);
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="stylesheet" href="./css/line-container.css">
@@ -29,11 +63,11 @@
       }
       #loadingstartscreen.hidden {opacity: 0; pointer-events: none;}
       .spinner {
-        width: 40%;
-        height: 40%;
+        width: 50px;
+        height: 50px;
         border: 4px solid #f0f0f0;
         border-top: 4px solid #333;
-        border-radius: 50%;
+        border-radius: 100%;
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
@@ -57,7 +91,9 @@
   </header>
 
   <!-- ═══════════════ Loadingscreen ═══════════════ -->
-   <div id="lodingstartscreen"></div>
+   <div id="loadingstartscreen">
+    <div class="spinner"></div>
+   </div>
   <!-- ═══════════════ HAMBURGER-MENÜ ═══════════════ -->
   <div id="menu-overlay" class="menu-overlay"></div>
   <nav id="menu-sidebar" class="menu-sidebar">
@@ -325,7 +361,6 @@
       <button id="btn-earlier-bottom" class="nav-btn nav-btn-earlier">← Früher</button>
       <button id="btn-later-bottom" class="nav-btn nav-btn-later">Später →</button>
     </div>
-
     <script src="./script/script-1.js"></script>
     <script src="./script/script-chain.js"></script>
     <script src="./script/script-2.js"></script>
