@@ -558,6 +558,11 @@ function renderNearbySuggestions(stations) {
 
 // ─── Hamburger-Menü ─────────────────────────────────────────
 
+function setBackgroundScrollLocked(isLocked) {
+  document.documentElement.style.overflow = isLocked ? 'hidden' : '';
+  document.body.style.overflow = isLocked ? 'hidden' : '';
+}
+
 function toggleMenu() {
   const sidebar = document.getElementById('menu-sidebar');
   const overlay = document.getElementById('menu-overlay');
@@ -566,7 +571,7 @@ function toggleMenu() {
   
   sidebar.classList.toggle('active');
   overlay.classList.toggle('active');
-  document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+  setBackgroundScrollLocked(sidebar.classList.contains('active'));
 }
 
 function closeMenu() {
@@ -577,7 +582,7 @@ function closeMenu() {
   
   sidebar.classList.remove('active');
   overlay.classList.remove('active');
-  document.body.style.overflow = '';
+  setBackgroundScrollLocked(false);
 }
 
 // ─── Stations-View (Wichtige Bahnhöfe) ──────────────────────────
@@ -636,6 +641,7 @@ function renderStationsView() {
   });
   
   stationsView.style.display = 'flex';
+  setBackgroundScrollLocked(true);
 }
 
 function closeStationsView() {
@@ -643,6 +649,7 @@ function closeStationsView() {
   if (stationsView) {
     stationsView.style.display = 'none';
   }
+  setBackgroundScrollLocked(false);
 
   const url = new URL(location.href);
   if (url.searchParams.get('view') === 'stations') {
@@ -772,6 +779,7 @@ function renderFavoritesView() {
   });
   
   favoritesView.style.display = 'flex';
+  setBackgroundScrollLocked(true);
 }
 
 function closeFavoritesView() {
@@ -779,6 +787,7 @@ function closeFavoritesView() {
   if (favoritesView) {
     favoritesView.style.display = 'none';
   }
+  setBackgroundScrollLocked(false);
 
   const url = new URL(location.href);
   if (url.searchParams.get('view') === 'favorites') {
@@ -792,6 +801,7 @@ function renderSettingsView() {
   if (settingsView) {
     settingsView.style.display = 'flex';
   }
+  setBackgroundScrollLocked(true);
   updateModeButtons();
   syncDestinationFilterInputs();
   updateViaToggleButton();
@@ -804,6 +814,7 @@ function closeSettingsView() {
   if (settingsView) {
     settingsView.style.display = 'none';
   }
+  setBackgroundScrollLocked(false);
 
   const url = new URL(location.href);
   if (url.searchParams.get('view') === 'settings') {
@@ -819,6 +830,7 @@ function renderHomeView() {
   if (homeView) {
     homeView.style.display = 'flex';
   }
+  setBackgroundScrollLocked(true);
 
   const url = new URL(location.href);
   if (url.searchParams.get('view') === 'home') {
@@ -832,6 +844,7 @@ function closeHomeView() {
   if (homeView) {
     homeView.style.display = 'none';
   }
+  setBackgroundScrollLocked(false);
 }
 
 function checkAndRenderView() {
