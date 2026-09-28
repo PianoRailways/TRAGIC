@@ -1094,7 +1094,7 @@ function updateFilterMenuIndicator() {
 
   const destQuery = destFilter ? destFilter.value.trim() : '';
   const hasActiveModeFilter = !filterState.alleModeActive || filterState.selectedModes.size > 0;
-  const isActive = Boolean(destQuery) || hasActiveModeFilter || hiddenFiltersEnabled;
+  const isActive = Boolean(destQuery) || hasActiveModeFilter;
 
   btn.classList.toggle('has-active-filters', isActive);
   btn.title = isActive ? 'Filter aktiv – klicken zum Öffnen' : 'Filter öffnen';
