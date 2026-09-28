@@ -34,6 +34,32 @@
   .stations-header {padding: 12px 14px;}
   .stations-header h2 {font-size: 1em;}
   .stations-view .stations-item {padding: 10px 8px;font-size: 0.95em;}
+
+  .time-picker-row input[type="date"],
+  .time-picker-row input[type="time"] {
+    min-width: 0;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  .time-picker-row input[type="date"] { flex: 1.2; }
+  .time-picker-row input[type="time"] { flex: 0.8; }
+
+  #btn-jetzt {
+    width: auto;
+    padding: 7px 4px;
+    font-size: 0.75em;
+  }
+
+  #btn-refresh {
+    max-width: none;
+    padding: 7px 5px;
+    font-size: 0.75em;
+  }
+
+  .btn-share {
+    padding: 7px 5px;
+  }
 }
 
 @media (max-width: 480px) {
