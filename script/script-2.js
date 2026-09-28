@@ -1013,8 +1013,6 @@ async function loadDepartures(refEpoch) {
     if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
       console.log('Using combined departures/arrivals for:', currentStationName);
       departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
-      // Deduplicate combined departures
-      departures = deduplicateDepartures(departures);
     } else {
       console.log('Using single station departures/arrivals for:', currentStationName);
       let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25&nearby=true`;
@@ -1056,6 +1054,8 @@ async function loadDepartures(refEpoch) {
         console.warn('Nearby-Stationen konnten nicht geladen werden:', err);
       }
     }
+
+    departures = deduplicateDepartures(departures);
 
     allDepartures = departures;
     renderDepartures(allDepartures);
@@ -1195,7 +1195,7 @@ function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
     );
   });
 
-  return [...mainEntries, ...deduplicateDepartures(nearbyEntries)];
+  return [...mainEntries, ...nearbyEntries];
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
