@@ -85,7 +85,7 @@ function renderChain(data) {
       const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
       
       const arrDelayHtml = stop.cancelled
-        ? '<span class="cancelled">Ausfall</span>'
+        ? '<span class="cancelled">x</span>'
         : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
             ? (Math.floor(stop.arrivalDelaySec / 60) < 0
                 ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
@@ -95,7 +95,7 @@ function renderChain(data) {
             : '');
       
       const depDelayHtml = stop.cancelled
-        ? '<span class="cancelled">Ausfall</span>'
+        ? '<span class="cancelled">x</span>'
         : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
             ? (Math.floor(stop.departureDelaySec / 60) < 0
                 ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
