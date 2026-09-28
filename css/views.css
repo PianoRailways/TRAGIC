@@ -107,7 +107,7 @@
 
 .stations-view {
   position: fixed;
-  top: 54px;
+  top: var(--app-header-height);
   left: 0;
   right: 0;
   bottom: 0;
@@ -389,7 +389,7 @@
 .settings-view,
 .home-view {
   position: fixed;
-  top: 54px;
+  top: var(--app-header-height);
   left: 0;
   right: 0;
   bottom: 0;
