@@ -263,31 +263,37 @@ if ($action === 'departures' || $action === 'arrivals') {
         }
 
         // OJP-Fallback: fehlende Werte aus der Trip-ID ableiten
+        $tripNumberDerived = false;
+
         if (isMissing($line) || isMissing($tripNumber) || isMissing($agencyId)) {
             $ojp = parseOjpTripId($tripId);
             if (isMissing($line)       && $ojp['line']       !== null) $line       = $ojp['line'];
-            if (isMissing($tripNumber) && $ojp['tripNumber'] !== null) $tripNumber = $ojp['tripNumber'];
+            if (isMissing($tripNumber) && $ojp['tripNumber'] !== null) {
+                $tripNumber = $ojp['tripNumber'];
+                $tripNumberDerived = true;
+            }
             if (isMissing($agencyId)   && $ojp['agencyId']   !== null) $agencyId   = $ojp['agencyId'];
         }
         if (isMissing($tripNumber)) $tripNumber = null;
 
         $departures[] = [
-            'tripId'      => $tripId,
-            'line'        => $line,
-            'tripNumber'  => $tripNumber,
-            'destination' => $destination,
-            'scheduled'   => $schedEpoch,
-            'live'        => $liveEpoch,
-            'delayMin'    => $delaySec !== null ? (int)round($delaySec / 60) : null,
-            'delaySec'    => $delaySec,
-            'track'       => $place['track'] ?? $place['scheduledTrack'] ?? null,
-            'cancelled'   => (bool)($entry['cancelled'] ?? false),
-            'realTime'    => (bool)($entry['realTime'] ?? false),
-            'mode'        => $entry['mode'] ?? null,
-            'agencyId'    => $agencyId,
-            'agencyName'  => $entry['agencyName'] ?? null,
-            'agencyUrl'   => $entry['agencyUrl'] ?? null,
-            'routeId'     => $entry['routeId'] ?? null,
+            'tripId'            => $tripId,
+            'line'              => $line,
+            'tripNumber'        => $tripNumber,
+            'tripNumberDerived' => $tripNumberDerived,
+            'destination'       => $destination,
+            'scheduled'         => $schedEpoch,
+            'live'              => $liveEpoch,
+            'delayMin'          => $delaySec !== null ? (int)round($delaySec / 60) : null,
+            'delaySec'          => $delaySec,
+            'track'             => $place['track'] ?? $place['scheduledTrack'] ?? null,
+            'cancelled'         => (bool)($entry['cancelled'] ?? false),
+            'realTime'          => (bool)($entry['realTime'] ?? false),
+            'mode'              => $entry['mode'] ?? null,
+            'agencyId'          => $agencyId,
+            'agencyName'        => $entry['agencyName'] ?? null,
+            'agencyUrl'         => $entry['agencyUrl'] ?? null,
+            'routeId'           => $entry['routeId'] ?? null,
         ];
     }
 
@@ -409,16 +415,21 @@ if ($action === 'trip') {
     }
 
     // OJP-Fallback
+    $tripNumberDerived = false;
     if (isMissing($line)       && $ojp['line']       !== null) $line       = $ojp['line'];
-    if (isMissing($tripNumber) && $ojp['tripNumber'] !== null) $tripNumber = $ojp['tripNumber'];
+    if (isMissing($tripNumber) && $ojp['tripNumber'] !== null) {
+        $tripNumber = $ojp['tripNumber'];
+        $tripNumberDerived = true;
+    }
     if (isMissing($agencyId)   && $ojp['agencyId']   !== null) $agencyId   = $ojp['agencyId'];
     if (isMissing($tripNumber)) $tripNumber = null;
 
     echo json_encode([
-        'tripId'      => $decodedTripId,
-        'line'        => $line,
-        'tripNumber'  => $tripNumber,
-        'destination' => $leg['headsign'] ?? null,
+        'tripId'               => $decodedTripId,
+        'line'                 => $line,
+        'tripNumber'           => $tripNumber,
+        'tripNumberDerived'    => $tripNumberDerived,
+        'destination'          => $leg['headsign'] ?? null,
         'routeType'            => $leg['routeType'] ?? null,
         'bikesAllowed'         => $leg['bikesAllowed'] ?? null,
         'wheelchairAccessible' => $leg['wheelchairAccessible'] ?? null,
