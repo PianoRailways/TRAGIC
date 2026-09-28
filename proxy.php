@@ -80,6 +80,35 @@ function delaySeconds(?int $sched, ?int $live): ?int {
     return $live - $sched;
 }
 
+function isMissing($v): bool {
+    return $v === null || $v === '' || $v === '?';
+}
+
+/**
+ * Fallback für OJP-Trip-IDs, wenn Transitous Linie/Fahrtnummer/Agency nicht liefert.
+ * Beispiel: ...ojp:93048:_:H:j26.85:121_285_85:121:285:000...
+ *   Linie:       ojp:93048 -> 48
+ *   Agency:      121
+ *   Fahrtnummer: 285
+ */
+function parseOjpTripId(?string $tripId): array {
+    $r = ['line' => null, 'tripNumber' => null, 'agencyId' => null];
+    if (!$tripId) return $r;
+
+    // Linie: ojp:93048 -> 48
+    if (preg_match('/ojp:\d{2}(\d{3}):/', $tripId, $m)) {
+        $r['line'] = ltrim($m[1], '0') ?: '0';
+    }
+
+    // Land:Agency_Fahrt_Land:Agency:Fahrt:Variante (Wiederholung = Validierung)
+    if (preg_match('/(\d{2}):(\d+)_(\d+)_\1:\2:\3:\d+/', $tripId, $m)) {
+        $r['agencyId']   = $m[2];
+        $r['tripNumber'] = ltrim($m[3], '0') ?: '0';
+    }
+
+    return $r;
+}
+
 $action = $_GET['action'] ?? '';
 
 // ---------------------------------------------------------------- search --
@@ -218,6 +247,7 @@ if ($action === 'departures' || $action === 'arrivals') {
         $line = $entry['routeShortName'] ?? '?';
         $agencyId = $entry['agencyId'] ?? null;
         $tripId = $entry['tripId'] ?? null;
+        $tripNumber = $entry['tripShortName'] ?? $entry['displayName'] ?? null;
         
         if ($line === '?' && $tripId && preg_match('/:(\d+):(\d+)_ch:/', $tripId, $m)) {
             $possibleAgency = $m[1];  // z.B. 3849
@@ -232,23 +262,38 @@ if ($action === 'departures' || $action === 'arrivals') {
             }
         }
 
+        // OJP-Fallback: fehlende Werte aus der Trip-ID ableiten
+        $tripNumberDerived = false;
+
+        if (isMissing($line) || isMissing($tripNumber) || isMissing($agencyId)) {
+            $ojp = parseOjpTripId($tripId);
+            if (isMissing($line)       && $ojp['line']       !== null) $line       = $ojp['line'];
+            if (isMissing($tripNumber) && $ojp['tripNumber'] !== null) {
+                $tripNumber = $ojp['tripNumber'];
+                $tripNumberDerived = true;
+            }
+            if (isMissing($agencyId)   && $ojp['agencyId']   !== null) $agencyId   = $ojp['agencyId'];
+        }
+        if (isMissing($tripNumber)) $tripNumber = null;
+
         $departures[] = [
-            'tripId'      => $tripId,
-            'line'        => $line,
-            'tripNumber'  => $entry['tripShortName'] ?? $entry['displayName'] ?? null,
-            'destination' => $destination,
-            'scheduled'   => $schedEpoch,
-            'live'        => $liveEpoch,
-            'delayMin'    => $delaySec !== null ? (int)round($delaySec / 60) : null,
-            'delaySec'    => $delaySec,
-            'track'       => $place['track'] ?? $place['scheduledTrack'] ?? null,
-            'cancelled'   => (bool)($entry['cancelled'] ?? false),
-            'realTime'    => (bool)($entry['realTime'] ?? false),
-            'mode'        => $entry['mode'] ?? null,
-            'agencyId'    => $agencyId,
-            'agencyName'  => $entry['agencyName'] ?? null,
-            'agencyUrl'   => $entry['agencyUrl'] ?? null,
-            'routeId'     => $entry['routeId'] ?? null,
+            'tripId'            => $tripId,
+            'line'              => $line,
+            'tripNumber'        => $tripNumber,
+            'tripNumberDerived' => $tripNumberDerived,
+            'destination'       => $destination,
+            'scheduled'         => $schedEpoch,
+            'live'              => $liveEpoch,
+            'delayMin'          => $delaySec !== null ? (int)round($delaySec / 60) : null,
+            'delaySec'          => $delaySec,
+            'track'             => $place['track'] ?? $place['scheduledTrack'] ?? null,
+            'cancelled'         => (bool)($entry['cancelled'] ?? false),
+            'realTime'          => (bool)($entry['realTime'] ?? false),
+            'mode'              => $entry['mode'] ?? null,
+            'agencyId'          => $agencyId,
+            'agencyName'        => $entry['agencyName'] ?? null,
+            'agencyUrl'         => $entry['agencyUrl'] ?? null,
+            'routeId'           => $entry['routeId'] ?? null,
         ];
     }
 
@@ -330,15 +375,23 @@ if ($action === 'trip') {
         }
     }
 
+    $ojp = parseOjpTripId($decodedTripId);
+
     $legInfos = [];
     foreach ($legs as $idx => $leg) {
         if (!is_array($leg)) continue;
-        $legInfos[$idx] = [
+        $info = [
             'line'        => $leg['routeShortName'] ?? '?',
             'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
             'destination' => $leg['headsign'] ?? null,
             'routeType'   => $leg['routeType'] ?? null,
         ];
+        // Die Trip-ID gilt nur für den angefragten Trip, also nur Leg 0
+        if ($idx === 0) {
+            if (isMissing($info['line']) && $ojp['line'] !== null) $info['line'] = $ojp['line'];
+            if (isMissing($info['tripNumber'])) $info['tripNumber'] = $ojp['tripNumber'];
+        }
+        $legInfos[$idx] = $info;
     }
 
     $leg = $legs[0] ?? [];
@@ -346,6 +399,7 @@ if ($action === 'trip') {
     // VBZ-spezifisch: Linie aus tripId extrahieren, falls nicht vorhanden
     $line = $leg['routeShortName'] ?? '?';
     $agencyId = $leg['agencyId'] ?? null;
+    $tripNumber = $leg['tripShortName'] ?? $leg['displayName'] ?? null;
     
     if ($line === '?' && preg_match('/:(\d+):(\d+)_ch:/', $decodedTripId, $m)) {
         $possibleAgency = $m[1];  // z.B. 3849
@@ -360,11 +414,22 @@ if ($action === 'trip') {
         }
     }
 
+    // OJP-Fallback
+    $tripNumberDerived = false;
+    if (isMissing($line)       && $ojp['line']       !== null) $line       = $ojp['line'];
+    if (isMissing($tripNumber) && $ojp['tripNumber'] !== null) {
+        $tripNumber = $ojp['tripNumber'];
+        $tripNumberDerived = true;
+    }
+    if (isMissing($agencyId)   && $ojp['agencyId']   !== null) $agencyId   = $ojp['agencyId'];
+    if (isMissing($tripNumber)) $tripNumber = null;
+
     echo json_encode([
-        'tripId'      => $decodedTripId,
-        'line'        => $line,
-        'tripNumber'  => $leg['tripShortName'] ?? $leg['displayName'] ?? null,
-        'destination' => $leg['headsign'] ?? null,
+        'tripId'               => $decodedTripId,
+        'line'                 => $line,
+        'tripNumber'           => $tripNumber,
+        'tripNumberDerived'    => $tripNumberDerived,
+        'destination'          => $leg['headsign'] ?? null,
         'routeType'            => $leg['routeType'] ?? null,
         'bikesAllowed'         => $leg['bikesAllowed'] ?? null,
         'wheelchairAccessible' => $leg['wheelchairAccessible'] ?? null,

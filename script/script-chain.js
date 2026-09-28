@@ -258,9 +258,13 @@ function renderChain(data) {
       </div>`
     : '';
 
+  const chainTripNumHtml = data.tripNumber
+    ? ' · ' + (data.tripNumberDerived ? '<i>' : '') + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) + (data.tripNumberDerived ? '</i>' : '')
+    : '';
+
   return `
     <div class="chain-header">
-      <b>Linie ${escapeHtml(data.line || '?')}${chainDestName ? ' → ' + escapeHtml(chainDestName) : ''}</b>${data.tripNumber ? ' · ' + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) : ''}
+      <b>Linie ${escapeHtml(data.line || '?')}${chainDestName ? ' → ' + escapeHtml(chainDestName) : ''}</b>${chainTripNumHtml}
     </div>
     <div class="chain">
       ${legsHtml}
@@ -337,7 +341,7 @@ function renderDepartures(departures) {
     }
 
     const destName = getDestinationName(dep.destination);
-    const displayLine = normalizeLineDisplay(dep.line, dep.agencyName);
+    const displayLine = normalizeLineDisplay(dep.line, dep.agencyName, dep.agencyId);
     const iconHtml = /^S\d/i.test(displayLine) ? '' : getModeIcon(dep.mode);
 
     const tripNumDisplay = formatTripNumber(dep.tripNumber, dep.line);
@@ -368,7 +372,7 @@ function renderDepartures(departures) {
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
         <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
-        <div class="col-nr tripnr">${tripNumDisplay}</div>
+        <div class="col-nr tripnr"${dep.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${tripNumDisplay}</div>
       </td>
       <td class="col-dest">${destDisplay}${viaHtml}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>

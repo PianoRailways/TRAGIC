@@ -533,7 +533,8 @@
 .line-container[data-agency-name*="Matterhorn"][data-line="R45"] { background: #A72D42; color: white; }
 .line-container[data-agency-name*="Matterhorn"][data-line="R46"] { background: #F88C29; color: white; }
 
-.line-container[data-agency-name="Gornergratbahn"] { background: #FFB82D; color: white; }
+.line-container[data-agency-name="Gornergratbahn"],
+.line-container[data-agency-id="121"][data-line="48"] { background: #FFB82D; color: white; }
 /* MBC etc. */
 .line-container[data-agency-id="64"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="131"][data-line^="R"] { background: white; color: black; }

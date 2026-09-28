@@ -688,16 +688,20 @@ const LINE_DISPLAY_OVERRIDES = {
   'Wengernalpbahn': { 63: 'CC63', 64: 'CC64'},
   'Jungfraubahn': { 65: 'CC65'},
   'Gornergratbahn': { 48: 'CC48'},
+  '121': { 48: 'CC48'},
   'Forchbahn': { 18: 'S18'},
 };
 
-function normalizeLineDisplay(line, agencyName = '') {
+function normalizeLineDisplay(line, agencyName = '', agencyId = '') {
   if (!line) return '';
   const upper = line.toUpperCase();
   const overrideLine = upper.replace(/\s*\(\d+\)\s*$/g, '').trim();
 
   const agencyOverride = Object.entries(LINE_DISPLAY_OVERRIDES)
-    .find(([agency]) => String(agencyName).toUpperCase().includes(agency.toUpperCase()))?.[1];
+    .find(([agency]) =>
+      String(agencyName).toUpperCase().includes(agency.toUpperCase()) ||
+      String(agencyId).toUpperCase() === agency.toUpperCase()
+    )?.[1];
   if (agencyOverride && Object.prototype.hasOwnProperty.call(agencyOverride, overrideLine)) {
     return agencyOverride[overrideLine];
   }
