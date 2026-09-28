@@ -60,6 +60,20 @@
   .btn-share {
     padding: 7px 5px;
   }
+
+  #btn-jetzt,
+  #btn-refresh,
+  .btn-share,
+  .filter-menu-button {
+    flex: 0 0 2.1rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    min-width: 2.1rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
