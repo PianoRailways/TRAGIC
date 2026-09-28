@@ -683,6 +683,9 @@ async function selectStationByName(name, refEpoch) {
 const LINE_DISPLAY_OVERRIDES = {
   'Dampfbahn Bern': { R: 'Regio', EXT: 'EXT' },
   'rvo': { S12: 'Regio'},
+  'THURBO': { 14: 'S14', 44: 'S44', 1: 'RE1'},
+  'SBB': { 75: 'IR75'},
+  'Wengernalpbahn': { 63: 'CC63'},
 };
 
 function normalizeLineDisplay(line, agencyName = '') {
