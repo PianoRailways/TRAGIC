@@ -759,9 +759,9 @@ tr.dep-row.filtered-exclude + tr.chain-row { display: none; }
 
 tr.chain-row td { background: var(--bg-chain); padding: 0; }
 .chain-wrap {
-  max-height: calc(100vh - 110px);
+  max-height: calc(110vh - 110px);
   overflow-y: auto;
-  padding: 0.5rem 0.4rem 0.8rem;
+  padding: 0.1rem 0.2rem 0.1rem;
 }
 
 .chain-header { color: var(--text-soft); font-size: 0.78rem; line-height: 1.4; margin-bottom: 0.4rem; }
