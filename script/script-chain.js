@@ -341,7 +341,7 @@ function renderDepartures(departures) {
     }
 
     const destName = getDestinationName(dep.destination);
-    const displayLine = normalizeLineDisplay(dep.line, dep.agencyName);
+    const displayLine = normalizeLineDisplay(dep.line, dep.agencyName, dep.agencyId);
     const iconHtml = /^S\d/i.test(displayLine) ? '' : getModeIcon(dep.mode);
 
     const tripNumDisplay = formatTripNumber(dep.tripNumber, dep.line);
