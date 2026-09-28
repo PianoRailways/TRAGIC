@@ -684,7 +684,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'Dampfbahn Bern': { R: 'Regio', EXT: 'EXT' },
   'rvo': { S12: 'Regio'},
   'THURBO': { 14: 'S14', 44: 'S44', 1: 'RE1'},
-  'SBB': { 75: 'IR75'},
+  'SBB': { 75: 'IR75', N1: 'IRN1'},
   'Wengernalpbahn': { 63: 'CC63'},
 };
 
