@@ -371,7 +371,7 @@ function renderDepartures(departures) {
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
-        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
+        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(displayLine)}" data-raw-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
         <div class="col-nr tripnr"${dep.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${tripNumDisplay}</div>
       </td>
       <td class="col-dest">${destDisplay}${viaHtml}${stationLabelHtml}</td>
