@@ -154,7 +154,7 @@ if ($action === 'search') {
 // ------------------------------------------------------------ departures / arrivals --
 if ($action === 'departures' || $action === 'arrivals') {
     $stopId   = trim($_GET['stopId'] ?? '');
-    $n        = (int)($_GET['n'] ?? 25);
+    $n        = (int)($_GET['n'] ?? 40);
     $time     = trim($_GET['time'] ?? '');
     $arrivals = filter_var($_GET['arrivals'] ?? false, FILTER_VALIDATE_BOOLEAN);
 

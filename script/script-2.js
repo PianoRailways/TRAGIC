@@ -17,6 +17,8 @@ function loadNearbySettings() {
 
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
+const DEPARTURE_BATCH_SIZE = 25;
+let isLoadingMoreDepartures = false;
 const CUSTOM_JSON_URLS = [
   '/cache/demo-fahrten.js',
   '/cache/data.json',
@@ -341,6 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const btnRefresh = document.getElementById('btn-refresh');
   if (btnRefresh) btnRefresh.addEventListener('click', reloadDepartures);
+
+  const btnLoadMore = document.getElementById('btn-load-more');
+  if (btnLoadMore) btnLoadMore.addEventListener('click', loadMoreDepartures);
 
   const btnShare = document.getElementById('btn-share');
   if (btnShare) btnShare.addEventListener('click', shareDepartureView);
@@ -1003,11 +1008,85 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
 
 // ─── Abfahrten/Ankünfte laden ────────────────────────────────────────────────
 
+async function fetchDepartureBatch(refEpoch, batchSize = DEPARTURE_BATCH_SIZE) {
+  let departures;
+
+  if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
+    departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, batchSize);
+  } else {
+    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=${batchSize}&nearby=true`;
+    if (isArrivalsMode) q += '&arrivals=true';
+    if (refEpoch) q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+
+    const res = await fetch(q);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    if (currentStationName === 'Station wählen' && data.station?.name) {
+      currentStationName = data.station.name;
+      updateStationTitle(currentStationName);
+    }
+
+    departures = (data.departures || []).map(dep => ({
+      ...dep,
+      _stopId: currentStopId,
+      _fromStation: currentStationName,
+      _isMainStation: true
+    }));
+  }
+
+  if (nearbySettings.enabled && currentStationName !== 'Station wählen') {
+    try {
+      const nearby = await fetchNearbyDepartureGroups(refEpoch);
+      departures = mergeNearbyDepartures({
+        departures: departures.map(dep => ({ ...dep, _isMainStation: true })),
+        nearby
+      }, currentStopId, currentStationName);
+    } catch (err) {
+      console.warn('Nearby-Stationen konnten nicht geladen werden:', err);
+    }
+  }
+
+  return deduplicateDepartures(departures);
+}
+
+function updateLoadMoreButton() {
+  const button = document.getElementById('btn-load-more');
+  if (!button) return;
+  button.style.display = allDepartures.length >= DEPARTURE_BATCH_SIZE ? 'block' : 'none';
+  button.disabled = isLoadingMoreDepartures;
+  button.textContent = isLoadingMoreDepartures ? 'Lade…' : 'Mehr laden';
+}
+
+async function loadMoreDepartures() {
+  if (isLoadingMoreDepartures || customDepartures || !currentStopId || allDepartures.length === 0) return;
+
+  const latestEpoch = Math.max(...allDepartures.map(dep => dep.scheduled || dep.live || 0));
+  if (!latestEpoch) return;
+
+  isLoadingMoreDepartures = true;
+  updateLoadMoreButton();
+
+  try {
+    const nextDepartures = await fetchDepartureBatch(latestEpoch + 1);
+    const existingCount = allDepartures.length;
+    allDepartures = deduplicateDepartures([...allDepartures, ...nextDepartures]);
+    if (allDepartures.length > existingCount) renderDepartures(allDepartures);
+  } catch (err) {
+    console.warn('Weitere Fahrten konnten nicht geladen werden:', err);
+    setStatus(`Weitere Fahrten konnten nicht geladen werden: ${err.message}`);
+  } finally {
+    isLoadingMoreDepartures = false;
+    updateLoadMoreButton();
+  }
+}
+
 async function loadDepartures(refEpoch) {
   if (customDepartures) {
     allDepartures = customDepartures;
     renderDepartures(allDepartures);
     updateNavButtonsVisibility();
+    updateLoadMoreButton();
     return;
   }
   if (!currentStopId) return;
@@ -1074,9 +1153,11 @@ async function loadDepartures(refEpoch) {
       : 'Aktualisiert um: ' + new Date().toLocaleTimeString('de-CH'));
     
     updateNavButtonsVisibility();
+    updateLoadMoreButton();
   } catch (err) {
     renderError(err.message);
     updateNavButtonsVisibility();
+    updateLoadMoreButton();
   }
 
   clearTimeout(refreshTimer);
