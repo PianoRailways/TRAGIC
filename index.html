@@ -11,7 +11,7 @@
       }
 
       function waitForStylesheets() {
-        const cssLinks = [...document.querySelectorAll('link[rel="stylesheet"]')];
+        const cssLinks = [...document.querySelectorAll('link[data-loading-style]')];
 
         if (cssLinks.length === 0) {
           hideLoadingScreen();
@@ -28,8 +28,8 @@
           link.addEventListener('load', () => settleLink(link), { once: true });
           link.addEventListener('error', () => settleLink(link), { once: true });
 
-          // The stylesheet may have loaded before this script can attach listeners.
-          if (link.sheet) settleLink(link);
+          // The preload may have finished before this script can attach listeners.
+          if (link.dataset.loaded === 'true') settleLink(link);
         });
       }
 
@@ -43,10 +43,10 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="./css/line-container.css">
-    <link rel="stylesheet" href="./css/style.css">
-    <link rel="stylesheet" href="./css/views.css">
-    <link rel="stylesheet" href="./css/responsive.css">
+    <link rel="preload" as="style" href="./css/line-container.css" data-loading-style onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';" onerror="this.dataset.loaded='true';">
+    <link rel="preload" as="style" href="./css/style.css" data-loading-style onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';" onerror="this.dataset.loaded='true';">
+    <link rel="preload" as="style" href="./css/views.css" data-loading-style onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';" onerror="this.dataset.loaded='true';">
+    <link rel="preload" as="style" href="./css/responsive.css" data-loading-style onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';" onerror="this.dataset.loaded='true';">
     <link rel="icon" type="image/png" href="./tragic.png">
     <link rel="apple-touch-icon" href="./tragic.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -367,10 +367,10 @@
       <button id="btn-earlier-bottom" class="nav-btn nav-btn-earlier">← Früher</button>
       <button id="btn-later-bottom" class="nav-btn nav-btn-later">Später →</button>
     </div>
-    <script src="./script/script-1.js"></script>
-    <script src="./script/script-chain.js"></script>
-    <script src="./script/script-2.js"></script>
-    <script src="./script/script-cal.js"></script>
+    <script src="./script/script-1.js" defer></script>
+    <script src="./script/script-chain.js" defer></script>
+    <script src="./script/script-2.js" defer></script>
+    <script src="./script/script-cal.js" defer></script>
     <script>
       (function () {
         const menuButton = document.getElementById('filter-menu-button');
