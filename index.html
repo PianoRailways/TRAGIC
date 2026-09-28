@@ -10,27 +10,33 @@
         }, 300);
       }
 
-      // Zähle alle CSS-Links
-      const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
-      let loadedCount = 0;
+      function waitForStylesheets() {
+        const cssLinks = [...document.querySelectorAll('link[rel="stylesheet"]')];
 
-      cssLinks.forEach((link) => {
-        link.addEventListener('load', () => {
-          loadedCount++;
-          if (loadedCount === cssLinks.length) {
-            hideLoadingScreen();
-          }
-        });
-        
-        link.addEventListener('error', () => {
-          loadedCount++;
-          if (loadedCount === cssLinks.length) {
-            hideLoadingScreen();
-          }
-        });
-      });
+        if (cssLinks.length === 0) {
+          hideLoadingScreen();
+          return;
+        }
 
-      // Fallback nach 3 Sekunden
+        const pendingLinks = new Set(cssLinks);
+        const settleLink = (link) => {
+          if (!pendingLinks.delete(link)) return;
+          if (pendingLinks.size === 0) hideLoadingScreen();
+        };
+
+        cssLinks.forEach((link) => {
+          link.addEventListener('load', () => settleLink(link), { once: true });
+          link.addEventListener('error', () => settleLink(link), { once: true });
+
+          // The stylesheet may have loaded before this script can attach listeners.
+          if (link.sheet) settleLink(link);
+        });
+      }
+
+      // The script is in the head, so the stylesheet links do not exist yet.
+      document.addEventListener('DOMContentLoaded', waitForStylesheets, { once: true });
+
+      // Sicherheitsfallback nach 6 Sekunden
       setTimeout(() => {
         hideLoadingScreen();
       }, 6000);
