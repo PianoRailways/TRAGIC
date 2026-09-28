@@ -99,6 +99,17 @@ const DEFAULT_FAVORITES = [
 ];
 const FAVORITES_STORAGE_KEY = 'tragic_favorites';
 const VIA_LOADING_STORAGE_KEY = 'tragic_via_loading_enabled';
+const HIDDEN_FILTERS_ENABLED_STORAGE_KEY = 'tragic_hidden_filters_enabled';
+
+// Feste, redaktionell gepflegte Ausblendungen.
+const HIDDEN_FILTERS = {
+  agencies: [],
+  lines: [],
+  agencyLines: [
+    { agency: 'DISTRIBUS', lines: ['T3', 'TT3'] },
+  ],
+  trips: []
+};
 
 const params = new URLSearchParams(location.search);
 let isArrivalsMode = params.get('arrivals') === 'true';
@@ -431,7 +442,7 @@ async function fetchCombinedDepartures(stopId, stationName, refEpoch, numResults
 // ─── Abkürzungs-Mappings laden ──────────────────────────────────────────────
 
 async function loadAbbreviations() {
-  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk'];
+  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk', 'libero', 'zvv', 'awelle'];
   try {
     for (const country of countries) {
       try {
@@ -630,6 +641,12 @@ function closeStationsView() {
   if (stationsView) {
     stationsView.style.display = 'none';
   }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'stations') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
+  }
 }
 
 // ─── Favorites-View (Benutzerdefinierte Favoriten) ────────────────────
@@ -760,6 +777,12 @@ function closeFavoritesView() {
   if (favoritesView) {
     favoritesView.style.display = 'none';
   }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'favorites') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
+  }
 }
 
 function renderSettingsView() {
@@ -770,6 +793,7 @@ function renderSettingsView() {
   updateModeButtons();
   syncDestinationFilterInputs();
   updateViaToggleButton();
+  updateHiddenFiltersToggleButton();
   updateNearbyUI();
 }
 
@@ -777,6 +801,12 @@ function closeSettingsView() {
   const settingsView = document.getElementById('settings-view');
   if (settingsView) {
     settingsView.style.display = 'none';
+  }
+
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'settings') {
+    url.searchParams.delete('view');
+    history.replaceState({}, '', url);
   }
 }
 
@@ -808,16 +838,13 @@ function checkAndRenderView() {
   if (viewParam === 'home') {
     renderHomeView();
   } else if (viewParam === 'stations') {
-    closeHomeView();
     renderStationsView();
   } else if (viewParam === 'favorites') {
-    closeHomeView();
     renderFavoritesView();
   } else if (viewParam === 'settings') {
-    closeHomeView();
     renderSettingsView();
   }
-  // Für alle anderen Views (departures, arrivals, settings, oder keine View) nichts machen
+  // Für alle anderen Views (departures, arrivals oder keine View) nichts machen
   // Die default Panel wird sowieso angezeigt
 }
 
@@ -848,6 +875,37 @@ document.addEventListener('DOMContentLoaded', () => {
     link.addEventListener('click', closeMenu);
   });
 
+  const settingsLink = document.querySelector('[data-settings-link]');
+  if (settingsLink) {
+    settingsLink.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'settings');
+      history.pushState({}, '', url);
+      renderSettingsView();
+    });
+  }
+
+  document.querySelectorAll('[data-favorites-link]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'favorites');
+      history.pushState({}, '', url);
+      renderFavoritesView();
+    });
+  });
+
+  document.querySelectorAll('[data-stations-link]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const url = new URL(location.href);
+      url.searchParams.set('view', 'stations');
+      history.pushState({}, '', url);
+      renderStationsView();
+    });
+  });
+
   // Stations-View Event-Listener
   const btnCloseStations = document.getElementById('btn-close-stations');
   if (btnCloseStations) {
@@ -858,6 +916,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseFavorites = document.getElementById('btn-close-favorites');
   if (btnCloseFavorites) {
     btnCloseFavorites.addEventListener('click', closeFavoritesView);
+  }
+
+  const btnCloseSettings = document.getElementById('btn-close-settings');
+  if (btnCloseSettings) {
+    btnCloseSettings.addEventListener('click', closeSettingsView);
   }
 
   // Nearby-Button Event-Listener
@@ -922,6 +985,40 @@ function loadActiveModesFromStorage() {
 }
 
 let filterState = loadActiveModesFromStorage();
+
+function loadHiddenFiltersEnabled() {
+  try {
+    const stored = localStorage.getItem(HIDDEN_FILTERS_ENABLED_STORAGE_KEY);
+    return stored === null ? true : stored === 'true';
+  } catch (_) {
+    return true;
+  }
+}
+
+let hiddenFiltersEnabled = loadHiddenFiltersEnabled();
+
+function saveHiddenFiltersEnabled() {
+  try {
+    localStorage.setItem(HIDDEN_FILTERS_ENABLED_STORAGE_KEY, hiddenFiltersEnabled ? 'true' : 'false');
+  } catch (_) {}
+}
+
+function updateHiddenFiltersToggleButton() {
+  document.querySelectorAll('.settings-hidden-filters-toggle').forEach(button => {
+    button.classList.toggle('active', hiddenFiltersEnabled);
+    button.textContent = hiddenFiltersEnabled ? 'Ausblendungen: EIN' : 'Ausblendungen: AUS';
+    button.title = hiddenFiltersEnabled
+      ? 'Vordefinierte Ausblendungen deaktivieren'
+      : 'Vordefinierte Ausblendungen aktivieren';
+  });
+}
+
+function toggleHiddenFilters() {
+  hiddenFiltersEnabled = !hiddenFiltersEnabled;
+  saveHiddenFiltersEnabled();
+  updateHiddenFiltersToggleButton();
+  applyFilters();
+}
 
 function loadViaLoadingFromStorage() {
   try {
@@ -995,7 +1092,7 @@ function updateFilterMenuIndicator() {
 
   const destQuery = destFilter ? destFilter.value.trim() : '';
   const hasActiveModeFilter = !filterState.alleModeActive || filterState.selectedModes.size > 0;
-  const isActive = Boolean(destQuery) || hasActiveModeFilter;
+  const isActive = Boolean(destQuery) || hasActiveModeFilter || hiddenFiltersEnabled;
 
   btn.classList.toggle('has-active-filters', isActive);
   btn.title = isActive ? 'Filter aktiv – klicken zum Öffnen' : 'Filter öffnen';
@@ -1008,6 +1105,38 @@ function activateModesInGroup(groupModes) {
   saveModesToStorage();
   updateModeButtons();
   applyFilters();
+}
+
+function resetFilterDefaults() {
+  const nearbyWasEnabled = typeof nearbySettings !== 'undefined' && nearbySettings.enabled;
+
+  filterState.alleModeActive = true;
+  filterState.selectedModes.clear();
+  saveModesToStorage();
+
+  hiddenFiltersEnabled = true;
+  saveHiddenFiltersEnabled();
+
+  viaLoadingEnabled = false;
+  saveViaLoadingToStorage();
+
+  if (typeof nearbySettings !== 'undefined') {
+    nearbySettings.enabled = false;
+    nearbySettings.radius = 500;
+    saveNearbySettings();
+  }
+
+  if (destFilter) destFilter.value = '';
+  updateModeButtons();
+  updateHiddenFiltersToggleButton();
+  updateViaToggleButton();
+  if (typeof updateNearbyUI === 'function') updateNearbyUI();
+  syncDestinationFilterInputs();
+  applyFilters();
+
+  if (nearbyWasEnabled && typeof currentStopId !== 'undefined' && currentStopId) {
+    loadDepartures(getSelectedEpoch());
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1073,7 +1202,14 @@ document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
   });
 });
 
+document.querySelectorAll('.settings-hidden-filters-toggle').forEach(button => {
+  button.addEventListener('click', toggleHiddenFilters);
+});
+
+document.getElementById('btn-reset-filters')?.addEventListener('click', resetFilterDefaults);
+
 updateModeButtons();
+updateHiddenFiltersToggleButton();
 
 // ─── Ankunft / Abfahrt Modus-Umschaltung ───────────────────────────────────
 
@@ -1121,6 +1257,13 @@ document.querySelectorAll('.settings-dest-filter').forEach(input => {
 
 function applyFilters() {
   const destQuery = destFilter ? destFilter.value.trim().toLowerCase() : '';
+  const excludedAgencies = HIDDEN_FILTERS.agencies.map(value => value.toLowerCase());
+  const excludedLines = HIDDEN_FILTERS.lines.map(value => value.toLowerCase());
+  const excludedTrips = HIDDEN_FILTERS.trips.map(value => value.toLowerCase());
+  const excludedAgencyLines = HIDDEN_FILTERS.agencyLines.map(rule => ({
+    agency: rule.agency.toLowerCase(),
+    lines: rule.lines.map(value => value.toLowerCase())
+  }));
   let visibleDepIdx = 0;
 
   document.querySelectorAll('#departureBody tr.dep-row').forEach(tr => {
@@ -1136,6 +1279,14 @@ function applyFilters() {
     const routeId = (tr.dataset.routeId || '').toLowerCase();
 
     const modeHide = !filterState.alleModeActive && !filterState.selectedModes.has(mode);
+    const agencyHide = hiddenFiltersEnabled && (excludedAgencies.some(value => agencyName.includes(value)) || excludedAgencies.some(value => agencyId.includes(value)));
+    const lineHide = hiddenFiltersEnabled && (excludedLines.includes(line) || excludedLines.includes(visibleLine) || excludedLines.some(value => routeId.includes(value)));
+    const agencyLineHide = hiddenFiltersEnabled && excludedAgencyLines.some(rule => {
+      const matchingAgency = agencyName.includes(rule.agency) || agencyId.includes(rule.agency);
+      const matchingLine = rule.lines.includes(line) || rule.lines.includes(visibleLine) || rule.lines.some(value => routeId.includes(value));
+      return matchingAgency && matchingLine;
+    });
+    const tripHide = hiddenFiltersEnabled && (excludedTrips.includes(trip) || excludedTrips.includes(tripId));
     
     const destHide = destQuery && 
       !dest.includes(destQuery) && 
@@ -1150,7 +1301,8 @@ function applyFilters() {
 
     tr.classList.toggle('filtered-mode', modeHide);
     tr.classList.toggle('filtered-dest', destHide);
-    const isVisible = !modeHide && !destHide;
+    tr.classList.toggle('filtered-exclude', agencyHide || lineHide || agencyLineHide || tripHide);
+    const isVisible = !modeHide && !destHide && !agencyHide && !lineHide && !agencyLineHide && !tripHide;
     tr.classList.toggle('dep-row-alt', isVisible && visibleDepIdx++ % 2 === 1);
   });
 

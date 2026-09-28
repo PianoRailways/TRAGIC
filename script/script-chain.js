@@ -349,6 +349,7 @@ function renderDepartures(departures) {
     tr.dataset.agencyId = dep.agencyId || '';
     tr.dataset.agencyName = dep.agencyName || '';
     tr.dataset.tripId = dep.tripId || '';
+    tr.dataset.routeId = dep.routeId || '';
     tr.dataset.vias = Array.isArray(dep.vias) ? dep.vias.join(' ') : '';
     tr.dataset.scheduled = dep.scheduled || '';
 
@@ -417,6 +418,11 @@ async function toggleChain(tr, dep) {
   td.innerHTML = '<div class="chain-wrap"><div class="chain-header">Lade Fahrtverlauf…</div></div>';
   chainTr.appendChild(td);
   tr.after(chainTr);
+
+  if (dep.trip) {
+    td.innerHTML = `<div class="chain-wrap">${renderChain(dep.trip)}</div>`;
+    return;
+  }
 
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);
