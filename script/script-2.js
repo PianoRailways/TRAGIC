@@ -687,6 +687,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'SBB': { 75: 'IR75', N1: 'IRN1'},
   'Wengernalpbahn': { 63: 'CC63', 64: 'CC64', 65: 'CC65'},
   'Gornergratbahn': { 48: 'CC48'},
+  '121': { 48: 'CC48'},
   'Forchbahn': { 18: 'S18'},
 };
 
