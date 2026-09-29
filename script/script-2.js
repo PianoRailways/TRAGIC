@@ -457,6 +457,8 @@ function attachMainStationSearch(input, list) {
   let searchSequence = 0;
   let searchTimer;
   let pendingSearch = null;
+  let pendingSearchQuery = '';
+  let startSearch;
 
   const getItems = () => [...list.children];
   const activeIndex = () => getItems().findIndex(item => item.classList.contains('selected'));
@@ -476,6 +478,8 @@ function attachMainStationSearch(input, list) {
 
   input.addEventListener('input', async event => {
     const query = event.target.value.trim();
+    startSearch = null;
+    pendingSearchQuery = '';
     list.innerHTML = '';
     list.style.display = '';
     if (query.length < 2) return;
@@ -557,12 +561,20 @@ function attachMainStationSearch(input, list) {
       }
     };
 
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      pendingSearch = runSearch().finally(() => {
-        pendingSearch = null;
+    startSearch = () => {
+      const search = runSearch();
+      const trackedSearch = search.finally(() => {
+        if (pendingSearch === trackedSearch) {
+          pendingSearch = null;
+          pendingSearchQuery = '';
+        }
       });
-    }, 350);
+      pendingSearch = trackedSearch;
+      pendingSearchQuery = query;
+      return trackedSearch;
+    };
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(startSearch, 350);
   });
 
   input.addEventListener('keydown', event => {
@@ -584,12 +596,15 @@ function attachMainStationSearch(input, list) {
     } else if (event.key === 'Tab' && !event.shiftKey) {
       if (open) {
         pickFirstSuggestion();
-      } else if (input.value.trim()) {
+      } else if (input.value.trim().length >= 2) {
         clearTimeout(searchTimer);
-        if (!pendingSearch) {
+        if (!pendingSearch || pendingSearchQuery !== input.value.trim()) {
           input.dispatchEvent(new Event('input', { bubbles: true }));
         }
-        pendingSearch?.then(pickFirstSuggestion);
+        const search = pendingSearchQuery === input.value.trim()
+          ? pendingSearch
+          : startSearch?.();
+        search?.then(pickFirstSuggestion);
       }
     }
   });
