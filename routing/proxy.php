@@ -488,6 +488,7 @@ if ($action === 'plan') {
                     'scheduled' => $arrSched,
                     'track'     => $leg['to']['track'] ?? $leg['to']['scheduledTrack'] ?? null,
                 ],
+                'distance'       => $leg['distance'] ?? null,
                 'realTime'       => (bool)($leg['realTime'] ?? false),
             ];
         }
