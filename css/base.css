@@ -1,4 +1,5 @@
 :root {
+  --app-header-height: calc(54px + env(safe-area-inset-top));
   --bg-main: #111;
   --bg-surface: #1a1a1a;
   --bg-hover: #262626;
@@ -45,9 +46,10 @@ body {
   margin: 0;
   font-family: "SBB Web", "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
+  padding-top: var(--app-header-height);
   display: flex;
   flex-direction: column;
 }
 .panel {
-  padding: 8px 14px;
+  padding: 1px 4px;
 }

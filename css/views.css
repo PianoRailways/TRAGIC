@@ -107,7 +107,7 @@
 
 .stations-view {
   position: fixed;
-  top: 54px;
+  top: var(--app-header-height);
   left: 0;
   right: 0;
   bottom: 0;
@@ -389,7 +389,7 @@
 .settings-view,
 .home-view {
   position: fixed;
-  top: 54px;
+  top: var(--app-header-height);
   left: 0;
   right: 0;
   bottom: 0;
@@ -398,7 +398,7 @@
 }
 
 .settings-view {overflow-y: auto;}
-.home-view {display: flex;flex-direction: column;overflow: hidden;}
+.home-view {display: flex;flex-direction: column;overflow: hidden;z-index: 20;}
 
 .settings-container {
   width: min(100%, 760px);
@@ -455,4 +455,5 @@
 .home-suggestions li {padding: 0.6rem 0.7rem;cursor: pointer;border-bottom: 1px solid var(--border-soft);font-size: 0.95rem;line-height: 1.3;display: flex;flex-wrap: wrap;justify-content: space-between;align-items: center;gap: 0.8rem;}
 .home-suggestions li:last-child {border-bottom: none;}
 .home-suggestions li:hover,
-.home-suggestions li:active {background: var(--bg-hover);}
+.home-suggestions li:active,
+.home-suggestions li.selected {background: var(--bg-hover);}
