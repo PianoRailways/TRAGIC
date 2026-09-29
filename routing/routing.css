@@ -101,7 +101,7 @@ body {
 }
 
 .panel {
-    padding: 12px;
+    padding: 3px;
     border-bottom: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
@@ -354,7 +354,7 @@ td {
     overflow: hidden;
 }
 
-.col-time { width: 65px; font-weight: 600; text-align: left; }
+.col-time { width: 40px; font-weight: 600; text-align: left; }
 .col-dur { width: 55px; text-align: center; color: var(--text-subtle); }
 .col-chg { width: 35px; text-align: center; color: var(--text-muted); }
 
@@ -392,20 +392,20 @@ td {
   line-height: 20px;
   text-align: center;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: ellipsis;
 }
 
 /* Fussweg (dünne Linie) */
 .timeline-walk {
-  top: 9px;
-  height: 2px;
+  top: 5px;
+  height: 10px;
   background: var(--text-muted);
 }
 
 /* Umsteigepause (striped) */
 .timeline-wait {
-  top: 8px;
-  height: 4px;
+  top: 7px;
+  height: 6px;
   background: repeating-linear-gradient(
     45deg,
     transparent,
