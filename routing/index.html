@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>ÖV Verbindungssuche & Abfahrtstafel</title>
   <link rel="stylesheet" href="routing.css">
   <link rel="stylesheet" href="../css/line-container.css">
@@ -70,18 +70,17 @@
       <div id="routing-hint"></div>
       <div id="routing-results" class="results-container">
         <button type="button" id="btn-earlier" class="btn-paging">▲ Früher</button>
-        <table>
-          <thead>
-            <tr>
-              <th class="col-time">Ab</th>
-              <th class="col-time">An</th>
-              <th class="col-dur">Dauer</th>
-              <th>Reise</th>
-              <th class="col-chg">Um</th>
-            </tr>
-          </thead>
-          <tbody id="routing-tbody"></tbody>
-        </table>
+        <div id="routing-scroll" class="results-scroll">
+          <table class="route-table">
+            <thead>
+              <tr>
+                <th class="col-summary">Zeit</th>
+                <th class="route-timeline"><div id="route-ruler" class="route-ruler"></div></th>
+              </tr>
+            </thead>
+            <tbody id="routing-tbody"></tbody>
+          </table>
+        </div>
         <button type="button" id="btn-later" class="btn-paging">▼ Später</button>
       </div>
     </section>

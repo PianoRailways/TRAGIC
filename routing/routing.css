@@ -1,14 +1,23 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Routing im OMNI-Design: gleiche Tokens, Proportionen und Bedienelemente
+   wie base.css / style.css. Mobile first, Touch-Ziele mindestens 44px.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
+    --app-header-height: calc(54px + env(safe-area-inset-top));
     --bg-main: #111;
     --bg-surface: #1a1a1a;
     --bg-hover: #262626;
     --bg-card: #0a0a0a;
-    --text-main: #eee;
+    --text-main: #fff;
     --text-muted: #888;
     --text-subtle: #999;
+    --text-soft: #aaa;
     --border-main: #333;
     --border-soft: #2a2a2a;
+    --border: rgba(200, 200, 200, 0.09);
     --line-accent: #0a5;
+    --on-time: #5f5;
     --error: #f55;
     --link-hover: #5cf;
     --header-bg: #061030;
@@ -26,32 +35,44 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    scrollbar-gutter: stable;
+}
+
 html, body {
     min-height: 100vh;
     margin: 0;
-    padding: 0;
     background-color: var(--bg-main);
     color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "SBB Web", sans-serif;
+    font-family: "SBB Web", "Helvetica Neue", Arial, sans-serif;
     overflow-x: hidden;
 }
 
 body {
     display: flex;
     flex-direction: column;
+    padding: var(--app-header-height) 0 0;
 }
 
+a { text-decoration: none; }
+p { margin: 3px; }
+
+/* ── HEADER ────────────────────────────────────────────────── */
 #app-header {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 8px 12px;
+    gap: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    width: 100%;
+    height: var(--app-header-height);
+    padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
     background: var(--header-bg);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    flex-shrink: 0;
 }
 
 #header-left {
@@ -64,67 +85,85 @@ body {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 10px;
+    border-radius: 2px;
     cursor: pointer;
     font-size: 1rem;
     line-height: 1;
+    transition: background 0.15s;
 }
+#btn-home:hover {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+#btn-home:active { background: rgba(255, 215, 0, 0.3); }
 
 #app-title {
     color: white;
-    font-size: 1rem;
+    font-size: 1.05em;
     font-weight: 700;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
 }
 
 #live-clock {
     font-family: monospace;
     font-size: 13px;
     font-weight: bold;
+    letter-spacing: 1px;
     color: var(--text-main);
 }
 
 #btn-refresh {
+    justify-self: end;
     background: var(--sbb-red);
-    border: none;
+    border: 1px solid var(--sbb-red);
     color: white;
     font-weight: bold;
-    padding: 6px 12px;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+#btn-refresh:hover {
+    background: var(--sbb-blue);
+    border-color: var(--sbb-blue);
 }
 
+/* ── LAYOUT ────────────────────────────────────────────────── */
 .main-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
 }
 
 .panel {
-    padding: 3px;
+    padding: 14px 12px 16px;
     border-bottom: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .panel-title {
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--text-main);
+    color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
 }
 
+/* ── FORMULAR ──────────────────────────────────────────────── */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 10px;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
     .form-grid {
         grid-template-columns: 1fr;
     }
@@ -133,73 +172,88 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     position: relative;
 }
 
 label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
 }
 
+/* 1rem verhindert das Auto-Zoomen auf iOS */
 input[type="text"],
 input[type="date"],
 input[type="time"] {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text-main);
     background-color: var(--bg-surface);
     border: 1px solid var(--border-main);
-    color: var(--text-main);
-    padding: 8px 10px;
     border-radius: 6px;
-    font-size: 0.9rem;
     outline: none;
-    width: 100%;
+    color-scheme: dark;
 }
 
 input[type="text"]:focus,
 input[type="date"]:focus,
 input[type="time"]:focus {
-    border-color: var(--link-hover);
+    border-color: var(--line-accent);
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* Vorschläge */
 .suggestions {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 2px);
     left: 0;
     right: 0;
+    z-index: 100;
+    display: none;
+    max-height: 55vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background-color: var(--bg-surface);
     border: 1px solid var(--border-main);
     border-radius: 0 0 6px 6px;
-    max-height: 220px;
-    overflow-y: auto;
-    z-index: 100;
-    display: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .suggestion-item {
-    padding: 10px 12px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    border-bottom: 1px solid var(--border-soft);
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     gap: 10px;
+    padding: 0.7rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    border-bottom: 1px solid var(--border-soft);
 }
+.suggestion-item:last-child { border-bottom: none; }
 
 .suggestion-item.selected,
-.suggestion-item:hover {
+.suggestion-item:hover,
+.suggestion-item:active {
     background-color: var(--bg-hover);
     color: var(--link-hover);
 }
 
-.suggestion-name {
-    min-width: 0;
-}
+.suggestion-name { min-width: 0; }
 
 .abbrev-label {
-    color: var(--text-muted);
+    font-family: monospace;
     font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--text-muted);
     margin-left: 4px;
 }
 
@@ -209,55 +263,63 @@ input[type="time"]:focus {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     text-align: right;
 }
 
+/* Buttons */
 button.btn {
-    background-color: var(--sob-green);
+    min-height: 44px;
+    padding: 0 16px;
+    width: 100%;
+    background-color: var(--sbb-red);
     color: white;
-    border: none;
-    padding: 9px 14px;
+    border: 1px solid var(--sbb-red);
     border-radius: 6px;
-    font-size: 0.88rem;
+    font-family: inherit;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    width: 100%;
+    transition: background 0.15s, border-color 0.15s;
+}
+button.btn:hover {
+    background-color: var(--sbb-blue);
+    border-color: var(--sbb-blue);
 }
 
 button.btn-secondary {
-    background-color: var(--bg-hover);
+    min-height: 44px;
+    padding: 0 16px;
+    background-color: rgba(255, 255, 255, 0.05);
     color: var(--text-main);
-    border: 1px solid var(--border-main);
-    padding: 9px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 6px;
-    font-size: 0.88rem;
+    font-family: inherit;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background 0.15s;
 }
-
-button.btn-secondary:hover {
-    background-color: var(--bg-card);
-}
+button.btn-secondary:hover { background-color: rgba(255, 255, 255, 0.12); }
 
 button.btn-nav {
-    background-color: var(--bg-hover);
-    color: var(--text-main);
-    border: 1px solid var(--border-main);
-    padding: 8px 10px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 12px;
     flex-shrink: 0;
-    transition: background-color 0.2s;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s;
 }
+button.btn-nav:hover { background-color: rgba(255, 255, 255, 0.12); }
 
-button.btn-nav:hover {
-    background-color: var(--border-main);
-}
-
+/* Datum und Zeit */
 .datetime-group {
     display: flex;
     gap: 6px;
@@ -267,30 +329,31 @@ button.btn-nav:hover {
 .datetime-group input[type="date"],
 .datetime-group input[type="time"] {
     flex: 1;
+    min-width: 0;
 }
 
-/* Abfahrt / Ankunft Umschalter */
-.time-mode {
-    display: flex;
-}
+/* Abfahrt / Ankunft (Look wie die Modus-Buttons in OMNI) */
+.time-mode { display: flex; }
 
 .seg {
     flex: 1;
-    padding: 7px;
-    font-size: 0.82rem;
+    min-height: 44px;
+    padding: 0 10px;
+    font-family: inherit;
+    font-size: 0.95rem;
     cursor: pointer;
-    background: var(--bg-surface);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-muted);
-    border: 1px solid var(--border-main);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-
 .seg:first-child { border-radius: 6px 0 0 6px; }
 .seg:last-child { border-radius: 0 6px 6px 0; border-left: none; }
 
 .seg.active {
-    background: var(--sbb-blue);
-    border-color: var(--sbb-blue);
-    color: #fff;
+    background: rgba(0, 170, 85, 0.18);
+    color: var(--on-time);
+    border-color: rgba(0, 170, 85, 0.45);
 }
 
 .date-label {
@@ -298,133 +361,275 @@ button.btn-nav:hover {
     margin-left: 6px;
 }
 
+/* Hinweise */
+#routing-hint,
+#board-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.loading, .empty-hint, .error-hint {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.error-hint,
+#routing-hint.error-hint,
+#board-hint.error-hint { color: var(--error); }
+
+/* ── ERGEBNISSE ────────────────────────────────────────────── */
 .results-container {
     display: none;
     width: 100%;
     overflow-x: hidden;
 }
 
-/* Früher / Später */
+/* Früher / Später (Look wie .nav-btn in OMNI) */
 .btn-paging {
+    display: block;
     width: 100%;
-    padding: 10px;
-    background: none;
-    border: none;
-    color: var(--link-hover);
-    font-size: 0.82rem;
+    min-height: 44px;
+    margin: 8px 0;
+    padding: 0.6rem 0.8rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-main);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-main);
+    border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
 }
-
+.btn-paging:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--line-accent);
+}
 .btn-paging:disabled {
     color: var(--text-muted);
     opacity: 0.4;
     cursor: default;
 }
 
+/* Allgemeine Tabellen (Abfahrtstafel) */
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     table-layout: fixed;
 }
 
-thead {
-    background: var(--header-bg);
-}
+thead { background: var(--header-bg); }
 
 th {
     text-align: left;
     padding: 8px 6px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-weight: normal;
     color: var(--text-muted);
     text-transform: uppercase;
 }
 
-tbody tr.summary-row {
-    border-bottom: 1px solid var(--border-soft);
-    cursor: pointer;
-}
-
-tbody tr.summary-row:hover {
-    background: var(--bg-surface);
-}
-
 td {
-    padding: 8px 6px;
+    padding: 10px 6px;
     vertical-align: middle;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid var(--border-soft);
 }
 
-.col-time { width: 40px; font-weight: 600; text-align: left; }
+.col-time { width: 84px; font-weight: 600; text-align: left; }
 .col-dur { width: 55px; text-align: center; color: var(--text-subtle); }
 .col-chg { width: 35px; text-align: center; color: var(--text-muted); }
 
-.route-timeline {
-  width: auto;
-  padding: 8px 6px;
-  vertical-align: middle;
+#board-tbody td:nth-child(3) { white-space: normal; }
+
+/* ── VERBINDUNGSLISTE MIT SEITLICH SCROLLBARER ZEITACHSE ───── */
+/* Eine Scroll-Fläche für alle Zeilen: links bleibt die Zeit stehen,
+   rechts läuft die Zeitachse. Die ersten Verbindungen füllen die
+   sichtbare Breite, spätere liegen weiter rechts. */
+.results-scroll {
+    --left-w: 104px;
+    margin: 0 -12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    border-top: 1px solid var(--border-main);
+    border-bottom: 1px solid var(--border-main);
 }
 
-/* Timeline-Balken: proportional zur tatsächlichen Zeit, ein Segment pro Fahrt */
+.route-table {
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.route-table th,
+.route-table td {
+    padding: 0;
+    text-overflow: clip;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.route-table thead th {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-main);
+}
+
+/* Linke Spalte bleibt beim Scrollen stehen */
+.route-table .col-summary {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    width: var(--left-w);
+    min-width: var(--left-w);
+    max-width: var(--left-w);
+    padding: 10px 10px;
+    text-align: left;
+    background: var(--bg-main);
+    box-shadow: 1px 0 0 var(--border-main);
+}
+
+.route-table thead .col-summary {
+    padding: 8px 10px;
+    background: var(--header-bg);
+}
+
+.route-table .route-timeline {
+    padding: 10px 8px;
+    vertical-align: middle;
+}
+
+.route-table thead .route-timeline { padding: 8px 8px; }
+
+tr.summary-row { cursor: pointer; }
+tr.summary-row:active td,
+tr.summary-row.open td { background: var(--bg-surface); }
+tr.summary-row:active .col-summary,
+tr.summary-row.open .col-summary { background: var(--bg-surface); }
+
+.sum-dep {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+}
+.sum-arr {
+    font-size: 0.95rem;
+    line-height: 1.25;
+    color: var(--text-soft);
+    font-variant-numeric: tabular-nums;
+}
+.sum-meta {
+    margin-top: 2px;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    color: var(--text-muted);
+}
+
+/* Zeitachse (Kopfzeile) */
+.route-ruler {
+    position: relative;
+    height: 20px;
+}
+.ruler-tick {
+    position: absolute;
+    top: 3px;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Balken: proportional zur Zeit, ein Segment pro Fahrt */
 .timeline-bar {
-  position: relative;
-  height: 20px;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.06);
-  border-radius: 3px;
-  container-type: inline-size;
+    position: relative;
+    height: 32px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.04);
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.10) 0,
+        rgba(255, 255, 255, 0.10) 1px,
+        transparent 1px,
+        transparent var(--grid-step, 60px)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: var(--grid-offset, 0) 0;
+    container-type: inline-size;
 }
 
 .timeline-segment,
 .timeline-walk,
 .timeline-wait {
-  position: absolute;
+    position: absolute;
 }
 
 /* Fahrt-Segment mit line-container Färbung */
 .timeline-segment {
-  top: 0;
-  height: 100%;
-  min-width: 3px;
-  border-radius: 2px;
-  background: var(--sbb-blue);
-  color: #fff;
-  font-size: 0.65rem;
-  /* Schrift schrumpft mit der Segmentbreite, damit das Label immer Platz hat */
-  font-size: min(0.65rem, calc(var(--w, 10) * 1cqw / (var(--n, 3) * 0.62)));
-  font-weight: 700;
-  line-height: 20px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: ellipsis;
+    top: 0;
+    height: 100%;
+    min-width: 3px;
+    border-radius: 3px;
+    background: var(--sbb-blue);
+    color: #fff;
+    font-size: 0.8rem;
+    /* Schrift schrumpft mit der Segmentbreite, damit das Label immer Platz hat */
+    font-size: min(0.8rem, calc(var(--w, 10) * 1cqw / (var(--n, 3) * 0.62)));
+    font-weight: 700;
+    line-height: 32px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
 }
 
 /* Fussweg (dünne Linie) */
 .timeline-walk {
-  top: 5px;
-  height: 10px;
-  background: var(--text-muted);
+    top: 14px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--text-muted);
 }
 
-/* Umsteigepause (striped) */
+/* Umsteigepause (schraffiert) */
 .timeline-wait {
-  top: 7px;
-  height: 6px;
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 2px,
-    rgba(255, 255, 255, 0.3) 2px,
-    rgba(255, 255, 255, 0.3) 4px
-  );
+    top: 12px;
+    height: 8px;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.3) 2px,
+        rgba(255, 255, 255, 0.3) 4px
+    );
 }
 
-/* Detailansicht einer Verbindung */
+/* ── DETAILANSICHT ─────────────────────────────────────────── */
 .detail-row { background: var(--bg-card); }
 
-.detail-content {
-    padding: 6px 10px 12px;
+/* Detail bleibt beim seitlichen Scrollen in der sichtbaren Breite */
+.route-table td.detail-content {
+    padding: 0;
+    overflow: visible;
+    white-space: normal;
+    border-bottom: 1px solid var(--border-main);
+}
+
+.detail-inner {
+    --time-col: 76px;
+    position: sticky;
+    left: 0;
+    width: var(--view-w, 100vw);
+    max-width: 100vw;
+    padding: 10px 14px 16px;
 }
 
 .detail-actions {
@@ -435,6 +640,8 @@ td {
 
 .btn-calendar {
     width: auto;
+    min-height: 40px !important;
+    font-size: 0.9rem !important;
 }
 
 .leg-list {
@@ -442,38 +649,39 @@ td {
     flex-direction: column;
 }
 
-.leg-block {
-    padding: 8px 0;
-}
+.leg-block { padding: 10px 0; }
 
 .leg-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    margin-bottom: 8px;
     font-weight: 600;
-    margin-bottom: 6px;
 }
 
 .leg-number {
-    font-size: 0.75rem;
-    color: var(--text-subtle);
+    font-size: 0.85rem;
     font-weight: 400;
+    color: var(--text-subtle);
 }
 
 .leg-dest {
-    color: var(--text-muted);
-    font-weight: 400;
-    font-size: 0.78rem;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-soft);
 }
 
 .leg-stop {
     display: grid;
-    grid-template-columns: 64px 1fr auto;
-    gap: 8px;
-    font-size: 0.82rem;
-    padding: 2px 0;
+    grid-template-columns: var(--time-col) 1fr auto;
+    gap: 10px;
+    padding: 3px 0;
+    font-size: 1rem;
+    line-height: 1.35;
 }
 
 .leg-time {
@@ -481,16 +689,19 @@ td {
     font-variant-numeric: tabular-nums;
 }
 
+.leg-name { min-width: 0; overflow-wrap: anywhere; }
+
 .leg-track {
+    font-size: 0.85rem;
     color: var(--text-muted);
-    font-size: 0.75rem;
+    white-space: nowrap;
 }
 
 .transfer-row,
 .walk-row {
-    font-size: 0.75rem;
+    padding: 6px 0 6px calc(var(--time-col) + 10px);
+    font-size: 0.85rem;
     color: var(--text-subtle);
-    padding: 5px 0 5px 72px;
 }
 
 .transfer-row {
@@ -498,35 +709,34 @@ td {
     border-bottom: 1px dashed var(--border-soft);
 }
 
-.transfer-row.tight {
-    color: #e9a23b;
-}
+.transfer-row.tight { color: #e9a23b; }
 
 /* Aufklappbarer Fahrtverlauf */
 .leg-block.expandable { cursor: pointer; }
 
 .leg-chevron {
     margin-left: auto;
+    padding: 0 4px;
+    font-size: 1rem;
     color: var(--text-muted);
-    font-size: 0.8rem;
     transition: transform 0.2s;
 }
 .leg-block.open .leg-chevron { transform: rotate(180deg); }
 
 .trip-course {
-    margin-top: 6px;
-    padding-top: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px dashed var(--border-soft);
-    font-size: 0.78rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     cursor: default;
 }
 
 .course-stop {
     display: grid;
-    grid-template-columns: 64px 1fr auto;
-    gap: 8px;
-    padding: 2px 0;
+    grid-template-columns: var(--time-col) 1fr auto;
+    gap: 10px;
+    padding: 3px 0;
 }
 .course-stop.outside { opacity: 0.45; }
 .course-stop.key { color: var(--text-main); font-weight: 600; }
@@ -535,45 +745,40 @@ td {
 
 /* Verspätung neben der Sollzeit: +N rot, -N blau */
 .delay-badge {
-    font-size: 0.7rem;
-    font-weight: 700;
     margin-left: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 .delay-badge.late { color: var(--delay-late); }
 .delay-badge.early { color: var(--delay-early); }
 
 /* Standard Badge Layout (Einfärbung erfolgt über line-container.css) */
 .line-badge {
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
     color: white;
     background: var(--sbb-blue);
 }
 
 .btn-trip-detail {
+    margin-left: auto;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    color: var(--link-hover);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--border-main);
-    color: var(--link-hover);
-    padding: 2px 6px;
     border-radius: 3px;
-    font-size: 0.7rem;
     cursor: pointer;
-    margin-left: auto;
 }
 
-.loading, .empty-hint, .error-hint {
-    padding: 1rem;
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-}
-.error-hint { color: var(--error); }
-
+/* ── FOOTER ────────────────────────────────────────────────── */
 .page-footer {
-  text-decoration: none;
-  padding: 3px 14px;
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-  background: var(--header-bg);
+    margin-top: auto;
+    padding: 3px 14px calc(3px + env(safe-area-inset-bottom));
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-top: 1px solid var(--border);
+    background: var(--header-bg);
 }
