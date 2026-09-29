@@ -141,7 +141,7 @@ p { margin: 3px; }
 }
 
 .panel {
-    padding: 14px 12px 16px;
+    padding: 14px 10px 16px;
     border-bottom: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
@@ -489,7 +489,7 @@ td {
     width: var(--left-w);
     min-width: var(--left-w);
     max-width: var(--left-w);
-    padding: 10px 10px;
+    padding: 10px 12px;
     text-align: left;
     background: var(--bg-main);
     box-shadow: 1px 0 0 var(--border-main);
@@ -593,8 +593,8 @@ tr.summary-row.open .col-summary { background: var(--bg-surface); }
 
 /* Fussweg (dünne Linie) */
 .timeline-walk {
-    top: 14px;
-    height: 4px;
+    top: 4px;
+    height: 24px;
     border-radius: 2px;
     background: var(--text-muted);
 }
@@ -662,6 +662,7 @@ tr.summary-row.open .col-summary { background: var(--bg-surface); }
 .leg-number {
     font-size: 0.85rem;
     font-weight: 400;
+    font-family: monospace;
     color: var(--text-subtle);
 }
 
@@ -671,7 +672,7 @@ tr.summary-row.open .col-summary { background: var(--bg-surface); }
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.9rem;
-    font-weight: 400;
+    font-weight: bold;
     color: var(--text-soft);
 }
 
@@ -692,7 +693,7 @@ tr.summary-row.open .col-summary { background: var(--bg-surface); }
 .leg-name { min-width: 0; overflow-wrap: anywhere; }
 
 .leg-track {
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: var(--text-muted);
     white-space: nowrap;
 }

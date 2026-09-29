@@ -654,7 +654,7 @@ function renderLegDetails(legs) {
     }
 
     const number = leg.tripNumber && String(leg.tripNumber) !== getLineLabel(leg)
-      ? `<span class="leg-number"${leg.tripNumberDerived ? ' style="font-style:italic;"' : ''}>Nr. ${escapeHtml(leg.tripNumber)}</span>`
+      ? `<span class="leg-number"${leg.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${escapeHtml(leg.tripNumber)}</span>`
       : '';
     const stop = (sched, live, name, track) => `
       <div class="leg-stop">
