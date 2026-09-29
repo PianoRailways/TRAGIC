@@ -126,11 +126,43 @@ function fillSuggestion(item, station) {
   item.innerHTML = `<span class="suggestion-name">${escapeHtml(station.name)}${abbrev}</span>${id}`;
 }
 
+function onStationPicked(key) {
+  if ((key === 'from' || key === 'to') && selectedStations.has('from') && selectedStations.has('to')) {
+    searchRoute();
+  }
+}
+
 function attachStationSearch(input, suggestions, key) {
-  const search = debounce(async () => {
-    const query = input.value.trim();
+  let seq = 0;
+  let timer;
+
+  const getItems = () => [...suggestions.querySelectorAll('.suggestion-item')];
+  const activeIndex = () => getItems().findIndex(item => item.classList.contains('selected'));
+
+  const closeList = () => {
     suggestions.innerHTML = '';
     suggestions.style.display = 'none';
+  };
+
+  const pick = station => {
+    clearTimeout(timer);
+    seq += 1;
+    input.value = station.name;
+    selectedStations.set(key, station);
+    closeList();
+    onStationPicked(key);
+  };
+
+  const highlight = index => {
+    const items = getItems();
+    items.forEach((item, i) => item.classList.toggle('selected', i === index));
+    items[index]?.scrollIntoView({ block: 'nearest' });
+  };
+
+  const runSearch = async () => {
+    const current = ++seq;
+    const query = input.value.trim();
+    closeList();
     selectedStations.delete(key);
     if (query.length < 1) return;
 
@@ -158,18 +190,17 @@ function attachStationSearch(input, suggestions, key) {
         results = await searchStations(query);
       }
 
+      // Veraltete Antwort verwerfen
+      if (current !== seq) return;
+
       // Display results (max 8)
       results.slice(0, 8).forEach(station => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
+        item._station = station;
         fillSuggestion(item, station);
-        
-        item.addEventListener('click', () => {
-          input.value = station.name;
-          selectedStations.set(key, station);
-          suggestions.innerHTML = '';
-          suggestions.style.display = 'none';
-        });
+
+        item.addEventListener('click', () => pick(station));
         suggestions.appendChild(item);
 
         if (station.isAbbrev) {
@@ -189,9 +220,43 @@ function attachStationSearch(input, suggestions, key) {
     } catch (error) {
       setHint(key === 'board' ? boardHint : routeHint, error.message, true);
     }
-  }, 300);
+  };
 
-  input.addEventListener('input', search);
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(runSearch, 300);
+  });
+
+  // Pfeiltasten, Enter, Escape und Tab
+  input.addEventListener('keydown', event => {
+    const items = getItems();
+    const open = items.length > 0 && suggestions.style.display !== 'none';
+    const index = activeIndex();
+
+    if (event.key === 'ArrowDown' && open) {
+      event.preventDefault();
+      highlight(Math.min(index + 1, items.length - 1));
+    } else if (event.key === 'ArrowUp' && open) {
+      event.preventDefault();
+      highlight(Math.max(index - 1, 0));
+    } else if (event.key === 'Enter' && open) {
+      event.preventDefault();
+      pick(items[Math.max(index, 0)]._station);
+    } else if (event.key === 'Escape' && open) {
+      closeList();
+    } else if (event.key === 'Tab' && !event.shiftKey) {
+      if (open) {
+        pick(items[Math.max(index, 0)]._station);
+      } else if (input.value.trim() && !selectedStations.has(key)) {
+        // Suche lief noch nicht: sofort ausführen und ersten Treffer übernehmen
+        clearTimeout(timer);
+        runSearch().then(() => {
+          const first = getItems()[0];
+          if (first) pick(first._station);
+        });
+      }
+    }
+  });
 }
 
 function createViaInput() {
@@ -282,8 +347,9 @@ function renderTimelineBar(connection, minDeparture, maxArrival) {
     if (isWalk(leg)) {
       html += `<div class="timeline-walk" style="left:${left}%;width:${width}%" title="${escapeHtml(tip)}"></div>`;
     } else {
+      const label = getLineLabel(leg);
       html += `<div class="timeline-segment line-container" ${getLineAttributes(leg)}
-        style="left:${left}%;width:${width}%" title="${escapeHtml(tip)}">${width >= 9 ? escapeHtml(getLineLabel(leg)) : ''}</div>`;
+        style="left:${left}%;width:${width}%;--w:${width.toFixed(2)};--n:${Math.max(label.length, 1)}" title="${escapeHtml(tip)}">${escapeHtml(label)}</div>`;
     }
     return html;
   });
