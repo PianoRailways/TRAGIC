@@ -414,9 +414,9 @@ function getCalendarDescription(connection, routeUrl) {
     walkSinceTransit = false;
   }
 
-  lines.push('', '–', '', `${formatDuration(connection.duration || (end - start))} (=Dauer der Reise)`, '',
+  lines.push('', '–', '', `${formatDuration(connection.duration || (end - start))}`, '',
     'Änderungen vorbehalten. Alle Angaben, Anschlüsse und Einhaltung des Fahrplans ohne Gewähr.', '',
-    `LINKZURGENAUENVERBINDUNG: ${routeUrl}`);
+    `${routeUrl}`);
   return lines.join('\n');
 }
 
@@ -454,14 +454,21 @@ async function saveConnectionToCalendar(connection, index) {
   const file = new File([ics], fileName, { type: 'text/calendar;charset=utf-8' });
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
-    await navigator.share({ title: summary, text: 'Verbindung im Kalender speichern', files: [file] });
-    return;
+    try {
+      await navigator.share({ title: summary, text: 'Verbindung im Kalender speichern', files: [file] });
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
   }
 
   const link = document.createElement('a');
   link.href = URL.createObjectURL(file);
   link.download = fileName;
+  link.style.display = 'none';
+  document.body.appendChild(link);
   link.click();
+  link.remove();
   URL.revokeObjectURL(link.href);
 }
 
