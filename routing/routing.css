@@ -103,7 +103,7 @@ body {
 }
 
 .panel {
-    padding: 12px;
+    padding: 3px;
     border-bottom: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
