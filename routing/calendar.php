@@ -12,7 +12,7 @@ if ($ics === '' || strlen($ics) > 100000 || strpos($ics, 'BEGIN:VCALENDAR') !== 
     exit;
 }
 
-header('Content-Type: text/calendar; charset=utf-8');
+header('Content-Type: text/calendar; method=PUBLISH; charset=utf-8');
 header('Content-Disposition: inline; filename="' . $filename . '"');
 header('Cache-Control: no-store');
 echo $ics;
