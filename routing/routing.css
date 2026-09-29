@@ -17,6 +17,8 @@
     --sob-green: #7BA55B;
     --highlight-bg: rgba(45, 50, 125, 0.35);
     --highlight-border: #4f56cc;
+    --delay-late: #f55;
+    --delay-early: #5aa9ff;
 }
 
 * {
@@ -101,7 +103,7 @@ body {
 }
 
 .panel {
-    padding: 3px;
+    padding: 12px;
     border-bottom: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
@@ -371,6 +373,7 @@ td {
   width: 100%;
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 3px;
+  container-type: inline-size;
 }
 
 .timeline-segment,
@@ -388,6 +391,8 @@ td {
   background: var(--sbb-blue);
   color: #fff;
   font-size: 0.65rem;
+  /* Schrift schrumpft mit der Segmentbreite, damit das Label immer Platz hat */
+  font-size: min(0.65rem, calc(var(--w, 10) * 1cqw / (var(--n, 3) * 0.62)));
   font-weight: 700;
   line-height: 20px;
   text-align: center;
@@ -455,7 +460,7 @@ td {
 
 .leg-stop {
     display: grid;
-    grid-template-columns: 44px 1fr auto;
+    grid-template-columns: 64px 1fr auto;
     gap: 8px;
     font-size: 0.82rem;
     padding: 2px 0;
@@ -475,7 +480,7 @@ td {
 .walk-row {
     font-size: 0.75rem;
     color: var(--text-subtle);
-    padding: 5px 0 5px 52px;
+    padding: 5px 0 5px 72px;
 }
 
 .transfer-row {
@@ -509,7 +514,7 @@ td {
 
 .course-stop {
     display: grid;
-    grid-template-columns: 44px 1fr auto;
+    grid-template-columns: 64px 1fr auto;
     gap: 8px;
     padding: 2px 0;
 }
@@ -517,6 +522,15 @@ td {
 .course-stop.key { color: var(--text-main); font-weight: 600; }
 .course-stop.cancelled .leg-name { text-decoration: line-through; }
 .delay { color: #e9a23b; font-size: 0.7rem; }
+
+/* Verspätung neben der Sollzeit: +N rot, -N blau */
+.delay-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 4px;
+}
+.delay-badge.late { color: var(--delay-late); }
+.delay-badge.early { color: var(--delay-early); }
 
 /* Standard Badge Layout (Einfärbung erfolgt über line-container.css) */
 .line-badge {

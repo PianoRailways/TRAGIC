@@ -285,6 +285,20 @@ function formatDuration(seconds) {
   return `${Math.floor(minutes / 60) ? `${Math.floor(minutes / 60)}h ` : ''}${minutes % 60}min`;
 }
 
+/**
+ * Sollzeit mit Hinweis auf die Abweichung: 18:18 +1 (rot) bzw. 18:18 -1 (blau)
+ */
+function formatDelay(sched, live) {
+  if (!sched || !live) return '';
+  const min = Math.round((Number(live) - Number(sched)) / 60);
+  if (!min) return '';
+  return `<span class="delay-badge ${min > 0 ? 'late' : 'early'}">${min > 0 ? '+' : '-'}${Math.abs(min)}</span>`;
+}
+
+function renderTime(sched, live) {
+  return `${formatTime(sched || live)}${formatDelay(sched, live)}`;
+}
+
 function updateClock() {
   const clock = document.getElementById('live-clock');
   if (!clock) return;
@@ -406,9 +420,9 @@ function renderLegDetails(legs) {
     const number = leg.tripNumber && String(leg.tripNumber) !== getLineLabel(leg)
       ? `<span class="leg-number"${leg.tripNumberDerived ? ' style="font-style:italic;"' : ''}>Nr. ${escapeHtml(leg.tripNumber)}</span>`
       : '';
-    const stop = (time, name, track) => `
+    const stop = (sched, live, name, track) => `
       <div class="leg-stop">
-        <span class="leg-time">${formatTime(time)}</span>
+        <span class="leg-time">${renderTime(sched, live)}</span>
         <span class="leg-name">${escapeHtml(name || '')}</span>
         <span class="leg-track">${track ? `Gl. ${escapeHtml(track)}` : ''}</span>
       </div>`;
@@ -424,8 +438,8 @@ function renderLegDetails(legs) {
           <span class="leg-dest">${leg.destination ? `→ ${escapeHtml(leg.destination)}` : ''}</span>
           ${leg.tripId ? '<span class="leg-chevron">▾</span>' : ''}
         </div>
-        ${stop(from.departure, from.name, from.track)}
-        ${stop(to.arrival, to.name, to.track)}
+        ${stop(from.scheduled, from.departure, from.name, from.track)}
+        ${stop(to.scheduled, to.arrival, to.name, to.track)}
         <div class="trip-course" style="display:none"></div>
       </div>`;
     prevTransit = leg;
@@ -461,8 +475,8 @@ function renderRoutes(connections) {
     const row = document.createElement('tr');
     row.className = 'summary-row';
     row.innerHTML = `
-      <td>${formatTime(first.departure)}</td>
-      <td>${formatTime(last.arrival)}</td>
+      <td>${renderTime(first.scheduled, first.departure)}</td>
+      <td>${renderTime(last.scheduled, last.arrival)}</td>
       <td>${formatDuration(connection.duration || (last.arrival - first.departure))}</td>
       <td class="route-timeline">${renderTimelineBar(connection, minDeparture, maxArrival)}</td>
       <td>${Math.max(0, legs.length - 1)}</td>
@@ -520,12 +534,11 @@ function renderTripCourse(trip, block) {
 
     const sched = s.departureSched || s.arrivalSched;
     const live = s.departureLive || s.arrivalLive;
-    const delay = sched && live ? Math.round((live - sched) / 60) : 0;
 
     return `
       <div class="${cls.join(' ')}">
-        <span class="leg-time">${formatTime(sched)}</span>
-        <span class="leg-name">${escapeHtml(s.name)}${delay > 0 ? ` <span class="delay">+${delay}</span>` : ''}</span>
+        <span class="leg-time">${renderTime(sched, live)}</span>
+        <span class="leg-name">${escapeHtml(s.name)}</span>
         <span class="leg-track">${s.track ? `Gl. ${escapeHtml(s.track)}` : ''}</span>
       </div>`;
   }).join('');
@@ -646,7 +659,7 @@ async function loadBoard() {
     if (!response.ok || data.error) throw new Error(data.error || `Abfahrten konnten nicht geladen werden (${response.status})`);
     boardTbody.innerHTML = (data.departures || []).map(departure => `
       <tr>
-        <td>${formatTime(departure.scheduled || departure.live)}</td>
+        <td>${renderTime(departure.scheduled, departure.live)}</td>
         <td>${renderLineBadge({
           line: departure.line,
           routeShortName: departure.line,
