@@ -1,6 +1,232 @@
 
 // ─── Navigation Buttons (Früher / Später) ──────────────────────────────────
 
+const NEARBY_ENABLED_STORAGE_KEY = 'tragic_nearby_enabled';
+const NEARBY_RADIUS_STORAGE_KEY = 'tragic_nearby_radius';
+
+function loadNearbySettings() {
+  try {
+    return {
+      enabled: localStorage.getItem(NEARBY_ENABLED_STORAGE_KEY) === 'true',
+      radius: Number(localStorage.getItem(NEARBY_RADIUS_STORAGE_KEY)) || 500
+    };
+  } catch (_) {
+    return { enabled: false, radius: 500 };
+  }
+}
+
+let nearbySettings = loadNearbySettings();
+let customDepartures = null;
+const DEPARTURE_BATCH_SIZE = 25;
+let isLoadingMoreDepartures = false;
+const CUSTOM_JSON_URLS = [
+  '/cache/demo-fahrten.js',
+  '/cache/data.json',
+];
+const CUSTOM_JSON_URL = CUSTOM_JSON_URLS[0];
+const CUSTOM_STATION_NAME = 'Demo-Bahnhof';
+let customStationIndexPromise = null;
+
+function parseCustomJsonTime(value) {
+  if (typeof value === 'number') return value > 100000000000 ? Math.floor(value / 1000) : value;
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? Number(value) || 0 : Math.floor(parsed / 1000);
+}
+
+function normalizeCustomTrip(trip) {
+  if (!trip || typeof trip !== 'object') return trip;
+  return {
+    ...trip,
+    stops: (trip.stops || []).map(stop => ({
+      ...stop,
+      arrivalSched: parseCustomJsonTime(stop.arrivalSched),
+      arrivalLive: parseCustomJsonTime(stop.arrivalLive),
+      departureSched: parseCustomJsonTime(stop.departureSched),
+      departureLive: parseCustomJsonTime(stop.departureLive),
+      arrivalDelaySec: stop.arrivalDelaySec ?? null,
+      departureDelaySec: stop.departureDelaySec ?? null
+    }))
+  };
+}
+
+function normalizeCustomDeparture(departure, index, stationName) {
+  const scheduled = parseCustomJsonTime(departure.scheduled ?? departure.departure ?? departure.time);
+  const live = parseCustomJsonTime(departure.live ?? departure.estimated ?? departure.departureLive) || scheduled;
+  const trip = normalizeCustomTrip(departure.trip || departure.tripData);
+  return {
+    ...departure,
+    tripId: departure.tripId || `custom-${index + 1}`,
+    line: departure.line || departure.route || '?',
+    tripNumber: departure.tripNumber || departure.routeNumber || '',
+    destination: departure.destination || departure.to || '',
+    scheduled,
+    live,
+    delaySec: departure.delaySec ?? (departure.delayMin ? departure.delayMin * 60 : Math.round(live - scheduled)),
+    delayMin: departure.delayMin ?? Math.round((live - scheduled) / 60),
+    track: departure.track || departure.platform || '',
+    mode: departure.mode || 'OTHER',
+    cancelled: Boolean(departure.cancelled),
+    _stopId: departure.stopId || `custom-${index + 1}`,
+    _fromStation: stationName,
+    _isMainStation: true,
+    ...(trip ? { trip } : {})
+  };
+}
+
+function getCustomStationDefinitions(data) {
+  const definitions = Array.isArray(data?.stations) ? data.stations : [];
+  if (definitions.length) return definitions;
+
+  if (Array.isArray(data)) {
+    return [{ id: 'custom-json', name: CUSTOM_STATION_NAME, departures: data }];
+  }
+
+  if (data?.station) {
+    return [{ ...data.station, departures: data.departures || [] }];
+  }
+
+  return [{ id: 'custom-json', name: CUSTOM_STATION_NAME, departures: data?.departures || [] }];
+}
+
+async function getCustomStationIndex() {
+  if (!customStationIndexPromise) {
+    customStationIndexPromise = Promise.all(CUSTOM_JSON_URLS.map(async url => {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Server antwortet mit HTTP ${response.status}.`);
+      const data = await response.json();
+      return {
+        data,
+        url,
+        stations: getCustomStationDefinitions(data).map(station => ({
+          ...station,
+          _customJsonUrl: url
+        }))
+      };
+    })).then(sources => ({
+      sources,
+      stations: sources.flatMap(source => source.stations)
+    }));
+  }
+  return customStationIndexPromise;
+}
+
+async function loadCustomDeparturesData(data, sourceName, stationId = null, stationName = null) {
+  const definitions = getCustomStationDefinitions(data);
+  const selected = definitions.find(station =>
+    stationId && String(station.id || station.stopId) === String(stationId)
+  ) || definitions.find(station =>
+    stationName && String(station.name).toLowerCase() === String(stationName).toLowerCase()
+  ) || definitions[0];
+  const entries = Array.isArray(selected?.departures) ? selected.departures : (Array.isArray(data) ? data : data.departures);
+  if (!Array.isArray(entries)) {
+    throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit "departures" enthalten.');
+  }
+
+  const resolvedStationName = selected?.name || data.station?.name || data.stationName || 'Eigene Daten';
+  currentStationName = resolvedStationName;
+  currentStopId = selected?.id || selected?.stopId || data.station?.id || data.stopId || 'custom-json';
+  currentMainStationId = currentStopId;
+  updateStationTitle(currentStationName);
+  customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, resolvedStationName));
+  allDepartures = customDepartures;
+  renderDepartures(allDepartures);
+  setStatus(`${allDepartures.length} eigene Fahrt${allDepartures.length === 1 ? '' : 'en'} aus ${sourceName}`);
+  updateNavButtonsVisibility();
+}
+
+function clearStationSuggestions() {
+  document.querySelectorAll('#suggestions, #home-suggestions').forEach(list => {
+    list.innerHTML = '';
+    list.style.display = '';
+  });
+  document.querySelectorAll('#query, #home-query').forEach(input => {
+    input.value = '';
+  });
+}
+
+function selectCustomStation(stationId, stationName, customJsonUrl = CUSTOM_JSON_URL) {
+  closeHomeView();
+  clearStationSuggestions();
+  currentStopId = stationId || 'custom-json';
+  currentMainStationId = currentStopId;
+  currentStationName = stationName;
+  updateStationTitle(stationName);
+
+  const url = new URL(location.href);
+  url.searchParams.set('view', 'departures');
+  url.searchParams.set('stopId', currentStopId);
+  url.searchParams.set('customJson', customJsonUrl);
+  history.pushState({
+    stopId: currentStopId,
+    stationName,
+    customJson: customJsonUrl,
+    epoch: getSelectedEpoch(),
+    arrivals: isArrivalsMode,
+    calendarStart,
+    calendarVias,
+    calendarDest
+  }, '', url);
+
+  loadCustomDeparturesFromUrl(customJsonUrl, stationId, stationName).catch(error => {
+    renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
+  });
+}
+
+async function loadCustomDeparturesFromUrl(url, stationId = null, stationName = null) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Server antwortet mit HTTP ${response.status}.`);
+  const data = await response.json();
+  await loadCustomDeparturesData(data, url, stationId, stationName);
+}
+
+function saveNearbySettings() {
+  try {
+    localStorage.setItem(NEARBY_ENABLED_STORAGE_KEY, nearbySettings.enabled ? 'true' : 'false');
+    localStorage.setItem(NEARBY_RADIUS_STORAGE_KEY, String(nearbySettings.radius));
+  } catch (_) {}
+}
+
+function updateNearbyUI() {
+  document.querySelectorAll('#btn-toggle-nearby, .settings-nearby-toggle').forEach(button => {
+    button.textContent = nearbySettings.enabled ? 'Nearby: EIN' : 'Nearby: AUS';
+    button.classList.toggle('active', nearbySettings.enabled);
+  });
+  document.querySelectorAll('#nearby-radius, .settings-nearby-radius').forEach(radius => {
+    radius.value = String(nearbySettings.radius);
+  });
+}
+
+async function fetchNearbyDepartureGroups(refEpoch) {
+  const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(currentStationName)}`);
+  const searchData = await searchRes.json();
+  const station = (searchData.stations || []).find(item => item.name.toLowerCase() === currentStationName.toLowerCase()) || searchData.stations?.[0];
+  if (!station?.lat || !station?.lon) return [];
+
+  const nearbyRes = await fetch(`${PROXY}?action=reverse-geocode&lat=${encodeURIComponent(station.lat)}&lon=${encodeURIComponent(station.lon)}&radius=${nearbySettings.radius}`);
+  const nearbyData = await nearbyRes.json();
+  const stations = (nearbyData.stations || []).filter(item => (item.id || item.stopId) !== currentStopId);
+
+  return Promise.all(stations.map(async item => {
+    const stopId = item.id || item.stopId;
+    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(stopId)}&n=10&nearby=true&radius=${nearbySettings.radius}`;
+    if (isArrivalsMode) q += '&arrivals=true';
+    if (refEpoch) q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+    const response = await fetch(q);
+    const data = await response.json();
+    return {
+      stopId,
+      name: item.name || stopId,
+      departures: (data.departures || []).map(dep => ({
+        ...dep,
+        _stopId: stopId,
+        _fromStation: item.name || stopId,
+        _isMainStation: false
+      }))
+    };
+  }));
+}
+
 function setupNavigationButtons() {
   const handleEarlier = () => {
     const currentEpoch = getSelectedEpoch();
@@ -42,12 +268,49 @@ function setupNavigationButtons() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const loadCustomJsonButton = document.getElementById('btn-load-custom-json');
+  if (loadCustomJsonButton) {
+    loadCustomJsonButton.addEventListener('click', async () => {
+      try {
+        await loadCustomDeparturesFromUrl(CUSTOM_JSON_URL);
+      } catch (error) {
+        renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
+      }
+    });
+  }
+
+  const customJsonUrl = params.get('customJson');
+  if (customJsonUrl) {
+    loadCustomDeparturesFromUrl(customJsonUrl).catch(error => {
+      renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
+    });
+  }
+
   const btnToggleArrivals = document.getElementById('btn-toggle-arrivals');
   if (btnToggleArrivals) btnToggleArrivals.addEventListener('click', toggleArrivalMode);
 
-  const btnToggleVias = document.getElementById('btn-toggle-vias');
-  if (btnToggleVias) btnToggleVias.addEventListener('click', toggleViaLoading);
+  document.querySelectorAll('#btn-toggle-vias, .settings-via-toggle').forEach(button => {
+    button.addEventListener('click', toggleViaLoading);
+  });
   updateViaToggleButton();
+
+  document.querySelectorAll('#btn-toggle-nearby, .settings-nearby-toggle').forEach(button => {
+    button.addEventListener('click', () => {
+      nearbySettings.enabled = !nearbySettings.enabled;
+      saveNearbySettings();
+      updateNearbyUI();
+      if (currentStopId) loadDepartures(getSelectedEpoch());
+    });
+  });
+  document.querySelectorAll('#nearby-radius, .settings-nearby-radius').forEach(radius => {
+    radius.addEventListener('change', () => {
+      nearbySettings.radius = Number(radius.value) || 500;
+      saveNearbySettings();
+      updateNearbyUI();
+      if (nearbySettings.enabled && currentStopId) loadDepartures(getSelectedEpoch());
+    });
+  });
+  updateNearbyUI();
 
   updateArrivalToggleUI();
 
@@ -81,89 +344,205 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnRefresh = document.getElementById('btn-refresh');
   if (btnRefresh) btnRefresh.addEventListener('click', reloadDepartures);
 
+  const btnLoadMore = document.getElementById('btn-load-more');
+  if (btnLoadMore) btnLoadMore.addEventListener('click', loadMoreDepartures);
+
+  const btnShare = document.getElementById('btn-share');
+  if (btnShare) btnShare.addEventListener('click', shareDepartureView);
+
   const btnExportCalendar = document.getElementById('btn-export-calendar');
   if (btnExportCalendar) {
     btnExportCalendar.addEventListener('click', exportCalendarJourney);
   }
 });
 
+async function shareDepartureView() {
+  const url = new URL(location.href);
+  const epoch = getSelectedEpoch();
+
+  if (currentStopId) url.searchParams.set('stopId', currentStopId);
+  if (epoch) url.searchParams.set('time', epoch);
+  else url.searchParams.delete('time');
+  url.searchParams.set('view', 'departures');
+  if (isArrivalsMode) url.searchParams.set('arrivals', 'true');
+  else url.searchParams.delete('arrivals');
+
+  const destination = destFilter?.value.trim();
+  if (destination) url.searchParams.set('dest', destination);
+  else url.searchParams.delete('dest');
+
+  const shareData = {
+    title: `${currentStationName || 'Abfahrtstabelle'} | OMNI`,
+    text: currentStationName ? `Abfahrten ab ${currentStationName}` : 'Abfahrtstabelle',
+    url: url.href
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(url.href);
+      alert('Link kopiert.');
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') console.error('Teilen fehlgeschlagen:', err);
+  }
+}
+
 // ─── Stationssuche ───────────────────────────────────────────────────────────
 
-const queryInput = document.getElementById('query');
-if (queryInput) {
-  queryInput.addEventListener('input', debounce(async (e) => {
-    const q = e.target.value.trim();
-    const list = document.getElementById('suggestions');
-    if (!list) return;
-    list.innerHTML = '';
-    if (q.length < 2) return;
-   
+function getLocalAbbreviationMatches(query) {
+  const abbreviation = query.toUpperCase();
+  return (abbrevMap[abbreviation] || []).map(match => ({
+    id: null,
+    name: match.name.trim(),
+    abbrev: abbreviation,
+    country: match.country,
+    source: 'abbrev'
+  }));
+}
+
+function renderStationSuggestions(list, matches) {
+  list.innerHTML = '';
+  const seen = new Set();
+  const renderedMatches = [];
+
+  matches.slice(0, 8).forEach(match => {
+    const key = `${match.name.toLowerCase()}|${match.country || ''}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    const li = document.createElement('li');
+    let html = escapeHtml(match.name);
+    if (match.abbrev) {
+      html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
+    }
+    if (match.id) {
+      html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
+    }
+    li.innerHTML = html;
+    li.onclick = () => {
+      if (match.source === 'custom') {
+        selectCustomStation(match.id, match.name, match._customJsonUrl);
+        return;
+      }
+      selectStation(match.id, match.name, null);
+    };
+    list.appendChild(li);
+    match.element = li;
+    renderedMatches.push(match);
+  });
+
+  return renderedMatches;
+}
+
+async function enrichLocalStationSuggestions(matches) {
+  await Promise.all(matches.filter(match => match.source === 'abbrev').map(async match => {
     try {
-      const abbrevMatches = [];
-      const qUpper = q.toUpperCase();
-      if (abbrevMap[qUpper]) {
-        for (const match of abbrevMap[qUpper]) {
-          try {
-            const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`);
-            const searchData = await searchRes.json();
-            const station = (searchData.stations || []).find(s => s.name.toLowerCase() === match.name.toLowerCase());
-            
-            if (station) {
-              abbrevMatches.push({
-                id: station.id,
-                name: match.name,
-                abbrev: qUpper,
-                country: match.country,
-                source: 'abbrev'
-              });
-            }
-          } catch (_) {}
+      const stations = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`)
+        .then(response => response.json())
+        .then(data => data.stations || []);
+      const exactMatch = stations.find(station =>
+        station.name.trim().toLowerCase() === match.name.trim().toLowerCase()
+      );
+      if (!exactMatch || !match.element?.isConnected) return;
+
+      match.id = exactMatch.id;
+      match.element.innerHTML = `${escapeHtml(match.name)} <span class="abbrev-label">${escapeHtml(match.abbrev)} [${escapeHtml(match.country)}]</span> <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
+    } catch (_) {}
+  }));
+}
+
+function attachMainStationSearch(input, list) {
+  let searchSequence = 0;
+  input.addEventListener('input', async event => {
+    const query = event.target.value.trim();
+    list.innerHTML = '';
+    list.style.display = '';
+    if (query.length < 2) return;
+
+    const sequence = ++searchSequence;
+    const localMatches = getLocalAbbreviationMatches(query);
+    if (CUSTOM_STATION_NAME.toLowerCase().includes(query.toLowerCase())) {
+      localMatches.unshift({
+        id: 'custom-json',
+        name: CUSTOM_STATION_NAME,
+        source: 'custom',
+        _customJsonUrl: CUSTOM_JSON_URL
+      });
+    }
+    try {
+      const customIndex = await getCustomStationIndex();
+      if (sequence !== searchSequence || input.value.trim() !== query) return;
+      customIndex.stations.forEach(station => {
+        if (!station.name || !station.name.toLowerCase().includes(query.toLowerCase())) return;
+        if (localMatches.some(match => match.name.toLowerCase() === station.name.toLowerCase())) return;
+        localMatches.unshift({
+          id: station.id || station.stopId || null,
+          name: station.name,
+          source: 'custom',
+          _customJsonUrl: station._customJsonUrl
+        });
+      });
+    } catch (_) {}
+    const hasCustomMatches = localMatches.some(match => match.source === 'custom');
+    const renderedLocalMatches = renderStationSuggestions(list, localMatches);
+    list.style.display = localMatches.length ? 'block' : '';
+    if (localMatches.length && !hasCustomMatches) {
+      enrichLocalStationSuggestions(renderedLocalMatches);
+      return;
+    }
+
+    if (window.abbreviationsReady) {
+      await window.abbreviationsReady;
+      if (sequence !== searchSequence || input.value.trim() !== query) return;
+      const loadedMatches = getLocalAbbreviationMatches(query);
+      loadedMatches.forEach(match => {
+        if (!localMatches.some(existing => existing.name.toLowerCase() === match.name.toLowerCase())) {
+          localMatches.push(match);
+        }
+      });
+      if (loadedMatches.length && !hasCustomMatches) {
+        const renderedLoadedMatches = renderStationSuggestions(list, localMatches);
+        list.style.display = localMatches.length ? 'block' : '';
+        enrichLocalStationSuggestions(renderedLoadedMatches);
+        return;
+      }
+    }
+
+    clearTimeout(input.searchTimer);
+    input.searchTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (sequence !== searchSequence || input.value.trim() !== query) return;
+        const apiMatches = (data.stations || []).map(st => {
+          const foundAbbrevs = getAbbrevsForName(st.name);
+          const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
+          return { id: st.id, name: st.name, abbrev: primary?.abbrev || null, country: primary?.country || null, source: 'api' };
+        });
+        const existingNames = new Set(localMatches.map(match => match.name.toLowerCase()));
+        const mergedMatches = [
+          ...localMatches,
+          ...apiMatches.filter(match => !existingNames.has(match.name.toLowerCase()))
+        ];
+        const renderedMatches = renderStationSuggestions(list, mergedMatches);
+        list.style.display = mergedMatches.length ? 'block' : '';
+        enrichLocalStationSuggestions(renderedMatches);
+      } catch (err) {
+        if (hasCustomMatches) {
+          renderStationSuggestions(list, localMatches);
+          list.style.display = 'block';
+        } else {
+          setStatus('Fehler bei der Stationssuche: ' + err.message);
         }
       }
-   
-      const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      
-      const apiMatches = (data.stations || []).map(st => {
-        const foundAbbrevs = getAbbrevsForName(st.name);
-        const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
-        return {
-          id: st.id,
-          name: st.name,
-          abbrev: primary ? primary.abbrev : null,
-          country: primary ? primary.country : null,
-          source: 'api'
-        };
-      });
-   
-      const seen = new Set();
-      const allMatches = [...abbrevMatches, ...apiMatches];
-      
-      allMatches.forEach(match => {
-        const key = (match.id || match.name).toLowerCase();
-        if (seen.has(key)) return;
-        seen.add(key);
-   
-        const li = document.createElement('li');
-        let html = escapeHtml(match.name);
-        
-        if (match.abbrev) {
-          html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
-        }
-        
-        if (match.id) {
-          html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
-        }
-        
-        li.innerHTML = html;
-        li.onclick = () => selectStation(match.id, match.name, null);
-        list.appendChild(li);
-      });
-    } catch (err) {
-      setStatus('Fehler bei der Stationssuche: ' + err.message);
-    }
-  }, 350));
+    }, 350);
+  });
 }
+
+const queryInput = document.getElementById('query');
+if (queryInput) attachMainStationSearch(queryInput, document.getElementById('suggestions'));
 
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#search-box')) {
@@ -179,78 +558,7 @@ document.addEventListener('click', (e) => {
 
 const homeQueryInput = document.getElementById('home-query');
 if (homeQueryInput) {
-  homeQueryInput.addEventListener('input', debounce(async (e) => {
-    const q = e.target.value.trim();
-    const list = document.getElementById('home-suggestions');
-    if (!list) return;
-    list.innerHTML = '';
-    if (q.length < 2) return;
-
-    try {
-      const abbrevMatches = [];
-      const qUpper = q.toUpperCase();
-      if (abbrevMap[qUpper]) {
-        for (const match of abbrevMap[qUpper]) {
-          try {
-            const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(match.name)}`);
-            const searchData = await searchRes.json();
-            const station = (searchData.stations || []).find(s => s.name.toLowerCase() === match.name.toLowerCase());
-
-            if (station) {
-              abbrevMatches.push({
-                id: station.id,
-                name: match.name,
-                abbrev: qUpper,
-                country: match.country,
-                source: 'abbrev'
-              });
-            }
-          } catch (_) {}
-        }
-      }
-
-      const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(q)}`);
-      const data = await res.json();
-
-      const apiMatches = (data.stations || []).map(st => {
-        const foundAbbrevs = getAbbrevsForName(st.name);
-        const primary = foundAbbrevs.length > 0 ? foundAbbrevs[0] : null;
-        return {
-          id: st.id,
-          name: st.name,
-          abbrev: primary ? primary.abbrev : null,
-          country: primary ? primary.country : null,
-          source: 'api'
-        };
-      });
-
-      const seen = new Set();
-      const allMatches = [...abbrevMatches, ...apiMatches];
-
-      allMatches.forEach(match => {
-        const key = (match.id || match.name).toLowerCase();
-        if (seen.has(key)) return;
-        seen.add(key);
-
-        const li = document.createElement('li');
-        let html = escapeHtml(match.name);
-
-        if (match.abbrev) {
-          html += ` <span class="abbrev-label">${escapeHtml(match.abbrev)}${match.country ? ` [${escapeHtml(match.country)}]` : ''}</span>`;
-        }
-
-        if (match.id) {
-          html += ` <span class="suggestion-id">(${escapeHtml(match.id)})</span>`;
-        }
-
-        li.innerHTML = html;
-        li.onclick = () => selectStation(match.id, match.name, null);
-        list.appendChild(li);
-      });
-    } catch (err) {
-      setStatus('Fehler bei der Stationssuche: ' + err.message);
-    }
-  }, 350));
+  attachMainStationSearch(homeQueryInput, document.getElementById('home-suggestions'));
 
   const homeSearchBtn = document.getElementById('home-search-btn');
   if (homeSearchBtn) {
@@ -323,6 +631,7 @@ function selectStation(stopId, name, refEpoch) {
   }
 
   closeHomeView();
+  customDepartures = null;
   currentStopId = stopId;
   currentStationName = name;
   currentMainStationId = stopId;
@@ -353,7 +662,7 @@ function selectStation(stopId, name, refEpoch) {
   history.pushState({stopId, stationName: name, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
 
   loadDepartures(currentEpoch);
-  window.scrollTo({top: 250, behavior: 'smooth'});
+  window.scrollTo({top: 240, behavior: 'smooth'}); // Automatisch nach unten scrollen, um die Abfahrten anzuzeigen
 }
 
 async function selectStationByName(name, refEpoch) {
@@ -376,9 +685,31 @@ async function selectStationByName(name, refEpoch) {
 
 // ─── Line Normalization ──────────────────────────────────────────────────────
 
-function normalizeLineDisplay(line) {
+const LINE_DISPLAY_OVERRIDES = {
+  'Dampfbahn Bern': { R: 'Regio', EXT: 'EXT' },
+  'rvo': { S12: 'Regio'},
+  'THURBO': { 14: 'S14', 44: 'S44', 1: 'RE1'},
+  'SBB': { 75: 'IR75', N1: 'IRN1', N7: 'REN7'},
+  'Wengernalpbahn': { 63: 'CC63', 64: 'CC64'},
+  'Jungfraubahn': { 65: 'CC65'},
+  'Gornergratbahn': { 48: 'CC48'},
+  '121': { 48: 'CC48'},
+  'Forchbahn': { 18: 'S18'},
+};
+
+function normalizeLineDisplay(line, agencyName = '', agencyId = '') {
   if (!line) return '';
   const upper = line.toUpperCase();
+  const overrideLine = upper.replace(/\s*\(\d+\)\s*$/g, '').trim();
+
+  const agencyOverride = Object.entries(LINE_DISPLAY_OVERRIDES)
+    .find(([agency]) =>
+      String(agencyName).toUpperCase().includes(agency.toUpperCase()) ||
+      String(agencyId).toUpperCase() === agency.toUpperCase()
+    )?.[1];
+  if (agencyOverride && Object.prototype.hasOwnProperty.call(agencyOverride, overrideLine)) {
+    return agencyOverride[overrideLine];
+  }
   
   if (upper.startsWith('TGV LYRIA')) return 'TGV Lyria';
   if (upper.startsWith('TER')) return 'TER';
@@ -391,6 +722,10 @@ function normalizeLineDisplay(line) {
   if (upper.startsWith('GATWICK EXPRESS')) return 'GX';
   if (upper.startsWith('ELIZABETH LINE')) return 'ELZ';
   if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
+  if (upper.startsWith('HEATHROW EXPRESS')) return 'LHR';
+  if (upper.startsWith('THAMESLINK')) return 'TL';
+  if (upper.startsWith('FLIXTRAIN')) {const flixLine = line.replace(/^FLIXTRAIN\s*/i, '');return /^FLX\d/i.test(flixLine) ? flixLine : `FLX ${flixLine}`.trim();}
+  if (upper.startsWith('FLIXBUS')) {const flixLine = line.replace(/^FLIXBUS\s*/i, '');return /^FLXB\d/i.test(flixLine) ? flixLine : `FLXB ${flixLine}`.trim();}
   
   return line.replace(/\s*\(\d+\)\s*$/g, '').trim();
 }
@@ -673,7 +1008,87 @@ async function loadTripDestinationAsync(dep, tbody, depIdx) {
 
 // ─── Abfahrten/Ankünfte laden ────────────────────────────────────────────────
 
+async function fetchDepartureBatch(refEpoch, batchSize = DEPARTURE_BATCH_SIZE) {
+  let departures;
+
+  if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
+    departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, batchSize);
+  } else {
+    let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=${batchSize}&nearby=true`;
+    if (isArrivalsMode) q += '&arrivals=true';
+    if (refEpoch) q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
+
+    const res = await fetch(q);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    if (currentStationName === 'Station wählen' && data.station?.name) {
+      currentStationName = data.station.name;
+      updateStationTitle(currentStationName);
+    }
+
+    departures = (data.departures || []).map(dep => ({
+      ...dep,
+      _stopId: currentStopId,
+      _fromStation: currentStationName,
+      _isMainStation: true
+    }));
+  }
+
+  if (nearbySettings.enabled && currentStationName !== 'Station wählen') {
+    try {
+      const nearby = await fetchNearbyDepartureGroups(refEpoch);
+      departures = mergeNearbyDepartures({
+        departures: departures.map(dep => ({ ...dep, _isMainStation: true })),
+        nearby
+      }, currentStopId, currentStationName);
+    } catch (err) {
+      console.warn('Nearby-Stationen konnten nicht geladen werden:', err);
+    }
+  }
+
+  return deduplicateDepartures(departures);
+}
+
+function updateLoadMoreButton() {
+  const button = document.getElementById('btn-load-more');
+  if (!button) return;
+  button.style.display = allDepartures.length >= DEPARTURE_BATCH_SIZE ? 'block' : 'none';
+  button.disabled = isLoadingMoreDepartures;
+  button.textContent = isLoadingMoreDepartures ? 'Lade…' : 'Mehr laden';
+}
+
+async function loadMoreDepartures() {
+  if (isLoadingMoreDepartures || customDepartures || !currentStopId || allDepartures.length === 0) return;
+
+  const latestEpoch = Math.max(...allDepartures.map(dep => dep.scheduled || dep.live || 0));
+  if (!latestEpoch) return;
+
+  isLoadingMoreDepartures = true;
+  updateLoadMoreButton();
+
+  try {
+    const nextDepartures = await fetchDepartureBatch(latestEpoch + 1);
+    const existingCount = allDepartures.length;
+    allDepartures = deduplicateDepartures([...allDepartures, ...nextDepartures]);
+    if (allDepartures.length > existingCount) renderDepartures(allDepartures);
+  } catch (err) {
+    console.warn('Weitere Fahrten konnten nicht geladen werden:', err);
+    setStatus(`Weitere Fahrten konnten nicht geladen werden: ${err.message}`);
+  } finally {
+    isLoadingMoreDepartures = false;
+    updateLoadMoreButton();
+  }
+}
+
 async function loadDepartures(refEpoch) {
+  if (customDepartures) {
+    allDepartures = customDepartures;
+    renderDepartures(allDepartures);
+    updateNavButtonsVisibility();
+    updateLoadMoreButton();
+    return;
+  }
   if (!currentStopId) return;
   setStatus(isArrivalsMode ? 'Lade Ankünfte…' : 'Lade Abfahrten…');
 
@@ -687,11 +1102,9 @@ async function loadDepartures(refEpoch) {
     if (window.combinedStationsReady && window.combinedStations && window.combinedStations[currentStationName]) {
       console.log('Using combined departures/arrivals for:', currentStationName);
       departures = await fetchCombinedDepartures(currentStopId, currentStationName, refEpoch, 25);
-      // Deduplicate combined departures
-      departures = deduplicateDepartures(departures);
     } else {
       console.log('Using single station departures/arrivals for:', currentStationName);
-      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25`;
+      let q = `${PROXY}?action=departures&stopId=${encodeURIComponent(currentStopId)}&n=25&nearby=true`;
       if (isArrivalsMode) q += '&arrivals=true';
       if (refEpoch) {
         q += `&time=${encodeURIComponent(new Date(refEpoch * 1000).toISOString())}`;
@@ -706,13 +1119,32 @@ async function loadDepartures(refEpoch) {
         return;
       }
 
-      departures = data.departures || [];
-      departures = departures.map(dep => ({
+      if (currentStationName === 'Station wählen' && data.station?.name) {
+        currentStationName = data.station.name;
+        updateStationTitle(currentStationName);
+      }
+
+      departures = (data.departures || []).map(dep => ({
         ...dep,
+        _stopId: currentStopId,
         _fromStation: currentStationName,
         _isMainStation: true
       }));
     }
+
+    if (nearbySettings.enabled && currentStationName !== 'Station wählen') {
+      try {
+        const nearby = await fetchNearbyDepartureGroups(refEpoch);
+        departures = mergeNearbyDepartures({
+          departures: departures.map(dep => ({ ...dep, _isMainStation: true })),
+          nearby
+        }, currentStopId, currentStationName);
+      } catch (err) {
+        console.warn('Nearby-Stationen konnten nicht geladen werden:', err);
+      }
+    }
+
+    departures = deduplicateDepartures(departures);
 
     allDepartures = departures;
     renderDepartures(allDepartures);
@@ -721,9 +1153,11 @@ async function loadDepartures(refEpoch) {
       : 'Aktualisiert um: ' + new Date().toLocaleTimeString('de-CH'));
     
     updateNavButtonsVisibility();
+    updateLoadMoreButton();
   } catch (err) {
     renderError(err.message);
     updateNavButtonsVisibility();
+    updateLoadMoreButton();
   }
 
   clearTimeout(refreshTimer);
@@ -821,6 +1255,38 @@ function deduplicateDepartures(departures) {
   });
 
   return deduplicated;
+}
+
+function mergeNearbyDepartures(data, fallbackStopId, fallbackStationName) {
+  const mainEntries = [];
+  const nearbyEntries = [];
+  const addEntries = (items, stopId, stationName, isMainStation) => {
+    if (!Array.isArray(items)) return;
+    items.forEach(dep => {
+      if (!dep || typeof dep !== 'object') return;
+      const entry = {
+        ...dep,
+        _stopId: String(dep.stopId || dep._stopId || stopId || fallbackStopId),
+        _fromStation: dep._fromStation || stationName || fallbackStationName,
+        _isMainStation: dep._isMainStation ?? isMainStation
+      };
+      (entry._isMainStation ? mainEntries : nearbyEntries).push(entry);
+    });
+  };
+
+  addEntries(data.departures, fallbackStopId, fallbackStationName, true);
+  const nearby = Array.isArray(data.nearby) ? data.nearby : [];
+  nearby.forEach(station => {
+    const stop = station.stop || station.station || station;
+    addEntries(
+      station.departures || station.results || stop.departures,
+      stop.stopId || stop.id,
+      stop.name || stop.stationName,
+      String(stop.stopId || stop.id) === String(fallbackStopId)
+    );
+  });
+
+  return [...mainEntries, ...nearbyEntries];
 }
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────

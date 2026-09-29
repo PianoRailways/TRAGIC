@@ -35,6 +35,7 @@
   --pifas-timenav: #eef;
   --live-red:   #ff3b30;
   --plat-change:#fcbb00;
+  --sbb-night: #FFDE15;
 }
 /* 1. Mode-basiert (niedrig spezifisch) */
 .line-container[data-mode="HIGHSPEED"]  { background: var(--sbb-red); }
@@ -63,57 +64,58 @@
 /* 3. Agency + Line (sehr spezifisch - gewinnt immer) */
 /* VBZ */
 
-.line-container[data-agency-id="3849"][data-line="50"], .line-container[data-agency-id="3849"][data-line="51"] { background: black; color: white; }
-.line-container[data-agency-id="3849"][data-line="2"] { background: #e7000e; color: white; }
-.line-container[data-agency-id="3849"][data-line="3"] { background: #009A38; color: white; }
-.line-container[data-agency-id="3849"][data-line="4"] { background: #46398e; color: white; }
-.line-container[data-agency-id="3849"][data-line="5"] { background: #955b29; color: white; }
-.line-container[data-agency-id="3849"][data-line="6"] { background: #d89d3e; color: white; }
-.line-container[data-agency-id="3849"][data-line="7"] { background: black; color: white; }
-.line-container[data-agency-id="3849"][data-line="8"] { background: #A6C700; color: black; }
-.line-container[data-agency-id="3849"][data-line="9"] { background: #46398e; color: white; }
-.line-container[data-agency-id="3849"][data-line="10"] { background: #e82788; color: white; }
-.line-container[data-agency-id="3849"][data-line="11"] { background: #009A38; color: white; }
-.line-container[data-agency-id="3849"][data-line="12"] { background: #85cfe0; color: black; }
-.line-container[data-agency-id="3849"][data-line="13"] { background: #ffd200; color: black; }
-.line-container[data-agency-id="3849"][data-line="14"] { background: #00A1E5; color: white; }
-.line-container[data-agency-id="3849"][data-line="15"] { background: #e7000e; color: white; }
-.line-container[data-agency-id="3849"][data-line="16"] { background: #004E67; color: white; }
-.line-container[data-agency-id="3849"][data-line="17"] { background: #9e1762; color: white; }
-.line-container[data-agency-id="3849"][data-line="20"] { background: rgb(142,34,77); color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="50"], .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="51"] { background: black; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="2"] { background: #e7000e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="3"] { background: #009A38; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="4"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="5"] { background: #955b29; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="6"] { background: #d89d3e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="7"] { background: black; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="8"] { background: #A6C700; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="9"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="10"] { background: #e82788; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="11"] { background: #009A38; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="12"] { background: #85cfe0; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="13"] { background: #ffd200; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="14"] { background: #00A1E5; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="15"] { background: #e7000e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="16"] { background: #004E67; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="17"] { background: #9e1762; color: white; }
+.line-container[data-agency-name*="Aargau"][data-line="20"][data-mode="TRAM"] { background: rgb(142,34,77); color: white; }
 
-.line-container[data-agency-id="849"][data-line="31"] { background: #9fa3cd; color: white; }
-.line-container[data-agency-id="849"][data-line="32"] { background: #dab2d2; color: black; }
-.line-container[data-agency-id="849"][data-line="33"] { background: #e9e6a5; color: black; }
-.line-container[data-agency-id="849"][data-line="46"] { background: #c5dfa5; color: black; }
-.line-container[data-agency-id="849"][data-line="61"] { background: #98908A; color: white; }
-.line-container[data-agency-id="849"][data-line="62"] { background: #D0C4B6; color: black; }
-.line-container[data-agency-id="849"][data-line="72"] { background: #D8AA99; color: black; }
-.line-container[data-agency-id="849"][data-line="80"] { background: #CDD7BB; color: black; }
-.line-container[data-agency-id="849"][data-line="89"] { background: #D0C4B6; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="31"] { background: #9fa3cd; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="32"] { background: #dab2d2; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="33"] { background: #e9e6a5; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="46"] { background: #c5dfa5; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="61"] { background: #98908A; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="62"] { background: #D0C4B6; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="72"] { background: #D8AA99; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="80"] { background: #CDD7BB; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="89"] { background: #D0C4B6; color: black; }
 
-.line-container[data-agency-id="849"][data-line="301"] { background: #A6C700; color: black; }
-.line-container[data-agency-id="849"][data-line="302"] { background: #009A38; color: white; }
-.line-container[data-agency-id="849"][data-line="303"] { background: #46398e; color: white; }
-.line-container[data-agency-id="849"][data-line="304"] { background: #e7000e; color: white; }
-.line-container[data-agency-id="849"][data-line="305"] { background: #955b29; color: white; }
-.line-container[data-agency-id="849"][data-line="306"] { background: #ffd200; color: black; }
-.line-container[data-agency-id="849"][data-line="307"] { background: #d89d3e; color: white; }
-.line-container[data-agency-id="849"][data-line="308"] { background: #e82788; color: white; }
-.line-container[data-agency-id="849"][data-line="309"] { background: #00A1E5; color: white; }
-.line-container[data-agency-id="849"][data-line="314"] { background: #f37b72; color: white; }
-.line-container[data-agency-id="849"][data-line="317"] { background: #46398e; color: white; }
-.line-container[data-agency-id="849"][data-line="325"] { background: #e82788; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="301"] { background: #A6C700; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="302"] { background: #009A38; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="303"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="304"] { background: #e7000e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="305"] { background: #955b29; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="306"] { background: #ffd200; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="307"] { background: #d89d3e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="308"] { background: #e82788; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="309"] { background: #00A1E5; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="314"] { background: #f37b72; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="317"] { background: #46398e; color: white; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="325"] { background: #e82788; color: white; }
 
-.line-container[data-agency-id="849"], .line-container[data-agency-id="3849"] { background: white; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"], .line-container[data-agency-name^="Verkehrsbetriebe Zürich"] { background: white; color: black; }
 .line-container[data-agency-id="Zürich"][data-line="E"] { background: white; color: black; border: solid 1px rgb(144,190,227); }
 .line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
 
-.line-container[data-agency-id="849"][data-line^="N"] {color:rgb(255,242,0); background-color:rgb(0,0,0);} /* VBZ Nachtnetz */
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="N"] {color:rgb(255,242,0); background-color:rgb(0,0,0);} /* VBZ Nachtnetz */
 
 /* Verkehrsbetriebe Glattal */
 .line-container[data-agency-name*="Glattal"] { background: #90c53e; color: white; }
-.line-container[data-agency-id="849"][data-line^="91"] { background: #D0B084; color: black; } /* AZZK */
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="91"] { background: #D0B084; color: black; } /* AZZK */
+.line-container[data-agency-name^="Verkehrsbetriebe Zürichsee"] { background: #002e77; color: white; } /* VBZ */
 
 /* Stadtbus Winterthur */
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line="1"] { background: #A8C42E; color: white; }
@@ -186,6 +188,11 @@
 .line-container[data-agency-id="49"][data-line^="R"] { background: #f2e7c9; color: #084cb9; }
 .line-container[data-agency-id="49"][data-line^="RE"] { background: #f2e7c9; color: var(--sbb-red); }
 
+/* FLP Lugano Ponte Tresa */
+.line-container[data-agency-name*="Tresa"] { background: #fff; color: #e95e0c; }
+/* Trasporti Luganesi SA */
+.line-container[data-agency-name="Trasporti Pubblici Luganesi SA"] { background: #004B93; color: #62B535; }
+.line-container[data-agency-name="Autolinee Regionali Luganesi"] { background: #e43b2d; color: #fff; }
 /* Bus Aarau */
 .line-container[data-agency-id="840"][data-line="1"] { background: rgb(219,57,49); color: white; }
 .line-container[data-agency-id="840"][data-line="2"] { background: rgb(86,176,88); color: white; }
@@ -196,7 +203,19 @@
 .line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
 .line-container[data-agency-id="840"][data-line^="N"] { background: #231F20; color: #EBE835; }
-
+/* BOGG Olten */
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="501"] { background: #EE0023; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="502"] { background: #79BE52; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="503"] { background: #EB7729; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="505"] { background: #24703D; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="506"] { background: #673182; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="507"] { background: #FFD734; color: black; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="508"] { background: #00539E; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="509"] { background: #09A4C6; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="513"] { background: #F077A8; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="517"] { background: #9A70AD; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="519"] { background: #DA1888; color: white; }
+.line-container[data-agency-name^="Busbetrieb Olten"][data-line="555"] { background: #913E23; color: white; }
 /* RVBW */
 .line-container[data-agency-name*="Wettingen"][data-line="1"] { background: #EE1D23; color: white; }
 .line-container[data-agency-name*="Wettingen"][data-line="2"] { background: #0097D8; color: white; }
@@ -218,7 +237,44 @@
 .line-container[data-agency-name^="Aargau Verkehr"][data-mode="BUS"] { background: #000066; color: white; }
 /* VBL Luzern Passepartout */
 .line-container[data-agency-name*="Luzern"] { background: #0f65a6; color: white}
-.line-container[data-agency-name*="Luzern"][data-line^="N"] { background: #000000; color: #FFED00}
+.line-container[data-agency-name*="Luzern"][data-line^="N"] { background: #000000; color: #FFED00} /* Nachtstern */
+.line-container[data-agency-name*="Rottal"] { color: #e42322; background: white} /* Rottal / Willisau */
+.line-container[data-agency-name*="Rottal"][data-line^="N"] { color: #e42322; background: white; border: dotted 2px #e42322; } /* Rottal Nacht */
+
+/* Zug */
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"] { color: white; background: #878787; border: solid 1px #004986;}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="347"] { color: white; background: #008AC9}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="348"] { color: white; background: #9D0F12}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="525"] { color: white; background: #005F27}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="526"] { color: white; background: #D0A9D0}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="601"] { color: white; background: #D20B11}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="602"] { color: white; background: #5BC5F2}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="603"] { color: white; background: #AFCC46}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="604"] { color: white; background: #F39200}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="605"] { color: white; background: #008237}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="606"] { color: white; background: #253182}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="607"] { color: white; background: #5F8F55}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="609"] { color: white; background: #79211D}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="610"] { color: white; background: #CF96C3}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="611"] { color: white; background: #8C3D87}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="612"] { color: white; background: #C3A673}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="613"] { color: white; background: #007EC6}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="614"] { color: white; background: #A91A51}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="616"] { color: white; background: #ED6839}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="622"] { color: white; background: #E30614}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="626"] { color: white; background: #F39200}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="627"] { color: white; background: #253182}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="631"] { color: white; background: #E94290}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="632"] { color: white; background: #005F8B}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="634"] { color: white; background: #005F27}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="636"] { color: white; background: #5BC5F2}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="641"] { color: white; background: #009CD6}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="642"] { color: white; background: #611C70}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="648"] { color: white; background: #D20B11}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="651"] { color: white; background: #F39200}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="652"] { color: white; background: #253182}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="653"] { color: white; background: #94B2C3}
+.line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line^="N"] { color: #FFC600; background: #000; } /* Nachtbusse */
 /* Bernmobil + RBS */
 .line-container[data-agency-id="827"][data-line^="3"] { background: #AABDC7; color: white; }
 .line-container[data-agency-id="827"][data-line^="6"] { background: rgb(56,127,196); color: white; }
@@ -343,6 +399,7 @@
 
 /* TransN */
 .line-container[data-agency-name*="Neuchâtel"]{background: #7BB600; color:black;}
+.line-container[data-agency-name*="Neuchâtel"][data-mode="FERRY"]{background: #006072; color:#ffbf00; border:#1a6ea8 solid 1px;}
 
 .line-container[data-agency-name*="Neuchâtel"][data-line="101"]{background: #2D3291; color:white;}
 .line-container[data-agency-name*="Neuchâtel"][data-line="102"]{background: #4696D2; color:white;}
@@ -386,10 +443,10 @@
 .line-container[data-agency-name*="Neuchâtel"][data-line="R24"]{background: #D282B4; color:white;}
 
 /* TL Lausanne */
-.line-container[data-agency-id="151"][data-line^="m"] {position: relative;background-color: #0152A3;color: white;}
-.line-container[data-agency-id="151"][data-line^="m"]::after {content: "";position: absolute;top: 62%;right: 2px;transform: translateY(-50%);width: 13px;height: 13px;background-size: contain;background-repeat: no-repeat;background-position: center;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23e3007b' d='M83.4 16.6C65 -1.9 35 -1.9 16.6 16.6c-18.5 18.5-18.5 48.4 0 66.9 18.5 18.5 48.4 18.5 66.9 0 18.4-18.5 18.4-48.4-.1-66.9zM22.8 77.2L68 32c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L28.9 83.3c-2.3-1.8-4.4-3.8-6.1-6.1zm11.9 11.9L79.9 43.9c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L40.8 95.2c-2.2-1.8-4.2-3.9-6.1-6.1zM6.8 45.1L52 0c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L12.9 51.2c-2.2-1.9-4.3-3.9-6.1-6.1z'/%3E%3C/svg%3E");}
+.line-container[data-agency-name*="Lausannoise"][data-line^="m"] {position: relative;background-color: #0152A3;color: white;}
+.line-container[data-agency-name*="Lausannoise"][data-line^="m"]::after {content: "";position: absolute;top: 62%;right: 2px;transform: translateY(-50%);width: 13px;height: 13px;background-size: contain;background-repeat: no-repeat;background-position: center;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23e3007b' d='M83.4 16.6C65 -1.9 35 -1.9 16.6 16.6c-18.5 18.5-18.5 48.4 0 66.9 18.5 18.5 48.4 18.5 66.9 0 18.4-18.5 18.4-48.4-.1-66.9zM22.8 77.2L68 32c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L28.9 83.3c-2.3-1.8-4.4-3.8-6.1-6.1zm11.9 11.9L79.9 43.9c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L40.8 95.2c-2.2-1.8-4.2-3.9-6.1-6.1zM6.8 45.1L52 0c1.7-1.7 4.4-1.7 6.1 0 1.7 1.7 1.7 4.4 0 6.1L12.9 51.2c-2.2-1.9-4.3-3.9-6.1-6.1z'/%3E%3C/svg%3E");}
 
-.line-container[data-agency-id="55"] {color: #5AB031;background: white;}
+.line-container[data-agency-name="Lausanne-Echallens-Bercher"] {color: #5AB031;background: white;}
 /* BOB / Jungfraubahnen */
 .line-container[data-agency-name="Berner Oberland-Bahnen"],
 .line-container[data-agency-name^="Wengernalpbahn"],
@@ -477,7 +534,8 @@
 .line-container[data-agency-name*="Matterhorn"][data-line="R45"] { background: #A72D42; color: white; }
 .line-container[data-agency-name*="Matterhorn"][data-line="R46"] { background: #F88C29; color: white; }
 
-.line-container[data-agency-name="Gornergratbahn"] { background: #FFB82D; color: white; }
+.line-container[data-agency-name="Gornergratbahn"],
+.line-container[data-agency-id="121"][data-line*="48"] { background: #FFB82D; color: white; }
 /* MBC etc. */
 .line-container[data-agency-id="64"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="131"][data-line^="R"] { background: white; color: black; }
@@ -502,28 +560,37 @@
 .line-container[data-agency-id="86"][data-line="R70"] { background: #009767; color: white; }
 .line-container[data-agency-id="86"][data-line="R71"] { background: #76B72A; color: white; }
 /* SBB */
-.line-container[data-agency-id="11"][data-line^="TER"] { background: white; color: black; }
+.line-container[data-agency-id="11"][data-line^="TER"],
+.line-container[data-agency-id="11"][data-line^="S"],
 .line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
+
 .line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
-.line-container[data-agency-id="11"][data-line^="S"] { background: white; color: black; }
-.line-container[data-agency-id="11"][data-line^="IR"] { background: #eb0000; color: white; }
-.line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; }
+
+.line-container[data-agency-id="11"][data-line^="IR"],
+.line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; font-style: italic; }
+
 .line-container[data-agency-id="11"][data-line^="EC"],
-.line-container[data-agency-id="11"][data-line^="EN"],
+.line-container[data-agency-id="11"][data-line^="EN"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+
 .line-container[data-agency-id="11"][data-line^="ICN"],
+.line-container[data-agency-id="11"][data-line^="ICE"],
 .line-container[data-agency-id="11"][data-line^="TGV"],
 .line-container[data-agency-id="11"][data-line^="CNL"],
 .line-container[data-agency-id="11"][data-line^="RJ"],
-.line-container[data-agency-id="11"][data-line^="RJX"],
+.line-container[data-agency-id="11"][data-line^="RJX"] { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-id="11"][data-line^="RX"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+.line-container[data-agency-name*="SBB"][data-line*="SN"],
+.line-container[data-agency-name*="SBB"][data-line*="REN"] { background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); }
+.line-container[data-agency-name*="SBB"][data-line^="IRN"] {background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); font-style: italic; font-weight: bold; }
+
 .line-container[data-agency-id="11"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
-.line-container[data-agency-id="11"][data-line*="N"] { font-style: italic; background: transparent; color: #FFDE15; }
-.line-container[data-agency-name*="SBB"][data-line^="SN"] { background: transparent; color: #FFDE15; border: 0.5px solid #FFDE15; }
 
 .line-container[data-line="GEX"],
 .line-container[data-line="BEX"],
-.line-container[data-agency-id="11"][data-line^="PE"] { background: #eb0000; color: white; }
+.line-container[data-agency-id="11"][data-line^="PE"] { background: #eb0000; color: white; font-style: italic; }
+
 .line-container[data-line^="EXT"],
-.line-container[data-line^="AG"] { background: #eb0000; color: white; }
+.line-container[data-line^="AG"] { background: #eb0000; color: white; font-style: italic; }
 .line-container[data-line^="MAT"],
 .line-container[data-line^="DZ"] { background: black; color: white; }
 
@@ -548,6 +615,26 @@
 .line-container[data-agency-id="833"][data-line="123"] { background: rgb(41,54,141); color: white; }
 .line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
+/* Emmentalbahn / Dampfbahn Bern */
+.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Dampfbahn Bern"] {position: relative;padding-right: 1.7rem;}
+.line-container[data-agency-name*="Dampfbahn Bern"]::after {
+  content: "DBB";
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  font-size: 0.45rem;
+  line-height: 1;
+  font-weight: bold;
+  background: #4b2b1d;
+  color: #e2c878;
+  padding: 3px 4px;
+  display: inline-block;
+  letter-spacing: 0.02em;
+  border: 1px solid #a88a4b;
+  border-radius: 3px;
+}
 /* Thurbo inkl. DELFI Thurbo */
 .line-container[data-agency-name="THURBO"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 .line-container[data-agency-name="THURBO"][data-line^="S"] { background: white; color: black; }
@@ -602,6 +689,8 @@
 .line-container[data-line="GWR"] { background: #0A493E; color: white; }
 .line-container[data-line="Southeastern"] { background: #1E1E50; color: white; }
 .line-container[data-line="EMR"] { background: #4C2F48; color: white; }
+.line-container[data-line="CrossCountry"] { background: #ca123f; color: #f8efe3; }
+.line-container[data-line="Heathrow Express"] { background: #5d226c; color: white; }
 
 .line-container[data-agency-name="Elizabeth line"] { background: #6F4B9E; color: white; }
 .line-container[data-line="DLR"] { background: #00AFA9; color: black; }
@@ -645,12 +734,28 @@
 .line-container[data-agency-id="823"][data-line="14"] { background: rgb(230,136,60); color: white; }
 .line-container[data-agency-id="823"][data-line="15"] { background: rgb(73,163,89); color: white; }
 .line-container[data-agency-id="823"][data-line="16"] { background: rgb(174,205,84); color: white; }
-.line-container[data-agency-id="823"][data-line="17"] { background: rgb(78,172,233); color: white; }
-.line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT */
+.line-container[data-agency-id="37"][data-line="17"] { background: rgb(78,172,233); color: white; }
+
+.line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT Waldenburg*/
 
 .line-container[data-agency-id="823"][data-mode="BUS"] { background: #C7C8CA; color: black; } /* BVB Bus */
 .line-container[data-agency-name*="Liestal"] { background: #FFF064; color: black; } /* Auto AG Liestal */
 
+/* Distribus */
+.line-container[data-agency-name="DISTRIBUS"][data-line="1"] { background: rgb(53,105,176); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="2"] { background: rgb(218,59,52); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="5"] { background: rgb(84,38,98); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="6"] { background: rgb(226,117,62); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="9"] { background: rgb(93, 93, 92); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="10"] { background: rgb(93, 93, 92); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="11"] { background: rgb(153,82,154); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="12"] { background: rgb(117,193,200); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="13"] { background: rgb(117,193,200); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="15"] { background: rgb(155,193,84); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="15"] { background: rgb(117,193,200); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="604"] { background: rgb(63,134,74); color: white; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="604"] { background: rgb(248,211,80); color: black; }
+.line-container[data-agency-name="DISTRIBUS"][data-line="608"] { background: rgb(191,144,187); color: black; }
 /* Polen */
 .line-container[data-agency-id="12617"],
 .line-container[data-agency-name="PKP Intercity"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
@@ -725,6 +830,58 @@
 
 /* === Frankreich === */
 
+/* RATP Paris (Metro, RER, Tramway) */
+.line-container[data-agency-name="RATP"] {background: #00AB91;position: relative;}
+.line-container[data-agency-name="RATP"]::before {position: absolute;left: 0;top: 50%;transform: translateY(-50%);display: flex;align-items: center;justify-content: center;width: 24px;height: 24px;border-radius: 50%;font-weight: bold;font-size: 12px;z-index: 1;color:white}
+
+.line-container[data-agency-name="RATP"][data-line="A"]::before {content:"A";background:#FF1400;}
+.line-container[data-agency-name="RATP"][data-line="B"]::before {content:"B";background:#3C91DC;}
+.line-container[data-agency-name="RATP"][data-line="C"]::before {content:"C";background:#FFBE00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="D"]::before {content:"D";background:#00643C;}
+.line-container[data-agency-name="RATP"][data-line="E"]::before {content:"E";background:#00643C;}
+.line-container[data-agency-name="RATP"][data-line="H"]::before {content:"H";background:#6E491E;}
+.line-container[data-agency-name="RATP"][data-line="J"]::before {content:"J";background:#D2D200;color:black;}
+.line-container[data-agency-name="RATP"][data-line="K"]::before {content:"K";background:#6E6E00;}
+.line-container[data-agency-name="RATP"][data-line="L"]::before {content:"L";background:#D282BE;color:black;}
+.line-container[data-agency-name="RATP"][data-line="N"]::before {content:"N";background:#00A092;}
+.line-container[data-agency-name="RATP"][data-line="P"]::before {content:"P";background:#FF5A00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="R"]::before {content:"R";background:#FF82B4;color:black;}
+.line-container[data-agency-name="RATP"][data-line="U"]::before {content:"U";background:#A50034;}
+.line-container[data-agency-name="RATP"][data-line="V"]::before {content:"V";background:#6E6E00;}
+
+.line-container[data-agency-name="RATP"][data-line="1"]::before {content:"1";background:#FFBE00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="2"]::before {content:"2";background:#0055C8;}
+.line-container[data-agency-name="RATP"][data-line="3"]::before {content:"3";background:#6E6E00;}
+.line-container[data-agency-name="RATP"][data-line="3bis"]::before {content:"3bis";background:#82C8E6;}
+.line-container[data-agency-name="RATP"][data-line="4"]::before {content:"4";background:#A0006E;}
+.line-container[data-agency-name="RATP"][data-line="5"]::before {content:"5";background:#FF5A00;color:black;}
+.line-container[data-agency-name="RATP"][data-line="6"]::before {content:"6";background:#82DC73;color:black;}
+.line-container[data-agency-name="RATP"][data-line="7"]::before {content:"7";background:#FF82B4;color:black;}
+.line-container[data-agency-name="RATP"][data-line="7bis"]::before {content:"7bis";background:#82DC73;color:black;}
+.line-container[data-agency-name="RATP"][data-line="8"]::before {content:"8";background:#D282BE;color:black;}
+.line-container[data-agency-name="RATP"][data-line="9"]::before {content:"9";background:#D2D200;color:black;}
+.line-container[data-agency-name="RATP"][data-line="10"]::before {content:"10";background:#DC9600;color:black;}
+.line-container[data-agency-name="RATP"][data-line="11"]::before {content:"11";background:#6E491E;}
+.line-container[data-agency-name="RATP"][data-line="12"]::before {content:"12";background:#00643C;}
+.line-container[data-agency-name="RATP"][data-line="13"]::before {content:"13";background:#82C8E6;}
+.line-container[data-agency-name="RATP"][data-line="14"]::before {content:"14";background:#640082;}
+
+.line-container[data-agency-name="RATP"][data-line="T1"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #0055C8, inset 0 -3.5px 0 #0055C8; }
+.line-container[data-agency-name="RATP"][data-line="T2"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #A0006E, inset 0 -3.5px 0 #A0006E; }
+.line-container[data-agency-name="RATP"][data-line="T3a"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #FF5A00, inset 0 -3.5px 0 #FF5A00; }
+.line-container[data-agency-name="RATP"][data-line="T3b"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #00643C, inset 0 -3.5px 0 #00643C; }
+.line-container[data-agency-name="RATP"][data-line="T4"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #DC9600, inset 0 -3.5px 0 #DC9600; }
+.line-container[data-agency-name="RATP"][data-line="T5"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #640082, inset 0 -3.5px 0 #640082; }
+.line-container[data-agency-name="RATP"][data-line="T6"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #FF0000, inset 0 -3.5px 0 #FF0000; }
+.line-container[data-agency-name="RATP"][data-line="T7"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #6E491E, inset 0 -3.5px 0 #6E491E; }
+.line-container[data-agency-name="RATP"][data-line="T8"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #6E6E00, inset 0 -3.5px 0 #6E6E00; }
+.line-container[data-agency-name="RATP"][data-line="T9"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #3C91DC, inset 0 -3.5px 0 #3C91DC; }
+.line-container[data-agency-name="RATP"][data-line="T10"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #6E6E00, inset 0 -3.5px 0 #6E6E00; }
+.line-container[data-agency-name="STRETTO"][data-line="T11"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #FF5A00, inset 0 -3.5px 0 #FF5A00; }
+.line-container[data-agency-name="RATP"][data-line="T12"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #6E6E00, inset 0 -3.5px 0 #6E6E00; }
+.line-container[data-agency-name="RATP"][data-line="T13"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #6E491E, inset 0 -3.5px 0 #6E491E; }
+.line-container[data-agency-name="RATP"][data-line="T14"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #00A092, inset 0 -3.5px 0 #00A092; }
+.line-container[data-agency-name="RATP"][data-line="C1"] { background:#ffffff;color:black; box-shadow: inset 0 3.5px 0 #3C91DC, inset 0 -3.5px 0 #3C91DC; }
 /* SNCF – TER Linien */
 .line-container[data-agency-name="SNCF VOYAGEURS"][data-line^="TER"] {
   background: #004b87; color: white;
@@ -746,7 +903,7 @@
 }
 
 /* Österreich */
-.line-container[data-agency-id="02"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
+.line-container[data-agency-name^="WESTbahn"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
 
 /* Niederlanden */
 .line-container[data-agency-name="NS"] { background: #ffc917; color: #003082; }
@@ -757,3 +914,6 @@
 .line-container[data-agency-name="Arriva"] { background: #33cbd7; color: white; }
 
 .line-container[data-agency-name="European Sleeper"] { background: #40002c; color: white; } /* European Sleeper */
+
+/* Belgien */
+.line-container[data-agency-name*="SNCB"] { background: #006ab3; color: white; } /* SNCB */

@@ -85,7 +85,7 @@ function renderChain(data) {
       const depDisp = stop.departureSched ? fmtTime(stop.departureSched) : null;
       
       const arrDelayHtml = stop.cancelled
-        ? '<span class="cancelled">Ausfall</span>'
+        ? '<span class="cancelled">x</span>'
         : (stop.arrivalDelaySec !== null && stop.arrivalDelaySec !== undefined
             ? (Math.floor(stop.arrivalDelaySec / 60) < 0
                 ? `<span class="vbz-delay">${fmtDelay(stop.arrivalDelaySec)}</span>`
@@ -95,7 +95,7 @@ function renderChain(data) {
             : '');
       
       const depDelayHtml = stop.cancelled
-        ? '<span class="cancelled">Ausfall</span>'
+        ? '<span class="cancelled">x</span>'
         : (stop.departureDelaySec !== null && stop.departureDelaySec !== undefined
             ? (Math.floor(stop.departureDelaySec / 60) < 0
                 ? `<span class="vbz-delay">${fmtDelay(stop.departureDelaySec)}</span>`
@@ -258,9 +258,13 @@ function renderChain(data) {
       </div>`
     : '';
 
+  const chainTripNumHtml = data.tripNumber
+    ? ' · ' + (data.tripNumberDerived ? '<i>' : '') + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) + (data.tripNumberDerived ? '</i>' : '')
+    : '';
+
   return `
     <div class="chain-header">
-      <b>Linie ${escapeHtml(data.line || '?')}${chainDestName ? ' → ' + escapeHtml(chainDestName) : ''}</b>${data.tripNumber ? ' · ' + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) : ''}
+      <b>Linie ${escapeHtml(data.line || '?')}${chainDestName ? ' → ' + escapeHtml(chainDestName) : ''}</b>${chainTripNumHtml}
     </div>
     <div class="chain">
       ${legsHtml}
@@ -311,6 +315,7 @@ function renderDepartures(departures) {
 
     const tr = document.createElement('tr');
     tr.className = 'dep-row';
+    if (depIdx % 2 === 1) tr.classList.add('dep-row-alt');
 
     const needsDestinationFallback = !!dep.tripId && !dep.destination;
     const needsViaLoading = !!dep.tripId && viaLoadingEnabled && !Array.isArray(dep.vias);
@@ -335,9 +340,9 @@ function renderDepartures(departures) {
       }
     }
 
-    const iconHtml = getModeIcon(dep.mode);
     const destName = getDestinationName(dep.destination);
-    const displayLine = normalizeLineDisplay(dep.line);
+    const displayLine = normalizeLineDisplay(dep.line, dep.agencyName, dep.agencyId);
+    const iconHtml = /^S\d/i.test(displayLine) ? '' : getModeIcon(dep.mode);
 
     const tripNumDisplay = formatTripNumber(dep.tripNumber, dep.line);
 
@@ -348,6 +353,7 @@ function renderDepartures(departures) {
     tr.dataset.agencyId = dep.agencyId || '';
     tr.dataset.agencyName = dep.agencyName || '';
     tr.dataset.tripId = dep.tripId || '';
+    tr.dataset.routeId = dep.routeId || '';
     tr.dataset.vias = Array.isArray(dep.vias) ? dep.vias.join(' ') : '';
     tr.dataset.scheduled = dep.scheduled || '';
 
@@ -365,8 +371,8 @@ function renderDepartures(departures) {
     tr.innerHTML = `
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
-        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
-        <div class="col-nr tripnr">${tripNumDisplay}</div>
+        <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(displayLine)}" data-raw-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
+        <div class="col-nr tripnr"${dep.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${tripNumDisplay}</div>
       </td>
       <td class="col-dest">${destDisplay}${viaHtml}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>
@@ -376,6 +382,16 @@ function renderDepartures(departures) {
   });
 
   applyFilters();
+
+  const sharedTripId = new URL(location.href).searchParams.get('tripId');
+  if (sharedTripId) {
+    const sharedRow = [...tbody.querySelectorAll('tr.dep-row')]
+      .find(row => row.dataset.tripId === sharedTripId);
+    const sharedDeparture = departures.find(dep => dep.tripId === sharedTripId);
+    if (sharedRow && sharedDeparture && !sharedRow.nextElementSibling?.classList.contains('chain-row')) {
+      toggleChain(sharedRow, sharedDeparture);
+    }
+  }
 }
 
 // ─── Fahrt-Chain 	─────────────────────────────────────────────────────────────
@@ -384,14 +400,20 @@ async function toggleChain(tr, dep) {
   const existing = tr.nextElementSibling;
   if (existing && existing.classList.contains('chain-row')) {
     existing.remove();
+    tr.classList.remove('chain-open');
+    syncTripToUrl(null);
     return;
   }
   document.querySelectorAll('.chain-row').forEach(r => r.remove());
+  document.querySelectorAll('tr.chain-open').forEach(r => r.classList.remove('chain-open'));
 
   if (!dep.tripId) {
     alert('Keine Fahrtnummer (tripId) vorhanden – Fahrtverlauf nicht möglich.');
     return;
   }
+
+  syncTripToUrl(dep.tripId);
+  tr.classList.add('chain-open');
 
   const chainTr = document.createElement('tr');
   chainTr.className = 'chain-row';
@@ -400,6 +422,11 @@ async function toggleChain(tr, dep) {
   td.innerHTML = '<div class="chain-wrap"><div class="chain-header">Lade Fahrtverlauf…</div></div>';
   chainTr.appendChild(td);
   tr.after(chainTr);
+
+  if (dep.trip) {
+    td.innerHTML = `<div class="chain-wrap">${renderChain(dep.trip)}</div>`;
+    return;
+  }
 
   try {
     const res = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(dep.tripId)}`);

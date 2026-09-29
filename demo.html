@@ -1,81 +1,18 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <script>
-      function hideLoadingScreen() {
-        const screen = document.getElementById('loadingstartscreen');
-        screen.classList.add('hidden');
-        setTimeout(() => {
-          screen.style.display = 'none';
-        }, 300);
-      }
-
-      function waitForStylesheets() {
-        const cssLinks = [...document.querySelectorAll('link[data-loading-critical]')];
-
-        if (cssLinks.length === 0) {
-          return;
-        }
-
-        const pendingLinks = new Set(cssLinks);
-        const settleLink = (link) => {
-          if (!pendingLinks.delete(link)) return;
-          if (pendingLinks.size === 0) hideLoadingScreen();
-        };
-
-        cssLinks.forEach((link) => {
-          link.addEventListener('load', () => settleLink(link), { once: true });
-
-          // The preload may have finished before this script can attach listeners.
-          if (link.dataset.loaded === 'true') settleLink(link);
-        });
-      }
-
-      // The script is in the head, so the stylesheet links do not exist yet.
-      document.addEventListener('DOMContentLoaded', waitForStylesheets, { once: true });
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="preload" as="style" href="./css/line-container.css" data-loading-style onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';" onerror="this.dataset.loaded='true';">
-    <link rel="preload" as="style" href="./css/base.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
-    <link rel="preload" as="style" href="./css/style.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
-    <link rel="preload" as="style" href="./css/views.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
-    <link rel="preload" as="style" href="./css/responsive.css" data-loading-critical onload="this.onload=null; this.rel='stylesheet'; this.dataset.loaded='true';">
+    <link rel="stylesheet" href="./css/line-container.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/views.css">
+    <link rel="stylesheet" href="./css/responsive.css">
     <link rel="icon" type="image/png" href="./tragic.png">
     <link rel="apple-touch-icon" href="./tragic.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>OMNI (NOWE)</title>
-    <style>
-      #loadingstartscreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #32d7d3;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-        transition: opacity 0.3s ease-out;
-      }
-      #loadingstartscreen.hidden {opacity: 0; pointer-events: none;}
-      .spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid #f0f0f0;
-        border-top: 4px solid #333;
-        border-radius: 100%;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% {transform:rotate(0deg);}
-        100% {transform:rotate(360deg);}
-      }
-
-    </style>
 </head>
 <body>
   <!-- ═══════════════ HEADER ═══════════════ -->
@@ -84,16 +21,12 @@
       <button id="btn-menu-toggle" class="btn-menu-toggle" title="Menü öffnen">☰</button>
       <a id="btn-home" href="./?view=home" class="btn-home" title="Startseite">⌂</a>
     </div>
-    <div id="header-center"><span id="live-clock" onClick="window.location = './'">18:04:69</span></div>
+    <div id="header-center"><span id="live-clock" onclick="window.location = './'">18:09:26</span></div>
     <div id="header-right">
       <span id="app-title" style="text-decoration: none;" onclick="toggleArrivalMode()">öV OMNI</span>
     </div>
   </header>
 
-  <!-- ═══════════════ Loadingscreen ═══════════════ -->
-   <div id="loadingstartscreen">
-    <div class="spinner"></div>
-   </div>
   <!-- ═══════════════ HAMBURGER-MENÜ ═══════════════ -->
   <div id="menu-overlay" class="menu-overlay"></div>
   <nav id="menu-sidebar" class="menu-sidebar">
@@ -105,7 +38,7 @@
       <li><a href="./?view=home" class="menu-link">Startseite</a></li>
       <li><a href="./?view=stations" class="menu-link" data-stations-link>Wichtige Bahnhöfe</a></li>
       <li><a href="./?view=departures" class="menu-link">Abfahrten</a></li>
-      <li><a href="./?view=arrivals&arrivals=true" class="menu-link">Ankünfte</a></li>
+      <li><a href="./?view=arrivals&amp;arrivals=true" class="menu-link">Ankünfte</a></li>
       <li><a href="./?view=favorites" class="menu-link" data-favorites-link>Favoriten</a></li>
       <li><a href="./?view=bvi" class="menu-link">Ereignisse</a></li>
 
@@ -150,19 +83,10 @@
         <h3 id="settings-data-title">Daten</h3>
         <div class="settings-control-row">
           <div>
-            <strong>Eigene Fahrten</strong>
-            <span>Fahrten aus dem Server-JSON anzeigen</span>
-          </div>
-          <div class="settings-inline-controls">
-            <button class="mode-btn" id="btn-load-custom-json" type="button">Server-JSON laden</button>
-          </div>
-        </div>
-        <div class="settings-control-row">
-          <div>
             <strong>Via-Nachladung</strong>
             <span>Zusätzliche Zwischenhalte nachladen</span>
           </div>
-          <button class="mode-btn settings-via-toggle" type="button">Via: AUS</button>
+          <button class="mode-btn settings-via-toggle" type="button" title="Via-Nachladung ist deaktiviert (klick zum Aktivieren)">Via: AUS</button>
         </div>
         <div class="settings-control-row">
           <div>
@@ -182,19 +106,12 @@
             </select>
           </div>
         </div>
-        <div class="settings-control-row">
-          <div>
-            <strong>Vordefinierte Ausblendungen</strong>
-            <span>Betreiber, Linien und Trips aus der Abfahrtstabelle ausblenden</span>
-          </div>
-          <button class="mode-btn settings-hidden-filters-toggle" type="button">Ausblendungen: EIN</button>
-        </div>
       </section>
 
       <section class="settings-section" aria-labelledby="settings-filter-title">
         <h3 id="settings-filter-title">Verkehrsmittel</h3>
         <div class="settings-mode-grid">
-          <button class="mode-btn settings-mode-all" type="button">Alle</button>
+          <button class="mode-btn settings-mode-all active" type="button">Alle</button>
           <button class="mode-btn settings-mode-meta" data-meta-group="RAIL_ALL" type="button">🚄 Alle Züge</button>
           <button class="mode-btn settings-mode-meta" data-meta-group="URBAN" type="button">🚈 Urban</button>
           <button class="mode-btn settings-mode-meta" data-meta-group="TRANSIT" type="button">🚊 Alle ÖPNV</button>
@@ -257,20 +174,20 @@
 
   <div class="panel">
     <!-- ═══════════════ FAVORITEN ═══════════════ -->
-    <nav id="fav-bar" aria-label="Favoriten"></nav>
+    <nav id="fav-bar" aria-label="Favoriten"><div class="fav-scroll-container"><div class="fav-list"></div></div><div class="fav-controls"><button type="button" class="fav-star-btn" title="Aktuelle Station zu Favoriten hinzufügen">☆</button><button type="button" class="fav-reset-btn" title="Favoriten auf die eingebauten Standards zurücksetzen" data-confirm-pending="false">Standard</button></div></nav>
     
     <!-- ═══════════════ TOPBAR ═══════════════ -->
     <div class="topbar">
-      <div id="stationTitle" class="station-title">Station wählen</div>
+      <div id="stationTitle" class="station-title">Gammenthal</div>
       <div id="search-box">
         <input type="text" id="query" placeholder="Station suchen…" autocomplete="off" inputmode="search">
-        <ul id="suggestions"></ul>
+        <ul id="suggestions" style="display: block;"></ul>
         <button id="btn-nearby" class="btn-nearby" title="Stationen in der Nähe (300m)">📍</button>
       </div>
       <div class="time-picker-row">
         <input type="date" id="datePicker">
         <input type="time" id="timePicker">
-        <button id="btn-jetzt" title="Auf aktuelle Zeit setzen">NOW</button>
+        <button id="btn-jetzt" title="Auf aktuelle Zeit setzen">JETZT</button>
         <button id="btn-refresh" title="Aktualisieren">GO</button>
         <button id="btn-share" class="btn-share" type="button" title="Abfahrtstabelle teilen" aria-label="Abfahrtstabelle teilen">↗</button>
 
@@ -282,7 +199,7 @@
 
           <div id="departure-filter-popup" class="filter-popup" role="dialog" aria-label="Filtermenü">
             <div class="filter-popup-inner">
-              <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung aktivieren/deaktivieren">Via: AUS</button>
+              <button id="btn-toggle-vias" class="mode-btn btn-toggle-vias" type="button" title="Via-Nachladung ist deaktiviert (klick zum Aktivieren)">Via: AUS</button>
               <div class="nearby-controls">
                 <button id="btn-toggle-nearby" class="mode-btn" type="button" title="Nahe Haltestellen ein-/ausschalten">Nearby: AUS</button>
                 <select id="nearby-radius" title="Radius für nahe Haltestellen" aria-label="Radius für nahe Haltestellen">
@@ -290,7 +207,7 @@
                   <option value="50">50 m</option>
                   <option value="100">100 m</option>
                   <option value="250">250 m</option>
-                  <option value="500" selected>500 m</option>
+                  <option value="500" selected="">500 m</option>
                   <option value="1000">1000 m</option>
                   <option value="2000">2000 m</option>
                 </select>
@@ -303,19 +220,19 @@
 
                 <!-- Meta-group buttons -->
                 <button id="btn-mode-rail-all" class="mode-btn mode-meta-btn" title="Alle Zugarten (Highspeed, Regional, Nacht)">🚄 Alle Züge</button>
-                <button id="btn-mode-urban" class="mode-btn mode-meta-btn" title="U-Bahn & Tram">🚈 Urban</button>
+                <button id="btn-mode-urban" class="mode-btn mode-meta-btn" title="U-Bahn &amp; Tram">🚈 Urban</button>
                 <button id="btn-mode-transit" class="mode-btn mode-meta-btn" title="Alle öffentlichen Verkehrsmittel">🚊 Alle ÖPNV</button>
 
                 <!-- Individual mode buttons -->
-                <button class="mode-btn active" data-mode="HIGHSPEED" title="Hochgeschwindigkeit">Highspeed</button>
-                <button class="mode-btn active" data-mode="RAIL" title="Bahn">🚆 Bahn</button>
-                <button class="mode-btn active" data-mode="NIGHT" title="Nacht">🌙 Nacht</button>
-                <button class="mode-btn active" data-mode="SUBWAY" title="U-Bahn">🚇 U</button>
-                <button class="mode-btn active" data-mode="TRAM" title="Tram">🚊 Tram</button>
-                <button class="mode-btn active" data-mode="BUS" title="Bus">🚌 Bus</button>
-                <button class="mode-btn active" data-mode="FERRY" title="Schiff">⛴ Schiff</button>
-                <button class="mode-btn active" data-mode="GONDOLA" title="Seilbahn">🚡 Seilbahn</button>
-                <button class="mode-btn active" data-mode="OTHER" title="Andere">🚐 Andere</button>
+                <button class="mode-btn" data-mode="HIGHSPEED" title="Hochgeschwindigkeit">Highspeed</button>
+                <button class="mode-btn" data-mode="RAIL" title="Bahn">🚆 Bahn</button>
+                <button class="mode-btn" data-mode="NIGHT" title="Nacht">🌙 Nacht</button>
+                <button class="mode-btn" data-mode="SUBWAY" title="U-Bahn">🚇 U</button>
+                <button class="mode-btn" data-mode="TRAM" title="Tram">🚊 Tram</button>
+                <button class="mode-btn" data-mode="BUS" title="Bus">🚌 Bus</button>
+                <button class="mode-btn" data-mode="FERRY" title="Schiff">⛴ Schiff</button>
+                <button class="mode-btn" data-mode="GONDOLA" title="Seilbahn">🚡 Seilbahn</button>
+                <button class="mode-btn" data-mode="OTHER" title="Andere">🚐 Andere</button>
               </nav>
 
               <!-- ═══════════════ ZIEL-FILTER ═══════════════ -->
@@ -324,17 +241,16 @@
               </div>
 
               <button id="btn-reset-filters" class="filter-reset-btn" type="button" title="Alle Filter auf die Standardwerte zurücksetzen">Auf Standard zurücksetzen</button>
-
             </div>
           </div>
         </div>
       </div>
     </div>
     <hr>
-    <div id="status"></div>
+    <div id="status">Abfahrten ab ausgewähltem Zeitpunkt · 14:03</div>
 
     <!-- Navigation Buttons (oben) -->
-    <div id="nav-buttons-top" class="nav-buttons" style="display:none">
+    <div id="nav-buttons-top" class="nav-buttons" style="display: flex;">
       <button id="btn-earlier-top" class="nav-btn nav-btn-earlier">← Früher</button>
       <button id="btn-later-top" class="nav-btn nav-btn-later">Später →</button>
     </div>
@@ -344,7 +260,7 @@
       📅 Zu Kalender exportieren
     </button>
 
-    <table id="departureTable" style="display:none">
+    <table id="departureTable" style="display: table;">
       <thead>
         <tr>
           <th id="th-col-time" class="col-time">Ab</th>
@@ -353,19 +269,99 @@
           <th class="col-platform">Gl./Kt.</th>
         </tr>
       </thead>
-      <tbody id="departureBody"></tbody>
+      <tbody id="departureBody"><tr class="date-separator-row"><td colspan="4"><div class="date-separator">So., 13.09.2026</div></td></tr><tr class="dep-row" data-mode="RAIL" data-dest="Huttwil" data-trip="31998" data-line="EXT" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20260913_14:20_ch-opentransportdataswiss26_.ojp-91-3X-Y.1.TA.3.j26" data-vias="" data-scheduled="1789302180">
+      <td class="col-time">14:23<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="EXT" data-route-id="ch-opentransportdataswiss26_91-3X-Y-j26-1"><span class="line">EXT</span></div>
+        <div class="col-nr tripnr">31998</div>
+      </td>
+      <td class="col-dest">Huttwil</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row dep-row-alt" data-mode="RAIL" data-dest="Sumiswald-Grünen" data-trip="31999" data-line="EXT" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20260913_14:10_ch-opentransportdataswiss26_.ojp-91-3X-Y.1.TA.8.j26" data-vias="" data-scheduled="1789303140">
+      <td class="col-time">14:39<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="EXT" data-route-id="ch-opentransportdataswiss26_91-3X-Y-j26-1"><span class="line">EXT</span></div>
+        <div class="col-nr tripnr">31999</div>
+      </td>
+      <td class="col-dest">Sumiswald-Grünen</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row" data-mode="RAIL" data-dest="Huttwil" data-trip="32000" data-line="EXT" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20260913_15:20_ch-opentransportdataswiss26_.ojp-91-3X-Y.1.TA.4.j26" data-vias="" data-scheduled="1789305780">
+      <td class="col-time">15:23<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="EXT" data-route-id="ch-opentransportdataswiss26_91-3X-Y-j26-1"><span class="line">EXT</span></div>
+        <div class="col-nr tripnr">32000</div>
+      </td>
+      <td class="col-dest">Huttwil</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row dep-row-alt" data-mode="RAIL" data-dest="Sumiswald-Grünen" data-trip="32001" data-line="EXT" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20260913_15:20_ch-opentransportdataswiss26_.ojp-91-3X-Y.1.TA.12.j26" data-vias="" data-scheduled="1789307520">
+      <td class="col-time">15:52<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="EXT" data-route-id="ch-opentransportdataswiss26_91-3X-Y-j26-1"><span class="line">EXT</span></div>
+        <div class="col-nr tripnr">32001</div>
+      </td>
+      <td class="col-dest">Sumiswald-Grünen</td>
+      <td class="col-platform"></td>
+    </tr><tr class="date-separator-row"><td colspan="4"><div class="date-separator">So., 11.10.2026</div></td></tr><tr class="dep-row" data-mode="RAIL" data-dest="Sumiswald-Grünen" data-trip="31741" data-line="R" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20261011_09:20_ch-opentransportdataswiss26_.ojp-91-7X-Y.1.TA.4.j26" data-vias="" data-scheduled="1791704880">
+      <td class="col-time">09:48<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="R" data-route-id="ch-opentransportdataswiss26_91-7X-Y-j26-1"><span class="line">R</span></div>
+        <div class="col-nr tripnr">31741</div>
+      </td>
+      <td class="col-dest">Sumiswald-Grünen</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row dep-row-alt" data-mode="RAIL" data-dest="Huttwil" data-trip="31742" data-line="R" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20261011_10:20_ch-opentransportdataswiss26_.ojp-91-7X-Y.1.TA.2.j26" data-vias="" data-scheduled="1791706920">
+      <td class="col-time">10:22<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="R" data-route-id="ch-opentransportdataswiss26_91-7X-Y-j26-1"><span class="line">R</span></div>
+        <div class="col-nr tripnr">31742</div>
+      </td>
+      <td class="col-dest">Huttwil</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row" data-mode="RAIL" data-dest="Wasen i.E." data-trip="31743" data-line="R" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20261011_11:20_ch-opentransportdataswiss26_.ojp-91-7X-Y.1.TA.6.j26" data-vias="" data-scheduled="1791712080">
+      <td class="col-time">11:48<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="R" data-route-id="ch-opentransportdataswiss26_91-7X-Y-j26-1"><span class="line">R</span></div>
+        <div class="col-nr tripnr">31743</div>
+      </td>
+      <td class="col-dest">Wasen i.E.</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row dep-row-alt" data-mode="RAIL" data-dest="Huttwil" data-trip="31744" data-line="R" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20261011_13:50_ch-opentransportdataswiss26_.ojp-91-7X-Y.1.TA.3.j26" data-vias="" data-scheduled="1791721320">
+      <td class="col-time">14:22<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="R" data-route-id="ch-opentransportdataswiss26_91-7X-Y-j26-1"><span class="line">R</span></div>
+        <div class="col-nr tripnr">31744</div>
+      </td>
+      <td class="col-dest">Huttwil</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row" data-mode="RAIL" data-dest="Sumiswald-Grünen" data-trip="31745" data-line="R" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20261011_15:20_ch-opentransportdataswiss26_.ojp-91-7X-Y.1.TA.5.j26" data-vias="" data-scheduled="1791726480">
+      <td class="col-time">15:48<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="R" data-route-id="ch-opentransportdataswiss26_91-7X-Y-j26-1"><span class="line">R</span></div>
+        <div class="col-nr tripnr">31745</div>
+      </td>
+      <td class="col-dest">Sumiswald-Grünen</td>
+      <td class="col-platform"></td>
+    </tr><tr class="dep-row dep-row-alt" data-mode="RAIL" data-dest="Huttwil" data-trip="31746" data-line="R" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-trip-id="20261011_16:20_ch-opentransportdataswiss26_.ojp-91-7X-Y.1.TA.1.j26" data-vias="" data-scheduled="1791728520">
+      <td class="col-time">16:22<br><span class="delay-badge"></span></td>
+      <td class="col-line">
+        <div class="line-container" data-mode="RAIL" data-agency-id="9014" data-agency-name="Verein Dampfbahn Bern" data-line="R" data-route-id="ch-opentransportdataswiss26_91-7X-Y-j26-1"><span class="line">R</span></div>
+        <div class="col-nr tripnr">31746</div>
+      </td>
+      <td class="col-dest">Huttwil</td>
+      <td class="col-platform"></td>
+    </tr></tbody>
     </table>
-    <button id="btn-load-more" class="nav-btn" type="button" style="display:none">Mehr laden</button>
 
     <!-- Navigation Buttons (unten) -->
-    <div id="nav-buttons-bottom" class="nav-buttons" style="display:none">
+    <div id="nav-buttons-bottom" class="nav-buttons" style="display: flex;">
       <button id="btn-earlier-bottom" class="nav-btn nav-btn-earlier">← Früher</button>
       <button id="btn-later-bottom" class="nav-btn nav-btn-later">Später →</button>
     </div>
-    <script src="./script/script-1.js" defer></script>
-    <script src="./script/script-chain.js" defer></script>
-    <script src="./script/script-2.js" defer></script>
-    <script src="./script/script-cal.js" defer></script>
+
+    <script src="./script/script-1.js"></script>
+    <script src="./script/script-chain.js"></script>
+    <script src="./script/script-2.js"></script>
+    <script src="./script/script-cal.js"></script>
     <script>
       (function () {
         const menuButton = document.getElementById('filter-menu-button');
@@ -409,5 +405,5 @@
     <div>Die Routing-Funktion befindet sich in der Beta und ist erreichbar unter: <a href="/routing" style="color: var(--sbb-red); font-weight: bold;">/routing</a></div>
     <div>Der Sourcecode ist auf <a href="https://github.com/PianoRailways/TRAGIC" style="color: var(--sob-green); font-weight: bold;">GitHub</a>.</div>
   </footer>
+
 </body>
-</html>
