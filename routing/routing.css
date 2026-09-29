@@ -487,6 +487,37 @@ td {
     color: #e9a23b;
 }
 
+/* Aufklappbarer Fahrtverlauf */
+.leg-block.expandable { cursor: pointer; }
+
+.leg-chevron {
+    margin-left: auto;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+}
+.leg-block.open .leg-chevron { transform: rotate(180deg); }
+
+.trip-course {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border-soft);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    cursor: default;
+}
+
+.course-stop {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 8px;
+    padding: 2px 0;
+}
+.course-stop.outside { opacity: 0.45; }
+.course-stop.key { color: var(--text-main); font-weight: 600; }
+.course-stop.cancelled .leg-name { text-decoration: line-through; }
+.delay { color: #e9a23b; font-size: 0.7rem; }
+
 /* Standard Badge Layout (Einfärbung erfolgt über line-container.css) */
 .line-badge {
     padding: 2px 6px;

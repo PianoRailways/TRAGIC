@@ -335,14 +335,20 @@ function renderLegDetails(legs) {
         <span class="leg-track">${track ? `Gl. ${escapeHtml(track)}` : ''}</span>
       </div>`;
 
+    const tripAttr = leg.tripId
+      ? ` data-trip-id="${escapeHtml(leg.tripId)}" data-from-id="${escapeHtml(from.id || '')}" data-to-id="${escapeHtml(to.id || '')}" data-from-name="${escapeHtml(from.name || '')}" data-to-name="${escapeHtml(to.name || '')}"`
+      : '';
+
     html += `
-      <div class="leg-block">
+      <div class="leg-block${leg.tripId ? ' expandable' : ''}"${tripAttr}>
         <div class="leg-header">
           ${renderLineBadge(leg)}${number}
           <span class="leg-dest">${leg.destination ? `→ ${escapeHtml(leg.destination)}` : ''}</span>
+          ${leg.tripId ? '<span class="leg-chevron">▾</span>' : ''}
         </div>
         ${stop(from.departure, from.name, from.track)}
         ${stop(to.arrival, to.name, to.track)}
+        <div class="trip-course" style="display:none"></div>
       </div>`;
     prevTransit = leg;
   });
@@ -410,6 +416,67 @@ function renderRoutes(connections) {
   
   routeResults.style.display = connections.length ? 'block' : 'none';
 }
+
+/**
+ * Fahrtverlauf einer einzelnen Fahrt: Einstieg und Ausstieg fett,
+ * Halte davor und danach abgeblendet.
+ */
+function renderTripCourse(trip, block) {
+  const stops = trip.stops || [];
+  const { fromId, toId, fromName, toName } = block.dataset;
+  const match = (s, id, name) => (id && s.stopId === id) || s.name === name;
+
+  let a = stops.findIndex(s => match(s, fromId, fromName));
+  let b = -1;
+  for (let i = stops.length - 1; i >= 0; i--) {
+    if (match(stops[i], toId, toName)) { b = i; break; }
+  }
+  if (a < 0) a = 0;
+  if (b < 0) b = stops.length - 1;
+
+  return stops.map((s, i) => {
+    const cls = ['course-stop'];
+    if (i < a || i > b) cls.push('outside');
+    if (i === a || i === b) cls.push('key');
+    if (s.cancelled) cls.push('cancelled');
+
+    const sched = s.departureSched || s.arrivalSched;
+    const live = s.departureLive || s.arrivalLive;
+    const delay = sched && live ? Math.round((live - sched) / 60) : 0;
+
+    return `
+      <div class="${cls.join(' ')}">
+        <span class="leg-time">${formatTime(sched)}</span>
+        <span class="leg-name">${escapeHtml(s.name)}${delay > 0 ? ` <span class="delay">+${delay}</span>` : ''}</span>
+        <span class="leg-track">${s.track ? `Gl. ${escapeHtml(s.track)}` : ''}</span>
+      </div>`;
+  }).join('');
+}
+
+routeTbody.addEventListener('click', async event => {
+  if (event.target.closest('.trip-course')) return;
+  const block = event.target.closest('.leg-block.expandable');
+  if (!block) return;
+
+  const course = block.querySelector('.trip-course');
+  const open = course.style.display === 'none';
+  course.style.display = open ? 'block' : 'none';
+  block.classList.toggle('open', open);
+  if (!open || block.dataset.loaded) return;
+
+  course.textContent = 'Lade Fahrtverlauf...';
+  try {
+    const response = await fetch(`${PROXY}?action=trip&tripId=${encodeURIComponent(block.dataset.tripId)}`);
+    const data = await response.json();
+    if (!response.ok || data.error) {
+      throw new Error(data.error || `Fahrtverlauf konnte nicht geladen werden (${response.status})`);
+    }
+    course.innerHTML = renderTripCourse(data, block);
+    block.dataset.loaded = '1';
+  } catch (error) {
+    course.textContent = error.message;
+  }
+});
 
 async function searchRoute() {
   let from = selectedStations.get('from');
