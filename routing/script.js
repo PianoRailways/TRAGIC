@@ -32,7 +32,7 @@ let nameToAbbrevMap = {}; // { normName: [{ abbrev, country }, ...] }
  * Creates two mappings for bidirectional lookup
  */
 async function loadAbbreviations() {
-  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk'];
+  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk', 'zvv', 'libero', 'awelle'];
   try {
     for (const country of countries) {
       try {
