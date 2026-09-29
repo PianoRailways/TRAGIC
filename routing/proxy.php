@@ -303,10 +303,11 @@ if ($action === 'trip') {
 
 // ------------------------------------------------------------------ plan --
 if ($action === 'plan') {
-    $fromPlace = trim($_GET['fromPlace'] ?? $_GET['from'] ?? '');
-    $toPlace   = trim($_GET['toPlace'] ?? $_GET['to'] ?? '');
-    $time      = trim($_GET['time'] ?? '');
-    $arriveBy  = ($_GET['arriveBy'] ?? 'false') === 'true' ? 'true' : 'false';
+    $fromPlace  = trim($_GET['fromPlace'] ?? $_GET['from'] ?? '');
+    $toPlace    = trim($_GET['toPlace'] ?? $_GET['to'] ?? '');
+    $time       = trim($_GET['time'] ?? '');
+    $arriveBy   = ($_GET['arriveBy'] ?? 'false') === 'true' ? 'true' : 'false';
+    $pageCursor = trim($_GET['pageCursor'] ?? '');
 
     if ($fromPlace === '' || $toPlace === '') {
         http_response_code(400);
@@ -323,6 +324,10 @@ if ($action === 'plan') {
 
     if ($time !== '') {
         $params['time'] = $time;
+    }
+
+    if ($pageCursor !== '') {
+        $params['pageCursor'] = $pageCursor;
     }
 
     $viaPlaces = [];
@@ -433,9 +438,11 @@ if ($action === 'plan') {
     }
 
     echo json_encode([
-        'connections' => $connections,
-        'itineraries' => $connections,
-        '_raw_count'  => count($itinerariesRaw)
+        'connections'        => $connections,
+        'itineraries'        => $connections,
+        'previousPageCursor' => $result['previousPageCursor'] ?? null,
+        'nextPageCursor'     => $result['nextPageCursor'] ?? null,
+        '_raw_count'         => count($itinerariesRaw)
     ]);
     exit;
 }

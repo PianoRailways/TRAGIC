@@ -2,7 +2,12 @@ const PROXY = 'proxy.php';
 
 const routeFromInput = document.getElementById('route-from-input');
 const routeToInput = document.getElementById('route-to-input');
+const routeDateInput = document.getElementById('route-date');
 const routeTimeInput = document.getElementById('route-time');
+const btnModeDep = document.getElementById('btn-mode-dep');
+const btnModeArr = document.getElementById('btn-mode-arr');
+const btnEarlier = document.getElementById('btn-earlier');
+const btnLater = document.getElementById('btn-later');
 const routeTbody = document.getElementById('routing-tbody');
 const routeResults = document.getElementById('routing-results');
 const routeHint = document.getElementById('routing-hint');
@@ -13,6 +18,10 @@ const boardHint = document.getElementById('board-hint');
 
 const selectedStations = new Map();
 let viaCount = 0;
+let arriveBy = false;
+let pageState = { params: null, connections: [], prev: null, next: null };
+
+const isWalk = leg => leg.mode === 'WALK';
 
 // ─── Abkürzungs-Mappings ───────────────────────────────────────────────────
 let abbrevMap = {};      // { abbrev: [{ name, country }, ...] }
@@ -106,6 +115,17 @@ async function resolveStationId(station) {
   return (exactMatch || matches[0])?.id || null;
 }
 
+/**
+ * Suggestion-Zeile: Name (mit Kürzel) links, Location-ID klein und grau rechts
+ */
+function fillSuggestion(item, station) {
+  const abbrev = station.isAbbrev
+    ? ` <span class="abbrev-label">${escapeHtml(station.abbrev)} [${escapeHtml(station.country)}]</span>`
+    : '';
+  const id = station.id ? `<span class="suggestion-id">${escapeHtml(station.id)}</span>` : '';
+  item.innerHTML = `<span class="suggestion-name">${escapeHtml(station.name)}${abbrev}</span>${id}`;
+}
+
 function attachStationSearch(input, suggestions, key) {
   const search = debounce(async () => {
     const query = input.value.trim();
@@ -142,13 +162,7 @@ function attachStationSearch(input, suggestions, key) {
       results.slice(0, 8).forEach(station => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
-        
-        // Show abbreviation matches with country indicator
-        if (station.isAbbrev) {
-          item.textContent = `${station.name} (${station.abbrev} [${station.country}])`;
-        } else {
-          item.textContent = station.name;
-        }
+        fillSuggestion(item, station);
         
         item.addEventListener('click', () => {
           input.value = station.name;
@@ -166,7 +180,7 @@ function attachStationSearch(input, suggestions, key) {
             .then(match => {
               if (!match || !item.isConnected) return;
               station.id = match.id;
-              item.innerHTML = `${escapeHtml(station.name)} <span class="abbrev-label">${escapeHtml(station.abbrev)} [${escapeHtml(station.country)}]</span> <span class="suggestion-id">(${escapeHtml(station.id)})</span>`;
+              fillSuggestion(item, station);
             })
             .catch(() => {});
         }
@@ -241,46 +255,99 @@ function renderLineBadge(leg) {
 }
 
 /**
- * Render a proportional timeline bar showing journey duration relative to all connections.
- * The bar starts at 0% and extends to (arrival - departure) / (maxArrival - minDeparture).
- * Colors are applied via line-container CSS rules based on the first leg.
+ * Render a proportional timeline bar with one segment per leg.
+ * Transit legs are colored via line-container, walks are a thin line,
+ * gaps between legs (Umsteigezeit) are striped.
  */
 function renderTimelineBar(connection, minDeparture, maxArrival) {
   const legs = connection.legs || [];
-  if (legs.length === 0) return '';
-  
-  const firstLeg = legs[0];
-  const departure = firstLeg?.from?.departure || 0;
-  const arrival = legs[legs.length - 1]?.to?.arrival || 0;
-  
-  // Time range for proportional scaling
-  const timeRange = maxArrival - minDeparture;
-  if (timeRange <= 0) return '<!-- Empty time range -->';
-  
-  // Calculate start position (% from minDeparture) and width (% of timeRange)
-  const startPercent = ((departure - minDeparture) / timeRange) * 100;
-  const durationPercent = ((arrival - departure) / timeRange) * 100;
-  
-  // Get line attributes from first leg for coloring
-  const attributes = getLineAttributes(firstLeg);
-  
-  const barHTML = `
-    <div class="timeline-bar" style="width: 100%;">
-      <div class="timeline-dot"></div>
-      <div 
-        class="timeline-segment line-container" 
-        ${attributes}
-        style="
-          margin-left: ${startPercent}%;
-          width: ${durationPercent}%;
-          min-width: 2px;
-        "
-        title="Abfahrt: ${formatTime(departure)}, Ankunft: ${formatTime(arrival)}"
-      ></div>
-    </div>
-  `;
-  
-  return barHTML;
+  const range = maxArrival - minDeparture;
+  if (!legs.length || range <= 0) return '';
+  const pct = t => ((t - minDeparture) / range) * 100;
+
+  const parts = legs.map((leg, i) => {
+    const dep = leg.from?.departure || 0;
+    const arr = leg.to?.arrival || 0;
+    const left = pct(dep);
+    const width = Math.max(pct(arr) - left, 0.8);
+    const tip = `${getLineLabel(leg)}: ${formatTime(dep)} → ${formatTime(arr)}`;
+    let html = '';
+
+    const prevArr = legs[i - 1]?.to?.arrival;
+    if (prevArr && dep > prevArr) {
+      html += `<div class="timeline-wait" style="left:${pct(prevArr)}%;width:${left - pct(prevArr)}%"
+        title="Umsteigen ${formatDuration(dep - prevArr)}"></div>`;
+    }
+
+    if (isWalk(leg)) {
+      html += `<div class="timeline-walk" style="left:${left}%;width:${width}%" title="${escapeHtml(tip)}"></div>`;
+    } else {
+      html += `<div class="timeline-segment line-container" ${getLineAttributes(leg)}
+        style="left:${left}%;width:${width}%" title="${escapeHtml(tip)}">${width >= 9 ? escapeHtml(getLineLabel(leg)) : ''}</div>`;
+    }
+    return html;
+  });
+
+  return `<div class="timeline-bar">${parts.join('')}</div>`;
+}
+
+/**
+ * Detailansicht: jede Fahrt als Block mit Linie, Fahrtnummer, Halten;
+ * zwischen den Fahrten die Umsteigezeit (inkl. Fussweg und Gleiswechsel).
+ */
+function renderLegDetails(legs) {
+  let html = '';
+  let prevTransit = null;
+  let walkSec = 0;
+
+  legs.forEach((leg, i) => {
+    const from = leg.from || {};
+    const to = leg.to || {};
+
+    if (isWalk(leg)) {
+      const sec = (to.arrival || 0) - (from.departure || 0);
+      const laterTransit = legs.slice(i + 1).some(l => !isWalk(l));
+      if (prevTransit && laterTransit) {
+        walkSec += sec;
+        return;
+      }
+      html += `<div class="walk-row">Fussweg ${formatDuration(sec)}</div>`;
+      return;
+    }
+
+    if (prevTransit) {
+      const gap = (from.departure || 0) - (prevTransit.to?.arrival || 0);
+      const a = prevTransit.to?.track;
+      const b = from.track;
+      const tracks = a && b ? ` · Gl. ${escapeHtml(a)} → ${escapeHtml(b)}` : '';
+      const walk = walkSec ? ` (davon Fussweg ${formatDuration(walkSec)})` : '';
+      html += `<div class="transfer-row${gap < 240 ? ' tight' : ''}">Umsteigen ${formatDuration(gap)}${walk}${tracks}</div>`;
+      walkSec = 0;
+    }
+
+    const number = leg.tripNumber && String(leg.tripNumber) !== getLineLabel(leg)
+      ? `<span class="leg-number">Nr. ${escapeHtml(leg.tripNumber)}</span>`
+      : '';
+    const stop = (time, name, track) => `
+      <div class="leg-stop">
+        <span class="leg-time">${formatTime(time)}</span>
+        <span class="leg-name">${escapeHtml(name || '')}</span>
+        <span class="leg-track">${track ? `Gl. ${escapeHtml(track)}` : ''}</span>
+      </div>`;
+
+    html += `
+      <div class="leg-block">
+        <div class="leg-header">
+          ${renderLineBadge(leg)}${number}
+          <span class="leg-dest">${leg.destination ? `→ ${escapeHtml(leg.destination)}` : ''}</span>
+        </div>
+        ${stop(from.departure, from.name, from.track)}
+        ${stop(to.arrival, to.name, to.track)}
+      </div>`;
+    prevTransit = leg;
+  });
+
+  return html;
 }
 
 function renderRoutes(connections) {
@@ -335,47 +402,8 @@ function renderRoutes(connections) {
     const detailContent = document.createElement('td');
     detailContent.colSpan = 5;
     detailContent.className = 'detail-content';
+    detailContent.innerHTML = `<div class="leg-list">${renderLegDetails(legs)}</div>`;
     
-    const legsList = document.createElement('div');
-    legsList.className = 'trip-stops-list';
-    
-    legs.forEach((leg, legIdx) => {
-      const legItem = document.createElement('div');
-      legItem.className = 'leg-item';
-      
-      const from = leg.from || {};
-      const to = leg.to || {};
-      
-      const legHeader = document.createElement('div');
-      legHeader.className = 'leg-header';
-      legHeader.innerHTML = `
-        ${renderLineBadge(leg)}
-        <span>${escapeHtml(to.name || '')}</span>
-      `;
-      legItem.appendChild(legHeader);
-      
-      const legTimes = document.createElement('div');
-      legTimes.style.fontSize = '0.75rem';
-      legTimes.style.color = 'var(--text-muted)';
-      legTimes.innerHTML = `
-        ${escapeHtml(from.name || '')}: ${formatTime(from.departure)} →
-        ${escapeHtml(to.name || '')}: ${formatTime(to.arrival)}
-      `;
-      legItem.appendChild(legTimes);
-      
-      if (legIdx < legs.length - 1) {
-        const transfer = document.createElement('div');
-        transfer.className = 'transfer-info';
-        const nextLeg = legs[legIdx + 1];
-        const transferTime = (nextLeg?.from?.departure || 0) - (to.arrival || 0);
-        transfer.textContent = `Umstieg: ${formatDuration(transferTime)}`;
-        legItem.appendChild(transfer);
-      }
-      
-      legsList.appendChild(legItem);
-    });
-    
-    detailContent.appendChild(legsList);
     detailRow.appendChild(detailContent);
     routeTbody.appendChild(detailRow);
   });
@@ -386,12 +414,6 @@ function renderRoutes(connections) {
 async function searchRoute() {
   let from = selectedStations.get('from');
   let to = selectedStations.get('to');
-  
-  console.log('🔴 searchRoute called');
-  console.log('📍 From object:', from);
-  console.log('📍 To object:', to);
-  console.log('📍 From.id:', from?.id);
-  console.log('📍 To.id:', to?.id);
   
   if (!from || !to) {
     setHint(routeHint, 'Bitte Start und Ziel aus den Vorschlägen auswählen.', true);
@@ -409,43 +431,56 @@ async function searchRoute() {
     return;
   }
 
-  const params = new URLSearchParams({ action: 'plan', fromPlace: from.id, toPlace: to.id });
-  if (routeTimeInput.value) params.set('time', new Date(routeTimeInput.value).toISOString());
+  const params = new URLSearchParams({
+    action: 'plan',
+    fromPlace: from.id,
+    toPlace: to.id,
+    arriveBy: String(arriveBy),
+    time: getRouteDate().toISOString()
+  });
   document.querySelectorAll('#via-list-container input').forEach(input => {
     const station = selectedStations.get(input.id);
     if (station) params.append('via', station.id);
   });
 
-  setHint(routeHint, 'Suche Verbindungen...');
+  pageState = { params, connections: [], prev: null, next: null };
   routeResults.style.display = 'none';
+  await loadPage();
+}
+
+/**
+ * Lädt Verbindungen. Ohne direction: neue Suche.
+ * 'earlier' / 'later': hängt die vorherige bzw. nächste Seite an die Liste an.
+ */
+async function loadPage(direction) {
+  const params = new URLSearchParams(pageState.params);
+  if (direction === 'earlier') params.set('pageCursor', pageState.prev);
+  if (direction === 'later') params.set('pageCursor', pageState.next);
+
+  setHint(routeHint, 'Suche Verbindungen...');
   try {
-    const url = `${PROXY}?${params}`;
-    console.log('🔍 Full URL:', url);
-    console.log('📍 fromPlace:', from.id);
-    console.log('📍 toPlace:', to.id);
-    
-    const response = await fetch(url);
+    const response = await fetch(`${PROXY}?${params}`);
     const data = await response.json();
-    
-    console.log('📊 Full API Response:', JSON.stringify(data, null, 2));
-    console.log('✅ Response status:', response.status);
-    console.log('✅ Response OK:', response.ok);
-    console.log('❌ Data.error:', data.error);
-    
     if (!response.ok || data.error) {
-      const errorMsg = data.error || `Routing fehlgeschlagen (${response.status})`;
-      console.error('🚨 Throwing Error:', errorMsg);
-      throw new Error(errorMsg);
+      throw new Error(data.error || `Routing fehlgeschlagen (${response.status})`);
     }
-    
-    const connections = data.connections || data.itineraries || [];
-    console.log('🚌 Connections found:', connections.length);
-    
-    renderRoutes(connections);
-    setHint(routeHint, connections.length ? `${connections.length} Verbindungen gefunden.` : 'Keine Verbindung gefunden.');
+
+    const found = data.connections || data.itineraries || [];
+    if (direction === 'earlier') pageState.connections = [...found, ...pageState.connections];
+    else if (direction === 'later') pageState.connections = [...pageState.connections, ...found];
+    else pageState.connections = found;
+
+    if (direction !== 'later') pageState.prev = data.previousPageCursor || null;
+    if (direction !== 'earlier') pageState.next = data.nextPageCursor || null;
+
+    renderRoutes(pageState.connections);
+    btnEarlier.disabled = !pageState.prev;
+    btnLater.disabled = !pageState.next;
+
+    const count = pageState.connections.length;
+    setHint(routeHint, count ? `${count} Verbindungen gefunden.` : 'Keine Verbindung gefunden.');
   } catch (error) {
-    console.error('💥 Catch Error:', error.message);
-    console.error('💥 Full Error:', error);
+    console.error('Routing-Fehler:', error);
     setHint(routeHint, error.message, true);
   }
 }
@@ -488,26 +523,51 @@ async function loadBoard() {
   }
 }
 
-function adjustRouteTime(days) {
-  const currentTime = routeTimeInput.value;
-  let date;
-  
-  if (currentTime) {
-    date = new Date(currentTime);
-  } else {
-    date = new Date();
+// ─── Datum und Zeit ────────────────────────────────────────────────────────
+const pad = n => String(n).padStart(2, '0');
+const toDateValue = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+function updateDateLabel() {
+  const label = document.getElementById('route-date-label');
+  if (!label) return;
+  if (!routeDateInput.value) {
+    label.textContent = '';
+    return;
   }
-  
-  date.setDate(date.getDate() + days);
-  
-  // Format: YYYY-MM-DDTHH:mm (HTML5 datetime-local format)
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const mins = String(date.getMinutes()).padStart(2, '0');
-  
-  routeTimeInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
+  const d = new Date(`${routeDateInput.value}T12:00`);
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const diff = Math.round((d - today) / 86400000);
+  const rel = { '-1': 'Gestern', '0': 'Heute', '1': 'Morgen' }[diff] || '';
+  label.textContent = [
+    rel,
+    d.toLocaleDateString('de-CH', { weekday: 'short', day: 'numeric', month: 'numeric' })
+  ].filter(Boolean).join(' · ');
+}
+
+function setRouteNow() {
+  const now = new Date();
+  routeDateInput.value = toDateValue(now);
+  routeTimeInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  updateDateLabel();
+}
+
+function adjustRouteDate(days) {
+  const d = routeDateInput.value ? new Date(`${routeDateInput.value}T12:00`) : new Date();
+  d.setDate(d.getDate() + days);
+  routeDateInput.value = toDateValue(d);
+  updateDateLabel();
+}
+
+function getRouteDate() {
+  if (!routeDateInput.value) return new Date();
+  return new Date(`${routeDateInput.value}T${routeTimeInput.value || '00:00'}`);
+}
+
+function setMode(arrive) {
+  arriveBy = arrive;
+  btnModeDep.classList.toggle('active', !arrive);
+  btnModeArr.classList.toggle('active', arrive);
 }
 
 function swapFromTo() {
@@ -534,15 +594,19 @@ document.getElementById('btn-load-board').addEventListener('click', loadBoard);
 document.getElementById('btn-refresh').addEventListener('click', () => location.reload());
 document.getElementById('btn-swap').addEventListener('click', swapFromTo);
 
-// Date navigation
-document.getElementById('btn-date-prev').addEventListener('click', () => {
-  adjustRouteTime(-1);
-});
+// Datum, Zeit, Modus
+btnModeDep.addEventListener('click', () => setMode(false));
+btnModeArr.addEventListener('click', () => setMode(true));
+document.getElementById('btn-now').addEventListener('click', setRouteNow);
+document.getElementById('btn-date-prev').addEventListener('click', () => adjustRouteDate(-1));
+document.getElementById('btn-date-next').addEventListener('click', () => adjustRouteDate(1));
+routeDateInput.addEventListener('change', updateDateLabel);
 
-document.getElementById('btn-date-next').addEventListener('click', () => {
-  adjustRouteTime(1);
-});
+// Früher / Später
+btnEarlier.addEventListener('click', () => loadPage('earlier'));
+btnLater.addEventListener('click', () => loadPage('later'));
 
+setRouteNow();
 updateClock();
 setInterval(updateClock, 1000);
 

@@ -141,7 +141,8 @@ label {
 }
 
 input[type="text"],
-input[type="datetime-local"] {
+input[type="date"],
+input[type="time"] {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-main);
     color: var(--text-main);
@@ -153,7 +154,8 @@ input[type="datetime-local"] {
 }
 
 input[type="text"]:focus,
-input[type="datetime-local"]:focus {
+input[type="date"]:focus,
+input[type="time"]:focus {
     border-color: var(--link-hover);
 }
 
@@ -177,12 +179,37 @@ input[type="datetime-local"]:focus {
     cursor: pointer;
     font-size: 0.85rem;
     border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
 }
 
 .suggestion-item.selected,
 .suggestion-item:hover {
     background-color: var(--bg-hover);
     color: var(--link-hover);
+}
+
+.suggestion-name {
+    min-width: 0;
+}
+
+.abbrev-label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-left: 4px;
+}
+
+.suggestion-id {
+    flex-shrink: 0;
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: right;
 }
 
 button.btn {
@@ -235,14 +262,61 @@ button.btn-nav:hover {
     align-items: center;
 }
 
-.datetime-group input[type="datetime-local"] {
+.datetime-group input[type="date"],
+.datetime-group input[type="time"] {
     flex: 1;
+}
+
+/* Abfahrt / Ankunft Umschalter */
+.time-mode {
+    display: flex;
+}
+
+.seg {
+    flex: 1;
+    padding: 7px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border-main);
+}
+
+.seg:first-child { border-radius: 6px 0 0 6px; }
+.seg:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+
+.seg.active {
+    background: var(--sbb-blue);
+    border-color: var(--sbb-blue);
+    color: #fff;
+}
+
+.date-label {
+    color: var(--text-subtle);
+    margin-left: 6px;
 }
 
 .results-container {
     display: none;
     width: 100%;
     overflow-x: hidden;
+}
+
+/* Früher / Später */
+.btn-paging {
+    width: 100%;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: var(--link-hover);
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.btn-paging:disabled {
+    color: var(--text-muted);
+    opacity: 0.4;
+    cursor: default;
 }
 
 table {
@@ -290,81 +364,127 @@ td {
   vertical-align: middle;
 }
 
-/* Timeline-Balken: proportional zur tatsächlichen Zeit */
+/* Timeline-Balken: proportional zur tatsächlichen Zeit, ein Segment pro Fahrt */
 .timeline-bar {
-  display: flex;
-  align-items: center;
-  height: 12px;
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-  overflow: visible;
   position: relative;
+  height: 20px;
   width: 100%;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+}
+
+.timeline-segment,
+.timeline-walk,
+.timeline-wait {
+  position: absolute;
 }
 
 /* Fahrt-Segment mit line-container Färbung */
 .timeline-segment {
+  top: 0;
   height: 100%;
+  min-width: 3px;
   border-radius: 2px;
   background: var(--sbb-blue);
-  transition: opacity 0.2s ease;
-  position: relative;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.timeline-segment:hover {
-  opacity: 0.85;
-  box-shadow: 0 0 6px rgba(45, 50, 125, 0.5);
+/* Fussweg (dünne Linie) */
+.timeline-walk {
+  top: 9px;
+  height: 2px;
+  background: var(--text-muted);
 }
 
 /* Umsteigepause (striped) */
 .timeline-wait {
-  height: 100%;
+  top: 8px;
+  height: 4px;
   background: repeating-linear-gradient(
     45deg,
     transparent,
     transparent 2px,
-    rgba(255, 255, 255, 0.1) 2px,
-    rgba(255, 255, 255, 0.1) 4px
+    rgba(255, 255, 255, 0.3) 2px,
+    rgba(255, 255, 255, 0.3) 4px
   );
-  border-radius: 1px;
-  position: relative;
 }
 
-/* Fahrt-Punkt am Anfang */
-.timeline-dot {
-    width: 6px;
-    height: 6px;
-    background: #fff;
-    border-radius: 50%;
-    position: absolute;
-    left: -4px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 3;
-    flex-shrink: 0;
-}
-
+/* Detailansicht einer Verbindung */
 .detail-row { background: var(--bg-card); }
+
 .detail-content {
-    padding: 10px;
-    border-left: 3px solid var(--sbb-blue);
+    padding: 6px 10px 12px;
 }
 
-.leg-item {
+.leg-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 6px 0;
-    border-bottom: 1px dashed var(--border-soft);
 }
 
-.leg-item:last-child { border-bottom: none; }
+.leg-block {
+    padding: 8px 0;
+}
 
 .leg-header {
     display: flex;
     align-items: center;
     gap: 8px;
     font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.leg-number {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    font-weight: 400;
+}
+
+.leg-dest {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 0.78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.leg-stop {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 8px;
+    font-size: 0.82rem;
+    padding: 2px 0;
+}
+
+.leg-time {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.leg-track {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.transfer-row,
+.walk-row {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    padding: 5px 0 5px 52px;
+}
+
+.transfer-row {
+    border-top: 1px dashed var(--border-soft);
+    border-bottom: 1px dashed var(--border-soft);
+}
+
+.transfer-row.tight {
+    color: #e9a23b;
 }
 
 /* Standard Badge Layout (Einfärbung erfolgt über line-container.css) */
@@ -376,15 +496,6 @@ td {
     background: var(--sbb-blue);
 }
 
-.transfer-info {
-    background: var(--bg-hover);
-    color: var(--text-subtle);
-    padding: 3px 6px;
-    border-radius: 3px;
-    font-size: 0.75rem;
-    margin: 4px 0;
-}
-
 .btn-trip-detail {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--border-main);
@@ -394,42 +505,6 @@ td {
     font-size: 0.7rem;
     cursor: pointer;
     margin-left: auto;
-}
-
-.trip-stops-list {
-    margin-top: 6px;
-    padding: 6px;
-    background: var(--bg-main);
-    border-radius: 4px;
-    font-size: 0.78rem;
-}
-
-/* Hervorhebungen im Zuglauf */
-.trip-stop-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 6px;
-    border-bottom: 1px dotted var(--border-soft);
-    border-left: 3px solid transparent;
-}
-
-.trip-stop-item.in-route {
-    border-left-color: var(--highlight-border);
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.trip-stop-item.board-stop {
-    background: var(--highlight-bg);
-    border-left-color: var(--link-hover);
-    font-weight: bold;
-    color: #fff;
-}
-
-.trip-stop-item.alight-stop {
-    background: var(--highlight-bg);
-    border-left-color: var(--sob-green);
-    font-weight: bold;
-    color: #fff;
 }
 
 .loading, .empty-hint, .error-hint {
