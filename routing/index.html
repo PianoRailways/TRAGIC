@@ -46,11 +46,19 @@
       </div>
       <div class="form-grid">
         <div class="form-group">
-          <label for="route-time">Abfahrt</label>
+          <label for="route-date">Datum <span id="route-date-label" class="date-label"></span></label>
+          <div class="time-mode">
+            <button type="button" id="btn-mode-dep" class="seg active">Abfahrt</button>
+            <button type="button" id="btn-mode-arr" class="seg">Ankunft</button>
+          </div>
           <div class="datetime-group">
             <button type="button" id="btn-date-prev" class="btn-nav" title="Vortag">◀</button>
-            <input type="datetime-local" id="route-time">
+            <input type="date" id="route-date">
             <button type="button" id="btn-date-next" class="btn-nav" title="Nächster Tag">▶</button>
+          </div>
+          <div class="datetime-group">
+            <input type="time" id="route-time">
+            <button type="button" id="btn-now" class="btn-nav">Jetzt</button>
           </div>
         </div>
         <div class="form-group" style="justify-content: flex-end; gap: 6px;">
@@ -61,6 +69,7 @@
 
       <div id="routing-hint"></div>
       <div id="routing-results" class="results-container">
+        <button type="button" id="btn-earlier" class="btn-paging">▲ Früher</button>
         <table>
           <thead>
             <tr>
@@ -73,6 +82,7 @@
           </thead>
           <tbody id="routing-tbody"></tbody>
         </table>
+        <button type="button" id="btn-later" class="btn-paging">▼ Später</button>
       </div>
     </section>
 
