@@ -362,14 +362,23 @@ function escapeIcs(value) {
 }
 
 function foldIcsLine(line) {
-  const characters = Array.from(line);
+  const encoder = new TextEncoder();
   const chunks = [];
-  let first = true;
-  while (characters.length) {
-    const length = first ? 60 : 59;
-    chunks.push((first ? '' : ' ') + characters.splice(0, length).join(''));
-    first = false;
+  let current = '';
+  let bytes = 0;
+  let limit = 75;
+  for (const character of line) {
+    const size = encoder.encode(character).length;
+    if (bytes + size > limit) {
+      chunks.push(current);
+      current = ' ';
+      bytes = 1;
+      limit = 75;
+    }
+    current += character;
+    bytes += size;
   }
+  chunks.push(current);
   return chunks.join('\r\n');
 }
 
@@ -473,27 +482,22 @@ async function saveConnectionToCalendar(connection, index) {
     || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
 
   if (isMobile) {
-    const form = document.createElement('form');
-    form.method = 'post';
-    form.action = 'calendar.php';
-    form.target = '_blank';
-    form.style.display = 'none';
-
-    const content = document.createElement('textarea');
-    content.name = 'ics';
-    content.value = ics;
-    form.appendChild(content);
-
-    const name = document.createElement('input');
-    name.type = 'hidden';
-    name.name = 'filename';
-    name.value = fileName;
-    form.appendChild(name);
-
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-    return;
+    try {
+      const response = await fetch('calendar.php?action=store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ ics })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.id) {
+        throw new Error(data.error || `Kalender-Export fehlgeschlagen (${response.status})`);
+      }
+      // GET statt POST: iOS ruft die URL nach dem Öffnen der .ics erneut ab
+      window.location.href = `calendar.php?id=${data.id}&filename=${encodeURIComponent(fileName)}`;
+      return;
+    } catch (error) {
+      setHint(routeHint, error.message, true);
+    }
   }
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
