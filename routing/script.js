@@ -32,7 +32,7 @@ let nameToAbbrevMap = {}; // { normName: [{ abbrev, country }, ...] }
  * Creates two mappings for bidirectional lookup
  */
 async function loadAbbreviations() {
-  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk', 'libero', 'zvv', 'awelle'];
+  const countries = ['custom', 'ch', 'de', 'at', 'fr', 'uk'];
   try {
     for (const country of countries) {
       try {
@@ -298,19 +298,31 @@ function getLineLabel(leg) {
   return leg.routeShortName || leg.line || leg.mode || '?';
 }
 
+// canonicalMode() kommt aus der Abfahrtstafel; ist es hier noch nicht eingebunden, bleibt der Rohwert
+const toCanonicalMode = mode => (typeof canonicalMode === 'function' ? canonicalMode(mode) : mode);
+
+/**
+ * Gleiche data-Attribute wie in der Abfahrtstafel (immer gesetzt, auch leer),
+ * dazu data-raw-mode und data-trip-number.
+ */
 function getLineAttributes(leg) {
-  return [
-    ['data-mode', leg.mode],
-    ['data-raw-mode', leg.mode],
-    ['data-line', getLineLabel(leg)],
+  const always = [
+    ['data-mode', toCanonicalMode(leg.mode)],
     ['data-agency-id', leg.agencyId],
     ['data-agency-name', leg.agencyName],
-    ['data-route-id', leg.routeId],
+    ['data-line', getLineLabel(leg)],
+    ['data-raw-line', leg.rawLine ?? leg.line],
+    ['data-route-id', leg.routeId]
+  ].map(([name, value]) => `${name}="${escapeHtml(value ?? '')}"`);
+
+  const optional = [
+    ['data-raw-mode', leg.mode],
     ['data-trip-number', leg.tripNumber]
   ]
     .filter(([, value]) => value !== undefined && value !== null && value !== '')
-    .map(([name, value]) => `${name}="${escapeHtml(value)}"`)
-    .join(' ');
+    .map(([name, value]) => `${name}="${escapeHtml(value)}"`);
+
+  return [...always, ...optional].join(' ');
 }
 
 function renderLineBadge(leg) {
@@ -392,7 +404,7 @@ function renderLegDetails(legs) {
     }
 
     const number = leg.tripNumber && String(leg.tripNumber) !== getLineLabel(leg)
-      ? `<span class="leg-number">Nr. ${escapeHtml(leg.tripNumber)}</span>`
+      ? `<span class="leg-number"${leg.tripNumberDerived ? ' style="font-style:italic;"' : ''}>Nr. ${escapeHtml(leg.tripNumber)}</span>`
       : '';
     const stop = (time, name, track) => `
       <div class="leg-stop">

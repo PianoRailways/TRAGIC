@@ -455,63 +455,81 @@ async function enrichLocalStationSuggestions(matches) {
 
 function attachMainStationSearch(input, list) {
   let searchSequence = 0;
+  let searchTimer;
+  let pendingSearch = null;
+
+  const getItems = () => [...list.children];
+  const activeIndex = () => getItems().findIndex(item => item.classList.contains('selected'));
+  const closeList = () => {
+    list.innerHTML = '';
+    list.style.display = '';
+  };
+  const pickFirstSuggestion = () => {
+    const items = getItems();
+    if (items.length > 0) items[Math.max(activeIndex(), 0)].click();
+  };
+  const highlight = index => {
+    const items = getItems();
+    items.forEach((item, itemIndex) => item.classList.toggle('selected', itemIndex === index));
+    items[index]?.scrollIntoView({ block: 'nearest' });
+  };
+
   input.addEventListener('input', async event => {
     const query = event.target.value.trim();
     list.innerHTML = '';
     list.style.display = '';
     if (query.length < 2) return;
 
-    const sequence = ++searchSequence;
-    const localMatches = getLocalAbbreviationMatches(query);
-    if (CUSTOM_STATION_NAME.toLowerCase().includes(query.toLowerCase())) {
-      localMatches.unshift({
-        id: 'custom-json',
-        name: CUSTOM_STATION_NAME,
-        source: 'custom',
-        _customJsonUrl: CUSTOM_JSON_URL
-      });
-    }
-    try {
-      const customIndex = await getCustomStationIndex();
-      if (sequence !== searchSequence || input.value.trim() !== query) return;
-      customIndex.stations.forEach(station => {
-        if (!station.name || !station.name.toLowerCase().includes(query.toLowerCase())) return;
-        if (localMatches.some(match => match.name.toLowerCase() === station.name.toLowerCase())) return;
+    const runSearch = async () => {
+      const sequence = ++searchSequence;
+      const localMatches = getLocalAbbreviationMatches(query);
+      if (CUSTOM_STATION_NAME.toLowerCase().includes(query.toLowerCase())) {
         localMatches.unshift({
-          id: station.id || station.stopId || null,
-          name: station.name,
+          id: 'custom-json',
+          name: CUSTOM_STATION_NAME,
           source: 'custom',
-          _customJsonUrl: station._customJsonUrl
+          _customJsonUrl: CUSTOM_JSON_URL
         });
-      });
-    } catch (_) {}
-    const hasCustomMatches = localMatches.some(match => match.source === 'custom');
-    const renderedLocalMatches = renderStationSuggestions(list, localMatches);
-    list.style.display = localMatches.length ? 'block' : '';
-    if (localMatches.length && !hasCustomMatches) {
-      enrichLocalStationSuggestions(renderedLocalMatches);
-      return;
-    }
-
-    if (window.abbreviationsReady) {
-      await window.abbreviationsReady;
-      if (sequence !== searchSequence || input.value.trim() !== query) return;
-      const loadedMatches = getLocalAbbreviationMatches(query);
-      loadedMatches.forEach(match => {
-        if (!localMatches.some(existing => existing.name.toLowerCase() === match.name.toLowerCase())) {
-          localMatches.push(match);
-        }
-      });
-      if (loadedMatches.length && !hasCustomMatches) {
-        const renderedLoadedMatches = renderStationSuggestions(list, localMatches);
-        list.style.display = localMatches.length ? 'block' : '';
-        enrichLocalStationSuggestions(renderedLoadedMatches);
+      }
+      try {
+        const customIndex = await getCustomStationIndex();
+        if (sequence !== searchSequence || input.value.trim() !== query) return;
+        customIndex.stations.forEach(station => {
+          if (!station.name || !station.name.toLowerCase().includes(query.toLowerCase())) return;
+          if (localMatches.some(match => match.name.toLowerCase() === station.name.toLowerCase())) return;
+          localMatches.unshift({
+            id: station.id || station.stopId || null,
+            name: station.name,
+            source: 'custom',
+            _customJsonUrl: station._customJsonUrl
+          });
+        });
+      } catch (_) {}
+      const hasCustomMatches = localMatches.some(match => match.source === 'custom');
+      const renderedLocalMatches = renderStationSuggestions(list, localMatches);
+      list.style.display = localMatches.length ? 'block' : '';
+      if (localMatches.length && !hasCustomMatches) {
+        enrichLocalStationSuggestions(renderedLocalMatches);
         return;
       }
-    }
 
-    clearTimeout(input.searchTimer);
-    input.searchTimer = setTimeout(async () => {
+      if (window.abbreviationsReady) {
+        await window.abbreviationsReady;
+        if (sequence !== searchSequence || input.value.trim() !== query) return;
+        const loadedMatches = getLocalAbbreviationMatches(query);
+        loadedMatches.forEach(match => {
+          if (!localMatches.some(existing => existing.name.toLowerCase() === match.name.toLowerCase())) {
+            localMatches.push(match);
+          }
+        });
+        if (loadedMatches.length && !hasCustomMatches) {
+          const renderedLoadedMatches = renderStationSuggestions(list, localMatches);
+          list.style.display = localMatches.length ? 'block' : '';
+          enrichLocalStationSuggestions(renderedLoadedMatches);
+          return;
+        }
+      }
+
       try {
         const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(query)}`);
         const data = await res.json();
@@ -537,7 +555,43 @@ function attachMainStationSearch(input, list) {
           setStatus('Fehler bei der Stationssuche: ' + err.message);
         }
       }
+    };
+
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      pendingSearch = runSearch().finally(() => {
+        pendingSearch = null;
+      });
     }, 350);
+  });
+
+  input.addEventListener('keydown', event => {
+    const items = getItems();
+    const open = items.length > 0 && list.style.display !== 'none';
+    const index = activeIndex();
+
+    if (event.key === 'ArrowDown' && open) {
+      event.preventDefault();
+      highlight(Math.min(index + 1, items.length - 1));
+    } else if (event.key === 'ArrowUp' && open) {
+      event.preventDefault();
+      highlight(Math.max(index - 1, 0));
+    } else if (event.key === 'Enter' && open) {
+      event.preventDefault();
+      pickFirstSuggestion();
+    } else if (event.key === 'Escape' && open) {
+      closeList();
+    } else if (event.key === 'Tab' && !event.shiftKey) {
+      if (open) {
+        pickFirstSuggestion();
+      } else if (input.value.trim()) {
+        clearTimeout(searchTimer);
+        if (!pendingSearch) {
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        pendingSearch?.then(pickFirstSuggestion);
+      }
+    }
   });
 }
 
