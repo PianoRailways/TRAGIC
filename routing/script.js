@@ -19,7 +19,7 @@ const boardHint = document.getElementById('board-hint');
 const selectedStations = new Map();
 let viaCount = 0;
 let arriveBy = false;
-let pageState = { params: null, connections: [], prev: null, next: null };
+let pageState = { params: null, connections: [], prev: null, next: null, selected: null };
 
 const isWalk = leg => leg.mode === 'WALK';
 
@@ -96,6 +96,64 @@ function debounce(callback, delay) {
     clearTimeout(timer);
     timer = setTimeout(() => callback(...args), delay);
   };
+}
+
+function updateRouteUrl(selected = pageState.selected) {
+  const url = new URL(window.location.href);
+  const from = selectedStations.get('from');
+  const to = selectedStations.get('to');
+
+  ['from', 'fromId', 'to', 'toId', 'via', 'viaId', 'date', 'time', 'mode', 'selected']
+    .forEach(key => url.searchParams.delete(key));
+
+  if (from && to) {
+    url.searchParams.set('from', from.name);
+    if (from.id) url.searchParams.set('fromId', from.id);
+    url.searchParams.set('to', to.name);
+    if (to.id) url.searchParams.set('toId', to.id);
+
+    document.querySelectorAll('#via-list-container input').forEach(input => {
+      const station = selectedStations.get(input.id);
+      if (!station) return;
+      url.searchParams.append('via', station.name);
+      if (station.id) url.searchParams.append('viaId', station.id);
+    });
+
+    if (routeDateInput.value) url.searchParams.set('date', routeDateInput.value);
+    if (routeTimeInput.value) url.searchParams.set('time', routeTimeInput.value);
+    url.searchParams.set('mode', arriveBy ? 'arrive' : 'depart');
+    if (Number.isInteger(selected)) url.searchParams.set('selected', selected);
+  }
+
+  window.history.replaceState(null, '', url);
+}
+
+function restoreRouteFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const fromName = params.get('from');
+  const toName = params.get('to');
+  if (!fromName || !toName) return null;
+
+  routeFromInput.value = fromName;
+  routeToInput.value = toName;
+  selectedStations.set('from', { name: fromName, id: params.get('fromId') || null });
+  selectedStations.set('to', { name: toName, id: params.get('toId') || null });
+
+  const date = params.get('date');
+  const time = params.get('time');
+  if (date) routeDateInput.value = date;
+  if (time) routeTimeInput.value = time;
+  setMode(params.get('mode') === 'arrive');
+  updateDateLabel();
+
+  const viaNames = params.getAll('via');
+  const viaIds = params.getAll('viaId');
+  viaNames.forEach((name, index) => {
+    createViaInput({ name, id: viaIds[index] || null });
+  });
+
+  const selected = Number.parseInt(params.get('selected'), 10);
+  return { selected: Number.isInteger(selected) ? selected : null };
 }
 
 async function searchStations(query) {
@@ -259,7 +317,7 @@ function attachStationSearch(input, suggestions, key) {
   });
 }
 
-function createViaInput() {
+function createViaInput(station = null) {
   viaCount += 1;
   const key = `via-${viaCount}`;
   const group = document.createElement('div');
@@ -270,7 +328,12 @@ function createViaInput() {
     <div class="suggestions"></div>
   `;
   document.getElementById('via-list-container').appendChild(group);
-  attachStationSearch(group.querySelector('input'), group.querySelector('.suggestions'), key);
+  const input = group.querySelector('input');
+  if (station) {
+    input.value = station.name;
+    selectedStations.set(key, station);
+  }
+  attachStationSearch(input, group.querySelector('.suggestions'), key);
 }
 
 function formatTime(epoch) {
@@ -448,7 +511,7 @@ function renderLegDetails(legs) {
   return html;
 }
 
-function renderRoutes(connections) {
+function renderRoutes(connections, selectedIndex = null) {
   routeTbody.innerHTML = '';
   
   if (connections.length === 0) return;
@@ -485,7 +548,10 @@ function renderRoutes(connections) {
     row.addEventListener('click', () => {
       const detailRow = document.getElementById(`detail-row-${connIdx}`);
       if (detailRow) {
-        detailRow.style.display = detailRow.style.display === 'none' ? 'table-row' : 'none';
+        const open = detailRow.style.display === 'none';
+        detailRow.style.display = open ? 'table-row' : 'none';
+        pageState.selected = open ? connIdx : null;
+        updateRouteUrl();
       }
     });
     
@@ -495,7 +561,7 @@ function renderRoutes(connections) {
     const detailRow = document.createElement('tr');
     detailRow.className = 'detail-row';
     detailRow.id = `detail-row-${connIdx}`;
-    detailRow.style.display = 'none';
+    detailRow.style.display = connIdx === selectedIndex ? 'table-row' : 'none';
     
     const detailContent = document.createElement('td');
     detailContent.colSpan = 5;
@@ -569,7 +635,7 @@ routeTbody.addEventListener('click', async event => {
   }
 });
 
-async function searchRoute() {
+async function searchRoute(selected = null) {
   let from = selectedStations.get('from');
   let to = selectedStations.get('to');
   
@@ -584,6 +650,14 @@ async function searchRoute() {
     if (!from.id || !to.id) throw new Error('Start oder Ziel konnte nicht aufgelöst werden.');
     selectedStations.set('from', from);
     selectedStations.set('to', to);
+
+    for (const input of document.querySelectorAll('#via-list-container input')) {
+      const station = selectedStations.get(input.id);
+      if (!station) continue;
+      const resolved = { ...station, id: await resolveStationId(station) };
+      if (!resolved.id) throw new Error(`Via konnte nicht aufgelöst werden: ${station.name}`);
+      selectedStations.set(input.id, resolved);
+    }
   } catch (error) {
     setHint(routeHint, error.message, true);
     return;
@@ -601,7 +675,8 @@ async function searchRoute() {
     if (station) params.append('via', station.id);
   });
 
-  pageState = { params, connections: [], prev: null, next: null };
+  pageState = { params, connections: [], prev: null, next: null, selected };
+  updateRouteUrl();
   routeResults.style.display = 'none';
   await loadPage();
 }
@@ -631,7 +706,7 @@ async function loadPage(direction) {
     if (direction !== 'later') pageState.prev = data.previousPageCursor || null;
     if (direction !== 'earlier') pageState.next = data.nextPageCursor || null;
 
-    renderRoutes(pageState.connections);
+    renderRoutes(pageState.connections, pageState.selected);
     btnEarlier.disabled = !pageState.prev;
     btnLater.disabled = !pageState.next;
 
@@ -708,6 +783,7 @@ function setRouteNow() {
   routeDateInput.value = toDateValue(now);
   routeTimeInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   updateDateLabel();
+  updateRouteUrl();
 }
 
 function adjustRouteDate(days) {
@@ -715,6 +791,7 @@ function adjustRouteDate(days) {
   d.setDate(d.getDate() + days);
   routeDateInput.value = toDateValue(d);
   updateDateLabel();
+  updateRouteUrl();
 }
 
 function getRouteDate() {
@@ -726,6 +803,7 @@ function setMode(arrive) {
   arriveBy = arrive;
   btnModeDep.classList.toggle('active', !arrive);
   btnModeArr.classList.toggle('active', arrive);
+  updateRouteUrl();
 }
 
 function swapFromTo() {
@@ -737,6 +815,7 @@ function swapFromTo() {
     selectedStations.set('to', from);
     routeFromInput.value = to.name;
     routeToInput.value = from.name;
+    updateRouteUrl();
   }
 }
 
@@ -758,13 +837,19 @@ btnModeArr.addEventListener('click', () => setMode(true));
 document.getElementById('btn-now').addEventListener('click', setRouteNow);
 document.getElementById('btn-date-prev').addEventListener('click', () => adjustRouteDate(-1));
 document.getElementById('btn-date-next').addEventListener('click', () => adjustRouteDate(1));
-routeDateInput.addEventListener('change', updateDateLabel);
+routeDateInput.addEventListener('change', () => {
+  updateDateLabel();
+  updateRouteUrl();
+});
+routeTimeInput.addEventListener('change', updateRouteUrl);
 
 // Früher / Später
 btnEarlier.addEventListener('click', () => loadPage('earlier'));
 btnLater.addEventListener('click', () => loadPage('later'));
 
-setRouteNow();
+const restoredRoute = restoreRouteFromUrl();
+if (restoredRoute) searchRoute(restoredRoute.selected);
+else setRouteNow();
 updateClock();
 setInterval(updateClock, 1000);
 
