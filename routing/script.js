@@ -361,6 +361,18 @@ function escapeIcs(value) {
     .replace(/\r?\n/g, '\\n');
 }
 
+function foldIcsLine(line) {
+  const characters = Array.from(line);
+  const chunks = [];
+  let first = true;
+  while (characters.length) {
+    const length = first ? 60 : 59;
+    chunks.push((first ? '' : ' ') + characters.splice(0, length).join(''));
+    first = false;
+  }
+  return chunks.join('\r\n');
+}
+
 function formatCalendarDateRange(start, end) {
   const startDate = new Date(Number(start) * 1000);
   const endDate = new Date(Number(end) * 1000);
@@ -449,9 +461,35 @@ async function saveConnectionToCalendar(connection, index) {
     'END:VEVENT',
     'END:VCALENDAR',
     ''
-  ].join('\r\n');
+  ].map(foldIcsLine).join('\r\n');
   const fileName = `TRAGIC-${(first.name || 'Start').replace(/[^\w-]+/g, '-')}-${(last.name || 'Ziel').replace(/[^\w-]+/g, '-')}.ics`;
   const file = new File([ics], fileName, { type: 'text/calendar;charset=utf-8' });
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
+
+  if (isMobile) {
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = 'calendar.php';
+    form.target = '_blank';
+    form.style.display = 'none';
+
+    const content = document.createElement('textarea');
+    content.name = 'ics';
+    content.value = ics;
+    form.appendChild(content);
+
+    const name = document.createElement('input');
+    name.type = 'hidden';
+    name.name = 'filename';
+    name.value = fileName;
+    form.appendChild(name);
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+    return;
+  }
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     try {
