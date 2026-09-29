@@ -348,6 +348,168 @@ function formatDuration(seconds) {
   return `${Math.floor(minutes / 60) ? `${Math.floor(minutes / 60)}h ` : ''}${minutes % 60}min`;
 }
 
+function formatIcsDate(epoch) {
+  const date = new Date(Number(epoch) * 1000);
+  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+}
+
+function escapeIcs(value) {
+  return String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r?\n/g, '\\n');
+}
+
+function foldIcsLine(line) {
+  const characters = Array.from(line);
+  const chunks = [];
+  let first = true;
+  while (characters.length) {
+    const length = first ? 60 : 59;
+    chunks.push((first ? '' : ' ') + characters.splice(0, length).join(''));
+    first = false;
+  }
+  return chunks.join('\r\n');
+}
+
+function formatCalendarDateRange(start, end) {
+  const startDate = new Date(Number(start) * 1000);
+  const endDate = new Date(Number(end) * 1000);
+  const date = startDate.toLocaleDateString('de-CH', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+  return `${date} · ${formatTime(start)} bis ${formatTime(end)}`;
+}
+
+function getCalendarDescription(connection, routeUrl) {
+  const legs = connection.legs || [];
+  const first = legs[0]?.from || {};
+  const last = legs[legs.length - 1]?.to || {};
+  const start = first.departure || connection.startTime;
+  const end = last.arrival || connection.endTime;
+  const lines = [
+    `${formatTime(start)} ${first.name || ''}${first.track ? ` Gl. ${first.track}` : ''} – ${last.name || ''}`,
+    formatCalendarDateRange(start, end),
+    '',
+    'Reise:',
+    `${first.name || ''} nach ${last.name || ''}`,
+    `Datum: ${new Date(Number(start) * 1000).toLocaleDateString('de-CH')}`,
+    ''
+  ];
+
+  let previousTransit = null;
+  let walkSinceTransit = false;
+  for (const leg of legs) {
+    const from = leg.from || {};
+    const to = leg.to || {};
+    if (isWalk(leg)) {
+      const distance = leg.distance ? `: ${Math.round(Number(leg.distance))} m` : '';
+      lines.push(`Ab Fussweg${distance} (Fussweg)`);
+      walkSinceTransit = true;
+      continue;
+    }
+
+    if (previousTransit) {
+      const gap = (from.departure || 0) - (previousTransit.to?.arrival || 0);
+      if (gap > 0) lines.push(`Ab Umsteigen${walkSinceTransit ? ' (Fussweg)' : ''}`);
+    }
+
+    const line = getLineLabel(leg);
+    const trip = leg.tripNumber && String(leg.tripNumber) !== String(line)
+      ? ` ${leg.tripNumber}`
+      : '';
+    const direction = leg.destination ? `, Richtung: ${leg.destination}` : '';
+    lines.push(`Ab ${formatTime(from.departure)}, ${from.name || ''}${from.track ? `, Gl. ${from.track}` : ''} (${line}${trip}${direction})`);
+    lines.push(`An ${formatTime(to.arrival)} ${to.name || ''}${to.track ? `, Gl. ${to.track}` : ''}`);
+    previousTransit = leg;
+    walkSinceTransit = false;
+  }
+
+  lines.push('', '–', '', `${formatDuration(connection.duration || (end - start))}`, '',
+    'Änderungen vorbehalten. Alle Angaben, Anschlüsse und Einhaltung des Fahrplans ohne Gewähr.', '',
+    `${routeUrl}`);
+  return lines.join('\n');
+}
+
+async function saveConnectionToCalendar(connection, index) {
+  pageState.selected = index;
+  updateRouteUrl(index);
+  const routeUrl = window.location.href;
+  const legs = connection.legs || [];
+  const first = legs[0]?.from || {};
+  const last = legs[legs.length - 1]?.to || {};
+  const start = first.departure || connection.startTime;
+  const end = last.arrival || connection.endTime;
+  const summary = `${formatTime(start)} ${first.name || ''}${first.track ? ` Gl. ${first.track}` : ''} – ${last.name || ''}`;
+  const uid = `${Date.now()}-${index}@tragic.routing`;
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//TRAGIC//Routing//DE',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${formatIcsDate(Date.now() / 1000)}`,
+    `DTSTART:${formatIcsDate(start)}`,
+    `DTEND:${formatIcsDate(end)}`,
+    `SUMMARY:${escapeIcs(summary)}`,
+    `LOCATION:${escapeIcs(`${first.name || ''} – ${last.name || ''}`)}`,
+    `DESCRIPTION:${escapeIcs(getCalendarDescription(connection, routeUrl))}`,
+    `URL:${escapeIcs(routeUrl)}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+    ''
+  ].map(foldIcsLine).join('\r\n');
+  const fileName = `TRAGIC-${(first.name || 'Start').replace(/[^\w-]+/g, '-')}-${(last.name || 'Ziel').replace(/[^\w-]+/g, '-')}.ics`;
+  const file = new File([ics], fileName, { type: 'text/calendar;charset=utf-8' });
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
+
+  if (isMobile) {
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = 'calendar.php';
+    form.target = '_blank';
+    form.style.display = 'none';
+
+    const content = document.createElement('textarea');
+    content.name = 'ics';
+    content.value = ics;
+    form.appendChild(content);
+
+    const name = document.createElement('input');
+    name.type = 'hidden';
+    name.name = 'filename';
+    name.value = fileName;
+    form.appendChild(name);
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+    return;
+  }
+
+  if (navigator.share && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ title: summary, text: 'Verbindung im Kalender speichern', files: [file] });
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
+  }
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(file);
+  link.download = fileName;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
+}
+
 /**
  * Sollzeit mit Hinweis auf die Abweichung: 18:18 +1 (rot) bzw. 18:18 -1 (blau)
  */
@@ -566,7 +728,11 @@ function renderRoutes(connections, selectedIndex = null) {
     const detailContent = document.createElement('td');
     detailContent.colSpan = 5;
     detailContent.className = 'detail-content';
-    detailContent.innerHTML = `<div class="leg-list">${renderLegDetails(legs)}</div>`;
+    detailContent.innerHTML = `
+      <div class="detail-actions">
+        <button type="button" class="btn-secondary btn-calendar" data-connection-index="${connIdx}">Kalender speichern</button>
+      </div>
+      <div class="leg-list">${renderLegDetails(legs)}</div>`;
     
     detailRow.appendChild(detailContent);
     routeTbody.appendChild(detailRow);
@@ -611,6 +777,18 @@ function renderTripCourse(trip, block) {
 }
 
 routeTbody.addEventListener('click', async event => {
+  const calendarButton = event.target.closest('.btn-calendar');
+  if (calendarButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    const index = Number(calendarButton.dataset.connectionIndex);
+    try {
+      await saveConnectionToCalendar(pageState.connections[index], index);
+    } catch (error) {
+      if (error.name !== 'AbortError') setHint(routeHint, error.message, true);
+    }
+    return;
+  }
   if (event.target.closest('.trip-course')) return;
   const block = event.target.closest('.leg-block.expandable');
   if (!block) return;

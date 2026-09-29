@@ -427,6 +427,16 @@ td {
     padding: 6px 10px 12px;
 }
 
+.detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+}
+
+.btn-calendar {
+    width: auto;
+}
+
 .leg-list {
     display: flex;
     flex-direction: column;
