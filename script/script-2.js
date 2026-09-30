@@ -402,6 +402,54 @@ function getLocalAbbreviationMatches(query) {
   }));
 }
 
+function normalizeSearchText(str) {
+  return String(str || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getLocalNameMatches(query, limit = 6) {
+  const q = normalizeSearchText(query);
+  if (q.length < 3) return [];
+
+  const startsWith = [];
+  const contains = [];
+  const seen = new Set();
+
+  for (const [abbrev, entries] of Object.entries(abbrevMap)) {
+    for (const entry of entries) {
+      const name = String(entry.name || '').trim();
+      const norm = normalizeSearchText(name);
+      const idx = norm.indexOf(q);
+      if (idx < 0) continue;
+
+      const key = `${norm}|${entry.country}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      (idx === 0 ? startsWith : contains).push({
+        id: null,
+        name,
+        abbrev,
+        country: entry.country,
+        source: 'abbrev'
+      });
+    }
+  }
+
+  return [...startsWith, ...contains].slice(0, limit);
+}
+
+function addNameMatches(target, query) {
+  const existing = new Set(target.map(m => m.name.toLowerCase()));
+  getLocalNameMatches(query).forEach(match => {
+    if (!existing.has(match.name.toLowerCase())) target.push(match);
+  });
+}
+
 function renderStationSuggestions(list, matches) {
   list.innerHTML = '';
   const seen = new Set();
@@ -486,7 +534,8 @@ function attachMainStationSearch(input, list) {
 
     const runSearch = async () => {
       const sequence = ++searchSequence;
-      const localMatches = getLocalAbbreviationMatches(query);
+      const abbrevMatches = getLocalAbbreviationMatches(query);
+      const localMatches = [...abbrevMatches];
       if (CUSTOM_STATION_NAME.toLowerCase().includes(query.toLowerCase())) {
         localMatches.unshift({
           id: 'custom-json',
@@ -510,9 +559,10 @@ function attachMainStationSearch(input, list) {
         });
       } catch (_) {}
       const hasCustomMatches = localMatches.some(match => match.source === 'custom');
+      if (!abbrevMatches.length) addNameMatches(localMatches, query);   // NEU
       const renderedLocalMatches = renderStationSuggestions(list, localMatches);
       list.style.display = localMatches.length ? 'block' : '';
-      if (localMatches.length && !hasCustomMatches) {
+      if (abbrevMatches.length && !hasCustomMatches) {            // vorher: localMatches.length
         enrichLocalStationSuggestions(renderedLocalMatches);
         return;
       }
@@ -532,6 +582,7 @@ function attachMainStationSearch(input, list) {
           enrichLocalStationSuggestions(renderedLoadedMatches);
           return;
         }
+        if (!loadedMatches.length) addNameMatches(localMatches, query);   // NEU
       }
 
       try {
