@@ -1,3 +1,8 @@
+function isDerivedTripNumberHighlightOperator(agencyName, agencyId) {
+  const operatorText = `${agencyName || ''} ${agencyId || ''}`.toUpperCase();
+  return /\b(SBB|BLS|SOB|THURBO)\b/.test(operatorText);
+}
+
 function renderChain(data) {
   currentChainData = data;
 
@@ -258,8 +263,10 @@ function renderChain(data) {
       </div>`
     : '';
 
+  const highlightDerivedTripNumber = data.tripNumberDerived
+    && isDerivedTripNumberHighlightOperator(data.agency?.name, data.agency?.id);
   const chainTripNumHtml = data.tripNumber
-    ? ' · ' + (data.tripNumberDerived ? '<i>' : '') + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) + (data.tripNumberDerived ? '</i>' : '')
+    ? ' · ' + (data.tripNumberDerived ? `<i${highlightDerivedTripNumber ? ' class="derived-trip-number"' : ''}>` : '') + escapeHtml(String(data.tripNumber).replace(/^0+/, '')) + (data.tripNumberDerived ? '</i>' : '')
     : '';
 
   return `
@@ -372,7 +379,7 @@ function renderDepartures(departures) {
       <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
         <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(displayLine)}" data-raw-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
-        <div class="col-nr tripnr"${dep.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${tripNumDisplay}</div>
+        <div class="col-nr tripnr${dep.tripNumberDerived && isDerivedTripNumberHighlightOperator(dep.agencyName, dep.agencyId) ? ' derived-trip-number' : ''}"${dep.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${tripNumDisplay}</div>
       </td>
       <td class="col-dest">${destDisplay}${viaHtml}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>

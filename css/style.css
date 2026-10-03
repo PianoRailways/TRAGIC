@@ -735,6 +735,12 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
   white-space: nowrap;
   display: inline-block;
 }
+.derived-trip-number {
+  background: #b8f28b;
+  color: #183b16;
+  padding: 0 0.18rem;
+  border-radius: 2px;
+}
 .delay { color: var(--error); font-weight: bold; }
 .vbz-delay { color: var(--link-hover); font-weight: bold; }
 .ontime { color: var(--on-time); }
