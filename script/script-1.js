@@ -660,6 +660,68 @@ function closeStationsView() {
 
 // ─── Favorites-View (Benutzerdefinierte Favoriten) ────────────────────
 
+function getScrollParent(el) {
+  let parent = el.parentElement;
+
+  while (parent) {
+    const style = getComputedStyle(parent);
+    if ((style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+        parent.scrollHeight > parent.clientHeight) {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+
+  return document.scrollingElement;
+}
+
+function enableFavoriteReorder(handle, li, list) {
+  handle.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    li.classList.add('favorite-dragging');
+    const scrollParent = getScrollParent(li);
+
+    const move = moveEvent => {
+      const target = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY)
+        ?.closest('li[data-stop-id]');
+      if (target && target !== li && list.contains(target)) {
+        const targetRect = target.getBoundingClientRect();
+        if (moveEvent.clientY < targetRect.top + targetRect.height / 2) {
+          list.insertBefore(li, target);
+        } else {
+          list.insertBefore(li, target.nextSibling);
+        }
+      }
+
+      if (moveEvent.clientY < 60) {
+        scrollParent.scrollTop -= 12;
+      } else if (window.innerHeight - moveEvent.clientY < 60) {
+        scrollParent.scrollTop += 12;
+      }
+    };
+
+    const finish = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', finish);
+      document.removeEventListener('pointercancel', finish);
+      li.classList.remove('favorite-dragging');
+
+      const favoritesByStopId = new Map(
+        favoriteStations.map(favorite => [favorite.stopId, favorite])
+      );
+      favoriteStations = [...list.querySelectorAll('li[data-stop-id]')]
+        .map(row => favoritesByStopId.get(row.dataset.stopId))
+        .filter(Boolean);
+      saveFavoritesToStorage();
+      renderFavoritesBar();
+    };
+
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', finish);
+    document.addEventListener('pointercancel', finish);
+  });
+}
+
 function renderFavoritesView() {
   const favoritesView = document.getElementById('favorites-view');
   const favoritesList = document.getElementById('favorites-list');
@@ -667,55 +729,19 @@ function renderFavoritesView() {
   if (!favoritesView || !favoritesList) return;
   
   favoritesList.innerHTML = '';
-  let draggedRow = null;
   
   favoriteStations.forEach(favorite => {
     const li = document.createElement('li');
-    li.draggable = true;
     li.dataset.stopId = favorite.stopId;
-
-    li.addEventListener('dragstart', event => {
-      draggedRow = li;
-      li.classList.add('favorite-dragging');
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', favorite.stopId);
-    });
-
-    li.addEventListener('dragover', event => {
-      event.preventDefault();
-      if (draggedRow && draggedRow !== li) {
-        event.dataTransfer.dropEffect = 'move';
-        li.classList.add('favorite-drag-over');
-      }
-    });
-
-    li.addEventListener('dragleave', () => {
-      li.classList.remove('favorite-drag-over');
-    });
-
-    li.addEventListener('drop', event => {
-      event.preventDefault();
-      if (!draggedRow || draggedRow === li) return;
-
-      favoritesList.insertBefore(draggedRow, li);
-      favoriteStations = [...favoritesList.querySelectorAll('li[data-stop-id]')]
-        .map(row => favoriteStations.find(entry => entry.stopId === row.dataset.stopId))
-        .filter(Boolean);
-      saveFavoritesToStorage();
-      renderFavoritesView();
-      renderFavoritesBar();
-    });
-
-    li.addEventListener('dragend', () => {
-      draggedRow = null;
-      favoritesList.querySelectorAll('.favorite-drag-over').forEach(row => {
-        row.classList.remove('favorite-drag-over');
-      });
-      li.classList.remove('favorite-dragging');
-    });
     
     const itemContainer = document.createElement('div');
     itemContainer.className = 'station-row';
+
+    const dragHandle = document.createElement('span');
+    dragHandle.className = 'fav-drag-handle';
+    dragHandle.textContent = '☰';
+    dragHandle.setAttribute('aria-label', `${favorite.name} verschieben`);
+    enableFavoriteReorder(dragHandle, li, favoritesList);
 
     const favoriteIcon = document.createElement('span');
     favoriteIcon.className = 'station-favorite-toggle is-favorite';
@@ -771,6 +797,7 @@ function renderFavoritesView() {
       }
     });
     
+    itemContainer.appendChild(dragHandle);
     itemContainer.appendChild(favoriteIcon);
     itemContainer.appendChild(link);
     itemContainer.appendChild(deleteBtn);

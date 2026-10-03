@@ -255,16 +255,22 @@
   border-bottom: 1px solid var(--border-soft);
 }
 
-.stations-view .stations-list li[draggable="true"] {
+.fav-drag-handle {
+  flex-shrink: 0;
+  padding: 0 10px;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
   cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
-.stations-view .stations-list li.favorite-dragging {
-  opacity: 0.5;
-}
-
-.stations-view .stations-list li.favorite-drag-over {
-  border-top-color: var(--line-accent);
+li.favorite-dragging {
+  background: rgba(255,255,255,0.08);
+  opacity: 0.85;
 }
 
 .stations-view .stations-item {
