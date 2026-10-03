@@ -18,8 +18,8 @@ function loadNearbySettings() {
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
 const DEPARTURE_BATCH_SIZE = 25;
-const FILTERED_DEPARTURE_TARGET = 10;
-const MAX_FILTERED_DEPARTURE_TOP_UPS = 4;
+const FILTERED_DEPARTURE_TARGET = DEPARTURE_BATCH_SIZE;
+const MAX_FILTERED_DEPARTURE_TOP_UPS = 8;
 let isLoadingMoreDepartures = false;
 let isToppingUpFilteredDepartures = false;
 let filteredDepartureTopUpAttempts = 0;
@@ -33,10 +33,15 @@ const CUSTOM_STATION_NAME = 'Demo-Bahnhof';
 let customStationIndexPromise = null;
 
 function parseCustomJsonTime(value) {
-  if (typeof value === 'number') return value > 100000000000 ? Math.floor(value / 1000) : value;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return 0;
+    return value > 100000000000 ? Math.floor(value / 1000) : value;
+  }
   if (!value) return 0;
   const parsed = Date.parse(value);
-  return Number.isNaN(parsed) ? Number(value) || 0 : Math.floor(parsed / 1000);
+  if (!Number.isNaN(parsed)) return Math.floor(parsed / 1000);
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
 function normalizeCustomTrip(trip) {
@@ -251,7 +256,7 @@ function setupNavigationButtons() {
     }
 
     const visibleTimes = getVisibleDepartureRows(true)
-      .map(row => Number(row.dataset.scheduled) || 0)
+      .map(row => parseCustomJsonTime(row.dataset.scheduled))
       .filter(Boolean);
     const maxTime = Math.max(...visibleTimes);
 
@@ -1227,7 +1232,7 @@ async function ensureFilteredDeparturesLoaded() {
     while (visibleRows() < FILTERED_DEPARTURE_TARGET
       && filteredDepartureTopUpAttempts < MAX_FILTERED_DEPARTURE_TOP_UPS) {
       const visibleTimes = getVisibleDepartureRows(true)
-        .map(row => Number(row.dataset.scheduled) || 0)
+        .map(row => parseCustomJsonTime(row.dataset.scheduled))
         .filter(Boolean);
       const latestVisibleTime = Math.max(...visibleTimes, 0);
       if (!latestVisibleTime) break;
@@ -1244,7 +1249,9 @@ async function ensureFilteredDeparturesLoaded() {
 async function loadMoreDepartures(startEpoch = null) {
   if (isLoadingMoreDepartures || customDepartures || !currentStopId || allDepartures.length === 0) return;
 
-  const latestEpoch = startEpoch || Math.max(...allDepartures.map(dep => dep.scheduled || dep.live || 0));
+  const latestEpoch = startEpoch || Math.max(...allDepartures.map(dep =>
+    parseCustomJsonTime(dep.scheduled) || parseCustomJsonTime(dep.live) || 0
+  ));
   if (!latestEpoch) return;
 
   isLoadingMoreDepartures = true;
