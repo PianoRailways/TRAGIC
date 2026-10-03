@@ -1321,6 +1321,7 @@ function applyFilters() {
   });
 
   updateFilterMenuIndicator();
+  if (typeof ensureFilteredDeparturesLoaded === 'function') ensureFilteredDeparturesLoaded();
 }
 
 // ─── Datum / Zeit (URL ↔ Picker) ────────────────────────────────────────────

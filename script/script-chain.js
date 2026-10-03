@@ -363,6 +363,7 @@ function renderDepartures(departures) {
     tr.dataset.agencyName = dep.agencyName || '';
     tr.dataset.tripId = dep.tripId || '';
     tr.dataset.routeId = dep.routeId || '';
+    tr.dataset.mainStation = dep._isMainStation ? 'true' : 'false';
     tr.dataset.vias = Array.isArray(dep.vias) ? dep.vias.join(' ') : '';
     tr.dataset.scheduled = dep.scheduled || '';
 

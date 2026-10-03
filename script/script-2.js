@@ -18,7 +18,12 @@ function loadNearbySettings() {
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
 const DEPARTURE_BATCH_SIZE = 25;
+const FILTERED_DEPARTURE_TARGET = 10;
+const MAX_FILTERED_DEPARTURE_TOP_UPS = 4;
 let isLoadingMoreDepartures = false;
+let isToppingUpFilteredDepartures = false;
+let filteredDepartureTopUpAttempts = 0;
+let filteredDepartureTopUpKey = '';
 const CUSTOM_JSON_URLS = [
   '/cache/demo-fahrten.js',
   '/cache/data.json',
@@ -245,7 +250,10 @@ function setupNavigationButtons() {
       return;
     }
 
-    const maxTime = Math.max(...allDepartures.map(d => d.scheduled || d.live || 0));
+    const visibleTimes = getVisibleDepartureRows(true)
+      .map(row => Number(row.dataset.scheduled) || 0)
+      .filter(Boolean);
+    const maxTime = Math.max(...visibleTimes);
 
     if (maxTime > currentEpoch) {
       setPickersFromEpoch(maxTime + 60);
@@ -1181,10 +1189,62 @@ function updateLoadMoreButton() {
   button.textContent = isLoadingMoreDepartures ? 'Lade…' : 'Mehr laden';
 }
 
-async function loadMoreDepartures() {
+function getFilteredDepartureTopUpKey() {
+  const selectedModes = filterState?.selectedModes ? [...filterState.selectedModes].sort().join(',') : '';
+  const destination = destFilter?.value?.trim().toLowerCase() || '';
+  return `${selectedModes}|${filterState?.alleModeActive !== false}|${destination}`;
+}
+
+function hasActiveDepartureFilter() {
+  return filterState && (!filterState.alleModeActive || filterState.selectedModes.size > 0)
+    || Boolean(destFilter?.value?.trim());
+}
+
+function getVisibleDepartureRows(preferMainStation = false) {
+  const visibleRows = [...document.querySelectorAll(
+    '#departureBody tr.dep-row:not(.filtered-mode):not(.filtered-dest):not(.filtered-exclude)'
+  )];
+  if (!preferMainStation) return visibleRows;
+
+  const mainRows = visibleRows.filter(row => row.dataset.mainStation === 'true');
+  return mainRows.length ? mainRows : visibleRows;
+}
+
+async function ensureFilteredDeparturesLoaded() {
+  if (isToppingUpFilteredDepartures || isLoadingMoreDepartures || customDepartures || !hasActiveDepartureFilter()) return;
+
+  const filterKey = getFilteredDepartureTopUpKey();
+  if (filterKey !== filteredDepartureTopUpKey) {
+    filteredDepartureTopUpKey = filterKey;
+    filteredDepartureTopUpAttempts = 0;
+  }
+
+  const visibleRows = () => getVisibleDepartureRows(true).length;
+  if (visibleRows() >= FILTERED_DEPARTURE_TARGET || filteredDepartureTopUpAttempts >= MAX_FILTERED_DEPARTURE_TOP_UPS) return;
+
+  isToppingUpFilteredDepartures = true;
+  try {
+    while (visibleRows() < FILTERED_DEPARTURE_TARGET
+      && filteredDepartureTopUpAttempts < MAX_FILTERED_DEPARTURE_TOP_UPS) {
+      const visibleTimes = getVisibleDepartureRows(true)
+        .map(row => Number(row.dataset.scheduled) || 0)
+        .filter(Boolean);
+      const latestVisibleTime = Math.max(...visibleTimes, 0);
+      if (!latestVisibleTime) break;
+
+      filteredDepartureTopUpAttempts++;
+      const addedCount = await loadMoreDepartures(latestVisibleTime);
+      if (!addedCount) break;
+    }
+  } finally {
+    isToppingUpFilteredDepartures = false;
+  }
+}
+
+async function loadMoreDepartures(startEpoch = null) {
   if (isLoadingMoreDepartures || customDepartures || !currentStopId || allDepartures.length === 0) return;
 
-  const latestEpoch = Math.max(...allDepartures.map(dep => dep.scheduled || dep.live || 0));
+  const latestEpoch = startEpoch || Math.max(...allDepartures.map(dep => dep.scheduled || dep.live || 0));
   if (!latestEpoch) return;
 
   isLoadingMoreDepartures = true;
@@ -1194,10 +1254,13 @@ async function loadMoreDepartures() {
     const nextDepartures = await fetchDepartureBatch(latestEpoch + 1);
     const existingCount = allDepartures.length;
     allDepartures = deduplicateDepartures([...allDepartures, ...nextDepartures]);
-    if (allDepartures.length > existingCount) renderDepartures(allDepartures);
+    const addedCount = allDepartures.length - existingCount;
+    if (addedCount > 0) renderDepartures(allDepartures);
+    return addedCount;
   } catch (err) {
     console.warn('Weitere Fahrten konnten nicht geladen werden:', err);
     setStatus(`Weitere Fahrten konnten nicht geladen werden: ${err.message}`);
+    return 0;
   } finally {
     isLoadingMoreDepartures = false;
     updateLoadMoreButton();
