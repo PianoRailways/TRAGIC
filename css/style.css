@@ -773,15 +773,20 @@ tr.dep-row.filtered-mode + tr.chain-row,
 tr.dep-row.filtered-dest + tr.chain-row,
 tr.dep-row.filtered-exclude + tr.chain-row { display: none; }
 
-tr.chain-row td { background: var(--bg-chain); padding: 0; }
+tr.chain-row td {
+  background: var(--bg-chain);
+  padding: 0;
+  white-space: normal;
+  max-width: 0;
+  width: 100%;
+}
 .chain-wrap {
   max-height: calc(110vh - 110px);
   overflow-y: auto;
+  overflow-x: hidden;
+  max-width: 100%;
   padding: 0.1rem 0.2rem 0.1rem;
 }
-
-.chain-header { color: var(--text-soft); font-size: 0.78rem; line-height: 1.4; margin-bottom: 0.4rem; }
-.chain-header b { color: var(--text-main); }
 
 .timeline { position: relative; padding-left: 0.9rem; }
 .timeline::before {content: '';position: absolute;left: 0.22rem; top: 0.5rem; bottom: 0.5rem;width: 2px; background: var(--border-soft);}
@@ -920,6 +925,8 @@ p {margin: 3px;}
   display: flex;
   flex-direction: column;
   padding: 0.4rem 0;
+  min-width: 0;
+  max-width: 100%;
 }
  
 .chain-stop {
@@ -1051,6 +1058,7 @@ p {margin: 3px;}
   font-size: 1em;
   font-weight: 200;
   color: white;
+  white-space: normal;
   overflow-wrap: anywhere;
 }
  
@@ -1058,6 +1066,7 @@ p {margin: 3px;}
   font-size: 0.83em;
   color: var(--text-muted);
   margin-top: 1px;
+  overflow-wrap: anywhere;
 }
  
 /* ─── Meta-Footer (Trip-ID) ─── */
@@ -1100,4 +1109,4 @@ p {margin: 3px;}
   font-weight: 500;
 }
 
-.chain-leg-separator strong {color: var(--color-text);}
+.chain-leg-separator strong {color: var(--text-main);}
