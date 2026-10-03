@@ -662,7 +662,8 @@
 .line-container[data-agency-id="FLIXTRAIN-eu"],
 .line-container[data-agency-id="FLIXBUS-eu"]
 { background: #97d700; color: #353535; } /* FLIX */
-
+/* LEO Express */
+.line-container[data-agency-name*="Leo Express"] { background: #f08200; color: white } /* LEO Express */
 /* Halle Saale Tram */
 .line-container[data-agency-id="8896"][data-line="1"] { background: rgb(242,187,68); color: white; }
 .line-container[data-agency-id="8896"][data-line="2"] { background: rgb(230,136,60); color: white; }

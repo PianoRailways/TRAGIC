@@ -834,6 +834,7 @@ function normalizeLineDisplay(line, agencyName = '', agencyId = '') {
   if (upper.startsWith('TGV LYRIA')) return 'TGV Lyria';
   if (upper.startsWith('TER')) return 'TER';
   if (upper.startsWith('ICE')) return 'ICE';
+  if (upper.startsWith('LEO')) return 'leo';
   if (upper.startsWith('ICD')) return 'ICD';
   if (upper.startsWith('ECD')) return 'ECD';
   if (upper.startsWith('FR')) return 'FR';
