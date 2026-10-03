@@ -778,8 +778,6 @@ tr.chain-row td {
   background: var(--bg-chain);
   padding: 0;
   white-space: normal;
-  max-width: 0;
-  width: 100%;
 }
 .chain-wrap {
   max-height: calc(110vh - 110px);
