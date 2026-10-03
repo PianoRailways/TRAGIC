@@ -696,14 +696,16 @@
 .line-container[data-line="Weaver"] { background: #B2377F; color: white; }
 .line-container[data-line="Windrush"] { background: #EE1B2D; color: white; }
 
-.line-container[data-line="Thameslink"] { background: #e9418b; color: #434e54; }
-.line-container[data-line="Gatwick Express"] { background: #DC0C1D; color: white; }
-.line-container[data-line="Southern"] { background: #80C242; color: white; }
-.line-container[data-line="GWR"] { background: #0A493E; color: white; }
-.line-container[data-line="Southeastern"] { background: #1E1E50; color: white; }
+.line-container[data-agency-name="Thameslink"] { background: #e9418b; color: #434e54; }
+.line-container[data-agency-name="Gatwick Express"] { background: #DC0C1D; color: white; }
+.line-container[data-agency-name="Southern"] { background: #80C242; color: white; }
+.line-container[data-agency-name="GWR"] { background: #0A493E; color: white; }
+.line-container[data-agency-name="Great North"] { background: #43165C; color: white; }
+.line-container[data-agency-name="Southeastern"] { background: #1E1E50; color: white; }
+.line-container[data-agency-name^="South Western"] { background: white; color: #0092CB; }
 .line-container[data-line="EMR"] { background: #4C2F48; color: white; }
-.line-container[data-line="CrossCountry"] { background: #ca123f; color: #f8efe3; }
-.line-container[data-line="Heathrow Express"] { background: #5d226c; color: white; }
+.line-container[data-agency-name="CrossCountry"] { background: #ca123f; color: #f8efe3; }
+.line-container[data-agency-name="Heathrow Express"] { background: #5d226c; color: white; }
 
 .line-container[data-agency-name="Elizabeth line"] { background: #6F4B9E; color: white; }
 .line-container[data-line="DLR"] { background: #00AFA9; color: black; }

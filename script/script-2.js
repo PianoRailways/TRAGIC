@@ -844,6 +844,8 @@ function normalizeLineDisplay(line, agencyName = '', agencyId = '') {
   if (upper.startsWith('ELIZABETH LINE')) return 'ELZ';
   if (upper.startsWith('HAMMERSMITH & CITY')) return 'H&C';
   if (upper.startsWith('HEATHROW EXPRESS')) return 'LHR';
+  if (upper.startsWith('GREAT NORTH')) return 'GN';
+  if (upper.startsWith('CROSSCOUNTRY')) return 'XC';
   if (upper.startsWith('THAMESLINK')) return 'TL';
   if (upper.startsWith('FLIXTRAIN')) {const flixLine = line.replace(/^FLIXTRAIN\s*/i, '');return /^FLX\d/i.test(flixLine) ? flixLine : `FLX ${flixLine}`.trim();}
   if (upper.startsWith('FLIXBUS')) {const flixLine = line.replace(/^FLIXBUS\s*/i, '');return /^FLXB\d/i.test(flixLine) ? flixLine : `FLXB ${flixLine}`.trim();}
