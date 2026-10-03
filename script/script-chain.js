@@ -3,8 +3,97 @@ function isDerivedTripNumberHighlightOperator(agencyName, agencyId) {
   return /\b(SBB|BLS|SOB|THURBO)\b/.test(operatorText);
 }
 
+let chainPositionInterval = null;
+
+function getTrainPosition(stops, nowEpoch) {
+  const activeStops = (stops || [])
+    .map((stop, index) => ({ stop, index }))
+    .filter(({ stop }) => !stop.cancelled)
+    .map(({ stop, index }) => ({
+      stop,
+      index,
+      arr: stop.arrivalLive || stop.arrivalSched,
+      dep: stop.departureLive || stop.departureSched
+    }));
+
+  if (activeStops.length > 0) activeStops[0].arr = null;
+  if (activeStops.length > 0) activeStops[activeStops.length - 1].dep = null;
+
+  if (!activeStops.some(({ arr, dep }) => arr || dep)) return null;
+
+  const firstStop = activeStops[0];
+  if (firstStop.dep && nowEpoch < firstStop.dep - 300) return null;
+
+  const lastStop = activeStops[activeStops.length - 1];
+  if (lastStop.arr && nowEpoch > lastStop.arr) return null;
+
+  for (let i = 0; i < activeStops.length; i++) {
+    const current = activeStops[i];
+    const arr = current.arr ?? -Infinity;
+    const dep = current.dep ?? Infinity;
+    if (arr <= nowEpoch && nowEpoch <= dep) {
+      return { state: 'at-stop', index: current.index };
+    }
+
+    const next = activeStops[i + 1];
+    if (next && current.dep && next.arr && nowEpoch > current.dep && nowEpoch < next.arr) {
+      return { state: 'between', index: current.index };
+    }
+  }
+
+  return null;
+}
+
+function getTrainPositionMarkerClass(position, stops) {
+  if (!position) return '';
+
+  const stop = stops[position.index];
+  const delaySec = position.state === 'at-stop'
+    ? (stop.departureDelaySec ?? stop.arrivalDelaySec)
+    : stop.departureDelaySec;
+  return Math.floor(delaySec / 60) < 0 ? ' pos-early' : '';
+}
+
+function updateChainPositionMarker() {
+  if (!currentChainData || !currentChainData.stops) return;
+
+  const chainRow = document.querySelector('.chain-row');
+  if (!chainRow) return;
+
+  chainRow.querySelectorAll('.chain-pos-marker').forEach(marker => marker.remove());
+
+  const position = getTrainPosition(currentChainData.stops, Math.floor(Date.now() / 1000));
+  if (!position) return;
+
+  const stop = chainRow.querySelector(`.chain-stop[data-stop-index="${position.index}"]`);
+  const wrapper = stop?.querySelector(position.state === 'at-stop'
+    ? '.chain-dot-wrapper'
+    : '.chain-line-wrapper');
+  if (!wrapper) return;
+
+  const marker = document.createElement('div');
+  marker.className = `chain-pos-marker${getTrainPositionMarkerClass(position, currentChainData.stops)}`;
+  wrapper.appendChild(marker);
+}
+
+function stopChainPositionUpdates() {
+  if (chainPositionInterval) {
+    clearInterval(chainPositionInterval);
+    chainPositionInterval = null;
+  }
+}
+
+function startChainPositionUpdates() {
+  stopChainPositionUpdates();
+  updateChainPositionMarker();
+  chainPositionInterval = setInterval(updateChainPositionMarker, 30000);
+}
+
 function renderChain(data) {
   currentChainData = data;
+
+  const trainPosition = getTrainPosition(data.stops || [], Math.floor(Date.now() / 1000));
+  const trainPositionMarkerClass = getTrainPositionMarkerClass(trainPosition, data.stops || []);
 
   const legMetadata = {};
   if (data.legInfos) {
@@ -178,15 +267,23 @@ function renderChain(data) {
 
       const pastClass = isPast ? ' chain-past-stop' : '';
       const hideStyle = isPast ? ' style="display:none;"' : '';
+      const atStopMarkerHtml = trainPosition?.state === 'at-stop' && trainPosition.index === i
+        ? `<div class="chain-pos-marker${trainPositionMarkerClass}"></div>`
+        : '';
+      const betweenMarkerHtml = trainPosition?.state === 'between' && trainPosition.index === i
+        ? `<div class="chain-pos-marker${trainPositionMarkerClass}"></div>`
+        : '';
 
       legContentHtml += legSeparatorHtml + `
-        <div class="chain-stop${pastClass}${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}"${hideStyle} ${clickAttrs}>
+        <div class="chain-stop${pastClass}${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}" data-stop-index="${i}"${hideStyle} ${clickAttrs}>
           <div class="chain-dot-col">
             <div class="chain-dot-wrapper">
+              ${atStopMarkerHtml}
               <div class="chain-dot${isFirst ? ' dot-first' : ''}"></div>
             </div>
             ${!isLast ? `
               <div class="chain-line-wrapper">
+                ${betweenMarkerHtml}
                 <div class="chain-line"></div>
               </div>
             ` : ''}
@@ -407,6 +504,7 @@ function renderDepartures(departures) {
 // ─── Fahrt-Chain 	─────────────────────────────────────────────────────────────
 
 async function toggleChain(tr, dep) {
+  stopChainPositionUpdates();
   const existing = tr.nextElementSibling;
   if (existing && existing.classList.contains('chain-row')) {
     existing.remove();
@@ -435,6 +533,7 @@ async function toggleChain(tr, dep) {
 
   if (dep.trip) {
     td.innerHTML = `<div class="chain-wrap">${renderChain(dep.trip)}</div>`;
+    startChainPositionUpdates();
     return;
   }
 
@@ -448,6 +547,7 @@ async function toggleChain(tr, dep) {
     }
 
     td.innerHTML = `<div class="chain-wrap">${renderChain(data)}</div>`;
+    startChainPositionUpdates();
   } catch (err) {
     td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler beim Laden: ${escapeHtml(err.message)}</div></div>`;
   }

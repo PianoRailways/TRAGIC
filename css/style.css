@@ -968,6 +968,25 @@ p {margin: 3px;}
   justify-content: center;
   flex-shrink: 0;
 }
+
+.chain-pos-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--sbb-red);
+  box-shadow: 0 0 0 3px rgba(235,0,0,0.30), 0 0 8px rgba(235,0,0,0.6);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.chain-pos-marker.pos-early {
+  background: var(--link-hover);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--link-hover) 30%, transparent), 0 0 8px color-mix(in srgb, var(--link-hover) 60%, transparent);
+}
  
 .chain-dot {
   width: 10px;
