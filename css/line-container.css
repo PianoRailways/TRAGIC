@@ -149,7 +149,8 @@
 .line-container[data-agency-name="EngadinBus"][data-line="620"] { background: #F9AC00;}
 .line-container[data-agency-name="EngadinBus"][data-line="610"] { background: #64656A; color: #FFED00; }
 .line-container[data-agency-name="EngadinBus"][data-line="611"] { background: #64656A; color: #FFED00; }
-.line-container[data-agency-name="EngadinBus"][data-line="613"] { background: #383937; STI Bus */
+.line-container[data-agency-name="EngadinBus"][data-line="613"] { background: #383937; 
+/* STI Bus */
 .line-container[data-agency-id="146"][data-line="1"] { background: rgb(209,70,53); color: white; }
 .line-container[data-agency-id="146"][data-line="2"] { background: rgb(62,53,127); color: white; }
 .line-container[data-agency-id="146"][data-line="3"] { background: rgb(145,94,70); color: white; }
