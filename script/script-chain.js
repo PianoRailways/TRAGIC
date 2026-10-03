@@ -122,7 +122,6 @@ function renderChain(data) {
       }
       
       const stopNameStyle = stop.cancelled ? 'text-decoration: line-through; color: #555;' : '';
-      const dotStyle = stop.cancelled ? ' style="background:#555;"' : '';
       
       const stopAbbrevs = getAbbrevsForName(stop.name);
       const stopAbbrevBadge = stopAbbrevs.length > 0
@@ -184,17 +183,17 @@ function renderChain(data) {
         <div class="chain-stop${pastClass}${stop.cancelled ? ' chain-cancelled' : ''}${isClickable ? ' chain-clickable' : ''}"${hideStyle} ${clickAttrs}>
           <div class="chain-dot-col">
             <div class="chain-dot-wrapper">
-              <div class="chain-dot${isFirst ? ' dot-first' : ''}"${dotStyle}></div>
+              <div class="chain-dot${isFirst ? ' dot-first' : ''}"></div>
             </div>
             ${!isLast ? `
               <div class="chain-line-wrapper">
-                <div class="chain-line"${stop.cancelled ? ' style="background:rgba(255,255,255,0.05);"' : ''}></div>
+                <div class="chain-line"></div>
               </div>
             ` : ''}
           </div>
           
           <div class="chain-times">
-            ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
+            ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val${stop.cancelled ? ' cancelled-arrival-time' : ''}">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
             ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
           </div>
           
@@ -321,7 +320,7 @@ function renderDepartures(departures) {
     }
 
     const tr = document.createElement('tr');
-    tr.className = 'dep-row';
+    tr.className = `dep-row${dep.cancelled ? ' dep-cancelled' : ''}`;
     if (depIdx % 2 === 1) tr.classList.add('dep-row-alt');
 
     const needsDestinationFallback = !!dep.tripId && !dep.destination;
@@ -334,6 +333,9 @@ function renderDepartures(departures) {
     const timeStr = dep.scheduled
       ? new Date(dep.scheduled * 1000).toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'})
       : '–';
+    const departureTimeHtml = dep.cancelled
+      ? `<span class="cancelled-departure-time">${timeStr}</span>`
+      : timeStr;
 
     let delayHtml = '';
     if (dep.cancelled) {
@@ -376,10 +378,10 @@ function renderDepartures(departures) {
     const viaHtml = renderViaLine(dep.vias);
 
     tr.innerHTML = `
-      <td class="col-time">${timeStr}<br><span class="delay-badge">${delayHtml}</span></td>
+      <td class="col-time">${departureTimeHtml}<br><span class="delay-badge">${delayHtml}</span></td>
       <td class="col-line">
         <div class="line-container" data-mode="${canonicalMode(dep.mode)}" data-agency-id="${escapeHtml(dep.agencyId || '')}" data-agency-name="${escapeHtml(dep.agencyName || '')}" data-line="${escapeHtml(displayLine)}" data-raw-line="${escapeHtml(dep.line || '')}" data-route-id="${escapeHtml(dep.routeId || '')}"><span class="line">${iconHtml}${escapeHtml(displayLine)}</span></div>
-        <div class="col-nr tripnr${dep.tripNumberDerived && isDerivedTripNumberHighlightOperator(dep.agencyName, dep.agencyId) ? ' derived-trip-number' : ''}"${dep.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${tripNumDisplay}</div>
+        <div class="col-nr tripnr${dep.tripNumberDerived && isDerivedTripNumberHighlightOperator(dep.agencyName, dep.agencyId) ? ' derived-trip-number' : ''}${dep.cancelled ? ' cancelled-trip-number' : ''}"${dep.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${tripNumDisplay}</div>
       </td>
       <td class="col-dest">${destDisplay}${viaHtml}${stationLabelHtml}</td>
       <td class="col-platform">${escapeHtml(dep.track)}</td>

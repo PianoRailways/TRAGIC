@@ -745,6 +745,11 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .vbz-delay { color: var(--link-hover); font-weight: bold; }
 .ontime { color: var(--on-time); }
 .cancelled { color: var(--error); text-decoration: line-through; }
+.cancelled-departure-time {
+  font-style: italic;
+  text-decoration: line-through;
+}
+.cancelled-trip-number { text-decoration: line-through; }
 
 #status { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.6rem; text-align: left; }
 
@@ -993,6 +998,18 @@ p {margin: 3px;}
   bottom: 0;
   width: 2px;
   background: rgba(255,255,255,0.13);
+}
+
+.chain-stop.chain-cancelled .cancelled-arrival-time {
+  text-decoration: line-through;
+}
+.chain-stop.chain-cancelled .chain-dot {
+  background: var(--error);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--error) 65%, transparent);
+}
+.chain-stop.chain-cancelled .chain-line {
+  background: transparent;
+  border-left: 2px dashed var(--error);
 }
  
 /* ─── Zeit-Spalte ─── */
