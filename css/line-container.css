@@ -624,10 +624,14 @@
 .line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
 /* Emmentalbahn / Dampfbahn Bern */
-.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"] { background: white; color: black; }
-.line-container[data-agency-name*="Dampfbahn Bern"] {position: relative;padding-right: 1.7rem;}
-.line-container[data-agency-name*="Dampfbahn Bern"]::after {
-  content: "DBB";
+.line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"],
+.line-container[data-agency-name^="Emmentalbahn"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Dampfbahn Bern"],
+.line-container[data-agency-name^="Emmentalbahn"] {position: relative;padding-right: 1.7rem;}
+.line-container[data-agency-name*="Dampfbahn Bern"]::after {content: "DBB";}
+.line-container[data-agency-name^="Emmentalbahn"]::after {content: "EB";}
+.line-container[data-agency-name*="Dampfbahn Bern"]::after,
+.line-container[data-agency-name^="Emmentalbahn"]::after {
   position: absolute;
   top: 50%;
   right: 4px;
@@ -924,4 +928,4 @@
 .line-container[data-agency-name="European Sleeper"] { background: #40002c; color: white; } /* European Sleeper */
 
 /* Belgien */
-.line-container[data-agency-name*="SNCB"] { background: #006ab3; color: white; } /* SNCB */
+.line-container[data-agency-name*="SNCB"] { background: #006ab3; color: white; } /* SNCB * //
