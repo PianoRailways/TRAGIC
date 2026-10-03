@@ -745,7 +745,8 @@ th { color: var(--text-muted); font-weight: normal; font-size: 0.75rem; }
 .vbz-delay { color: var(--link-hover); font-weight: bold; }
 .ontime { color: var(--on-time); }
 .cancelled { color: var(--error); text-decoration: line-through; }
-.cancelled-departure-time {
+.cancelled-departure-time,
+.cancelled-arrival-time {
   font-style: italic;
   text-decoration: line-through;
 }
@@ -1007,9 +1008,6 @@ p {margin: 3px;}
   background: rgba(255,255,255,0.13);
 }
 
-.chain-stop.chain-cancelled .cancelled-arrival-time {
-  text-decoration: line-through;
-}
 .chain-stop.chain-cancelled .chain-dot {
   background: var(--error);
   box-shadow: 0 0 6px color-mix(in srgb, var(--error) 65%, transparent);

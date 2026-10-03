@@ -194,7 +194,7 @@ function renderChain(data) {
           
           <div class="chain-times">
             ${arrDisp ? `<div class="time-row"><span class="label">An</span> <span class="time-val${stop.cancelled ? ' cancelled-arrival-time' : ''}">${escapeHtml(arrDisp)}</span>${arrDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
-            ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
+            ${depDisp ? `<div class="time-row"><span class="label">Ab</span> <span class="time-val${stop.cancelled ? ' cancelled-departure-time' : ''}">${escapeHtml(depDisp)}</span>${depDelayHtml}</div>` : '<div class="time-row">&nbsp;</div>'}
           </div>
           
           <div class="chain-info">
