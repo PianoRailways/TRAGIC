@@ -828,6 +828,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'Gornergratbahn': { 48: 'CC48'},
   '121': { 48: 'CC48'},
   'Forchbahn': { 18: 'S18'},
+  'Montreux-Oberland': { 30: 'PE30'},
 };
 
 function normalizeLineDisplay(line, agencyName = '', agencyId = '') {
