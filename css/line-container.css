@@ -576,9 +576,10 @@
 .line-container[data-agency-name="Gornergratbahn"],
 .line-container[data-agency-id="121"][data-line*="48"] { background: #FFB82D; color: white; }
 /* MBC etc. */
-.line-container[data-agency-id="64"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name^="Montreux-Oberland"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="131"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="23"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name^="Montreux-Vevey-Riviera"] { color: #002D5B; background: white; }
 /* RA/TMR */
 .line-container[data-agency-id="74"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="61"][data-line^="R"] { background: white; color: black; }
