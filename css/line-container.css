@@ -194,6 +194,24 @@
 .line-container[data-agency-id="859"][data-line="127"] { background: rgb(106,80,143); color: white; }
 .line-container[data-agency-id="859"][data-line="128"] { background: rgb(123,174,82); color: white; }
 
+/* Automobilverkehr Frutigen-Adelboden / LENK / AFA */
+/* Region Kandertal & Adelboden */
+.line-container[data-agency-id="813"][data-line="230"] { background: rgb(89, 255, 153); color: white; }
+.line-container[data-agency-id="813"][data-line="232"] { background: rgb(71, 77, 5); color: white; }
+.line-container[data-agency-id="813"][data-line="235"] { background: rgb(152, 195, 195); color: white; }
+.line-container[data-agency-id="813"][data-line="236"] { background: rgb(230, 34, 0); color: white; }
+.line-container[data-agency-id="813"][data-line="237"] { background: rgb(115, 0, 96); color: white; }
+.line-container[data-agency-id="813"][data-line="241"] { background: rgb(115, 0, 96); color: white; }
+.line-container[data-agency-id="813"][data-line="242"] { background: rgb(152, 170, 9); color: white; }
+/* Region Lenk & Simmental */
+.line-container[data-agency-id="813"][data-line="271"] { background: rgb(239, 69, 25); color: white; }
+.line-container[data-agency-id="813"][data-line="275"] { background: rgb(0, 108, 183); color: white; }
+.line-container[data-agency-id="813"][data-line="280"] { background: rgb(255, 140, 13); color: white; }
+.line-container[data-agency-id="813"][data-line="281"] { background: rgb(155, 0, 96); color: white; }
+.line-container[data-agency-id="813"][data-line="282"] { background: rgb(71, 77, 5); color: white; }
+.line-container[data-agency-id="813"][data-line="283"] { background: rgb(152, 195, 195); color: white; }
+.line-container[data-agency-id="813"][data-line="284"] { background: rgb(152, 170, 9); color: white; }
+.line-container[data-agency-id="813"][data-line="289"] { background: rgb(255, 38, 0); color: white; }
 /* FART Bus */
 .line-container[data-agency-id="817"] { background: rgb(155,155,154); color: white; }
 
