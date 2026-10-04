@@ -125,8 +125,19 @@
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line="22"] { background: #E6000E; color: white; }
 
 .line-container[data-agency-name="Stadtbus Winterthur"][data-line^="N"] { background: #000; color: #FFED00; }
-.line-container[data-agency-name*="St. Gallen"][data-line^="N"] { background: #242624; color: #FFED00; }
-
+.line-container[data-agency-name*="St.Gallen"][data-line^="N"] { background: #242624; color: #FFED00; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="1"] { background: #FADC3C; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="2"] { background: #CD5096; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="3"] { background: #B4C832; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="4"] { background: #B4191E; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="5"] { background: #508CCD; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="6"] { background: #A09BC8; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="7"] { background: #289646; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="8"] { background: #B47341; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="9"] { background: #D77D1E; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="10"] { background: #24687D; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="11"] { background: #69AAA0; color: white; }
+.line-container[data-agency-name*="St.Gallen"][data-line^="12"] { background: #2D3787; color: white; }
 .line-container[data-agency-name="Regiobus Gossau SG"] { background: #ffffff; color: #0E9D5E; box-shadow: inset 0 2px 0 #fa5609, inset 0 -3.5px 0 #fa5609; }
 
 /* EngadinBus */
