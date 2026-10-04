@@ -827,6 +827,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'Jungfraubahn': { 65: 'CC65'},
   'Gornergratbahn': { 48: 'CC48'},
   '121': { 48: 'CC48'},
+  'Rothorn': { 7: 'CC7'},
   'Forchbahn': { 18: 'S18'},
   'Montreux-Oberland': { 30: 'PE30'},
 };
