@@ -141,6 +141,24 @@
 .line-container[data-agency-name="Regiobus Gossau SG"] { background: #ffffff; color: #0E9D5E; box-shadow: inset 0 2px 0 #fa5609, inset 0 -3.5px 0 #fa5609; }
 
 .line-container[data-agency-name="Bus Ostschweiz"] { background: #5594dc; color: white; font-weight: lighter; }
+
+/* Verkehrsbetriebe Schaffhausen (VBSH) */
+.line-container[data-agency-name*="Schaffhausen"][data-line="1"] { background: #006233; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="3"] { background: #c0362c; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="4"] { background: #252012; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="5"] { background: #007ca4; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="6"] { background: #f7b100; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="7"] { background: #a80056; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="8"] { background: #6732ba; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="9"] { background: #1b64b1; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="10"] { background: #a3cf57; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="21"] { background: #e23828; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="22"] { background: #a8adb4; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="23"] { background: #00c590; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="24"] { background: #ca65d1; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="25"] { background: #d39100; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="27"] { background: #00653d; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line="28"] { background: #62449c; color: #ffffff; }
 /* EngadinBus */
 .line-container[data-agency-name="EngadinBus"] {color:white}
 .line-container[data-agency-name="EngadinBus"][data-line="601"] { background: #F39AC0;}
