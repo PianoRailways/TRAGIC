@@ -159,6 +159,7 @@
 .line-container[data-agency-name*="Schaffhausen"][data-line="25"] { background: #d39100; color: #ffffff; }
 .line-container[data-agency-name*="Schaffhausen"][data-line="27"] { background: #00653d; color: #ffffff; }
 .line-container[data-agency-name*="Schaffhausen"][data-line="28"] { background: #62449c; color: #ffffff; }
+.line-container[data-agency-name*="Schaffhausen"][data-line^="N"] { background: rgb(247,226,79); color: black; }
 /* EngadinBus */
 .line-container[data-agency-name="EngadinBus"] {color:white}
 .line-container[data-agency-name="EngadinBus"][data-line="601"] { background: #F39AC0;}
