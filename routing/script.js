@@ -365,21 +365,36 @@ async function useCurrentLocationAsStart() {
     const stations = (data.stations || [])
       .filter(station => station.id || station.stopId)
       .sort((a, b) => (Number(a.distance) || Infinity) - (Number(b.distance) || Infinity));
-    const nearest = stations[0];
-    if (!nearest) throw new Error('Keine Haltestelle in der Nähe gefunden.');
+    if (!stations.length) throw new Error('Keine Haltestelle in der Nähe gefunden.');
 
-    const station = {
-      id: nearest.id || nearest.stopId,
-      name: nearest.name || nearest.stationName || nearest.id
-    };
-    routeFromInput.value = station.name;
-    selectedStations.set('from', station);
-    document.getElementById('from-suggestions').innerHTML = '';
-    if (selectedStations.has('to')) {
-      await searchRoute();
-    } else {
-      setHint(routeHint, `Start: ${station.name}`);
-    }
+    const suggestions = document.getElementById('from-suggestions');
+    suggestions.innerHTML = '';
+    stations.slice(0, 8).forEach(stationMatch => {
+      const station = {
+        id: stationMatch.id || stationMatch.stopId,
+        name: stationMatch.name || stationMatch.stationName || stationMatch.id
+      };
+      const item = document.createElement('div');
+      item.className = 'suggestion-item';
+      const distance = Number.isFinite(Number(stationMatch.distance))
+        ? ` <span class="suggestion-id">${Math.round(Number(stationMatch.distance))} m</span>`
+        : '';
+      item.innerHTML = `<span class="suggestion-name">${escapeHtml(station.name)}</span>${distance}`;
+      item.addEventListener('click', async () => {
+        routeFromInput.value = station.name;
+        selectedStations.set('from', station);
+        suggestions.innerHTML = '';
+        suggestions.style.display = 'none';
+        if (selectedStations.has('to')) {
+          await searchRoute();
+        } else {
+          setHint(routeHint, `Start: ${station.name}`);
+        }
+      });
+      suggestions.appendChild(item);
+    });
+    suggestions.style.display = 'block';
+    setHint(routeHint, 'Haltestelle in der Nähe auswählen.');
   } catch (error) {
     const message = error.code === 1
       ? 'Standortzugriff wurde nicht erlaubt.'
