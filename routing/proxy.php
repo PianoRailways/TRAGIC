@@ -335,6 +335,72 @@ if ($action === 'trip') {
     exit;
 }
 
+// ------------------------------------------------ reverse geocode --
+if ($action === 'reverse-geocode') {
+    $lat = trim($_GET['lat'] ?? '');
+    $lon = trim($_GET['lon'] ?? '');
+    $radius = (int)($_GET['radius'] ?? 900);
+
+    if ($lat === '' || $lon === '' || !is_numeric($lat) || !is_numeric($lon)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Parameter "lat" und "lon" müssen numerisch sein']);
+        exit;
+    }
+
+    $lat = (float)$lat;
+    $lon = (float)$lon;
+    $radius = max(100, min($radius, 5000));
+    $result = callTransitous('/api/v1/reverse-geocode', [
+        'place'      => $lat . ',' . $lon,
+        'type'       => 'STOP',
+        'numResults' => 50,
+    ]);
+
+    if (isset($result['error'])) {
+        $radiusDeg = $radius / 111000;
+        $result = callTransitous('/api/v6/map/stops', [
+            'min' => ($lat - $radiusDeg) . ',' . ($lon - $radiusDeg),
+            'max' => ($lat + $radiusDeg) . ',' . ($lon + $radiusDeg),
+        ]);
+    }
+
+    if (isset($result['error'])) {
+        echo json_encode(['lat' => $lat, 'lon' => $lon, 'radius' => $radius, 'stations' => []]);
+        exit;
+    }
+
+    $rawPlaces = isset($result['stops']) ? $result['stops'] : (is_array($result) ? $result : []);
+    $stations = [];
+    foreach ($rawPlaces as $place) {
+        if (!is_array($place)) continue;
+        $id = $place['id'] ?? $place['stopId'] ?? null;
+        if (!$id || preg_match('/^(node|way|relation)\//i', $id)) continue;
+
+        $distance = $place['distance'] ?? null;
+        if ($distance === null && isset($place['lat'], $place['lon'])) {
+            $lat1 = deg2rad((float)$place['lat']);
+            $lat2 = deg2rad($lat);
+            $dLat = $lat2 - $lat1;
+            $dLon = deg2rad((float)$place['lon']) - deg2rad($lon);
+            $a = sin($dLat / 2) ** 2 + cos($lat1) * cos($lat2) * sin($dLon / 2) ** 2;
+            $distance = round(6371000 * 2 * atan2(sqrt($a), sqrt(1 - $a)));
+        }
+
+        if ($distance !== null && $distance > $radius) continue;
+        $stations[] = [
+            'id' => $id,
+            'name' => $place['name'] ?? '(unbenannt)',
+            'distance' => $distance,
+            'lat' => $place['lat'] ?? null,
+            'lon' => $place['lon'] ?? null,
+        ];
+    }
+
+    usort($stations, fn($a, $b) => ($a['distance'] ?? PHP_INT_MAX) <=> ($b['distance'] ?? PHP_INT_MAX));
+    echo json_encode(['lat' => $lat, 'lon' => $lon, 'radius' => $radius, 'stations' => $stations]);
+    exit;
+}
+
 // ------------------------------------------------------------------ plan --
 if ($action === 'plan') {
     $fromPlace  = trim($_GET['fromPlace'] ?? $_GET['from'] ?? '');

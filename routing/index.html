@@ -24,7 +24,10 @@
       <div class="form-grid">
         <div class="form-group">
           <label for="route-from-input">Von</label>
-          <input type="text" id="route-from-input" placeholder="Start..." autocomplete="off">
+          <div class="station-input-row">
+            <input type="text" id="route-from-input" placeholder="Start..." autocomplete="off">
+            <button type="button" id="btn-current-location" class="btn-location" title="Aktuellen Standort als Start verwenden" aria-label="Aktuellen Standort als Start verwenden">📍</button>
+          </div>
           <div id="from-suggestions" class="suggestions"></div>
         </div>
 

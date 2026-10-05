@@ -17,6 +17,7 @@ const boardInput = document.getElementById('board-station-input');
 const boardTbody = document.getElementById('board-tbody');
 const boardResults = document.getElementById('board-results');
 const boardHint = document.getElementById('board-hint');
+const btnCurrentLocation = document.getElementById('btn-current-location');
 
 const selectedStations = new Map();
 let viaCount = 0;
@@ -336,6 +337,58 @@ function createViaInput(station = null) {
     selectedStations.set(key, station);
   }
   attachStationSearch(input, group.querySelector('.suggestions'), key);
+}
+
+async function useCurrentLocationAsStart() {
+  if (!navigator.geolocation) {
+    setHint(routeHint, 'Dieser Browser unterstützt keine Standortbestimmung.', true);
+    return;
+  }
+
+  btnCurrentLocation.disabled = true;
+  btnCurrentLocation.textContent = '…';
+  setHint(routeHint, 'Standort wird ermittelt…');
+
+  try {
+    const position = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 60000
+      });
+    });
+    const { latitude, longitude } = position.coords;
+    const response = await fetch(`${PROXY}?action=reverse-geocode&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&radius=500`);
+    const data = await response.json();
+    if (!response.ok || data.error) throw new Error(data.error || 'Standort konnte nicht aufgelöst werden.');
+
+    const stations = (data.stations || [])
+      .filter(station => station.id || station.stopId)
+      .sort((a, b) => (Number(a.distance) || Infinity) - (Number(b.distance) || Infinity));
+    const nearest = stations[0];
+    if (!nearest) throw new Error('Keine Haltestelle in der Nähe gefunden.');
+
+    const station = {
+      id: nearest.id || nearest.stopId,
+      name: nearest.name || nearest.stationName || nearest.id
+    };
+    routeFromInput.value = station.name;
+    selectedStations.set('from', station);
+    document.getElementById('from-suggestions').innerHTML = '';
+    if (selectedStations.has('to')) {
+      await searchRoute();
+    } else {
+      setHint(routeHint, `Start: ${station.name}`);
+    }
+  } catch (error) {
+    const message = error.code === 1
+      ? 'Standortzugriff wurde nicht erlaubt.'
+      : error.message || 'Standort konnte nicht ermittelt werden.';
+    setHint(routeHint, message, true);
+  } finally {
+    btnCurrentLocation.disabled = false;
+    btnCurrentLocation.textContent = '📍';
+  }
 }
 
 function formatTime(epoch) {
@@ -1073,6 +1126,7 @@ attachStationSearch(routeFromInput, document.getElementById('from-suggestions'),
 attachStationSearch(routeToInput, document.getElementById('to-suggestions'), 'to');
 attachStationSearch(boardInput, document.getElementById('board-suggestions'), 'board');
 document.getElementById('btn-add-via').addEventListener('click', () => createViaInput());
+btnCurrentLocation.addEventListener('click', useCurrentLocationAsStart);
 document.getElementById('btn-search-route').addEventListener('click', searchRoute);
 document.getElementById('btn-load-board').addEventListener('click', loadBoard);
 document.getElementById('btn-refresh').addEventListener('click', () => location.reload());
