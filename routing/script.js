@@ -1008,7 +1008,7 @@ loadAbbreviations();
 attachStationSearch(routeFromInput, document.getElementById('from-suggestions'), 'from');
 attachStationSearch(routeToInput, document.getElementById('to-suggestions'), 'to');
 attachStationSearch(boardInput, document.getElementById('board-suggestions'), 'board');
-document.getElementById('btn-add-via').addEventListener('click', createViaInput);
+document.getElementById('btn-add-via').addEventListener('click', () => createViaInput());
 document.getElementById('btn-search-route').addEventListener('click', searchRoute);
 document.getElementById('btn-load-board').addEventListener('click', loadBoard);
 document.getElementById('btn-refresh').addEventListener('click', () => location.reload());
