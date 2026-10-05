@@ -745,7 +745,7 @@
 .line-container[data-line="Central"] { background: #E02525; color: white; }
 .line-container[data-line="Circle"] { background: #FECE08; color: black; }
 .line-container[data-line="District"] { background: #04783F; color: white; }
-.line-container[data-line="Hammersmith"] { background: #EE9BAC; color: white; }
+.line-container[data-raw-line^="Hammersmith"] { background: #EE9BAC; color: black; }
 .line-container[data-line="Jubilee"] { background: #7B848B; color: white; }
 .line-container[data-line="Metropolitan"] { background: #861A54; color: white; }
 .line-container[data-line="Northern"] { background: #231F20; color: white; }
