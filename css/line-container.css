@@ -566,6 +566,77 @@
 .line-container[data-agency-id="834"] { background: var(--tpf-lila); color: white; }
 .line-container[data-agency-id="53"] { background: #ffffff; color: #000000; }
 
+/* Genève / Genf */
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="1"] { background: #290098; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="2"] { background: #CEE66E; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="3"] { background: #8B4999; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="5"] { background: #00B5E6; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="6"] { background: #009BDE; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="7"] { background: #6EA516; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="9"] { background: #DC272D; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="10"] { background: #C55807; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="11"] { background: #8C7AD2; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="12"] { background: #FFA300; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="14"] { background: #290098; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="15"] { background: #7A4D28; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="17"] { background: #00B5E6; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="18"] { background: #8B4999; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="19"] { background: #B16B12; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="20"] { background: #6EA516; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="21"] { background: #701E45; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="22"] { background: #290098; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="23"] { background: #8B4999; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="25"] { background: #B16B12; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="29"] { background: #ED0280; color: #FEE3B4;}
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="31"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="32"] { background: #67C9BB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="33"] { background: #00AFAB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="34"] { background: #67C9BB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="37"] { background: #005D63; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="38"] { background: #005D63; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="39"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="40"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="41"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="42"] { background: #67C9BB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="44"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="45"] { background: #67C9BB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="46"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="50"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="52"] { background: #67C9BB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="53"] { background: #67C9BB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="54"] { background: #67C9BB; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="55"] { background: #005D63; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="58"] { background: #00AFAB; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="59"] { background: #005D63; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="60"] { background: #EE43A9; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="61"] { background: #F296CE; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="64"] { background: #EE43A9; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="66"] { background: #F296CE; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="67"] { background: #F296CE; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="68"] { background: #F296CE; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="71"] { background: #005D63; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="80"] { background: #F296CE; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="83"] { background: #EE43A9; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="84"] { background: #F296CE; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="92"] { background: #67C9BB; color: black; }
+
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="A"] { background: #FF661C; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="E"] { background: #FF661C; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="G+"] { background: #F296CE; color: black; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="G+"] { background: #231F20; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="E+"] { background: #231F20; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="N"] { background: #139FD7; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="M"] { background: #8BC63E; color: black; }
+
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="M1"] { background: #0A7ECA; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="M2"] { background: #F57523; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="M3"] { background: #00943D; color: white; }
+.line-container[data-agency-name="Transports Publics Genevois"][data-line="M4"] { background: #9F172E; color: white; }
+
+.line-container[data-agency-name="Alpbus Fournier"][data-line="271"] { background: #FBC314; color: black; }
+.line-container[data-agency-name="Alpbus Fournier"][data-line="272"] { background: #00A89F; color: black; }
+.line-container[data-agency-name*="Région Haute-Savoie"][data-line="274"],
+.line-container[data-agency-name*="Jacquet Autocars"][data-line="274"] { background: #F171AB; color: white; }
 /* TPF Linien-Farben */
 .line-container[data-agency-name*="TPF"][data-line="2"] { background: #EF4B44; color: white; }
 .line-container[data-agency-name*="TPF"][data-line="3"] { background: #FED702; color: black; }
