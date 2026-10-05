@@ -10,6 +10,8 @@ const btnEarlier = document.getElementById('btn-earlier');
 const btnLater = document.getElementById('btn-later');
 const routeTbody = document.getElementById('routing-tbody');
 const routeResults = document.getElementById('routing-results');
+const routeScroll = document.getElementById('routing-scroll');
+const routeRuler = document.getElementById('route-ruler');
 const routeHint = document.getElementById('routing-hint');
 const boardInput = document.getElementById('board-station-input');
 const boardTbody = document.getElementById('board-tbody');
@@ -362,14 +364,23 @@ function escapeIcs(value) {
 }
 
 function foldIcsLine(line) {
-  const characters = Array.from(line);
+  const encoder = new TextEncoder();
   const chunks = [];
-  let first = true;
-  while (characters.length) {
-    const length = first ? 60 : 59;
-    chunks.push((first ? '' : ' ') + characters.splice(0, length).join(''));
-    first = false;
+  let current = '';
+  let bytes = 0;
+  let limit = 75;
+  for (const character of line) {
+    const size = encoder.encode(character).length;
+    if (bytes + size > limit) {
+      chunks.push(current);
+      current = ' ';
+      bytes = 1;
+      limit = 75;
+    }
+    current += character;
+    bytes += size;
   }
+  chunks.push(current);
   return chunks.join('\r\n');
 }
 
@@ -473,27 +484,22 @@ async function saveConnectionToCalendar(connection, index) {
     || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
 
   if (isMobile) {
-    const form = document.createElement('form');
-    form.method = 'post';
-    form.action = 'calendar.php';
-    form.target = '_blank';
-    form.style.display = 'none';
-
-    const content = document.createElement('textarea');
-    content.name = 'ics';
-    content.value = ics;
-    form.appendChild(content);
-
-    const name = document.createElement('input');
-    name.type = 'hidden';
-    name.name = 'filename';
-    name.value = fileName;
-    form.appendChild(name);
-
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-    return;
+    try {
+      const response = await fetch('calendar.php?action=store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ ics })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.id) {
+        throw new Error(data.error || `Kalender-Export fehlgeschlagen (${response.status})`);
+      }
+      // GET statt POST: iOS ruft die URL nach dem Öffnen der .ics erneut ab
+      window.location.href = `calendar.php?id=${data.id}&filename=${encodeURIComponent(fileName)}`;
+      return;
+    } catch (error) {
+      setHint(routeHint, error.message, true);
+    }
   }
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
@@ -580,7 +586,7 @@ function renderLineBadge(leg) {
  * Transit legs are colored via line-container, walks are a thin line,
  * gaps between legs (Umsteigezeit) are striped.
  */
-function renderTimelineBar(connection, minDeparture, maxArrival) {
+function renderTimelineBar(connection, minDeparture, maxArrival, trackPx, gridStyle) {
   const legs = connection.legs || [];
   const range = maxArrival - minDeparture;
   if (!legs.length || range <= 0) return '';
@@ -610,7 +616,7 @@ function renderTimelineBar(connection, minDeparture, maxArrival) {
     return html;
   });
 
-  return `<div class="timeline-bar">${parts.join('')}</div>`;
+  return `<div class="timeline-bar" style="width:${trackPx}px;${gridStyle}">${parts.join('')}</div>`;
 }
 
 /**
@@ -648,7 +654,7 @@ function renderLegDetails(legs) {
     }
 
     const number = leg.tripNumber && String(leg.tripNumber) !== getLineLabel(leg)
-      ? `<span class="leg-number"${leg.tripNumberDerived ? ' style="font-style:italic;"' : ''}>Nr. ${escapeHtml(leg.tripNumber)}</span>`
+      ? `<span class="leg-number"${leg.tripNumberDerived ? ' style="font-style:italic;"' : ''}>${escapeHtml(leg.tripNumber)}</span>`
       : '';
     const stop = (sched, live, name, track) => `
       <div class="leg-stop">
@@ -678,73 +684,131 @@ function renderLegDetails(legs) {
   return html;
 }
 
+/**
+ * Zeitachse für die ganze Liste: Die ersten zwei Verbindungen füllen die
+ * sichtbare Breite, spätere liegen rechts davon und werden per Scroll erreicht.
+ */
+function computeTimeScale(spans, minDeparture, maxArrival) {
+  const viewWidth = routeScroll.clientWidth || window.innerWidth;
+  routeScroll.style.setProperty('--view-w', `${viewWidth}px`);
+
+  const leftWidth = parseFloat(getComputedStyle(routeScroll).getPropertyValue('--left-w')) || 104;
+  const available = Math.max(viewWidth - leftWidth - 16, 160);
+
+  const firstTwo = spans.slice(0, 2).filter(span => span.dep && span.arr);
+  const focusSec = firstTwo.length
+    ? Math.max(...firstTwo.map(span => span.arr)) - Math.min(...firstTwo.map(span => span.dep))
+    : maxArrival - minDeparture;
+  const totalSec = Math.max(maxArrival - minDeparture, 60);
+
+  // zwischen 2.5 und 12 px pro Minute
+  const wanted = available / Math.max(focusSec, 60);
+  const pxPerSec = Math.min(Math.max(wanted, 2.5 / 60), 12 / 60);
+  const trackPx = Math.max(Math.round(totalSec * pxPerSec), available);
+
+  return { trackPx, pxPerSec: trackPx / totalSec };
+}
+
+/**
+ * Stundenraster: Beschriftung in der Kopfzeile, feine Linien in den Balken.
+ */
+function buildTimeGrid(minDeparture, maxArrival, trackPx, pxPerSec) {
+  const pxPerMin = pxPerSec * 60;
+  const stepSec = (pxPerMin >= 6 ? 15 : pxPerMin >= 3 ? 30 : 60) * 60;
+  const tzOffsetSec = -new Date(minDeparture * 1000).getTimezoneOffset() * 60;
+  const firstTick = Math.ceil((minDeparture + tzOffsetSec) / stepSec) * stepSec - tzOffsetSec;
+
+  let ticks = '';
+  for (let t = firstTick; t <= maxArrival; t += stepSec) {
+    ticks += `<span class="ruler-tick" style="left:${((t - minDeparture) * pxPerSec).toFixed(1)}px">${formatTime(t)}</span>`;
+  }
+  routeRuler.style.width = `${trackPx}px`;
+  routeRuler.innerHTML = ticks;
+
+  return `--grid-step:${(stepSec * pxPerSec).toFixed(2)}px;--grid-offset:${((firstTick - minDeparture) * pxPerSec).toFixed(2)}px`;
+}
+
 function renderRoutes(connections, selectedIndex = null) {
   routeTbody.innerHTML = '';
-  
+
   if (connections.length === 0) return;
-  
-  // Calculate min/max times for proportional timeline scaling
+  routeResults.style.display = 'block';
+
+  // Min/Max über alle Verbindungen für die gemeinsame Zeitachse
   let minDeparture = Infinity;
   let maxArrival = -Infinity;
-  
-  connections.forEach(conn => {
+  const spans = connections.map(conn => {
     const legs = conn.legs || [];
-    if (legs.length === 0) return;
     const dep = legs[0]?.from?.departure || 0;
     const arr = legs[legs.length - 1]?.to?.arrival || 0;
-    minDeparture = Math.min(minDeparture, dep);
-    maxArrival = Math.max(maxArrival, arr);
+    if (legs.length) {
+      minDeparture = Math.min(minDeparture, dep);
+      maxArrival = Math.max(maxArrival, arr);
+    }
+    return { dep, arr };
   });
-  
+
+  const { trackPx, pxPerSec } = computeTimeScale(spans, minDeparture, maxArrival);
+  const gridStyle = buildTimeGrid(minDeparture, maxArrival, trackPx, pxPerSec);
+
   connections.forEach((connection, connIdx) => {
     const legs = connection.legs || [];
     const first = legs[0]?.from || {};
     const last = legs[legs.length - 1]?.to || {};
-    
+    const transfers = Number.isInteger(connection.transfers) ? connection.transfers : Math.max(0, legs.length - 1);
+
     // Summary Row
     const row = document.createElement('tr');
     row.className = 'summary-row';
+    if (connIdx === selectedIndex) row.classList.add('open');
     row.innerHTML = `
-      <td>${renderTime(first.scheduled, first.departure)}</td>
-      <td>${renderTime(last.scheduled, last.arrival)}</td>
-      <td>${formatDuration(connection.duration || (last.arrival - first.departure))}</td>
-      <td class="route-timeline">${renderTimelineBar(connection, minDeparture, maxArrival)}</td>
-      <td>${Math.max(0, legs.length - 1)}</td>
+      <td class="col-summary">
+        <div class="sum-dep">${renderTime(first.scheduled, first.departure)}</div>
+        <div class="sum-arr">→ ${renderTime(last.scheduled, last.arrival)}</div>
+        <div class="sum-meta">${formatDuration(connection.duration || (last.arrival - first.departure))} · ${transfers} Um.</div>
+      </td>
+      <td class="route-timeline">${renderTimelineBar(connection, minDeparture, maxArrival, trackPx, gridStyle)}</td>
     `;
-    
+
     row.addEventListener('click', () => {
       const detailRow = document.getElementById(`detail-row-${connIdx}`);
       if (detailRow) {
         const open = detailRow.style.display === 'none';
         detailRow.style.display = open ? 'table-row' : 'none';
+        row.classList.toggle('open', open);
         pageState.selected = open ? connIdx : null;
         updateRouteUrl();
       }
     });
-    
+
     routeTbody.appendChild(row);
-    
+
     // Detail Row
     const detailRow = document.createElement('tr');
     detailRow.className = 'detail-row';
     detailRow.id = `detail-row-${connIdx}`;
     detailRow.style.display = connIdx === selectedIndex ? 'table-row' : 'none';
-    
+
     const detailContent = document.createElement('td');
-    detailContent.colSpan = 5;
+    detailContent.colSpan = 2;
     detailContent.className = 'detail-content';
     detailContent.innerHTML = `
-      <div class="detail-actions">
-        <button type="button" class="btn-secondary btn-calendar" data-connection-index="${connIdx}">Kalender speichern</button>
-      </div>
-      <div class="leg-list">${renderLegDetails(legs)}</div>`;
-    
+      <div class="detail-inner">
+        <div class="detail-actions">
+          <button type="button" class="btn-secondary btn-calendar" data-connection-index="${connIdx}">Kalender speichern</button>
+        </div>
+        <div class="leg-list">${renderLegDetails(legs)}</div>
+      </div>`;
+
     detailRow.appendChild(detailContent);
     routeTbody.appendChild(detailRow);
   });
-  
-  routeResults.style.display = connections.length ? 'block' : 'none';
 }
+
+// Bei Drehen/Grössenänderung nur die sichtbare Breite für die Details nachziehen
+window.addEventListener('resize', () => {
+  if (routeScroll.clientWidth) routeScroll.style.setProperty('--view-w', `${routeScroll.clientWidth}px`);
+});
 
 /**
  * Fahrtverlauf einer einzelnen Fahrt: Einstieg und Ausstieg fett,
@@ -1008,7 +1072,7 @@ loadAbbreviations();
 attachStationSearch(routeFromInput, document.getElementById('from-suggestions'), 'from');
 attachStationSearch(routeToInput, document.getElementById('to-suggestions'), 'to');
 attachStationSearch(boardInput, document.getElementById('board-suggestions'), 'board');
-document.getElementById('btn-add-via').addEventListener('click', () => createViaInput());
+document.getElementById('btn-add-via').addEventListener('click', createViaInput);
 document.getElementById('btn-search-route').addEventListener('click', searchRoute);
 document.getElementById('btn-load-board').addEventListener('click', loadBoard);
 document.getElementById('btn-refresh').addEventListener('click', () => location.reload());
