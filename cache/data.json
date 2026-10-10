@@ -232,8 +232,94 @@
       "abbrev": "DKRB",
       "lat": 47.3534202727098,
       "lon": 7.97128541429,
-      "departures": [],
+      "departures": [
+        {
+          "tripId": "ch:1:sjyid:100001:36233-001",
+          "line": "D",
+          "tripNumber": "36233",
+          "agency": "11",
+          "destination": "Aarau",
+          "scheduled": "2026-10-10T13:42:30+02:00",
+          "live": "2026-10-10T13:42:30+02:00",
+          "delaySec": 0,
+          "delayMin": 0,
+          "cancelled": true,
+          "track": "",
+          "mode": "RAIL",
+          "trip": {
+            "tripId": "ch:1:sjyid:100001:36233-001",
+            "line": "D",
+            "tripNumber": "36233",
+            "destination": "Aarau",
+            "cancelled": true,
+            "agency": {
+              "id": "11",
+              "name": "Schweizerische Bundesbahnen SBB"
+            },
+            "stops": [
+              {
+                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+                "name": "Däniken RB",
+                "departureSched": "2026-10-10T13:42:30+02:00",
+                "departureLive": "2026-10-10T13:42:30+02:00",
+                "departureDelaySec": 0,
+                "flags": ["AUSFALL", "DIENSTHALT"],
+                "cancelled": true,
+                "legIndex": 0
+              },
+              {
+                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+                "name": "Aarau",
+                "arrivalSched": "2026-10-10T13:49:00+02:00",
+                "arrivalLive": "2026-10-10T13:49:00+02:00",
+                "arrivalDelaySec": 0,
+                "flags": ["AUSFALL", "DIENSTHALT"],
+                "cancelled": true,
+                "legIndex": 0
+              }
+            ],
+            "legInfos": {
+              "0": {"line": "D", "tripNumber": "36233", "destination": "Aarau"}
+            }
+          }
+        }
+      ],
       "arrivals": []
+    },
+    {
+      "id": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+      "name": "Aarau",
+      "abbrev": "AA",
+      "departures": [],
+      "arrivals": [
+        {
+          "tripId": "ch:1:sjyid:100001:36233-001",
+          "line": "D",
+          "tripNumber": "36233",
+          "agency": "11",
+          "origin": "Däniken RB",
+          "scheduled": "2026-10-10T13:49:00+02:00",
+          "live": "2026-10-10T13:49:00+02:00",
+          "delaySec": 0,
+          "delayMin": 0,
+          "cancelled": true,
+          "track": "",
+          "mode": "RAIL",
+          "trip": {
+            "tripId": "ch:1:sjyid:100001:36233-001",
+            "line": "D",
+            "tripNumber": "36233",
+            "destination": "Aarau",
+            "cancelled": true,
+            "agency": {"id": "11", "name": "Schweizerische Bundesbahnen SBB"},
+            "stops": [
+              {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159", "name": "Däniken RB", "departureSched": "2026-10-10T13:42:30+02:00", "departureLive": "2026-10-10T13:42:30+02:00", "departureDelaySec": 0, "flags": ["AUSFALL", "DIENSTHALT"], "cancelled": true, "legIndex": 0},
+              {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113", "name": "Aarau", "arrivalSched": "2026-10-10T13:49:00+02:00", "arrivalLive": "2026-10-10T13:49:00+02:00", "arrivalDelaySec": 0, "flags": ["AUSFALL", "DIENSTHALT"], "cancelled": true, "legIndex": 0}
+            ],
+            "legInfos": {"0": {"line": "D", "tripNumber": "36233", "destination": "Aarau"}}
+          }
+        }
+      ]
     },
     {
       "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
