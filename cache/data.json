@@ -227,6 +227,15 @@
       ]
     },
     {
+      "id": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+      "name": "Däniken RB",
+      "abbrev": "DKRB",
+      "lat": 47.3534202727098,
+      "lon": 7.97128541429,
+      "departures": [],
+      "arrivals": []
+    },
+    {
       "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
       "name": "Yverdon-les-Bains",
       "departures": [

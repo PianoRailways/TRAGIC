@@ -18,6 +18,7 @@ function loadNearbySettings() {
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
 let customStationUsesApi = false;
+let customStationCoordinates = null;
 const DEPARTURE_BATCH_SIZE = 25;
 const FILTERED_DEPARTURE_TARGET = DEPARTURE_BATCH_SIZE;
 const MAX_FILTERED_DEPARTURE_TOP_UPS = 8;
@@ -147,6 +148,9 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
   currentStopId = selected?.id || selected?.stopId || data.station?.id || data.stopId || 'custom-json';
   currentMainStationId = currentStopId;
   customStationUsesApi = String(currentStopId).startsWith('ch-opentransportdataswiss26_');
+  customStationCoordinates = Number.isFinite(Number(selected?.lat)) && Number.isFinite(Number(selected?.lon))
+    ? { lat: Number(selected.lat), lon: Number(selected.lon) }
+    : null;
   updateStationTitle(currentStationName);
   customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, resolvedStationName));
   allDepartures = getVisibleCustomDepartures(customDepartures);
@@ -179,6 +183,7 @@ function selectCustomStation(stationId, stationName, customJsonUrl = CUSTOM_JSON
   currentStopId = stationId || 'custom-json';
   currentMainStationId = currentStopId;
   customStationUsesApi = String(currentStopId).startsWith('ch-opentransportdataswiss26_');
+  customStationCoordinates = null;
   currentStationName = stationName;
   updateStationTitle(stationName);
 
@@ -227,9 +232,14 @@ function updateNearbyUI() {
 }
 
 async function fetchNearbyDepartureGroups(refEpoch) {
-  const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(currentStationName)}`);
-  const searchData = await searchRes.json();
-  const station = (searchData.stations || []).find(item => item.name.toLowerCase() === currentStationName.toLowerCase()) || searchData.stations?.[0];
+  let station = customStationCoordinates
+    ? { lat: customStationCoordinates.lat, lon: customStationCoordinates.lon, id: currentStopId, name: currentStationName }
+    : null;
+  if (!station) {
+    const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(currentStationName)}`);
+    const searchData = await searchRes.json();
+    station = (searchData.stations || []).find(item => item.name.toLowerCase() === currentStationName.toLowerCase()) || searchData.stations?.[0];
+  }
   if (!station?.lat || !station?.lon) return [];
 
   const nearbyRes = await fetch(`${PROXY}?action=reverse-geocode&lat=${encodeURIComponent(station.lat)}&lon=${encodeURIComponent(station.lon)}&radius=${nearbySettings.radius}`);
