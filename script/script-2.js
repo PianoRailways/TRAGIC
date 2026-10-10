@@ -164,7 +164,7 @@ function deriveCustomStationEntries(data, selected, entryKey) {
     const stop = stops.find(item => String(item.stopId || '') === targetId);
     if (!stop) return;
     const flags = Array.isArray(stop.flags) ? stop.flags : [];
-    const exceptional = Boolean(departure.cancelled || stop.cancelled || flags.includes('AUSFALL') || flags.includes('DIENSTHALT'));
+    const exceptional = Boolean(departure.cancelled || stop.cancelled || flags.includes('AUSFALL') || flags.includes('DIENSTHALT') || flags.includes('XD'));
     const showEntry = entryKey === 'arrivals'
       ? (flags.length === 0 || flags.includes('SD') || exceptional)
       : (flags.length === 0 || flags.includes('SM') || exceptional) && !flags.includes('D');
@@ -195,11 +195,12 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
     stationId && String(station.id || station.stopId) === String(stationId)
   ) || definitions.find(station =>
     stationName && String(station.name).toLowerCase() === String(stationName).toLowerCase()
-  ) || definitions[0];
+  ) || definitions.find(station => Array.isArray(station?.[isArrivalsMode ? 'arrivals' : 'departures']) && station[isArrivalsMode ? 'arrivals' : 'departures'].length > 0) || definitions[0];
   const entryKey = isArrivalsMode ? 'arrivals' : 'departures';
   let entries = Array.isArray(selected?.[entryKey]) ? selected[entryKey] : [];
   if (entries.length === 0) entries = deriveCustomStationEntries(data, selected, entryKey);
   if (entries.length === 0 && Array.isArray(data)) entries = data;
+  if (entries.length === 0 && Array.isArray(data?.stations)) entries = data.stations.flatMap(station => Array.isArray(station?.[entryKey]) ? station[entryKey] : []);
   if (entries.length === 0 && !Array.isArray(data)) entries = data[entryKey];
   if (!Array.isArray(entries)) {
     throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit "departures" enthalten.');

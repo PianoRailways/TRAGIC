@@ -24,9 +24,9 @@
                     "agency": "GB",
                     "origin": "Luzern Bahnhof / Postunterführung",
                     "scheduled": 1789971900,
-                    "live": 1789971900,
-                    "delaySec": 0,
-                    "delayMin": 0,
+                    "live": 1789971780,
+                    "delaySec": -120,
+                    "delayMin": -2,
                     "cancelled": false,
                     "track": "1",
                     "mode": "RAIL",
@@ -80,10 +80,10 @@
                                 "stopId": "C:GB:SPFG",
                                 "name": "Südpol / Freigleis",
                                 "arrivalSched": 1789971900,
-                                "arrivalLive": 1789971900,
+                                "arrivalLive": 1789971780,
                                 "departureSched": null,
                                 "departureLive": null,
-                                "arrivalDelaySec": 0,
+                                "arrivalDelaySec": -120,
                                 "departureDelaySec": 0,
                                 "track": "1",
                                 "legIndex": 0,
@@ -171,10 +171,10 @@
                                 "stopId": "C:GB:SPFG",
                                 "name": "Südpol / Freigleis",
                                 "arrivalSched": 1789971900,
-                                "arrivalLive": 1789971900,
+                                "arrivalLive": 1789971780,
                                 "departureSched": null,
                                 "departureLive": null,
-                                "arrivalDelaySec": 0,
+                                "arrivalDelaySec": -120,
                                 "departureDelaySec": 0,
                                 "track": "1",
                                 "legIndex": 0,
@@ -263,10 +263,10 @@
                                 "stopId": "C:GB:SPFG",
                                 "name": "Südpol / Freigleis",
                                 "arrivalSched": 1789971900,
-                                "arrivalLive": 1789971900,
+                                "arrivalLive": 1789971780,
                                 "departureSched": null,
                                 "departureLive": null,
-                                "arrivalDelaySec": 0,
+                                "arrivalDelaySec": -120,
                                 "departureDelaySec": 0,
                                 "track": "1",
                                 "legIndex": 0,
@@ -350,10 +350,10 @@
                                 "stopId": "C:GB:SPFG",
                                 "name": "Südpol / Freigleis",
                                 "arrivalSched": 1789971900,
-                                "arrivalLive": 1789971900,
+                                "arrivalLive": 1789971780,
                                 "departureSched": null,
                                 "departureLive": null,
-                                "arrivalDelaySec": 0,
+                                "arrivalDelaySec": -120,
                                 "departureDelaySec": 0,
                                 "track": "1",
                                 "legIndex": 0,
@@ -472,13 +472,58 @@
                         "tripNumber": "36234",
                         "destination": "Däniken RB",
                         "mode": "RAIL",
-                        "agency": {"id": "11", "name": "Schweizerische Bundesbahnen SBB"},
-                        "cancelled": false,
+                        "agency": {
+                            "id": "11",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": true,
                         "stops": [
-                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113", "name": "Aarau", "arrivalSched": null, "departureSched": 1791634074, "departureLive": 1791634074, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0},
-                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159", "name": "Däniken RB", "arrivalSched": 1791634440, "arrivalLive": 1791634440, "departureSched": null, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0}
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+                                "name": "Aarau",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791634074,
+                                "departureLive": 1791634074,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+                                "name": "Däniken RB",
+                                "arrivalSched": 1791634440,
+                                "arrivalLive": 1791634440,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
                         ],
-                        "legInfos": [{"line": "MAT", "tripNumber": "36234", "destination": "Däniken RB"}]
+                        "legInfos": [
+                            {
+                                "line": "MAT",
+                                "tripNumber": "36234",
+                                "destination": "Däniken RB"
+                            }
+                        ]
                     }
                 }
             ],
@@ -509,13 +554,58 @@
                         "tripNumber": "36234",
                         "destination": "Däniken RB",
                         "mode": "RAIL",
-                        "agency": {"id": "11", "name": "Schweizerische Bundesbahnen SBB"},
-                        "cancelled": false,
+                        "agency": {
+                            "id": "11",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": true,
                         "stops": [
-                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113", "name": "Aarau", "departureSched": 1791634074, "departureLive": 1791634074, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0},
-                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159", "name": "Däniken RB", "arrivalSched": 1791634440, "arrivalLive": 1791634440, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0}
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+                                "name": "Aarau",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791634074,
+                                "departureLive": 1791634074,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+                                "name": "Däniken RB",
+                                "arrivalSched": 1791634440,
+                                "arrivalLive": 1791634440,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
                         ],
-                        "legInfos": [{"line": "MAT", "tripNumber": "36234", "destination": "Däniken RB"}]
+                        "legInfos": [
+                            {
+                                "line": "MAT",
+                                "tripNumber": "36234",
+                                "destination": "Däniken RB"
+                            }
+                        ]
                     }
                 }
             ],
