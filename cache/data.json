@@ -227,7 +227,7 @@
       ]
     },
     {
-      "id": "C:SBB:YV",
+      "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
       "name": "Yverdon-les-Bains",
       "departures": [
         {
@@ -249,7 +249,7 @@
             },
             "stops": [
               {
-                "stopId": "C:SBB:MRT",
+                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
                 "name": "Murten/Morat",
                 "departureSched": "2026-10-10T10:23:00+02:00",
                 "departureLive": "2026-10-10T10:24:16+02:00",
@@ -257,7 +257,7 @@
                 "legIndex": null
               },
               {
-                "stopId": "C:SBB:YV",
+                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
                 "name": "Yverdon-les-Bains",
                 "arrivalSched": "2026-10-10T11:19:00+02:00",
                 "arrivalLive": "2026-10-10T11:21:00+02:00",
@@ -267,7 +267,7 @@
                 "legIndex": 0
               },
               {
-                "stopId": "C:SBB:LS",
+                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
                 "name": "Lausanne",
                 "arrivalSched": "2026-10-10T12:19:00+02:00",
                 "arrivalLive": "2026-10-10T12:20:00+02:00",
@@ -277,7 +277,7 @@
                 "legIndex": 1
               },
               {
-                "stopId": "C:SBB:FRPO",
+                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
                 "name": "Fribourg/Freiburg Poya",
                 "arrivalSched": "2026-10-10T14:18:00+02:00",
                 "arrivalLive": "2026-10-10T14:18:00+02:00",

@@ -17,6 +17,7 @@ function loadNearbySettings() {
 
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
+let customStationUsesApi = false;
 const DEPARTURE_BATCH_SIZE = 25;
 const FILTERED_DEPARTURE_TARGET = DEPARTURE_BATCH_SIZE;
 const MAX_FILTERED_DEPARTURE_TOP_UPS = 8;
@@ -84,6 +85,14 @@ function normalizeCustomDeparture(departure, index, stationName) {
   };
 }
 
+function getVisibleCustomDepartures(departures, refEpoch = null) {
+  const referenceEpoch = refEpoch ?? getSelectedEpoch() ?? Math.floor(Date.now() / 1000);
+  return departures.filter(departure => {
+    const departureEpoch = parseCustomJsonTime(departure.scheduled || departure.live);
+    return !departureEpoch || departureEpoch >= referenceEpoch;
+  });
+}
+
 function getCustomStationDefinitions(data) {
   const definitions = Array.isArray(data?.stations) ? data.stations : [];
   if (definitions.length) return definitions;
@@ -137,9 +146,18 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
   currentStationName = resolvedStationName;
   currentStopId = selected?.id || selected?.stopId || data.station?.id || data.stopId || 'custom-json';
   currentMainStationId = currentStopId;
+  customStationUsesApi = String(currentStopId).startsWith('ch-opentransportdataswiss26_');
   updateStationTitle(currentStationName);
   customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, resolvedStationName));
-  allDepartures = customDepartures;
+  allDepartures = getVisibleCustomDepartures(customDepartures);
+  if (customStationUsesApi) {
+    try {
+      const apiDepartures = await fetchDepartureBatch(getSelectedEpoch(), DEPARTURE_BATCH_SIZE);
+      allDepartures = deduplicateDepartures([...getVisibleCustomDepartures(customDepartures), ...apiDepartures]);
+    } catch (error) {
+      console.warn('API-Abfahrten konnten nicht geladen werden:', error);
+    }
+  }
   renderDepartures(allDepartures);
   setStatus(`${allDepartures.length} eigene Fahrt${allDepartures.length === 1 ? '' : 'en'} aus ${sourceName}`);
   updateNavButtonsVisibility();
@@ -160,6 +178,7 @@ function selectCustomStation(stationId, stationName, customJsonUrl = CUSTOM_JSON
   clearStationSuggestions();
   currentStopId = stationId || 'custom-json';
   currentMainStationId = currentStopId;
+  customStationUsesApi = String(currentStopId).startsWith('ch-opentransportdataswiss26_');
   currentStationName = stationName;
   updateStationTitle(stationName);
 
@@ -1278,7 +1297,15 @@ async function loadMoreDepartures(startEpoch = null) {
 
 async function loadDepartures(refEpoch) {
   if (customDepartures) {
-    allDepartures = customDepartures;
+    allDepartures = getVisibleCustomDepartures(customDepartures, refEpoch);
+    if (customStationUsesApi) {
+      try {
+        const apiDepartures = await fetchDepartureBatch(refEpoch, DEPARTURE_BATCH_SIZE);
+        allDepartures = deduplicateDepartures([...getVisibleCustomDepartures(customDepartures, refEpoch), ...apiDepartures]);
+      } catch (error) {
+        console.warn('API-Abfahrten konnten nicht geladen werden:', error);
+      }
+    }
     renderDepartures(allDepartures);
     updateNavButtonsVisibility();
     updateLoadMoreButton();
