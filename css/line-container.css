@@ -470,8 +470,8 @@
 .line-container[data-agency-name*="Yverdon-Ste-Croix"]{ background: #C8102E; color: white; } /* Grundsetup */
 
 .line-container[data-agency-name*="Yverdon-Ste-Croix"][data-raw-line="601"]{ background:#E30A13;}
-.line-container[data-agency-name*="Yverdon-Ste-Croix"][data-line-raw="602"]{ background:#436AB1;}
-.line-container[data-agency-name*="Yverdon-Ste-Croix"][data-line-raw="603"]{ background:#7EBA28;}
+.line-container[data-agency-name*="Yverdon-Ste-Croix"][data-raw-line="602"]{ background:#436AB1;}
+.line-container[data-agency-name*="Yverdon-Ste-Croix"][data-raw-line="603"]{ background:#7EBA28;}
 .line-container[data-agency-name*="Yverdon-Ste-Croix"][data-raw-line="604"]{ background:#F49700;}
 .line-container[data-agency-name*="Yverdon-Ste-Croix"][data-raw-line="605"]{ background:#914292;}
 .line-container[data-agency-name*="Yverdon-Ste-Croix"][data-raw-line="606"]{ background:#629F97;}
