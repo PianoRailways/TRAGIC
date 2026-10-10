@@ -225,6 +225,70 @@
           }
         }
       ]
+    },
+    {
+      "id": "C:SBB:YV",
+      "name": "Yverdon-les-Bains",
+      "departures": [
+        {
+          "tripId": "ch:1:sjyid:101239:31501-001",
+          "line": "EXT",
+          "tripNumber": "31501",
+          "agency": "9013",
+          "destination": "Fribourg/Freiburg Poya",
+          "scheduled": "2026-10-10T11:37:00+02:00",
+          "live": "2026-10-10T11:39:06+02:00",
+          "delaySec": 126,
+          "delayMin": 2,
+          "track": "3",
+          "mode": "RAIL",
+          "trip": {
+            "agency": {
+              "id": "9013",
+              "name": "Schweizerische Bundesbahnen SBB"
+            },
+            "stops": [
+              {
+                "stopId": "C:SBB:MRT",
+                "name": "Murten/Morat",
+                "departureSched": "2026-10-10T10:23:00+02:00",
+                "departureLive": "2026-10-10T10:24:16+02:00",
+                "track": "3",
+                "legIndex": null
+              },
+              {
+                "stopId": "C:SBB:YV",
+                "name": "Yverdon-les-Bains",
+                "arrivalSched": "2026-10-10T11:19:00+02:00",
+                "arrivalLive": "2026-10-10T11:21:00+02:00",
+                "departureSched": "2026-10-10T11:37:00+02:00",
+                "departureLive": "2026-10-10T11:39:06+02:00",
+                "track": "3",
+                "legIndex": 0
+              },
+              {
+                "stopId": "C:SBB:LS",
+                "name": "Lausanne",
+                "arrivalSched": "2026-10-10T12:19:00+02:00",
+                "arrivalLive": "2026-10-10T12:20:00+02:00",
+                "departureSched": "2026-10-10T13:06:00+02:00",
+                "departureLive": "2026-10-10T13:06:12+02:00",
+                "track": "8",
+                "legIndex": 1
+              },
+              {
+                "stopId": "C:SBB:FRPO",
+                "name": "Fribourg/Freiburg Poya",
+                "arrivalSched": "2026-10-10T14:18:00+02:00",
+                "arrivalLive": "2026-10-10T14:18:00+02:00",
+                "track": "1",
+                "legIndex": 2
+              }
+            ]
+          }
+        }
+      ],
+      "arrivals": []
     }
   ]
 }
