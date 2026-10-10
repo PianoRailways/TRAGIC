@@ -868,10 +868,10 @@ function selectStation(stopId, name, refEpoch) {
     return;
   }
 
-  const customJsonUrl = new URL(location.href).searchParams.get('customJson') || (customDepartures ? CUSTOM_JSON_URL : null);
-  const keepCustomData = Boolean(customJsonUrl && customDepartures);
   closeHomeView();
-  if (!keepCustomData) customDepartures = null;
+  customDepartures = null;
+  customStationUsesApi = false;
+  customStationCoordinates = null;
   currentStopId = stopId;
   currentStationName = name;
   currentMainStationId = stopId;
@@ -892,7 +892,7 @@ function selectStation(stopId, name, refEpoch) {
   const url = new URL(location.href);
   url.searchParams.set('view', 'departures');
   url.searchParams.set('stopId', stopId);
-  if (customJsonUrl) url.searchParams.set('customJson', customJsonUrl);
+  url.searchParams.delete('customJson');
   
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
   else              url.searchParams.delete('time');
@@ -900,15 +900,9 @@ function selectStation(stopId, name, refEpoch) {
   if (isArrivalsMode) url.searchParams.set('arrivals', 'true');
   else                url.searchParams.delete('arrivals');
 
-  history.pushState({stopId, stationName: name, customJson: customJsonUrl, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
+  history.pushState({stopId, stationName: name, customJson: null, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
 
-  if (keepCustomData) {
-    loadCustomDeparturesFromUrl(customJsonUrl, stopId, name).catch(error => {
-      renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
-    });
-  } else {
-    loadDepartures(currentEpoch);
-  }
+  loadDepartures(currentEpoch);
   window.scrollTo({top: 240, behavior: 'smooth'}); // Automatisch nach unten scrollen, um die Abfahrten anzuzeigen
 }
 
