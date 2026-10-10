@@ -1,0 +1,230 @@
+{
+  "stations": [
+    {
+      "id": "C:FWF:OF",
+      "name": "Otelfingen FWF",
+      "departures": [],
+      "arrivals": []
+    },
+    {
+      "id": "C:FWF:OFS",
+      "name": "Otelfingen Süd",
+      "departures": [],
+      "arrivals": []
+    },
+    {
+      "id": "C:GB:SPFG",
+      "name": "Südpol / Freigleis",
+      "departures": [],
+      "arrivals": [
+        {
+          "tripId": "custom_pinu_t_1527",
+          "line": "PEX",
+          "tripNumber": "4",
+          "agency": "GB",
+          "origin": "Luzern Todeskreisel",
+          "scheduled": 1789971900,
+          "track": "1",
+          "mode": "RAIL",
+          "trip": {
+            "agency": {
+              "id": "GB",
+              "name": "GianBus"
+            },
+            "stops": [
+              {
+                "stopId": "C:GB:LZPU",
+                "name": "Luzern Bahnhof / Postunterführung",
+                "departureLive": null,
+                "departureSched": null,
+                "arrivalSched": 1789971000,
+                "arrivalLive": 1789971000,
+                "track": "1",
+                "legIndex": null
+              },
+              {
+                "stopId": "C:GB:LZTK",
+                "name": "Luzern Todeskreisel",
+                "departureLive": 1789971360,
+                "departureSched": 1789971360,
+                "arrivalSched": 1789971360,
+                "arrivalLive": 1789971360,
+                "track": "1",
+                "legIndex": 0
+              },
+              {
+                "stopId": "C:GB:SPFG",
+                "name": "Südpol / Freigleis",
+                "departureLive": 1789971900,
+                "departureSched": 1789971900,
+                "arrivalSched": 1789971900,
+                "arrivalLive": 1789971900,
+                "track": "1",
+                "legIndex": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "C:GB:LZPU",
+      "name": "Luzern Bahnhof / Postunterführung",
+      "departures": [
+        {
+          "tripId": "custom_pinu_t_1527",
+          "line": "PEX",
+          "tripNumber": "4",
+          "agency": "GB",
+          "destination": "Südpol / Freigleis",
+          "scheduled": 1789971000,
+          "track": "1",
+          "mode": "RAIL",
+          "trip": {
+            "agency": {
+              "id": "GB",
+              "name": "GianBus"
+            },
+            "stops": [
+              {
+                "stopId": "C:GB:LZPU",
+                "name": "Luzern Bahnhof / Postunterführung",
+                "departureLive": null,
+                "departureSched": null,
+                "arrivalSched": 1789971000,
+                "arrivalLive": 1789971000,
+                "track": "1",
+                "legIndex": null
+              },
+              {
+                "stopId": "C:GB:LZTK",
+                "name": "Luzern Todeskreisel",
+                "departureLive": 1789971360,
+                "departureSched": 1789971360,
+                "arrivalSched": 1789971360,
+                "arrivalLive": 1789971360,
+                "track": "1",
+                "legIndex": 0
+              },
+              {
+                "stopId": "C:GB:SPFG",
+                "name": "Südpol / Freigleis",
+                "departureLive": 1789971900,
+                "departureSched": 1789971900,
+                "arrivalSched": 1789971900,
+                "arrivalLive": 1789971900,
+                "track": "1",
+                "legIndex": 1
+              }
+            ]
+          }
+        }
+      ],
+      "arrivals": []
+    },
+    {
+      "id": "C:GB:LZTK",
+      "name": "Luzern Todeskreisel",
+      "departures": [
+        {
+          "tripId": "custom_pinu_t_1527",
+          "line": "PEX",
+          "tripNumber": "4",
+          "agency": "GB",
+          "destination": "Südpol / Freigleis",
+          "scheduled": 1789971360,
+          "track": "1",
+          "mode": "RAIL",
+          "trip": {
+            "agency": {
+              "id": "GB",
+              "name": "GianBus"
+            },
+            "stops": [
+              {
+                "stopId": "C:GB:LZPU",
+                "name": "Luzern Bahnhof / Postunterführung",
+                "departureLive": null,
+                "departureSched": null,
+                "arrivalSched": 1789971000,
+                "arrivalLive": 1789971000,
+                "track": "1",
+                "legIndex": null
+              },
+              {
+                "stopId": "C:GB:LZTK",
+                "name": "Luzern Todeskreisel",
+                "departureLive": 1789971360,
+                "departureSched": 1789971360,
+                "arrivalSched": 1789971360,
+                "arrivalLive": 1789971360,
+                "track": "1",
+                "legIndex": 0
+              },
+              {
+                "stopId": "C:GB:SPFG",
+                "name": "Südpol / Freigleis",
+                "departureLive": 1789971900,
+                "departureSched": 1789971900,
+                "arrivalSched": 1789971900,
+                "arrivalLive": 1789971900,
+                "track": "1",
+                "legIndex": 1
+              }
+            ]
+          }
+        }
+      ],
+      "arrivals": [
+        {
+          "tripId": "custom_pinu_t_1527",
+          "line": "PEX",
+          "tripNumber": "4",
+          "agency": "GB",
+          "origin": "Luzern Bahnhof / Postunterführung",
+          "scheduled": 1789971360,
+          "track": "1",
+          "mode": "RAIL",
+          "trip": {
+            "agency": {
+              "id": "GB",
+              "name": "GianBus"
+            },
+            "stops": [
+              {
+                "stopId": "C:GB:LZPU",
+                "name": "Luzern Bahnhof / Postunterführung",
+                "departureLive": null,
+                "departureSched": null,
+                "arrivalSched": 1789971000,
+                "arrivalLive": 1789971000,
+                "track": "1",
+                "legIndex": null
+              },
+              {
+                "stopId": "C:GB:LZTK",
+                "name": "Luzern Todeskreisel",
+                "departureLive": 1789971360,
+                "departureSched": 1789971360,
+                "arrivalSched": 1789971360,
+                "arrivalLive": 1789971360,
+                "track": "1",
+                "legIndex": 0
+              },
+              {
+                "stopId": "C:GB:SPFG",
+                "name": "Südpol / Freigleis",
+                "departureLive": 1789971900,
+                "departureSched": 1789971900,
+                "arrivalSched": 1789971900,
+                "arrivalLive": 1789971900,
+                "track": "1",
+                "legIndex": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
