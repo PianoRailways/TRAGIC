@@ -452,7 +452,36 @@
                     }
                 }
             ],
-            "arrivals": [],
+            "arrivals": [
+                {
+                    "tripId": "ch:1:sjyid:100001:36234-001",
+                    "line": "MAT",
+                    "tripNumber": "36234",
+                    "agency": "11",
+                    "origin": "Aarau",
+                    "scheduled": 1791634440,
+                    "live": 1791634440,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:100001:36234-001",
+                        "line": "MAT",
+                        "tripNumber": "36234",
+                        "destination": "Däniken RB",
+                        "mode": "RAIL",
+                        "agency": {"id": "11", "name": "Schweizerische Bundesbahnen SBB"},
+                        "cancelled": false,
+                        "stops": [
+                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113", "name": "Aarau", "arrivalSched": null, "departureSched": 1791634074, "departureLive": 1791634074, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0},
+                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159", "name": "Däniken RB", "arrivalSched": 1791634440, "arrivalLive": 1791634440, "departureSched": null, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0}
+                        ],
+                        "legInfos": [{"line": "MAT", "tripNumber": "36234", "destination": "Däniken RB"}]
+                    }
+                }
+            ],
             "abbrev": "DKRB",
             "lat": 47.3534202727098,
             "lon": 7.97128541429
@@ -460,7 +489,36 @@
         {
             "id": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
             "name": "Aarau",
-            "departures": [],
+            "departures": [
+                {
+                    "tripId": "ch:1:sjyid:100001:36234-001",
+                    "line": "MAT",
+                    "tripNumber": "36234",
+                    "agency": "11",
+                    "destination": "Däniken RB",
+                    "scheduled": 1791634074,
+                    "live": 1791634074,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:100001:36234-001",
+                        "line": "MAT",
+                        "tripNumber": "36234",
+                        "destination": "Däniken RB",
+                        "mode": "RAIL",
+                        "agency": {"id": "11", "name": "Schweizerische Bundesbahnen SBB"},
+                        "cancelled": false,
+                        "stops": [
+                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113", "name": "Aarau", "departureSched": 1791634074, "departureLive": 1791634074, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0},
+                            {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159", "name": "Däniken RB", "arrivalSched": 1791634440, "arrivalLive": 1791634440, "flags": ["AUSFALL", "XD"], "cancelled": true, "legIndex": 0}
+                        ],
+                        "legInfos": [{"line": "MAT", "tripNumber": "36234", "destination": "Däniken RB"}]
+                    }
+                }
+            ],
             "arrivals": [
                 {
                     "tripId": "ch:1:sjyid:100001:36233-001",
