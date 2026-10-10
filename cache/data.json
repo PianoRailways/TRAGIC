@@ -322,6 +322,27 @@
       ]
     },
     {
+      "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+      "name": "Murten/Morat",
+      "abbrev": "MRT",
+      "departures": [],
+      "arrivals": []
+    },
+    {
+      "id": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+      "name": "Lausanne",
+      "abbrev": "LS",
+      "departures": [],
+      "arrivals": []
+    },
+    {
+      "id": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+      "name": "Fribourg/Freiburg Poya",
+      "abbrev": "FRPO",
+      "departures": [],
+      "arrivals": []
+    },
+    {
       "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
       "name": "Yverdon-les-Bains",
       "departures": [
