@@ -86,6 +86,30 @@ function normalizeCustomDeparture(departure, index, stationName) {
   };
 }
 
+function normalizeCustomArrival(arrival, index, stationName) {
+  const scheduled = parseCustomJsonTime(arrival.scheduled ?? arrival.arrival ?? arrival.time);
+  const live = parseCustomJsonTime(arrival.live ?? arrival.estimated ?? arrival.arrivalLive) || scheduled;
+  const trip = normalizeCustomTrip(arrival.trip || arrival.tripData);
+  return {
+    ...arrival,
+    tripId: arrival.tripId || `custom-arrival-${index + 1}`,
+    line: arrival.line || arrival.route || '?',
+    tripNumber: arrival.tripNumber || arrival.routeNumber || '',
+    destination: arrival.origin || arrival.from || '',
+    scheduled,
+    live,
+    delaySec: arrival.delaySec ?? (arrival.delayMin ? arrival.delayMin * 60 : Math.round(live - scheduled)),
+    delayMin: arrival.delayMin ?? Math.round((live - scheduled) / 60),
+    track: arrival.track || arrival.platform || '',
+    mode: arrival.mode || 'OTHER',
+    cancelled: Boolean(arrival.cancelled),
+    _stopId: arrival.stopId || `custom-arrival-${index + 1}`,
+    _fromStation: stationName,
+    _isMainStation: true,
+    ...(trip ? { trip } : {})
+  };
+}
+
 function getVisibleCustomDepartures(departures, refEpoch = null) {
   const referenceEpoch = refEpoch ?? getSelectedEpoch() ?? Math.floor(Date.now() / 1000);
   return departures.filter(departure => {
@@ -131,6 +155,34 @@ async function getCustomStationIndex() {
   return customStationIndexPromise;
 }
 
+function deriveCustomStationEntries(data, selected, entryKey) {
+  const targetId = String(selected?.id || selected?.stopId || '');
+  if (!targetId || !Array.isArray(data?.stations)) return [];
+  const derived = [];
+  data.stations.forEach(station => (station.departures || []).forEach(departure => {
+    const stops = departure.trip?.stops || departure.tripData?.stops || [];
+    const stop = stops.find(item => String(item.stopId || '') === targetId);
+    if (!stop) return;
+    const scheduled = entryKey === 'arrivals'
+      ? stop.arrivalSched || stop.arrivalLive
+      : stop.departureSched || stop.departureLive;
+    if (!scheduled) return;
+    const live = entryKey === 'arrivals'
+      ? stop.arrivalLive || scheduled
+      : stop.departureLive || scheduled;
+    derived.push({
+      ...departure,
+      scheduled,
+      live,
+      origin: stops[0]?.name || departure.origin || '',
+      destination: stops[stops.length - 1]?.name || departure.destination || '',
+      track: stop.track || departure.track || '',
+      delaySec: entryKey === 'arrivals' ? stop.arrivalDelaySec : stop.departureDelaySec
+    });
+  }));
+  return derived;
+}
+
 async function loadCustomDeparturesData(data, sourceName, stationId = null, stationName = null) {
   const definitions = getCustomStationDefinitions(data);
   const selected = definitions.find(station =>
@@ -138,7 +190,11 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
   ) || definitions.find(station =>
     stationName && String(station.name).toLowerCase() === String(stationName).toLowerCase()
   ) || definitions[0];
-  const entries = Array.isArray(selected?.departures) ? selected.departures : (Array.isArray(data) ? data : data.departures);
+  const entryKey = isArrivalsMode ? 'arrivals' : 'departures';
+  let entries = Array.isArray(selected?.[entryKey]) ? selected[entryKey] : [];
+  if (entries.length === 0) entries = deriveCustomStationEntries(data, selected, entryKey);
+  if (entries.length === 0 && Array.isArray(data)) entries = data;
+  if (entries.length === 0 && !Array.isArray(data)) entries = data[entryKey];
   if (!Array.isArray(entries)) {
     throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit "departures" enthalten.');
   }
@@ -152,7 +208,9 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
     ? { lat: Number(selected.lat), lon: Number(selected.lon) }
     : null;
   updateStationTitle(currentStationName);
-  customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, resolvedStationName));
+  customDepartures = entries.map((entry, index) => isArrivalsMode
+    ? normalizeCustomArrival(entry, index, resolvedStationName)
+    : normalizeCustomDeparture(entry, index, resolvedStationName));
   allDepartures = getVisibleCustomDepartures(customDepartures);
   if (customStationUsesApi) {
     try {
