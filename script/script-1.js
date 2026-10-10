@@ -1258,7 +1258,14 @@ function toggleArrivalMode() {
   isArrivalsMode = !isArrivalsMode;
   updateArrivalToggleUI();
   const refEpoch = syncPickersToUrl();
-  loadDepartures(refEpoch);
+  const customJsonUrl = new URL(location.href).searchParams.get('customJson');
+  if (customDepartures && customJsonUrl && typeof loadCustomDeparturesFromUrl === 'function') {
+    loadCustomDeparturesFromUrl(customJsonUrl, currentStopId, currentStationName).catch(error => {
+      renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
+    });
+  } else {
+    loadDepartures(refEpoch);
+  }
 }
 
 function updateArrivalToggleUI() {

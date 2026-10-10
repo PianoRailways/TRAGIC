@@ -200,8 +200,10 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
   let entries = Array.isArray(selected?.[entryKey]) ? selected[entryKey] : [];
   if (entries.length === 0) entries = deriveCustomStationEntries(data, selected, entryKey);
   if (entries.length === 0 && Array.isArray(data)) entries = data;
-  if (entries.length === 0 && Array.isArray(data?.stations)) entries = data.stations.flatMap(station => Array.isArray(station?.[entryKey]) ? station[entryKey] : []);
-  if (entries.length === 0 && !Array.isArray(data)) entries = data[entryKey];
+  if (entries.length === 0 && !stationId && !stationName && Array.isArray(data?.stations)) {
+    entries = data.stations.flatMap(station => Array.isArray(station?.[entryKey]) ? station[entryKey] : []);
+  }
+  if (entries.length === 0 && !Array.isArray(data)) entries = Array.isArray(data[entryKey]) ? data[entryKey] : [];
   if (!Array.isArray(entries)) {
     throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit "departures" enthalten.');
   }
@@ -866,8 +868,10 @@ function selectStation(stopId, name, refEpoch) {
     return;
   }
 
+  const customJsonUrl = new URL(location.href).searchParams.get('customJson') || (customDepartures ? CUSTOM_JSON_URL : null);
+  const keepCustomData = Boolean(customJsonUrl && customDepartures);
   closeHomeView();
-  customDepartures = null;
+  if (!keepCustomData) customDepartures = null;
   currentStopId = stopId;
   currentStationName = name;
   currentMainStationId = stopId;
@@ -888,6 +892,7 @@ function selectStation(stopId, name, refEpoch) {
   const url = new URL(location.href);
   url.searchParams.set('view', 'departures');
   url.searchParams.set('stopId', stopId);
+  if (customJsonUrl) url.searchParams.set('customJson', customJsonUrl);
   
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
   else              url.searchParams.delete('time');
@@ -895,9 +900,15 @@ function selectStation(stopId, name, refEpoch) {
   if (isArrivalsMode) url.searchParams.set('arrivals', 'true');
   else                url.searchParams.delete('arrivals');
 
-  history.pushState({stopId, stationName: name, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
+  history.pushState({stopId, stationName: name, customJson: customJsonUrl, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
 
-  loadDepartures(currentEpoch);
+  if (keepCustomData) {
+    loadCustomDeparturesFromUrl(customJsonUrl, stopId, name).catch(error => {
+      renderError(`Server-JSON konnte nicht geladen werden: ${error.message}`);
+    });
+  } else {
+    loadDepartures(currentEpoch);
+  }
   window.scrollTo({top: 240, behavior: 'smooth'}); // Automatisch nach unten scrollen, um die Abfahrten anzuzeigen
 }
 
