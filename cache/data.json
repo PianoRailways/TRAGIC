@@ -235,7 +235,7 @@
       "departures": [
         {
           "tripId": "ch:1:sjyid:100001:36233-001",
-          "line": "D",
+          "line": "MAT",
           "tripNumber": "36233",
           "agency": "11",
           "destination": "Aarau",
@@ -248,7 +248,7 @@
           "mode": "RAIL",
           "trip": {
             "tripId": "ch:1:sjyid:100001:36233-001",
-            "line": "D",
+            "line": "MAT",
             "tripNumber": "36233",
             "destination": "Aarau",
             "cancelled": true,
@@ -279,7 +279,7 @@
               }
             ],
             "legInfos": {
-              "0": {"line": "D", "tripNumber": "36233", "destination": "Aarau"}
+              "0": {"line": "MAT", "tripNumber": "36233", "destination": "Aarau"}
             }
           }
         }
@@ -294,7 +294,7 @@
       "arrivals": [
         {
           "tripId": "ch:1:sjyid:100001:36233-001",
-          "line": "D",
+          "line": "MAT",
           "tripNumber": "36233",
           "agency": "11",
           "origin": "Däniken RB",
@@ -307,7 +307,7 @@
           "mode": "RAIL",
           "trip": {
             "tripId": "ch:1:sjyid:100001:36233-001",
-            "line": "D",
+            "line": "MAT",
             "tripNumber": "36233",
             "destination": "Aarau",
             "cancelled": true,
@@ -316,7 +316,7 @@
               {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159", "name": "Däniken RB", "departureSched": "2026-10-10T13:42:30+02:00", "departureLive": "2026-10-10T13:42:30+02:00", "departureDelaySec": 0, "flags": ["AUSFALL", "DIENSTHALT"], "cancelled": true, "legIndex": 0},
               {"stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113", "name": "Aarau", "arrivalSched": "2026-10-10T13:49:00+02:00", "arrivalLive": "2026-10-10T13:49:00+02:00", "arrivalDelaySec": 0, "flags": ["AUSFALL", "DIENSTHALT"], "cancelled": true, "legIndex": 0}
             ],
-            "legInfos": {"0": {"line": "D", "tripNumber": "36233", "destination": "Aarau"}}
+            "legInfos": {"0": {"line": "MAT", "tripNumber": "36233", "destination": "Aarau"}}
           }
         }
       ]
