@@ -590,8 +590,17 @@ function attachMainStationSearch(input, list) {
         const customIndex = await getCustomStationIndex();
         if (sequence !== searchSequence || input.value.trim() !== query) return;
         customIndex.stations.forEach(station => {
-          if (!station.name || !station.name.toLowerCase().includes(query.toLowerCase())) return;
-          if (localMatches.some(match => match.name.toLowerCase() === station.name.toLowerCase())) return;
+          const abbreviationMatch = String(station.abbrev || station.abk || '').toLowerCase() === query.toLowerCase();
+          if (!station.name || (!station.name.toLowerCase().includes(query.toLowerCase()) && !abbreviationMatch)) return;
+          const existingMatch = localMatches.find(match => match.name.toLowerCase() === station.name.toLowerCase());
+          if (existingMatch) {
+            if (abbreviationMatch) {
+              existingMatch.id = station.id || station.stopId || null;
+              existingMatch.source = 'custom';
+              existingMatch._customJsonUrl = station._customJsonUrl;
+            }
+            return;
+          }
           localMatches.unshift({
             id: station.id || station.stopId || null,
             name: station.name,
