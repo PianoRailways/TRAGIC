@@ -27,7 +27,7 @@ let isToppingUpFilteredDepartures = false;
 let filteredDepartureTopUpAttempts = 0;
 let filteredDepartureTopUpKey = '';
 const CUSTOM_JSON_URLS = [
-  '/cache/demo-fahrten.js',
+  '/cache/demo-fahrten.json',
   '/cache/data.json',
 ];
 const CUSTOM_JSON_URL = CUSTOM_JSON_URLS[0];
@@ -163,6 +163,12 @@ function deriveCustomStationEntries(data, selected, entryKey) {
     const stops = departure.trip?.stops || departure.tripData?.stops || [];
     const stop = stops.find(item => String(item.stopId || '') === targetId);
     if (!stop) return;
+    const flags = Array.isArray(stop.flags) ? stop.flags : [];
+    const exceptional = Boolean(departure.cancelled || stop.cancelled || flags.includes('AUSFALL') || flags.includes('DIENSTHALT'));
+    const showEntry = entryKey === 'arrivals'
+      ? (flags.length === 0 || flags.includes('SD') || exceptional)
+      : (flags.length === 0 || flags.includes('SM') || exceptional) && !flags.includes('D');
+    if (!showEntry) return;
     const scheduled = entryKey === 'arrivals'
       ? stop.arrivalSched || stop.arrivalLive
       : stop.departureSched || stop.departureLive;

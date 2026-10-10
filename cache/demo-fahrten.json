@@ -50,7 +50,9 @@
                 "arrivalSched": 1789971360,
                 "arrivalLive": 1789971360,
                 "track": "1",
-                "legIndex": 0
+                "legIndex": 0,
+                "flags": ["AUSFALL"],
+                "cancelled": true
               },
               {
                 "stopId": "C:GB:SPFG",
@@ -104,7 +106,9 @@
                 "arrivalSched": 1789971360,
                 "arrivalLive": 1789971360,
                 "track": "1",
-                "legIndex": 0
+                "legIndex": 0,
+                "flags": ["AUSFALL"],
+                "cancelled": true
               },
               {
                 "stopId": "C:GB:SPFG",
@@ -133,6 +137,7 @@
           "agency": "GB",
           "destination": "Südpol / Freigleis",
           "scheduled": 1789971360,
+          "cancelled": true,
           "track": "1",
           "mode": "RAIL",
           "trip": {
@@ -159,7 +164,9 @@
                 "arrivalSched": 1789971360,
                 "arrivalLive": 1789971360,
                 "track": "1",
-                "legIndex": 0
+                "legIndex": 0,
+                "flags": ["AUSFALL"],
+                "cancelled": true
               },
               {
                 "stopId": "C:GB:SPFG",
@@ -183,6 +190,7 @@
           "agency": "GB",
           "origin": "Luzern Bahnhof / Postunterführung",
           "scheduled": 1789971360,
+          "cancelled": true,
           "track": "1",
           "mode": "RAIL",
           "trip": {
@@ -209,7 +217,9 @@
                 "arrivalSched": 1789971360,
                 "arrivalLive": 1789971360,
                 "track": "1",
-                "legIndex": 0
+                "legIndex": 0,
+                "flags": ["AUSFALL"],
+                "cancelled": true
               },
               {
                 "stopId": "C:GB:SPFG",
