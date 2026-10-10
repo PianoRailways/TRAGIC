@@ -192,7 +192,7 @@ if (isset($_GET['api'])) {
       const calculateLegIndices = (stops) => {
         return stops.map((stop, idx) => ({
           ...stop,
-          legIndex: idx === 0 ? null : idx - 1
+          legIndex: 0
         }));
       };
 

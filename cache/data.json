@@ -254,7 +254,7 @@
                 "departureSched": "2026-10-10T10:23:00+02:00",
                 "departureLive": "2026-10-10T10:24:16+02:00",
                 "track": "3",
-                "legIndex": null
+                "legIndex": 0
               },
               {
                 "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
@@ -274,7 +274,7 @@
                 "departureSched": "2026-10-10T13:06:00+02:00",
                 "departureLive": "2026-10-10T13:06:12+02:00",
                 "track": "8",
-                "legIndex": 1
+                "legIndex": 0
               },
               {
                 "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
@@ -282,7 +282,7 @@
                 "arrivalSched": "2026-10-10T14:18:00+02:00",
                 "arrivalLive": "2026-10-10T14:18:00+02:00",
                 "track": "1",
-                "legIndex": 2
+                "legIndex": 0
               }
             ]
           }
