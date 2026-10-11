@@ -1,0 +1,16 @@
+{
+  "stations": [
+    {
+      "id": "C:FWF:OF",
+      "name": "Otelfingen FWF",
+      "departures": [],
+      "arrivals": []
+    },
+    {
+      "id": "C:FWF:OFS",
+      "name": "Otelfingen Süd",
+      "departures": [],
+      "arrivals": []
+    }
+  ]
+}

@@ -209,6 +209,10 @@ function renderChain(data) {
       } else if (noDropoff && !noPickup) {
         boardingBadge = '<span class="boarding-badge badge-sm" title="Halt nur zum Einsteigen">SM</span>';
       }
+
+      if (Array.isArray(stop.flags) && (stop.flags.includes('DIENSTHALT') || stop.flags.includes('XD'))) {
+        boardingBadge += '<span class="boarding-badge" title="Diensthalt">XD</span>';
+      }
       
       const stopNameStyle = stop.cancelled ? 'text-decoration: line-through; color: #555;' : '';
       

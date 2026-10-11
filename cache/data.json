@@ -1,294 +1,1317 @@
 {
-  "stations": [
-    {
-      "id": "C:FWF:OF",
-      "name": "Otelfingen FWF",
-      "departures": [],
-      "arrivals": []
-    },
-    {
-      "id": "C:FWF:OFS",
-      "name": "Otelfingen Süd",
-      "departures": [],
-      "arrivals": []
-    },
-    {
-      "id": "C:GB:SPFG",
-      "name": "Südpol / Freigleis",
-      "departures": [],
-      "arrivals": [
+    "stations": [
         {
-          "tripId": "custom_pinu_t_1527",
-          "line": "PEX",
-          "tripNumber": "4",
-          "agency": "GB",
-          "origin": "Luzern Todeskreisel",
-          "scheduled": 1789971900,
-          "track": "1",
-          "mode": "RAIL",
-          "trip": {
-            "agency": {
-              "id": "GB",
-              "name": "GianBus"
-            },
-            "stops": [
-              {
-                "stopId": "C:GB:LZPU",
-                "name": "Luzern Bahnhof / Postunterführung",
-                "departureLive": null,
-                "departureSched": null,
-                "arrivalSched": 1789971000,
-                "arrivalLive": 1789971000,
-                "track": "1",
-                "legIndex": null
-              },
-              {
-                "stopId": "C:GB:LZTK",
-                "name": "Luzern Todeskreisel",
-                "departureLive": 1789971360,
-                "departureSched": 1789971360,
-                "arrivalSched": 1789971360,
-                "arrivalLive": 1789971360,
-                "track": "1",
-                "legIndex": 0
-              },
-              {
-                "stopId": "C:GB:SPFG",
-                "name": "Südpol / Freigleis",
-                "departureLive": 1789971900,
-                "departureSched": 1789971900,
-                "arrivalSched": 1789971900,
-                "arrivalLive": 1789971900,
-                "track": "1",
-                "legIndex": 1
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "id": "C:GB:LZPU",
-      "name": "Luzern Bahnhof / Postunterführung",
-      "departures": [
+            "id": "C:FWF:OF",
+            "name": "Otelfingen FWF",
+            "departures": [],
+            "arrivals": []
+        },
         {
-          "tripId": "custom_pinu_t_1527",
-          "line": "PEX",
-          "tripNumber": "4",
-          "agency": "GB",
-          "destination": "Südpol / Freigleis",
-          "scheduled": 1789971000,
-          "track": "1",
-          "mode": "RAIL",
-          "trip": {
-            "agency": {
-              "id": "GB",
-              "name": "GianBus"
-            },
-            "stops": [
-              {
-                "stopId": "C:GB:LZPU",
-                "name": "Luzern Bahnhof / Postunterführung",
-                "departureLive": null,
-                "departureSched": null,
-                "arrivalSched": 1789971000,
-                "arrivalLive": 1789971000,
-                "track": "1",
-                "legIndex": null
-              },
-              {
-                "stopId": "C:GB:LZTK",
-                "name": "Luzern Todeskreisel",
-                "departureLive": 1789971360,
-                "departureSched": 1789971360,
-                "arrivalSched": 1789971360,
-                "arrivalLive": 1789971360,
-                "track": "1",
-                "legIndex": 0
-              },
-              {
-                "stopId": "C:GB:SPFG",
-                "name": "Südpol / Freigleis",
-                "departureLive": 1789971900,
-                "departureSched": 1789971900,
-                "arrivalSched": 1789971900,
-                "arrivalLive": 1789971900,
-                "track": "1",
-                "legIndex": 1
-              }
-            ]
-          }
-        }
-      ],
-      "arrivals": []
-    },
-    {
-      "id": "C:GB:LZTK",
-      "name": "Luzern Todeskreisel",
-      "departures": [
+            "id": "C:FWF:OFS",
+            "name": "Otelfingen Süd",
+            "departures": [],
+            "arrivals": []
+        },
         {
-          "tripId": "custom_pinu_t_1527",
-          "line": "PEX",
-          "tripNumber": "4",
-          "agency": "GB",
-          "destination": "Südpol / Freigleis",
-          "scheduled": 1789971360,
-          "track": "1",
-          "mode": "RAIL",
-          "trip": {
-            "agency": {
-              "id": "GB",
-              "name": "GianBus"
-            },
-            "stops": [
-              {
-                "stopId": "C:GB:LZPU",
-                "name": "Luzern Bahnhof / Postunterführung",
-                "departureLive": null,
-                "departureSched": null,
-                "arrivalSched": 1789971000,
-                "arrivalLive": 1789971000,
-                "track": "1",
-                "legIndex": null
-              },
-              {
-                "stopId": "C:GB:LZTK",
-                "name": "Luzern Todeskreisel",
-                "departureLive": 1789971360,
-                "departureSched": 1789971360,
-                "arrivalSched": 1789971360,
-                "arrivalLive": 1789971360,
-                "track": "1",
-                "legIndex": 0
-              },
-              {
-                "stopId": "C:GB:SPFG",
-                "name": "Südpol / Freigleis",
-                "departureLive": 1789971900,
-                "departureSched": 1789971900,
-                "arrivalSched": 1789971900,
-                "arrivalLive": 1789971900,
-                "track": "1",
-                "legIndex": 1
-              }
+            "id": "C:GB:SPFG",
+            "name": "Südpol / Freigleis",
+            "departures": [],
+            "arrivals": [
+                {
+                    "tripId": "custom_pinu_t_1527",
+                    "line": "PEX",
+                    "tripNumber": "4",
+                    "agency": "GB",
+                    "origin": "Luzern Bahnhof / Postunterführung",
+                    "scheduled": 1789971900,
+                    "live": 1789971780,
+                    "delaySec": -120,
+                    "delayMin": -2,
+                    "cancelled": false,
+                    "track": "1",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "custom_pinu_t_1527",
+                        "line": "PEX",
+                        "tripNumber": "4",
+                        "destination": "Südpol / Freigleis",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "GB",
+                            "name": "GianBus"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "C:GB:LZPU",
+                                "name": "Luzern Bahnhof / Postunterführung",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1789971000,
+                                "departureLive": 1789971000,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:LZTK",
+                                "name": "Luzern Todeskreisel",
+                                "arrivalSched": 1789971360,
+                                "arrivalLive": 1789971360,
+                                "departureSched": 1789971360,
+                                "departureLive": 1789971360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:SPFG",
+                                "name": "Südpol / Freigleis",
+                                "arrivalSched": 1789971900,
+                                "arrivalLive": 1789971780,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": -120,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "PEX",
+                                "tripNumber": "4",
+                                "destination": "Südpol / Freigleis"
+                            }
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ],
-      "arrivals": [
+        },
         {
-          "tripId": "custom_pinu_t_1527",
-          "line": "PEX",
-          "tripNumber": "4",
-          "agency": "GB",
-          "origin": "Luzern Bahnhof / Postunterführung",
-          "scheduled": 1789971360,
-          "track": "1",
-          "mode": "RAIL",
-          "trip": {
-            "agency": {
-              "id": "GB",
-              "name": "GianBus"
-            },
-            "stops": [
-              {
-                "stopId": "C:GB:LZPU",
-                "name": "Luzern Bahnhof / Postunterführung",
-                "departureLive": null,
-                "departureSched": null,
-                "arrivalSched": 1789971000,
-                "arrivalLive": 1789971000,
-                "track": "1",
-                "legIndex": null
-              },
-              {
-                "stopId": "C:GB:LZTK",
-                "name": "Luzern Todeskreisel",
-                "departureLive": 1789971360,
-                "departureSched": 1789971360,
-                "arrivalSched": 1789971360,
-                "arrivalLive": 1789971360,
-                "track": "1",
-                "legIndex": 0
-              },
-              {
-                "stopId": "C:GB:SPFG",
-                "name": "Südpol / Freigleis",
-                "departureLive": 1789971900,
-                "departureSched": 1789971900,
-                "arrivalSched": 1789971900,
-                "arrivalLive": 1789971900,
-                "track": "1",
-                "legIndex": 1
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
-      "name": "Yverdon-les-Bains",
-      "departures": [
+            "id": "C:GB:LZPU",
+            "name": "Luzern Bahnhof / Postunterführung",
+            "departures": [
+                {
+                    "tripId": "custom_pinu_t_1527",
+                    "line": "PEX",
+                    "tripNumber": "4",
+                    "agency": "GB",
+                    "destination": "Südpol / Freigleis",
+                    "scheduled": 1789971000,
+                    "live": 1789971000,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": false,
+                    "track": "1",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "custom_pinu_t_1527",
+                        "line": "PEX",
+                        "tripNumber": "4",
+                        "destination": "Südpol / Freigleis",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "GB",
+                            "name": "GianBus"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "C:GB:LZPU",
+                                "name": "Luzern Bahnhof / Postunterführung",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1789971000,
+                                "departureLive": 1789971000,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:LZTK",
+                                "name": "Luzern Todeskreisel",
+                                "arrivalSched": 1789971360,
+                                "arrivalLive": 1789971360,
+                                "departureSched": 1789971360,
+                                "departureLive": 1789971360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:SPFG",
+                                "name": "Südpol / Freigleis",
+                                "arrivalSched": 1789971900,
+                                "arrivalLive": 1789971780,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": -120,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "PEX",
+                                "tripNumber": "4",
+                                "destination": "Südpol / Freigleis"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "arrivals": []
+        },
         {
-          "tripId": "ch:1:sjyid:101239:31501-001",
-          "line": "EXT",
-          "tripNumber": "31501",
-          "agency": "9013",
-          "destination": "Fribourg/Freiburg Poya",
-          "scheduled": "2026-10-10T11:37:00+02:00",
-          "live": "2026-10-10T11:39:06+02:00",
-          "delaySec": 126,
-          "delayMin": 2,
-          "track": "3",
-          "mode": "RAIL",
-          "trip": {
-            "agency": {
-              "id": "9013",
-              "name": "Schweizerische Bundesbahnen SBB"
-            },
-            "stops": [
-              {
-                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
-                "name": "Murten/Morat",
-                "departureSched": "2026-10-10T10:23:00+02:00",
-                "departureLive": "2026-10-10T10:24:16+02:00",
-                "track": "3",
-                "legIndex": 0
-              },
-              {
-                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
-                "name": "Yverdon-les-Bains",
-                "arrivalSched": "2026-10-10T11:19:00+02:00",
-                "arrivalLive": "2026-10-10T11:21:00+02:00",
-                "departureSched": "2026-10-10T11:37:00+02:00",
-                "departureLive": "2026-10-10T11:39:06+02:00",
-                "track": "3",
-                "legIndex": 0
-              },
-              {
-                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
-                "name": "Lausanne",
-                "arrivalSched": "2026-10-10T12:19:00+02:00",
-                "arrivalLive": "2026-10-10T12:20:00+02:00",
-                "departureSched": "2026-10-10T13:06:00+02:00",
-                "departureLive": "2026-10-10T13:06:12+02:00",
-                "track": "8",
-                "legIndex": 0
-              },
-              {
-                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
-                "name": "Fribourg/Freiburg Poya",
-                "arrivalSched": "2026-10-10T14:18:00+02:00",
-                "arrivalLive": "2026-10-10T14:18:00+02:00",
-                "track": "1",
-                "legIndex": 0
-              }
+            "id": "C:GB:LZTK",
+            "name": "Luzern Todeskreisel",
+            "departures": [
+                {
+                    "tripId": "custom_pinu_t_1527",
+                    "line": "PEX",
+                    "tripNumber": "4",
+                    "agency": "GB",
+                    "destination": "Südpol / Freigleis",
+                    "scheduled": 1789971360,
+                    "live": 1789971360,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "1",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "custom_pinu_t_1527",
+                        "line": "PEX",
+                        "tripNumber": "4",
+                        "destination": "Südpol / Freigleis",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "GB",
+                            "name": "GianBus"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "C:GB:LZPU",
+                                "name": "Luzern Bahnhof / Postunterführung",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1789971000,
+                                "departureLive": 1789971000,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:LZTK",
+                                "name": "Luzern Todeskreisel",
+                                "arrivalSched": 1789971360,
+                                "arrivalLive": 1789971360,
+                                "departureSched": 1789971360,
+                                "departureLive": 1789971360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:SPFG",
+                                "name": "Südpol / Freigleis",
+                                "arrivalSched": 1789971900,
+                                "arrivalLive": 1789971780,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": -120,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "PEX",
+                                "tripNumber": "4",
+                                "destination": "Südpol / Freigleis"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "arrivals": [
+                {
+                    "tripId": "custom_pinu_t_1527",
+                    "line": "PEX",
+                    "tripNumber": "4",
+                    "agency": "GB",
+                    "origin": "Luzern Bahnhof / Postunterführung",
+                    "scheduled": 1789971360,
+                    "live": 1789971360,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "1",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "custom_pinu_t_1527",
+                        "line": "PEX",
+                        "tripNumber": "4",
+                        "destination": "Südpol / Freigleis",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "GB",
+                            "name": "GianBus"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "C:GB:LZPU",
+                                "name": "Luzern Bahnhof / Postunterführung",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1789971000,
+                                "departureLive": 1789971000,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:LZTK",
+                                "name": "Luzern Todeskreisel",
+                                "arrivalSched": 1789971360,
+                                "arrivalLive": 1789971360,
+                                "departureSched": 1789971360,
+                                "departureLive": 1789971360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "C:GB:SPFG",
+                                "name": "Südpol / Freigleis",
+                                "arrivalSched": 1789971900,
+                                "arrivalLive": 1789971780,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": -120,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "PEX",
+                                "tripNumber": "4",
+                                "destination": "Südpol / Freigleis"
+                            }
+                        ]
+                    }
+                }
             ]
-          }
+        },
+        {
+            "id": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+            "name": "Däniken RB",
+            "departures": [
+                {
+                    "tripId": "ch:1:sjyid:100001:36233-001",
+                    "line": "MAT",
+                    "tripNumber": "36233",
+                    "agency": "11",
+                    "destination": "Aarau",
+                    "scheduled": 1791632550,
+                    "live": 1791632550,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:100001:36233-001",
+                        "line": "MAT",
+                        "tripNumber": "36233",
+                        "destination": "Aarau",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "11",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": true,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+                                "name": "Däniken RB",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791632550,
+                                "departureLive": 1791632550,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+                                "name": "Aarau",
+                                "arrivalSched": 1791632940,
+                                "arrivalLive": 1791632940,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "MAT",
+                                "tripNumber": "36233",
+                                "destination": "Aarau"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "arrivals": [
+                {
+                    "tripId": "ch:1:sjyid:100001:36234-001",
+                    "line": "MAT",
+                    "tripNumber": "36234",
+                    "agency": "11",
+                    "origin": "Aarau",
+                    "scheduled": 1791634440,
+                    "live": 1791634440,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:100001:36234-001",
+                        "line": "MAT",
+                        "tripNumber": "36234",
+                        "destination": "Däniken RB",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "11",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": true,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+                                "name": "Aarau",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791634074,
+                                "departureLive": 1791634074,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+                                "name": "Däniken RB",
+                                "arrivalSched": 1791634440,
+                                "arrivalLive": 1791634440,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "MAT",
+                                "tripNumber": "36234",
+                                "destination": "Däniken RB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "abbrev": "DKRB",
+            "lat": 47.3534202727098,
+            "lon": 7.97128541429
+        },
+        {
+            "id": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+            "name": "Aarau",
+            "departures": [
+                {
+                    "tripId": "ch:1:sjyid:100001:36234-001",
+                    "line": "MAT",
+                    "tripNumber": "36234",
+                    "agency": "11",
+                    "destination": "Däniken RB",
+                    "scheduled": 1791634074,
+                    "live": 1791634074,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:100001:36234-001",
+                        "line": "MAT",
+                        "tripNumber": "36234",
+                        "destination": "Däniken RB",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "11",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": true,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+                                "name": "Aarau",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791634074,
+                                "departureLive": 1791634074,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+                                "name": "Däniken RB",
+                                "arrivalSched": 1791634440,
+                                "arrivalLive": 1791634440,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "MAT",
+                                "tripNumber": "36234",
+                                "destination": "Däniken RB"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "arrivals": [
+                {
+                    "tripId": "ch:1:sjyid:100001:36233-001",
+                    "line": "MAT",
+                    "tripNumber": "36233",
+                    "agency": "11",
+                    "origin": "Däniken RB",
+                    "scheduled": 1791632940,
+                    "live": 1791632940,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": true,
+                    "track": "",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:100001:36233-001",
+                        "line": "MAT",
+                        "tripNumber": "36233",
+                        "destination": "Aarau",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "11",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": true,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:16159",
+                                "name": "Däniken RB",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791632550,
+                                "departureLive": 1791632550,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:2113",
+                                "name": "Aarau",
+                                "arrivalSched": 1791632940,
+                                "arrivalLive": 1791632940,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "",
+                                "legIndex": 0,
+                                "flags": [
+                                    "AUSFALL",
+                                    "XD"
+                                ],
+                                "cancelled": true,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "MAT",
+                                "tripNumber": "36233",
+                                "destination": "Aarau"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "abbrev": "AA"
+        },
+        {
+            "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+            "name": "Murten/Morat",
+            "departures": [
+                {
+                    "tripId": "ch:1:sjyid:101239:31501-001",
+                    "line": "EXT",
+                    "tripNumber": "31501",
+                    "agency": "9013",
+                    "destination": "Fribourg/Freiburg Poya",
+                    "scheduled": 1791620580,
+                    "live": 1791620580,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": false,
+                    "track": "3",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:101239:31501-001",
+                        "line": "EXT",
+                        "tripNumber": "31501",
+                        "destination": "Fribourg/Freiburg Poya",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "9013",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+                                "name": "Murten/Morat",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791620580,
+                                "departureLive": 1791620580,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
+                                "name": "Yverdon-les-Bains",
+                                "arrivalSched": 1791623940,
+                                "arrivalLive": 1791623940,
+                                "departureSched": 1791625020,
+                                "departureLive": 1791625020,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+                                "name": "Lausanne",
+                                "arrivalSched": 1791627540,
+                                "arrivalLive": 1791627540,
+                                "departureSched": 1791630360,
+                                "departureLive": 1791630360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "8",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+                                "name": "Fribourg/Freiburg Poya",
+                                "arrivalSched": 1791634680,
+                                "arrivalLive": 1791634680,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "EXT",
+                                "tripNumber": "31501",
+                                "destination": "Fribourg/Freiburg Poya"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "arrivals": [],
+            "abbrev": "MRT"
+        },
+        {
+            "id": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+            "name": "Lausanne",
+            "departures": [
+                {
+                    "tripId": "ch:1:sjyid:101239:31501-001",
+                    "line": "EXT",
+                    "tripNumber": "31501",
+                    "agency": "9013",
+                    "destination": "Fribourg/Freiburg Poya",
+                    "scheduled": 1791630360,
+                    "live": 1791630360,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": false,
+                    "track": "8",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:101239:31501-001",
+                        "line": "EXT",
+                        "tripNumber": "31501",
+                        "destination": "Fribourg/Freiburg Poya",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "9013",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+                                "name": "Murten/Morat",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791620580,
+                                "departureLive": 1791620580,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
+                                "name": "Yverdon-les-Bains",
+                                "arrivalSched": 1791623940,
+                                "arrivalLive": 1791623940,
+                                "departureSched": 1791625020,
+                                "departureLive": 1791625020,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+                                "name": "Lausanne",
+                                "arrivalSched": 1791627540,
+                                "arrivalLive": 1791627540,
+                                "departureSched": 1791630360,
+                                "departureLive": 1791630360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "8",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+                                "name": "Fribourg/Freiburg Poya",
+                                "arrivalSched": 1791634680,
+                                "arrivalLive": 1791634680,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "EXT",
+                                "tripNumber": "31501",
+                                "destination": "Fribourg/Freiburg Poya"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "arrivals": [
+                {
+                    "tripId": "ch:1:sjyid:101239:31501-001",
+                    "line": "EXT",
+                    "tripNumber": "31501",
+                    "agency": "9013",
+                    "origin": "Murten/Morat",
+                    "scheduled": 1791627540,
+                    "live": 1791627540,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": false,
+                    "track": "8",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:101239:31501-001",
+                        "line": "EXT",
+                        "tripNumber": "31501",
+                        "destination": "Fribourg/Freiburg Poya",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "9013",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+                                "name": "Murten/Morat",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791620580,
+                                "departureLive": 1791620580,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
+                                "name": "Yverdon-les-Bains",
+                                "arrivalSched": 1791623940,
+                                "arrivalLive": 1791623940,
+                                "departureSched": 1791625020,
+                                "departureLive": 1791625020,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+                                "name": "Lausanne",
+                                "arrivalSched": 1791627540,
+                                "arrivalLive": 1791627540,
+                                "departureSched": 1791630360,
+                                "departureLive": 1791630360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "8",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+                                "name": "Fribourg/Freiburg Poya",
+                                "arrivalSched": 1791634680,
+                                "arrivalLive": 1791634680,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "EXT",
+                                "tripNumber": "31501",
+                                "destination": "Fribourg/Freiburg Poya"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "abbrev": "LS"
+        },
+        {
+            "id": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+            "name": "Fribourg/Freiburg Poya",
+            "departures": [],
+            "arrivals": [
+                {
+                    "tripId": "ch:1:sjyid:101239:31501-001",
+                    "line": "EXT",
+                    "tripNumber": "31501",
+                    "agency": "9013",
+                    "origin": "Murten/Morat",
+                    "scheduled": 1791634680,
+                    "live": 1791634680,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": false,
+                    "track": "1",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:101239:31501-001",
+                        "line": "EXT",
+                        "tripNumber": "31501",
+                        "destination": "Fribourg/Freiburg Poya",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "9013",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+                                "name": "Murten/Morat",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791620580,
+                                "departureLive": 1791620580,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
+                                "name": "Yverdon-les-Bains",
+                                "arrivalSched": 1791623940,
+                                "arrivalLive": 1791623940,
+                                "departureSched": 1791625020,
+                                "departureLive": 1791625020,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+                                "name": "Lausanne",
+                                "arrivalSched": 1791627540,
+                                "arrivalLive": 1791627540,
+                                "departureSched": 1791630360,
+                                "departureLive": 1791630360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "8",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+                                "name": "Fribourg/Freiburg Poya",
+                                "arrivalSched": 1791634680,
+                                "arrivalLive": 1791634680,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "EXT",
+                                "tripNumber": "31501",
+                                "destination": "Fribourg/Freiburg Poya"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "abbrev": "FRPO"
+        },
+        {
+            "id": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
+            "name": "Yverdon-les-Bains",
+            "departures": [
+                {
+                    "tripId": "ch:1:sjyid:101239:31501-001",
+                    "line": "EXT",
+                    "tripNumber": "31501",
+                    "agency": "9013",
+                    "destination": "Fribourg/Freiburg Poya",
+                    "scheduled": 1791625020,
+                    "live": 1791625020,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": false,
+                    "track": "3",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:101239:31501-001",
+                        "line": "EXT",
+                        "tripNumber": "31501",
+                        "destination": "Fribourg/Freiburg Poya",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "9013",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+                                "name": "Murten/Morat",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791620580,
+                                "departureLive": 1791620580,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
+                                "name": "Yverdon-les-Bains",
+                                "arrivalSched": 1791623940,
+                                "arrivalLive": 1791623940,
+                                "departureSched": 1791625020,
+                                "departureLive": 1791625020,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+                                "name": "Lausanne",
+                                "arrivalSched": 1791627540,
+                                "arrivalLive": 1791627540,
+                                "departureSched": 1791630360,
+                                "departureLive": 1791630360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "8",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+                                "name": "Fribourg/Freiburg Poya",
+                                "arrivalSched": 1791634680,
+                                "arrivalLive": 1791634680,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "EXT",
+                                "tripNumber": "31501",
+                                "destination": "Fribourg/Freiburg Poya"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "arrivals": [
+                {
+                    "tripId": "ch:1:sjyid:101239:31501-001",
+                    "line": "EXT",
+                    "tripNumber": "31501",
+                    "agency": "9013",
+                    "origin": "Murten/Morat",
+                    "scheduled": 1791623940,
+                    "live": 1791623940,
+                    "delaySec": 0,
+                    "delayMin": 0,
+                    "cancelled": false,
+                    "track": "3",
+                    "mode": "RAIL",
+                    "trip": {
+                        "tripId": "ch:1:sjyid:101239:31501-001",
+                        "line": "EXT",
+                        "tripNumber": "31501",
+                        "destination": "Fribourg/Freiburg Poya",
+                        "mode": "RAIL",
+                        "agency": {
+                            "id": "9013",
+                            "name": "Schweizerische Bundesbahnen SBB"
+                        },
+                        "cancelled": false,
+                        "stops": [
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4128",
+                                "name": "Murten/Morat",
+                                "arrivalSched": null,
+                                "arrivalLive": null,
+                                "departureSched": 1791620580,
+                                "departureLive": 1791620580,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:4200",
+                                "name": "Yverdon-les-Bains",
+                                "arrivalSched": 1791623940,
+                                "arrivalLive": 1791623940,
+                                "departureSched": 1791625020,
+                                "departureLive": 1791625020,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "3",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:1120",
+                                "name": "Lausanne",
+                                "arrivalSched": 1791627540,
+                                "arrivalLive": 1791627540,
+                                "departureSched": 1791630360,
+                                "departureLive": 1791630360,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "8",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            },
+                            {
+                                "stopId": "ch-opentransportdataswiss26_Parentch:1:sloid:19133",
+                                "name": "Fribourg/Freiburg Poya",
+                                "arrivalSched": 1791634680,
+                                "arrivalLive": 1791634680,
+                                "departureSched": null,
+                                "departureLive": null,
+                                "arrivalDelaySec": 0,
+                                "departureDelaySec": 0,
+                                "track": "1",
+                                "legIndex": 0,
+                                "flags": [],
+                                "cancelled": false,
+                                "pickupType": "ALLOWED",
+                                "dropoffType": "ALLOWED"
+                            }
+                        ],
+                        "legInfos": [
+                            {
+                                "line": "EXT",
+                                "tripNumber": "31501",
+                                "destination": "Fribourg/Freiburg Poya"
+                            }
+                        ]
+                    }
+                }
+            ]
         }
-      ],
-      "arrivals": []
-    }
-  ]
+    ]
 }
