@@ -52,7 +52,7 @@
   background-size: 56.57px 100%;}
 
 /* 2. Agency-allgemein (mittler spezifisch) */
-.line-container[data-agency-id="865"] { background: #e2001a; color: white; } /* RhB */
+.line-container[data-agency-name*="Rhätische"] { background: #e2001a; color: white; } /* RhB */
 .line-container[data-agency-name^="PostAuto"] { background: #ffcc00; color: black; } /* PAG */
 
 /* 3. Agency + Line (sehr spezifisch - gewinnt immer) */
@@ -101,8 +101,8 @@
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="325"] { background: #e82788; color: white; }
 
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"], .line-container[data-agency-name^="Verkehrsbetriebe Zürich"] { background: white; color: black; }
-.line-container[data-agency-id="Zürich"][data-line="E"] { background: white; color: black; border: solid 1px rgb(144,190,227); }
-.line-container[data-agency-id="46"][data-line="18"] { background: #E94F35; color: white; }
+.line-container[data-agency-name*="Zürich"][data-line="E"] { background: white; color: black; border: solid 1px rgb(144,190,227); }
+.line-container[data-agency-name^="Forchbahn"][data-line="18"] { background: #E94F35; color: white; }
 
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="N"] {color:rgb(255,242,0); background-color:rgb(0,0,0);} /* VBZ Nachtnetz */
 
@@ -189,74 +189,74 @@
 .line-container[data-agency-name="Bus und Service AG (Chur)"][data-line="12"] { background: #009C55; color: white; }
 .line-container[data-agency-name="Bus und Service AG (Chur)"][data-line="18"] { background: #C55807; color: white; }
 /* STI Bus */
-.line-container[data-agency-id="146"][data-line="1"] { background: rgb(209,70,53); color: white; }
-.line-container[data-agency-id="146"][data-line="2"] { background: rgb(62,53,127); color: white; }
-.line-container[data-agency-id="146"][data-line="3"] { background: rgb(145,94,70); color: white; }
-.line-container[data-agency-id="146"][data-line="4"] { background: rgb(74,165,97); color: white; }
-.line-container[data-agency-id="146"][data-line="5"] { background: rgb(76,168,161); color: black; }
-.line-container[data-agency-id="146"][data-line="6"] { background: rgb(196,41,127); color: white; }
-.line-container[data-agency-id="146"][data-line="7"] { background: rgb(124,58,174); color: white; }
+.line-container[data-agency-name*="STI"][data-line="1"] { background: rgb(209,70,53); color: white; }
+.line-container[data-agency-name*="STI"][data-line="2"] { background: rgb(62,53,127); color: white; }
+.line-container[data-agency-name*="STI"][data-line="3"] { background: rgb(145,94,70); color: white; }
+.line-container[data-agency-name*="STI"][data-line="4"] { background: rgb(74,165,97); color: white; }
+.line-container[data-agency-name*="STI"][data-line="5"] { background: rgb(76,168,161); color: black; }
+.line-container[data-agency-name*="STI"][data-line="6"] { background: rgb(196,41,127); color: white; }
+.line-container[data-agency-name*="STI"][data-line="7"] { background: rgb(124,58,174); color: white; }
 
-.line-container[data-agency-id="146"][data-line="21"] { background: rgb(72,161,208); color: white; }
-.line-container[data-agency-id="146"][data-line="22"] { background: rgb(247,201,143); color: white; }
-.line-container[data-agency-id="146"][data-line="24"] { background: rgb(227,152,191); color: white; }
-.line-container[data-agency-id="146"][data-line="25"] { background: rgb(91,39,36); color: white; }
-.line-container[data-agency-id="146"][data-line="31"] { background: rgb(166,83,183); color: white; }
-.line-container[data-agency-id="146"][data-line="32"] { background: rgb(198,220,88); color: white; }
-.line-container[data-agency-id="146"][data-line="33"] { background: rgb(242,168,151); color: white; }
-.line-container[data-agency-id="146"][data-line="41"] { background: rgb(121,160,182); color: white; }
-.line-container[data-agency-id="146"][data-line="42"] { background: rgb(165,161,75); color: white; }
-.line-container[data-agency-id="146"][data-line="43"] { background: rgb(246,205,73); color: white; }
-.line-container[data-agency-id="146"][data-line="44"] { background: rgb(131,30,129); color: white; }
-.line-container[data-agency-id="146"][data-line="50"] { background: rgb(176,166,222); color: white; }
-.line-container[data-agency-id="146"][data-line="51"] { background: rgb(232,153,55); color: white; }
-.line-container[data-agency-id="146"][data-line="53"] { background: rgb(153,221,201); color: white; }
-.line-container[data-agency-id="146"][data-line="55"] { background: rgb(115,188,57); color: white; }
-.line-container[data-agency-id="146"][data-line="252"] { background: rgb(123,22,67); color: white; }
+.line-container[data-agency-name*="STI"][data-line="21"] { background: rgb(72,161,208); color: white; }
+.line-container[data-agency-name*="STI"][data-line="22"] { background: rgb(247,201,143); color: white; }
+.line-container[data-agency-name*="STI"][data-line="24"] { background: rgb(227,152,191); color: white; }
+.line-container[data-agency-name*="STI"][data-line="25"] { background: rgb(91,39,36); color: white; }
+.line-container[data-agency-name*="STI"][data-line="31"] { background: rgb(166,83,183); color: white; }
+.line-container[data-agency-name*="STI"][data-line="32"] { background: rgb(198,220,88); color: white; }
+.line-container[data-agency-name*="STI"][data-line="33"] { background: rgb(242,168,151); color: white; }
+.line-container[data-agency-name*="STI"][data-line="41"] { background: rgb(121,160,182); color: white; }
+.line-container[data-agency-name*="STI"][data-line="42"] { background: rgb(165,161,75); color: white; }
+.line-container[data-agency-name*="STI"][data-line="43"] { background: rgb(246,205,73); color: white; }
+.line-container[data-agency-name*="STI"][data-line="44"] { background: rgb(131,30,129); color: white; }
+.line-container[data-agency-name*="STI"][data-line="50"] { background: rgb(176,166,222); color: white; }
+.line-container[data-agency-name*="STI"][data-line="51"] { background: rgb(232,153,55); color: white; }
+.line-container[data-agency-name*="STI"][data-line="53"] { background: rgb(153,221,201); color: white; }
+.line-container[data-agency-name*="STI"][data-line="55"] { background: rgb(115,188,57); color: white; }
+.line-container[data-agency-name*="STI"][data-line="252"] { background: rgb(123,22,67); color: white; }
 
 /* STI Bus Grindelwald */
-.line-container[data-agency-id="859"][data-line="120"] { background: rgb(230,143,52); color: white; }
-.line-container[data-agency-id="859"][data-line="121"] { background: rgb(56,77,157); color: white; }
-.line-container[data-agency-id="859"][data-line="122"] { background: rgb(170,42,41); color: white; }
-.line-container[data-agency-id="859"][data-line="123"] { background: rgb(215,183,68); color: white; }
-.line-container[data-agency-id="859"][data-line="124"] { background: rgb(124,169,77); color: white; }
-.line-container[data-agency-id="859"][data-line="125"] { background: rgb(140,187,231); color: white; }
-.line-container[data-agency-id="859"][data-line="126"] { background: rgb(186,116,168); color: white; }
-.line-container[data-agency-id="859"][data-line="127"] { background: rgb(106,80,143); color: white; }
-.line-container[data-agency-id="859"][data-line="128"] { background: rgb(123,174,82); color: white; }
+.line-container[data-agency-name*="STI"][data-line="120"] { background: rgb(230,143,52); color: white; }
+.line-container[data-agency-name*="STI"][data-line="121"] { background: rgb(56,77,157); color: white; }
+.line-container[data-agency-name*="STI"][data-line="122"] { background: rgb(170,42,41); color: white; }
+.line-container[data-agency-name*="STI"][data-line="123"] { background: rgb(215,183,68); color: white; }
+.line-container[data-agency-name*="STI"][data-line="124"] { background: rgb(124,169,77); color: white; }
+.line-container[data-agency-name*="STI"][data-line="125"] { background: rgb(140,187,231); color: white; }
+.line-container[data-agency-name*="STI"][data-line="126"] { background: rgb(186,116,168); color: white; }
+.line-container[data-agency-name*="STI"][data-line="127"] { background: rgb(106,80,143); color: white; }
+.line-container[data-agency-name*="STI"][data-line="128"] { background: rgb(123,174,82); color: white; }
 
 /* Automobilverkehr Frutigen-Adelboden / LENK / AFA */
 /* Region Kandertal & Adelboden */
-.line-container[data-agency-id="813"][data-line="230"] { background: rgb(89, 255, 153); color: white; }
-.line-container[data-agency-id="813"][data-line="232"] { background: rgb(71, 77, 5); color: white; }
-.line-container[data-agency-id="813"][data-line="235"] { background: rgb(152, 195, 195); color: white; }
-.line-container[data-agency-id="813"][data-line="236"] { background: rgb(230, 34, 0); color: white; }
-.line-container[data-agency-id="813"][data-line="237"] { background: rgb(115, 0, 96); color: white; }
-.line-container[data-agency-id="813"][data-line="241"] { background: rgb(115, 0, 96); color: white; }
-.line-container[data-agency-id="813"][data-line="242"] { background: rgb(152, 170, 9); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="230"] { background: rgb(89, 255, 153); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="232"] { background: rgb(71, 77, 5); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="235"] { background: rgb(152, 195, 195); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="236"] { background: rgb(230, 34, 0); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="237"] { background: rgb(115, 0, 96); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="241"] { background: rgb(115, 0, 96); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="242"] { background: rgb(152, 170, 9); color: white; }
 /* Region Lenk & Simmental */
-.line-container[data-agency-id="813"][data-line="271"] { background: rgb(239, 69, 25); color: white; }
-.line-container[data-agency-id="813"][data-line="275"] { background: rgb(0, 108, 183); color: white; }
-.line-container[data-agency-id="813"][data-line="280"] { background: rgb(255, 140, 13); color: white; }
-.line-container[data-agency-id="813"][data-line="281"] { background: rgb(155, 0, 96); color: white; }
-.line-container[data-agency-id="813"][data-line="282"] { background: rgb(71, 77, 5); color: white; }
-.line-container[data-agency-id="813"][data-line="283"] { background: rgb(152, 195, 195); color: white; }
-.line-container[data-agency-id="813"][data-line="284"] { background: rgb(152, 170, 9); color: white; }
-.line-container[data-agency-id="813"][data-line="289"] { background: rgb(255, 38, 0); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="271"] { background: rgb(239, 69, 25); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="275"] { background: rgb(0, 108, 183); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="280"] { background: rgb(255, 140, 13); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="281"] { background: rgb(155, 0, 96); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="282"] { background: rgb(71, 77, 5); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="283"] { background: rgb(152, 195, 195); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="284"] { background: rgb(152, 170, 9); color: white; }
+.line-container[data-agency-name^="AFA"][data-line="289"] { background: rgb(255, 38, 0); color: white; }
 /* FART Bus */
-.line-container[data-agency-id="817"] { background: rgb(155,155,154); color: white; }
+.line-container[data-agency-name*="FART"] { background: rgb(155,155,154); color: white; }
 
-.line-container[data-agency-id="817"][data-line="1"] { background: rgb(211,58,49); color: white; }
-.line-container[data-agency-id="817"][data-line="3"] { background: rgb(247,206,70); color: black; }
-.line-container[data-agency-id="817"][data-line="4"] { background: rgb(224,131,48); color: black; }
-.line-container[data-agency-id="817"][data-line="7"] { background: rgb(95,153,208); color: black; }
-.line-container[data-agency-id="817"][data-line="8"] { background: rgb(212,218,101); color: black; }
+.line-container[data-agency-name*="FART"][data-line="1"] { background: rgb(211,58,49); color: white; }
+.line-container[data-agency-name*="FART"][data-line="3"] { background: rgb(247,206,70); color: black; }
+.line-container[data-agency-name*="FART"][data-line="4"] { background: rgb(224,131,48); color: black; }
+.line-container[data-agency-name*="FART"][data-line="7"] { background: rgb(95,153,208); color: black; }
+.line-container[data-agency-name*="FART"][data-line="8"] { background: rgb(212,218,101); color: black; }
 
 /* --- FART / CENTOVALLI --- */
-.line-container[data-agency-id="49"] { background: linear-gradient(135deg, #005f96 0%, #00906f 100%); color: #f2e7c9; }
-.line-container[data-agency-id="49"][data-line^="PE"] { background: #f4bc1e; color: #000; }
-.line-container[data-agency-id="49"][data-line^="R"] { background: #f2e7c9; color: #084cb9; }
-.line-container[data-agency-id="49"][data-line^="RE"] { background: #f2e7c9; color: var(--sbb-red); }
+.line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"] { background: linear-gradient(135deg, #005f96 0%, #00906f 100%); color: #f2e7c9; }
+.line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"][data-line^="PE"] { background: #f4bc1e; color: #000; }
+.line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"][data-line^="R"] { background: #f2e7c9; color: #084cb9; }
+.line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"][data-line^="RE"] { background: #f2e7c9; color: var(--sbb-red); }
 
 /* FLP Lugano Ponte Tresa */
 .line-container[data-agency-name*="Tresa"] { background: #fff; color: #e95e0c; }
@@ -264,15 +264,15 @@
 .line-container[data-agency-name="Trasporti Pubblici Luganesi SA"] { background: #004B93; color: #62B535; }
 .line-container[data-agency-name="Autolinee Regionali Luganesi"] { background: #e43b2d; color: #fff; }
 /* Bus Aarau */
-.line-container[data-agency-id="840"][data-line="1"] { background: rgb(219,57,49); color: white; }
-.line-container[data-agency-id="840"][data-line="2"] { background: rgb(86,176,88); color: white; }
-.line-container[data-agency-id="840"][data-line="3"] { background: rgb(37,89,165); color: white; }
-.line-container[data-agency-id="840"][data-line="4"] { background: rgb(118,47,139); color: white; }
-.line-container[data-agency-id="840"][data-line="5"] { background: rgb(246,204,71); color: black; }
-.line-container[data-agency-id="840"][data-line="6"] { background: rgb(229,136,70); color: white; }
-.line-container[data-agency-id="840"][data-line="7"] { background: rgb(181,45,137); color: white; }
+.line-container[data-agency-name*="Aarau"][data-line="1"] { background: rgb(219,57,49); color: white; }
+.line-container[data-agency-name*="Aarau"][data-line="2"] { background: rgb(86,176,88); color: white; }
+.line-container[data-agency-name*="Aarau"][data-line="3"] { background: rgb(37,89,165); color: white; }
+.line-container[data-agency-name*="Aarau"][data-line="4"] { background: rgb(118,47,139); color: white; }
+.line-container[data-agency-name*="Aarau"][data-line="5"] { background: rgb(246,204,71); color: black; }
+.line-container[data-agency-name*="Aarau"][data-line="6"] { background: rgb(229,136,70); color: white; }
+.line-container[data-agency-name*="Aarau"][data-line="7"] { background: rgb(181,45,137); color: white; }
 
-.line-container[data-agency-id="840"][data-line^="N"] { background: #231F20; color: #EBE835; }
+.line-container[data-agency-name*="Aarau"][data-line^="N"] { background: #231F20; color: #EBE835; }
 /* BOGG Olten */
 .line-container[data-agency-name^="Busbetrieb Olten"][data-line="501"] { background: #EE0023; color: white; }
 .line-container[data-agency-name^="Busbetrieb Olten"][data-line="502"] { background: #79BE52; color: white; }
@@ -346,45 +346,45 @@
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line="653"] { color: white; background: #94B2C3}
 .line-container[data-agency-name="Zugerland Verkehrsbetriebe"][data-line^="N"] { color: #FFC600; background: #000; } /* Nachtbusse */
 /* Bernmobil + RBS */
-.line-container[data-agency-id="827"][data-line^="3"] { background: #AABDC7; color: white; }
-.line-container[data-agency-id="827"][data-line^="6"] { background: rgb(56,127,196); color: white; }
-.line-container[data-agency-id="827"][data-line^="7"] { background: rgb(208,46,38); color: white; }
-.line-container[data-agency-id="827"][data-line^="8"] { background: rgb(221,118,165); color: white; }
-.line-container[data-agency-id="827"][data-line^="9"] { background: rgb(244,198,67); color: white; }
-.line-container[data-agency-id="827"][data-line="10"] { background: rgb(66,148,75); color: white; }
-.line-container[data-agency-id="827"][data-line="11"] { background: rgb(85,184,234); color: white; }
-.line-container[data-agency-id="827"][data-line="12"] { background: rgb(230,151,54); color: white; }
-.line-container[data-agency-id="827"][data-line="16"] { background: rgb(112,185,171); color: white; }
-.line-container[data-agency-id="827"][data-line="17"] { background: rgb(176,170,55); color: white; }
-.line-container[data-agency-id="827"][data-line="18"] { background: rgb(102,96,34); color: white; }
-.line-container[data-agency-id="827"][data-line="19"] { background: rgb(174,189,199); color: white; }
-.line-container[data-agency-id="827"][data-line="20"] { background: rgb(122,24,64); color: white; }
-.line-container[data-agency-id="827"][data-line="21"] { background: rgb(235,210,70); color: white; }
-.line-container[data-agency-id="827"][data-line="26"] { background: rgb(233,161,60); color: white; }
-.line-container[data-agency-id="827"][data-line="27"] { background: rgb(102,96,34); color: white; }
-.line-container[data-agency-id="827"][data-line="29"] { background: rgb(213,91,88); color: white; }
-.line-container[data-agency-id="827"][data-line="31"] { background: rgb(180,201,65); color: white; }
-.line-container[data-agency-id="827"][data-line="32"] { background: rgb(112,185,171); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line^="3"] { background: #AABDC7; color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line^="6"] { background: rgb(56,127,196); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line^="7"] { background: rgb(208,46,38); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line^="8"] { background: rgb(221,118,165); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line^="9"] { background: rgb(244,198,67); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="10"] { background: rgb(66,148,75); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="11"] { background: rgb(85,184,234); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="12"] { background: rgb(230,151,54); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="16"] { background: rgb(112,185,171); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="17"] { background: rgb(176,170,55); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="18"] { background: rgb(102,96,34); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="19"] { background: rgb(174,189,199); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="20"] { background: rgb(122,24,64); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="21"] { background: rgb(235,210,70); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="26"] { background: rgb(233,161,60); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="27"] { background: rgb(102,96,34); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="29"] { background: rgb(213,91,88); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="31"] { background: rgb(180,201,65); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="32"] { background: rgb(112,185,171); color: white; }
 
-.line-container[data-agency-id="850"][data-line="33"] { background: rgb(102,96,34); color: white; }
-.line-container[data-agency-id="850"][data-line="34"] { background: rgb(72,32,14); color: white; }
-.line-container[data-agency-id="850"][data-line="36"] { background: rgb(112,185,171); color: white; }
-.line-container[data-agency-id="850"][data-line="40"] { background: rgb(112,185,171); color: white; }
-.line-container[data-agency-id="850"][data-line="41"] { background: rgb(213,91,88); color: white; }
-.line-container[data-agency-id="850"][data-line="44"] { background: rgb(102,96,34); color: white; }
-.line-container[data-agency-id="850"][data-line="46"] { background: rgb(176,170,55); color: white; }
-.line-container[data-agency-id="850"][data-line="47"] { background: rgb(213,91,88); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="33"] { background: rgb(102,96,34); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="34"] { background: rgb(72,32,14); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="36"] { background: rgb(112,185,171); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="40"] { background: rgb(112,185,171); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="41"] { background: rgb(213,91,88); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="44"] { background: rgb(102,96,34); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="46"] { background: rgb(176,170,55); color: white; }
+.line-container[data-agency-name*="RBS"][data-line="47"] { background: rgb(213,91,88); color: white; }
 
-.line-container[data-agency-id="827"][data-line="160"] { background: rgb(106,172,70); color: white; }
-.line-container[data-agency-id="827"][data-line="161"] { background: rgb(122,24,64); color: white; }
-.line-container[data-agency-id="827"][data-line="162"] { background: rgb(213,91,88); color: white; }
-.line-container[data-agency-id="827"][data-line="163"] { background: rgb(102,96,34); color: white; }
-.line-container[data-agency-id="827"][data-line="165"] { background: rgb(174,189,199); color: white; }
-.line-container[data-agency-id="827"][data-line="166"] { background: rgb(233,161,60); color: white; }
-.line-container[data-agency-id="827"][data-line="167"] { background: rgb(235,210,70); color: white; }
-.line-container[data-agency-id="827"][data-line="168"] { background: rgb(233,161,60); color: white; }
-.line-container[data-agency-id="827"][data-line="331"] { background: rgb(174,189,199); color: white; }
-.line-container[data-agency-id="827"][data-line="332"] { background: rgb(112,185,171); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="160"] { background: rgb(106,172,70); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="161"] { background: rgb(122,24,64); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="162"] { background: rgb(213,91,88); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="163"] { background: rgb(102,96,34); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="165"] { background: rgb(174,189,199); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="166"] { background: rgb(233,161,60); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="167"] { background: rgb(235,210,70); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="168"] { background: rgb(233,161,60); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="331"] { background: rgb(174,189,199); color: white; }
+.line-container[data-agency-name*="Verkehrsbetriebe Bern"][data-line="332"] { background: rgb(112,185,171); color: white; }
 
 /* Moonliner */
 .line-container[data-agency-name*="Aare Seeland"][data-line^="M"],
@@ -408,59 +408,59 @@
 .line-container[data-agency-name*="TPF"][data-line^="M"] {background-color: #231F20; color: #FFDC01;}
 
 /* Aare Seeland Mobil ASM */
-.line-container[data-agency-id="870"][data-line="5"] { background: #0FB967; color: white; }
-.line-container[data-agency-id="870"][data-line="7"] { background: #892819; color: white; }
-.line-container[data-agency-id="870"][data-line="51"] { background: #296E88; color: white; }
-.line-container[data-agency-id="870"][data-line="52"] { background: #F05C5B; color: white; }
-.line-container[data-agency-id="870"][data-line="54"] { background: #B3AB18; color: white; }
-.line-container[data-agency-id="870"][data-line="63"] { background: #860043; color: white; }
-.line-container[data-agency-id="870"][data-line="64"] { background: #625C14; color: white; }
-.line-container[data-agency-id="870"][data-line="72"] { background: #625C14; color: white; }
-.line-container[data-agency-id="870"][data-line="75"] { background: #686868; color: white; }
-.line-container[data-agency-id="870"][data-line="73"] { background: #F8A01D; color: white; }
-.line-container[data-agency-id="870"][data-line="74"] { background: #860043; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="5"] { background: #0FB967; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="7"] { background: #892819; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="51"] { background: #296E88; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="52"] { background: #F05C5B; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="54"] { background: #B3AB18; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="63"] { background: #860043; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="64"] { background: #625C14; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="72"] { background: #625C14; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="75"] { background: #686868; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="73"] { background: #F8A01D; color: white; }
+.line-container[data-agency-name*="ASM"][data-line="74"] { background: #860043; color: white; }
 
 /* Solothurn und Umgebung BSU */
-.line-container[data-agency-id="883"][data-line="1"] { background: #151616; color: white; }
-.line-container[data-agency-id="883"][data-line="2"] { background: #DD2B1C; color: white; }
-.line-container[data-agency-id="883"][data-line="3"] { background: #373098; color: white; }
-.line-container[data-agency-id="883"][data-line="4"] { background: #F27E00; color: white; }
-.line-container[data-agency-id="883"][data-line="5"] { background: #0FB967; color: white; }
-.line-container[data-agency-id="883"][data-line="6"] { background: #D3DD00; color: white; }
-.line-container[data-agency-id="883"][data-line="7"] { background: #892819; color: white; }
-.line-container[data-agency-id="850"][data-line="8"] { background: #5AB3DC; color: white; } /*RBS */
-.line-container[data-agency-id="850"][data-line="898"] { background: #DB4105; color: white; } /*RBS */
-.line-container[data-agency-id="883"][data-line="9"] { background: #DB51A4; color: white; }
-.line-container[data-agency-id="883"][data-line="10"] { background: #23849A; color: white; }
-.line-container[data-agency-id="883"][data-line="15"] { background: #B58F3F; color: white; }
-.line-container[data-agency-id="883"][data-line="16"] { background: #B81F6F; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="1"] { background: #151616; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="2"] { background: #DD2B1C; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="3"] { background: #373098; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="4"] { background: #F27E00; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="5"] { background: #0FB967; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="6"] { background: #D3DD00; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="7"] { background: #892819; color: white; }
+.line-container[data-agency-name*="RBS"][data-line="8"] { background: #5AB3DC; color: white; } /*RBS */
+.line-container[data-agency-name*="RBS"][data-line="898"] { background: #DB4105; color: white; } /*RBS */
+.line-container[data-agency-name*="Solothurn"][data-line="9"] { background: #DB51A4; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="10"] { background: #23849A; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="15"] { background: #B58F3F; color: white; }
+.line-container[data-agency-name*="Solothurn"][data-line="16"] { background: #B81F6F; color: white; }
 
 /* Grenchen und Umgebung BGU */
-.line-container[data-agency-id="894"][data-line="2"] { background: #28448C; color: white; }
-.line-container[data-agency-id="894"][data-line="12"] { background: #6ED8C6; color: white; }
-.line-container[data-agency-id="894"][data-line="20"] { background: #6ED8C6; color: white; }
-.line-container[data-agency-id="894"][data-line="21"] { background: #4075B9; color: white; }
-.line-container[data-agency-id="894"][data-line="22"] { background: #605B14; color: white; }
-.line-container[data-agency-id="894"][data-line="23"] { background: #A8BDC7; color: white; }
-.line-container[data-agency-id="894"][data-line="24"] { background: #840243; color: white; }
-.line-container[data-agency-id="894"][data-line="25"] { background: #F69F1D; color: white; }
-.line-container[data-agency-id="894"][data-line="26"] { background: #AFA821; color: white; }
-.line-container[data-agency-id="894"][data-line="27"] { background: #EF5D5C; color: white; }
-.line-container[data-agency-id="894"][data-line="28"] { background: #421F17; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="2"] { background: #28448C; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="12"] { background: #6ED8C6; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="20"] { background: #6ED8C6; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="21"] { background: #4075B9; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="22"] { background: #605B14; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="23"] { background: #A8BDC7; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="24"] { background: #840243; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="25"] { background: #F69F1D; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="26"] { background: #AFA821; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="27"] { background: #EF5D5C; color: white; }
+.line-container[data-agency-name*="Grenchen"][data-line="28"] { background: #421F17; color: white; }
 
 /* Biel/Bienne VB/TPB */
-.line-container[data-agency-id="889"][data-line="1"] { background: #E4392B; color: white; }
-.line-container[data-agency-id="889"][data-line="2"] { background: #2C458D; color: white; }
-.line-container[data-agency-id="889"][data-line="3"] { background: #E74E9D; color: white; }
-.line-container[data-agency-id="889"][data-line="4"] { background: #F68324; color: white; }
-.line-container[data-agency-id="889"][data-line="5"] { background: #1F6E36; color: white; }
-.line-container[data-agency-id="889"][data-line="6"] { background: #B7DC41; color: white; }
-.line-container[data-agency-id="889"][data-line="8"] { background: #9040BA; color: white; }
-.line-container[data-agency-id="889"][data-line="9"] { background: #00A6C9; color: white; }
-.line-container[data-agency-id="889"][data-line="11"] { background: #9040BA; color: white; }
-.line-container[data-agency-id="889"][data-line="12"] { background: #72DAC6; color: white; }
-.line-container[data-agency-id="889"][data-line="70"] { background: #296E88; color: white; }
-.line-container[data-agency-id="889"][data-line="71"] { background: #860043; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="1"] { background: #E4392B; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="2"] { background: #2C458D; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="3"] { background: #E74E9D; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="4"] { background: #F68324; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="5"] { background: #1F6E36; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="6"] { background: #B7DC41; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="8"] { background: #9040BA; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="9"] { background: #00A6C9; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="11"] { background: #9040BA; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="12"] { background: #72DAC6; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="70"] { background: #296E88; color: white; }
+.line-container[data-agency-name*="Biel"][data-line="71"] { background: #860043; color: white; }
 
 .line-container[data-agency-name="BLS AG"],.line-container[data-agency-id="33"] { background: #A0E100; color: #0028a0; } /* BLS */
 .line-container[data-line="GPX"] { background: #0f437a; color: #c2a84c; }
@@ -553,30 +553,30 @@
 .line-container[data-agency-name^="Rigi"] span { transform: rotate(-10deg); }
 
 /* Busland */
-.line-container[data-agency-id="871"] {border: 1px solid #A0E100;}
-.line-container[data-agency-id="871"][data-line="271"] { background: rgb(48,112,142); color: white;}
-.line-container[data-agency-id="871"][data-line="281"] { background: rgb(195,186,60); color: white;}
-.line-container[data-agency-id="871"][data-line="284"] { background: rgb(219,88,83); color: white;}
-.line-container[data-agency-id="871"][data-line="285"] { background: rgb(129,27,78); color: white;}
-.line-container[data-agency-id="871"][data-line="286"] { background: rgb(182,197,208); color: white;}
-.line-container[data-agency-id="871"][data-line="287"] { background: rgb(129,27,78); color: white;}
-.line-container[data-agency-id="871"][data-line="461"] { background: rgb(123,26,68); color: white;}
-.line-container[data-agency-id="871"][data-line="462"] { background: rgb(140,215,199); color: white;}
-.line-container[data-agency-id="871"][data-line="463"] { background: rgb(174,189,198); color: white;}
-.line-container[data-agency-id="871"][data-line="465"] { background: rgb(201,78,38); color: white;}
-.line-container[data-agency-id="871"][data-line="466"] { background: rgb(68,35,25); color: white;}
-.line-container[data-agency-id="871"][data-line="467"] { background: rgb(178,172,60); color: white;}
-.line-container[data-agency-id="871"][data-line="468"] { background: rgb(98,93,36); color: white;}
-.line-container[data-agency-id="871"][data-line="471"] { background: rgb(123,26,68); color: white;}
-.line-container[data-agency-id="871"][data-line="481"] { background: rgb(139,214,202); color: white;}
-.line-container[data-agency-id="871"][data-line="482"] { background: rgb(48,112,142); color: white;}
-.line-container[data-agency-id="871"][data-line="483"] { background: rgb(213,83,40); color: white;}
-.line-container[data-agency-id="871"][data-line="491"] { background: rgb(116,105,34); color: white;}
-.line-container[data-agency-id="871"][data-line="493"] { background: rgb(129,27,78); color: white;}
+.line-container[data-agency-name*="Busland"] {border: 1px solid #A0E100;}
+.line-container[data-agency-name*="Busland"][data-line="271"] { background: rgb(48,112,142); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="281"] { background: rgb(195,186,60); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="284"] { background: rgb(219,88,83); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="285"] { background: rgb(129,27,78); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="286"] { background: rgb(182,197,208); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="287"] { background: rgb(129,27,78); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="461"] { background: rgb(123,26,68); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="462"] { background: rgb(140,215,199); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="463"] { background: rgb(174,189,198); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="465"] { background: rgb(201,78,38); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="466"] { background: rgb(68,35,25); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="467"] { background: rgb(178,172,60); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="468"] { background: rgb(98,93,36); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="471"] { background: rgb(123,26,68); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="481"] { background: rgb(139,214,202); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="482"] { background: rgb(48,112,142); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="483"] { background: rgb(213,83,40); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="491"] { background: rgb(116,105,34); color: white;}
+.line-container[data-agency-name*="Busland"][data-line="493"] { background: rgb(129,27,78); color: white;}
 
 /* Bus Hergiswil (es fährt Auto AG Rothenbrg) */
-.line-container[data-agency-id="812"][data-line="381"] {background: #0D92D3; color: white;}
-.line-container[data-agency-id="812"][data-line="382"] {background: #C73834; color: white;}
+.line-container[data-agency-name="Auto AG Rothenburg"][data-line="381"] {background: #0D92D3; color: white;}
+.line-container[data-agency-name="Auto AG Rothenburg"][data-line="382"] {background: #C73834; color: white;}
 
 /* RBS Bahn */
 .line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="S7"] { background: rgb(227,141,67); color: white; }
@@ -585,11 +585,11 @@
 .line-container[data-agency-name="Regionalverkehr Bern-Solothurn"][data-line="RE5"] { background: rgb(55,126,34); color: white; }
 
 /* TPF Fribourg/Freiburg Base Rules */
-.line-container[data-agency-id="834"],
-.line-container[data-agency-id="53"] {position: relative;}
+.line-container[data-agency-name*="TPF"],
+.line-container[data-agency-name*="fribourgeois"] {position: relative;}
 
-.line-container[data-agency-id="834"] { background: var(--tpf-lila); color: white; }
-.line-container[data-agency-id="53"] { background: #ffffff; color: #000000; }
+.line-container[data-agency-name*="TPF"] { background: var(--tpf-lila); color: white; }
+.line-container[data-agency-name*="fribourgeois"] { background: #ffffff; color: #000000; }
 
 /* Genève / Genf */
 .line-container[data-agency-name="Transports Publics Genevois"][data-line="1"] { background: #290098; color: white; }
@@ -679,17 +679,17 @@
 .line-container[data-agency-name*="TPF"][data-line="203"] { background: #0072BC; color: white; }
 
 /* Sonderausführung RE */
-.line-container[data-agency-id="53"][data-line^="RE"] { background: white; color: #eb0000;}
+.line-container[data-agency-name*="fribourgeois"][data-line^="RE"] { background: white; color: #eb0000;}
 
 /* BörömPömPöm */
-.line-container[data-agency-id="834"]::after,
-.line-container[data-agency-id="53"]::after {content: "";position: absolute;right: 14px;bottom: 3px;width: 3px;height: 3px;background-color: var(--tpf-lila);border-radius: 50%;box-shadow: 4px 0 0 var(--tpf-lila), 8px 0 0 var(--tpf-lila);}
+.line-container[data-agency-name*="TPF"]::after,
+.line-container[data-agency-name*="fribourgeois"]::after {content: "";position: absolute;right: 14px;bottom: 3px;width: 3px;height: 3px;background-color: var(--tpf-lila);border-radius: 50%;box-shadow: 4px 0 0 var(--tpf-lila), 8px 0 0 var(--tpf-lila);}
 /* === SOB === */
-.line-container[data-agency-id="82"] { background: #e10e23; color: white; } /* SOB */
+.line-container[data-agency-name*="sob"] { background: #e10e23; color: white; } /* SOB */
 /* SOB - X */
-.line-container[data-agency-id="82"][data-line^="IR"],
-.line-container[data-agency-id="82"][data-line^="VAE"],
-.line-container[data-agency-id="82"][data-line="S81"] { background: #85553a; color: white; }
+.line-container[data-agency-name*="sob"][data-line^="IR"],
+.line-container[data-agency-name*="sob"][data-line^="VAE"],
+.line-container[data-agency-name*="sob"][data-line="S81"] { background: #85553a; color: white; }
 
 /* === MGB === */
 .line-container[data-agency-name*="Matterhorn"][data-line="R40"] { background: #ACA425; color: white; }
@@ -705,57 +705,58 @@
 /* MBC etc. */
 .line-container[data-agency-name^="Montreux-Oberland"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-name^="Montreux-Oberland"][data-raw-line="30"] { background: #eb0000; color: white; font-style: italic; }
-.line-container[data-agency-id="131"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Riviera"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="23"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-name^="Montreux-Vevey-Riviera"] { color: #002D5B; background: white; }
 /* RA/TMR */
-.line-container[data-agency-id="74"][data-line^="R"] { background: white; color: black; }
-.line-container[data-agency-id="61"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name="Regionalps"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Martigny et Régions"][data-line^="R"] { background: white; color: black; }
 /* RhB */
-.line-container[data-agency-id="72"][data-line^="R"] { background: white; color: black; }
-.line-container[data-agency-id="72"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
-.line-container[data-agency-id="72"][data-line^="S"] { background: white; color: black; }
-.line-container[data-agency-id="72"][data-line^="IR"] { background: #eb0000; color: white; }
+.line-container[data-agency-name*="Rhätische Bahn"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Rhätische Bahn"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
+.line-container[data-agency-name*="Rhätische Bahn"][data-line^="S"] { background: white; color: black; }
+.line-container[data-agency-name*="Rhätische Bahn"][data-line^="IR"] { background: #eb0000; color: white; }
 /* Zentralbahn ZB */
-.line-container[data-agency-id="86"][data-line^="IR"],
-.line-container[data-agency-id="86"][data-line^="LIX"],
-.line-container[data-agency-id="86"][data-line^="LEX"]
+.line-container[data-agency-name="Zentralbahn"][data-line^="S"] { background: white; color: black; }
+.line-container[data-agency-name="Zentralbahn"][data-line^="IR"],
+.line-container[data-agency-name="Zentralbahn"][data-line^="LIX"],
+.line-container[data-agency-name="Zentralbahn"][data-line^="LEX"]
  { background: #E30513; color: white; }
 
-.line-container[data-agency-id="86"][data-line="S41"] { background: #00566E; color: white; }
-.line-container[data-agency-id="86"][data-line="S44"] { background: #B65339; color: white; }
-.line-container[data-agency-id="86"][data-line="S55"] { background: #EF87B5; color: white; }
-.line-container[data-agency-id="86"][data-line="R70"] { background: #009767; color: white; }
-.line-container[data-agency-id="86"][data-line="R71"] { background: #76B72A; color: white; }
+.line-container[data-agency-name="Zentralbahn"][data-line="S41"] { background: #00566E; color: white; }
+.line-container[data-agency-name="Zentralbahn"][data-line="S44"] { background: #B65339; color: white; }
+.line-container[data-agency-name="Zentralbahn"][data-line="S55"] { background: #EF87B5; color: white; }
+.line-container[data-agency-name="Zentralbahn"][data-line="R70"] { background: #009767; color: white; }
+.line-container[data-agency-name="Zentralbahn"][data-line="R71"] { background: #76B72A; color: white; }
 /* SBB */
-.line-container[data-agency-id="11"][data-line^="TER"],
-.line-container[data-agency-id="11"][data-line^="S"],
-.line-container[data-agency-id="11"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="SBB"][data-line^="TER"],
+.line-container[data-agency-name*="SBB"][data-line^="S"],
+.line-container[data-agency-name*="SBB"][data-line^="R"] { background: white; color: black; }
 
-.line-container[data-agency-id="11"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
+.line-container[data-agency-name*="SBB"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 
-.line-container[data-agency-id="11"][data-line^="IR"],
-.line-container[data-agency-id="11"][data-line^="IC"] { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name*="SBB"][data-line^="IR"],
+.line-container[data-agency-name*="SBB"][data-line^="IC"] { background: #eb0000; color: white; font-style: italic; }
 
-.line-container[data-agency-id="11"][data-line^="EC"],
-.line-container[data-agency-id="11"][data-line^="EN"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+.line-container[data-agency-name*="SBB"][data-line^="EC"],
+.line-container[data-agency-name*="SBB"][data-line^="EN"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
 
-.line-container[data-agency-id="11"][data-line^="ICN"],
-.line-container[data-agency-id="11"][data-line^="ICE"],
-.line-container[data-agency-id="11"][data-line^="TGV"],
-.line-container[data-agency-id="11"][data-line^="CNL"],
-.line-container[data-agency-id="11"][data-line^="RJ"],
-.line-container[data-agency-id="11"][data-line^="RJX"] { background: #eb0000; color: white; font-style: italic; }
-.line-container[data-agency-id="11"][data-line^="RX"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+.line-container[data-agency-name*="SBB"][data-line^="ICN"],
+.line-container[data-agency-name*="SBB"][data-line^="ICE"],
+.line-container[data-agency-name*="SBB"][data-line^="TGV"],
+.line-container[data-agency-name*="SBB"][data-line^="CNL"],
+.line-container[data-agency-name*="SBB"][data-line^="RJ"],
+.line-container[data-agency-name*="SBB"][data-line^="RJX"] { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name*="SBB"][data-line^="RX"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
 .line-container[data-agency-name*="SBB"][data-line*="SN"],
 .line-container[data-agency-name*="SBB"][data-line*="REN"] { background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); }
 .line-container[data-agency-name*="SBB"][data-line^="IRN"] {background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); font-style: italic; font-weight: bold; }
 
-.line-container[data-agency-id="11"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
+.line-container[data-agency-name*="SBB"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
 
 .line-container[data-line="GEX"],
 .line-container[data-line="BEX"],
-.line-container[data-agency-id="11"][data-line^="PE"] { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name*="SBB"][data-line^="PE"] { background: #eb0000; color: white; font-style: italic; }
 
 .line-container[data-line^="EXT"],
 .line-container[data-line^="AG"] { background: #eb0000; color: white; font-style: italic; }
@@ -777,11 +778,11 @@
 .line-container[data-agency-name^="10939"] { background: #2859a6; color: white; } /* SWEG */
 
 /* CJ */
-.line-container[data-agency-id="43"][data-line="R36"] { background: rgb(110,47,140); color: white; }
-.line-container[data-agency-id="43"][data-line="R37"] { background: rgb(219,56,52); color: white; }
-.line-container[data-agency-id="833"][data-line="121"] { background: rgb(71,112,176); color: white; }
-.line-container[data-agency-id="833"][data-line="123"] { background: rgb(41,54,141); color: white; }
-.line-container[data-agency-id="833"][data-line="131"] { background: rgb(86,176,88); color: white; }
+.line-container[data-agency-name*="Jura"][data-line="R36"] { background: rgb(110,47,140); color: white; }
+.line-container[data-agency-name*="Jura"][data-line="R37"] { background: rgb(219,56,52); color: white; }
+.line-container[data-agency-name*="CJ"][data-line="121"] { background: rgb(71,112,176); color: white; }
+.line-container[data-agency-name*="CJ"][data-line="123"] { background: rgb(41,54,141); color: white; }
+.line-container[data-agency-name*="CJ"][data-line="131"] { background: rgb(86,176,88); color: white; }
 
 /* Emmentalbahn / Dampfbahn Bern */
 .line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"],
@@ -813,10 +814,10 @@
 .line-container[data-agency-name="THURBO"][data-line^="SN"] { background: black; color: #FFED00; }
 /* Berlin */
 .line-container[data-agency-name="S-Bahn Berlin GmbH"] { background: #008d4f; color: white; } /* S-Bahn */
-.line-container[data-agency-id="796"][data-mode="SUBWAY"] { background: #115D91; color: white; } /* U-Bahn */
-.line-container[data-agency-id="796"][data-mode="TRAM"] { background: #BE1414; color: white; } /* Tram */
-.line-container[data-agency-id="796"][data-mode="BUS"] { background: #95276E; color: white; } /* Bus */
-.line-container[data-agency-id="796"][data-mode="FERRY"] { background: #528DBA; color: white; } /* Fähre */
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-mode="SUBWAY"] { background: #115D91; color: white; } /* U-Bahn */
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-mode="TRAM"] { background: #BE1414; color: white; } /* Tram */
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-mode="BUS"] { background: #95276E; color: white; } /* Bus */
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-mode="FERRY"] { background: #528DBA; color: white; } /* Fähre */
 
 .line-container[data-agency-id="13796"],
 .line-container[data-agency-id="FLIXTRAIN-eu"],
@@ -825,16 +826,16 @@
 /* LEO Express */
 .line-container[data-agency-name*="Leo Express"] { background: #f08200; color: white } /* LEO Express */
 /* Halle Saale Tram */
-.line-container[data-agency-id="8896"][data-line="1"] { background: rgb(242,187,68); color: white; }
-.line-container[data-agency-id="8896"][data-line="2"] { background: rgb(230,136,60); color: white; }
-.line-container[data-agency-id="8896"][data-line="3"] { background: rgb(66,147,212); color: white; }
-.line-container[data-agency-id="8896"][data-line="5"] { background: rgb(35,76,156); color: white; }
-.line-container[data-agency-id="8896"][data-line="7"] { background: rgb(222,99,159); color: white; }
-.line-container[data-agency-id="8896"][data-line="8"] { background: rgb(122,74,25); color: white; }
-.line-container[data-agency-id="8896"][data-line="9"] { background: rgb(169,175,77); color: white; }
-.line-container[data-agency-id="8896"][data-line="10"] { background: rgb(53,109,48); color: white; }
-.line-container[data-agency-id="8896"][data-line="12"] { background: rgb(152,197,84); color: white; }
-.line-container[data-agency-id="8896"][data-line="16"] { background: rgb(159,49,111); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="1"] { background: rgb(242,187,68); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="2"] { background: rgb(230,136,60); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="3"] { background: rgb(66,147,212); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="5"] { background: rgb(35,76,156); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="7"] { background: rgb(222,99,159); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="8"] { background: rgb(122,74,25); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="9"] { background: rgb(169,175,77); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="10"] { background: rgb(53,109,48); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="12"] { background: rgb(152,197,84); color: white; }
+.line-container[data-agency-name*="Hallesche"][data-line="16"] { background: rgb(159,49,111); color: white; }
 
 /* TFL (Transport for London) */
 .line-container[data-line="Bakerloo"] { background: #B05F0F; color: white; }
@@ -898,22 +899,22 @@
 
 /* Basel */
 /* BVB */
-.line-container[data-agency-id="823"][data-line="1"] { background: rgb(121,75,47); color: white; }
-.line-container[data-agency-id="823"][data-line="2"] { background: rgb(138,111,65); color: white; }
-.line-container[data-agency-id="823"][data-line="3"] { background: rgb(56,77,156); color: white; }
-.line-container[data-agency-id="823"][data-line="6"] { background: rgb(48,112,183); color: white; }
-.line-container[data-agency-id="823"][data-line="8"] { background: rgb(225,121,169); color: white; }
-.line-container[data-agency-id="37"][data-line="10"] { background: rgb(246,204,71); color: black; } /* BLT */
-.line-container[data-agency-id="37"][data-line="11"] { background: rgb(219,57,49); color: black; } /* BLT */
-.line-container[data-agency-id="823"][data-line="12"] { background: rgb(134,113,170); color: white; }
-.line-container[data-agency-id="823"][data-line="14"] { background: rgb(230,136,60); color: white; }
-.line-container[data-agency-id="823"][data-line="15"] { background: rgb(73,163,89); color: white; }
-.line-container[data-agency-id="823"][data-line="16"] { background: rgb(174,205,84); color: white; }
-.line-container[data-agency-id="37"][data-line="17"] { background: rgb(78,172,233); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="1"] { background: rgb(121,75,47); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="2"] { background: rgb(138,111,65); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="3"] { background: rgb(56,77,156); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="6"] { background: rgb(48,112,183); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="8"] { background: rgb(225,121,169); color: white; }
+.line-container[data-agency-name*="Basel"][data-line="10"] { background: rgb(246,204,71); color: black; } /* BLT */
+.line-container[data-agency-name*="Basel"][data-line="11"] { background: rgb(219,57,49); color: black; } /* BLT */
+.line-container[data-agency-name*="Basler"][data-line="12"] { background: rgb(134,113,170); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="14"] { background: rgb(230,136,60); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="15"] { background: rgb(73,163,89); color: white; }
+.line-container[data-agency-name*="Basler"][data-line="16"] { background: rgb(174,205,84); color: white; }
+.line-container[data-agency-name*="Basel"][data-line="17"] { background: rgb(78,172,233); color: white; }
 
-.line-container[data-agency-id="37"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT Waldenburg*/
+.line-container[data-agency-name*="Basel"][data-line="19"] { background: rgb(246,204,71); color: black; } /* BLT Waldenburg*/
 
-.line-container[data-agency-id="823"][data-mode="BUS"] { background: #C7C8CA; color: black; } /* BVB Bus */
+.line-container[data-agency-name*="Basler"][data-mode="BUS"] { background: #C7C8CA; color: black; } /* BVB Bus */
 .line-container[data-agency-name*="Liestal"] { background: #FFF064; color: black; } /* Auto AG Liestal */
 
 /* Distribus */
@@ -936,8 +937,7 @@
 .line-container[data-agency-name="PKP Intercity"] { background: #f1652a; color: #002b5b; } /* PKP Itercity */
 .line-container[data-agency-name="PolRegio"] { background: #5D6770; color: #DA2128; } /* PolRegio y */
 /* Dänemark */
-.line-container[data-agency-id="318"],
-.line-container[data-agency-id="203"] { background: #c2122b; color: white; } /* DSB */
+.line-container[data-agency-name^="DSB"] { background: #c2122b; color: white; } /* DSB */
 
 /* Italien */
 /* 1. FRECCIAROSSA: Tiefes Rot mit elegantem Silbergrau-Akzent */
@@ -1068,6 +1068,12 @@
 .line-container[data-agency-id="87_LEX"][data-line^="C"],
 .line-container[data-agency-id="87_LEX"][data-line^="P"],
 .line-container[data-agency-id="87_LEX"][data-line^="K"],
+.line-container[data-agency-name*="SNCF"][data-line^="C"],
+.line-container[data-agency-name*="SNCF"][data-line^="P"],
+.line-container[data-agency-name*="SNCF"][data-line^="K"],
+.line-container[data-agency-name*="SNCF"][data-line^="L"],
+.line-container[data-agency-name*="SNCF"][data-line^="L"],
+.line-container[data-agency-name="1187"][data-line^="L"],
 .line-container[data-agency-id="1187"][data-line^="L"] {
   background: #004b87; color: white;
 }
