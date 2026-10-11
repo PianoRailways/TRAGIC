@@ -843,7 +843,10 @@ if (!initialEpoch) {
   setPickersFromEpoch(initialEpoch);
 }
 
-if (params.get('stopId')) {
+const urlDidok = params.get('didok');
+if (urlDidok) {
+  selectStationByDidok(urlDidok, initialEpoch);
+} else if (params.get('stopId')) {
   currentStopId = params.get('stopId');
   currentStationName = 'Station wählen';
   updateStationTitle(currentStationName);
@@ -893,6 +896,7 @@ function selectStation(stopId, name, refEpoch) {
   url.searchParams.set('view', 'departures');
   url.searchParams.set('stopId', stopId);
   url.searchParams.delete('customJson');
+  url.searchParams.delete('didok');
   
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
   else              url.searchParams.delete('time');
@@ -921,6 +925,33 @@ async function selectStationByName(name, refEpoch) {
     selectStation(match.id, match.name, refEpoch);
   } catch (err) {
     alert('Fehler bei der Stationssuche: ' + err.message);
+  }
+}
+
+async function selectStationByDidok(abbreviation, refEpoch) {
+  const normalizedAbbreviation = String(abbreviation || '').trim().toUpperCase();
+  if (!normalizedAbbreviation) return;
+
+  try {
+    if (window.abbreviationsReady) await window.abbreviationsReady;
+
+    const localMatches = getLocalAbbreviationMatches(normalizedAbbreviation);
+    if (localMatches.length > 0) {
+      await selectStationByName(localMatches[0].name, refEpoch);
+      return;
+    }
+
+    const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(normalizedAbbreviation)}`);
+    const data = await res.json();
+    const firstMatch = (data.stations || [])[0];
+    if (!firstMatch) {
+      alert(`Didok-Kürzel "${normalizedAbbreviation}" nicht gefunden.`);
+      return;
+    }
+
+    selectStation(firstMatch.id, firstMatch.name, refEpoch);
+  } catch (err) {
+    alert(`Fehler bei der Didok-Suche: ${err.message}`);
   }
 }
 
