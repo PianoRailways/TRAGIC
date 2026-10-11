@@ -18,6 +18,7 @@ function loadNearbySettings() {
 let nearbySettings = loadNearbySettings();
 let customDepartures = null;
 let customStationUsesApi = false;
+let customStationCoordinates = null;
 const DEPARTURE_BATCH_SIZE = 25;
 const FILTERED_DEPARTURE_TARGET = DEPARTURE_BATCH_SIZE;
 const MAX_FILTERED_DEPARTURE_TOP_UPS = 8;
@@ -26,7 +27,7 @@ let isToppingUpFilteredDepartures = false;
 let filteredDepartureTopUpAttempts = 0;
 let filteredDepartureTopUpKey = '';
 const CUSTOM_JSON_URLS = [
-  '/cache/demo-fahrten.js',
+  '/cache/demo-fahrten.json',
   '/cache/data.json',
 ];
 const CUSTOM_JSON_URL = CUSTOM_JSON_URLS[0];
@@ -85,6 +86,30 @@ function normalizeCustomDeparture(departure, index, stationName) {
   };
 }
 
+function normalizeCustomArrival(arrival, index, stationName) {
+  const scheduled = parseCustomJsonTime(arrival.scheduled ?? arrival.arrival ?? arrival.time);
+  const live = parseCustomJsonTime(arrival.live ?? arrival.estimated ?? arrival.arrivalLive) || scheduled;
+  const trip = normalizeCustomTrip(arrival.trip || arrival.tripData);
+  return {
+    ...arrival,
+    tripId: arrival.tripId || `custom-arrival-${index + 1}`,
+    line: arrival.line || arrival.route || '?',
+    tripNumber: arrival.tripNumber || arrival.routeNumber || '',
+    destination: arrival.origin || arrival.from || '',
+    scheduled,
+    live,
+    delaySec: arrival.delaySec ?? (arrival.delayMin ? arrival.delayMin * 60 : Math.round(live - scheduled)),
+    delayMin: arrival.delayMin ?? Math.round((live - scheduled) / 60),
+    track: arrival.track || arrival.platform || '',
+    mode: arrival.mode || 'OTHER',
+    cancelled: Boolean(arrival.cancelled),
+    _stopId: arrival.stopId || `custom-arrival-${index + 1}`,
+    _fromStation: stationName,
+    _isMainStation: true,
+    ...(trip ? { trip } : {})
+  };
+}
+
 function getVisibleCustomDepartures(departures, refEpoch = null) {
   const referenceEpoch = refEpoch ?? getSelectedEpoch() ?? Math.floor(Date.now() / 1000);
   return departures.filter(departure => {
@@ -130,14 +155,55 @@ async function getCustomStationIndex() {
   return customStationIndexPromise;
 }
 
+function deriveCustomStationEntries(data, selected, entryKey) {
+  const targetId = String(selected?.id || selected?.stopId || '');
+  if (!targetId || !Array.isArray(data?.stations)) return [];
+  const derived = [];
+  data.stations.forEach(station => (station.departures || []).forEach(departure => {
+    const stops = departure.trip?.stops || departure.tripData?.stops || [];
+    const stop = stops.find(item => String(item.stopId || '') === targetId);
+    if (!stop) return;
+    const flags = Array.isArray(stop.flags) ? stop.flags : [];
+    const exceptional = Boolean(departure.cancelled || stop.cancelled || flags.includes('AUSFALL') || flags.includes('DIENSTHALT') || flags.includes('XD'));
+    const showEntry = entryKey === 'arrivals'
+      ? (flags.length === 0 || flags.includes('SD') || exceptional)
+      : (flags.length === 0 || flags.includes('SM') || exceptional) && !flags.includes('D');
+    if (!showEntry) return;
+    const scheduled = entryKey === 'arrivals'
+      ? stop.arrivalSched || stop.arrivalLive
+      : stop.departureSched || stop.departureLive;
+    if (!scheduled) return;
+    const live = entryKey === 'arrivals'
+      ? stop.arrivalLive || scheduled
+      : stop.departureLive || scheduled;
+    derived.push({
+      ...departure,
+      scheduled,
+      live,
+      origin: stops[0]?.name || departure.origin || '',
+      destination: stops[stops.length - 1]?.name || departure.destination || '',
+      track: stop.track || departure.track || '',
+      delaySec: entryKey === 'arrivals' ? stop.arrivalDelaySec : stop.departureDelaySec
+    });
+  }));
+  return derived;
+}
+
 async function loadCustomDeparturesData(data, sourceName, stationId = null, stationName = null) {
   const definitions = getCustomStationDefinitions(data);
   const selected = definitions.find(station =>
     stationId && String(station.id || station.stopId) === String(stationId)
   ) || definitions.find(station =>
     stationName && String(station.name).toLowerCase() === String(stationName).toLowerCase()
-  ) || definitions[0];
-  const entries = Array.isArray(selected?.departures) ? selected.departures : (Array.isArray(data) ? data : data.departures);
+  ) || definitions.find(station => Array.isArray(station?.[isArrivalsMode ? 'arrivals' : 'departures']) && station[isArrivalsMode ? 'arrivals' : 'departures'].length > 0) || definitions[0];
+  const entryKey = isArrivalsMode ? 'arrivals' : 'departures';
+  let entries = Array.isArray(selected?.[entryKey]) ? selected[entryKey] : [];
+  if (entries.length === 0) entries = deriveCustomStationEntries(data, selected, entryKey);
+  if (entries.length === 0 && Array.isArray(data)) entries = data;
+  if (entries.length === 0 && !stationId && !stationName && Array.isArray(data?.stations)) {
+    entries = data.stations.flatMap(station => Array.isArray(station?.[entryKey]) ? station[entryKey] : []);
+  }
+  if (entries.length === 0 && !Array.isArray(data)) entries = Array.isArray(data[entryKey]) ? data[entryKey] : [];
   if (!Array.isArray(entries)) {
     throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit "departures" enthalten.');
   }
@@ -147,8 +213,13 @@ async function loadCustomDeparturesData(data, sourceName, stationId = null, stat
   currentStopId = selected?.id || selected?.stopId || data.station?.id || data.stopId || 'custom-json';
   currentMainStationId = currentStopId;
   customStationUsesApi = String(currentStopId).startsWith('ch-opentransportdataswiss26_');
+  customStationCoordinates = Number.isFinite(Number(selected?.lat)) && Number.isFinite(Number(selected?.lon))
+    ? { lat: Number(selected.lat), lon: Number(selected.lon) }
+    : null;
   updateStationTitle(currentStationName);
-  customDepartures = entries.map((departure, index) => normalizeCustomDeparture(departure, index, resolvedStationName));
+  customDepartures = entries.map((entry, index) => isArrivalsMode
+    ? normalizeCustomArrival(entry, index, resolvedStationName)
+    : normalizeCustomDeparture(entry, index, resolvedStationName));
   allDepartures = getVisibleCustomDepartures(customDepartures);
   if (customStationUsesApi) {
     try {
@@ -179,6 +250,7 @@ function selectCustomStation(stationId, stationName, customJsonUrl = CUSTOM_JSON
   currentStopId = stationId || 'custom-json';
   currentMainStationId = currentStopId;
   customStationUsesApi = String(currentStopId).startsWith('ch-opentransportdataswiss26_');
+  customStationCoordinates = null;
   currentStationName = stationName;
   updateStationTitle(stationName);
 
@@ -227,9 +299,14 @@ function updateNearbyUI() {
 }
 
 async function fetchNearbyDepartureGroups(refEpoch) {
-  const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(currentStationName)}`);
-  const searchData = await searchRes.json();
-  const station = (searchData.stations || []).find(item => item.name.toLowerCase() === currentStationName.toLowerCase()) || searchData.stations?.[0];
+  let station = customStationCoordinates
+    ? { lat: customStationCoordinates.lat, lon: customStationCoordinates.lon, id: currentStopId, name: currentStationName }
+    : null;
+  if (!station) {
+    const searchRes = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(currentStationName)}`);
+    const searchData = await searchRes.json();
+    station = (searchData.stations || []).find(item => item.name.toLowerCase() === currentStationName.toLowerCase()) || searchData.stations?.[0];
+  }
   if (!station?.lat || !station?.lon) return [];
 
   const nearbyRes = await fetch(`${PROXY}?action=reverse-geocode&lat=${encodeURIComponent(station.lat)}&lon=${encodeURIComponent(station.lon)}&radius=${nearbySettings.radius}`);
@@ -580,8 +657,17 @@ function attachMainStationSearch(input, list) {
         const customIndex = await getCustomStationIndex();
         if (sequence !== searchSequence || input.value.trim() !== query) return;
         customIndex.stations.forEach(station => {
-          if (!station.name || !station.name.toLowerCase().includes(query.toLowerCase())) return;
-          if (localMatches.some(match => match.name.toLowerCase() === station.name.toLowerCase())) return;
+          const abbreviationMatch = String(station.abbrev || station.abk || '').toLowerCase() === query.toLowerCase();
+          if (!station.name || (!station.name.toLowerCase().includes(query.toLowerCase()) && !abbreviationMatch)) return;
+          const existingMatch = localMatches.find(match => match.name.toLowerCase() === station.name.toLowerCase());
+          if (existingMatch) {
+            if (abbreviationMatch) {
+              existingMatch.id = station.id || station.stopId || null;
+              existingMatch.source = 'custom';
+              existingMatch._customJsonUrl = station._customJsonUrl;
+            }
+            return;
+          }
           localMatches.unshift({
             id: station.id || station.stopId || null,
             name: station.name,
@@ -757,7 +843,10 @@ if (!initialEpoch) {
   setPickersFromEpoch(initialEpoch);
 }
 
-if (params.get('stopId')) {
+const urlDidok = params.get('didok');
+if (urlDidok) {
+  selectStationByDidok(urlDidok, initialEpoch);
+} else if (params.get('stopId')) {
   currentStopId = params.get('stopId');
   currentStationName = 'Station wählen';
   updateStationTitle(currentStationName);
@@ -784,6 +873,8 @@ function selectStation(stopId, name, refEpoch) {
 
   closeHomeView();
   customDepartures = null;
+  customStationUsesApi = false;
+  customStationCoordinates = null;
   currentStopId = stopId;
   currentStationName = name;
   currentMainStationId = stopId;
@@ -804,6 +895,8 @@ function selectStation(stopId, name, refEpoch) {
   const url = new URL(location.href);
   url.searchParams.set('view', 'departures');
   url.searchParams.set('stopId', stopId);
+  url.searchParams.delete('customJson');
+  url.searchParams.delete('didok');
   
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
   else              url.searchParams.delete('time');
@@ -811,7 +904,7 @@ function selectStation(stopId, name, refEpoch) {
   if (isArrivalsMode) url.searchParams.set('arrivals', 'true');
   else                url.searchParams.delete('arrivals');
 
-  history.pushState({stopId, stationName: name, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
+  history.pushState({stopId, stationName: name, customJson: null, epoch: currentEpoch, arrivals: isArrivalsMode, calendarStart, calendarVias, calendarDest}, '', url);
 
   loadDepartures(currentEpoch);
   window.scrollTo({top: 240, behavior: 'smooth'}); // Automatisch nach unten scrollen, um die Abfahrten anzuzeigen
@@ -832,6 +925,33 @@ async function selectStationByName(name, refEpoch) {
     selectStation(match.id, match.name, refEpoch);
   } catch (err) {
     alert('Fehler bei der Stationssuche: ' + err.message);
+  }
+}
+
+async function selectStationByDidok(abbreviation, refEpoch) {
+  const normalizedAbbreviation = String(abbreviation || '').trim().toUpperCase();
+  if (!normalizedAbbreviation) return;
+
+  try {
+    if (window.abbreviationsReady) await window.abbreviationsReady;
+
+    const localMatches = getLocalAbbreviationMatches(normalizedAbbreviation);
+    if (localMatches.length > 0) {
+      await selectStationByName(localMatches[0].name, refEpoch);
+      return;
+    }
+
+    const res = await fetch(`${PROXY}?action=search&query=${encodeURIComponent(normalizedAbbreviation)}`);
+    const data = await res.json();
+    const firstMatch = (data.stations || [])[0];
+    if (!firstMatch) {
+      alert(`Didok-Kürzel "${normalizedAbbreviation}" nicht gefunden.`);
+      return;
+    }
+
+    selectStation(firstMatch.id, firstMatch.name, refEpoch);
+  } catch (err) {
+    alert(`Fehler bei der Didok-Suche: ${err.message}`);
   }
 }
 
