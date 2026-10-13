@@ -53,7 +53,7 @@
 
 /* 2. Agency-allgemein (mittler spezifisch) */
 .line-container[data-agency-name*="Rhätische"] { background: #e2001a; color: white; } /* RhB */
-.line-container[data-agency-name^="PostAuto"] { background: #ffcc00; color: black; } /* PAG */
+.line-container[data-agency-name*="PostAuto"] { background: #ffcc00; color: black; } /* PAG */
 
 /* 3. Agency + Line (sehr spezifisch - gewinnt immer) */
 /* VBZ */
@@ -731,7 +731,10 @@
 /* SBB */
 .line-container[data-agency-name*="SBB"][data-line^="TER"],
 .line-container[data-agency-name*="SBB"][data-line^="S"],
-.line-container[data-agency-name*="SBB"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="SBB"][data-line^="R"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="TER"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="S"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="R"] { background: white; color: black; }
 
 .line-container[data-agency-name*="SBB"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 
@@ -752,11 +755,13 @@
 .line-container[data-agency-name*="SBB"][data-line*="REN"] { background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); }
 .line-container[data-agency-name*="SBB"][data-line^="IRN"] {background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); font-style: italic; font-weight: bold; }
 
-.line-container[data-agency-name*="SBB"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
+.line-container[data-agency-name*="SBB"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
 
 .line-container[data-line="GEX"],
 .line-container[data-line="BEX"],
-.line-container[data-agency-name*="SBB"][data-line^="PE"] { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name*="SBB"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="PE"] { background: #eb0000; color: white; font-style: italic; }
 
 .line-container[data-line^="EXT"],
 .line-container[data-line^="AG"] { background: #eb0000; color: white; font-style: italic; }
