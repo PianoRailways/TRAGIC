@@ -764,6 +764,10 @@ tr.dep-row.chain-open {
   background: var(--bg-surface);
 }
 tr.dep-row.chain-open td { background: inherit; }
+tr.dep-row.dep-row-origin,
+tr.dep-row.dep-row-origin td {
+  background: rgba(170, 170, 170, 0.14);
+}
 
 /* Versteckte Zeilen durch Filter */
 tr.dep-row.filtered-mode,

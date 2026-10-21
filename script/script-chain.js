@@ -89,7 +89,7 @@ function startChainPositionUpdates() {
   chainPositionInterval = setInterval(updateChainPositionMarker, 30000);
 }
 
-function renderChain(data) {
+function renderChain(data, sourceTripId = data.tripId) {
   currentChainData = data;
 
   const trainPosition = getTrainPosition(data.stops || [], Math.floor(Date.now() / 1000));
@@ -236,7 +236,7 @@ function renderChain(data) {
         : '';
       
       const clickAttrs = isClickable
-        ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpochStop || 'null'})"`
+        ? `onclick="selectStation('${escapeAttr(stop.stopId)}','${escapeAttr(stop.name)}',${refEpochStop || 'null'},'${escapeAttr(sourceTripId || '')}')"`
         : '';
       
       let legSeparatorHtml = '';
@@ -421,7 +421,7 @@ function renderDepartures(departures) {
     }
 
     const tr = document.createElement('tr');
-    tr.className = `dep-row${dep.cancelled ? ' dep-cancelled' : ''}`;
+    tr.className = `dep-row${dep.cancelled ? ' dep-cancelled' : ''}${highlightedTripId && dep.tripId === highlightedTripId ? ' dep-row-origin' : ''}`;
     if (depIdx % 2 === 1) tr.classList.add('dep-row-alt');
 
     const needsDestinationFallback = !!dep.tripId && !dep.destination;
@@ -536,7 +536,7 @@ async function toggleChain(tr, dep) {
   tr.after(chainTr);
 
   if (dep.trip) {
-    td.innerHTML = `<div class="chain-wrap">${renderChain(dep.trip)}</div>`;
+    td.innerHTML = `<div class="chain-wrap">${renderChain(dep.trip, dep.tripId)}</div>`;
     startChainPositionUpdates();
     return;
   }
@@ -550,7 +550,7 @@ async function toggleChain(tr, dep) {
       return;
     }
 
-    td.innerHTML = `<div class="chain-wrap">${renderChain(data)}</div>`;
+    td.innerHTML = `<div class="chain-wrap">${renderChain(data, dep.tripId)}</div>`;
     startChainPositionUpdates();
   } catch (err) {
     td.innerHTML = `<div class="chain-wrap"><div class="chain-header">Fehler beim Laden: ${escapeHtml(err.message)}</div></div>`;

@@ -865,13 +865,14 @@ function updateStationTitle(name) {
 
 // ─── Station auswählen ───────────────────────────────────────────────────────
 
-function selectStation(stopId, name, refEpoch) {
+function selectStation(stopId, name, refEpoch, sourceTripId = null) {
   if (stopId === null) {
     selectStationByName(name, refEpoch);
     return;
   }
 
   closeHomeView();
+  highlightedTripId = sourceTripId;
   customDepartures = null;
   customStationUsesApi = false;
   customStationCoordinates = null;
@@ -897,6 +898,7 @@ function selectStation(stopId, name, refEpoch) {
   url.searchParams.set('stopId', stopId);
   url.searchParams.delete('customJson');
   url.searchParams.delete('didok');
+  url.searchParams.delete('tripId');
   
   if (currentEpoch) url.searchParams.set('time', currentEpoch);
   else              url.searchParams.delete('time');
