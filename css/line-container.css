@@ -663,33 +663,33 @@
 .line-container[data-agency-name*="Région Haute-Savoie"][data-line="274"],
 .line-container[data-agency-name*="Jacquet Autocars"][data-line="274"] { background: #F171AB; color: white; }
 /* TPF Linien-Farben */
-.line-container[data-agency-name*="TPF"][data-line="2"] { background: #EF4B44; color: white; }
-.line-container[data-agency-name*="TPF"][data-line="3"] { background: #FED702; color: black; }
-.line-container[data-agency-name*="TPF"][data-line="4"] { background: #F7951F; color: black; }
-.line-container[data-agency-name*="TPF"][data-line="5"] { background: #0093D0; color: #ECE820; }
-.line-container[data-agency-name*="TPF"][data-line="6"] { background: #543695; color: white; }
-.line-container[data-agency-name*="TPF"][data-line="8"] { background: #EA4498; color: black; }
-.line-container[data-agency-name*="TPF"][data-line="9"] { background: #A54499; color: white; }
-.line-container[data-agency-name*="TPF"][data-line="11"] { background: #00B294; color: white; }
-.line-container[data-agency-name*="TPF"][data-line="12"] { background: #1466B2; color: white; }
-.line-container[data-agency-name*="TPF"][data-line="13"] { background: #EA2B39; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="2"] { background: #EF4B44; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="3"] { background: #FED702; color: black; }
+.line-container[data-agency-name*="TPF"i][data-line="4"] { background: #F7951F; color: black; }
+.line-container[data-agency-name*="TPF"i][data-line="5"] { background: #0093D0; color: #ECE820; }
+.line-container[data-agency-name*="TPF"i][data-line="6"] { background: #543695; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="8"] { background: #EA4498; color: black; }
+.line-container[data-agency-name*="TPF"i][data-line="9"] { background: #A54499; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="11"] { background: #00B294; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="12"] { background: #1466B2; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="13"] { background: #EA2B39; color: white; }
 
-.line-container[data-agency-name*="TPF"][data-line="201"] { background: #EF3122; color: white; }
-.line-container[data-agency-name*="TPF"][data-line="202"] { background: #21B259; color: white; }
-.line-container[data-agency-name*="TPF"][data-line="203"] { background: #0072BC; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="201"] { background: #EF3122; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="202"] { background: #21B259; color: white; }
+.line-container[data-agency-name*="TPF"i][data-line="203"] { background: #0072BC; color: white; }
 
 /* Sonderausführung RE */
 .line-container[data-agency-name*="fribourgeois"][data-line^="RE"] { background: white; color: #eb0000;}
 
 /* BörömPömPöm */
-.line-container[data-agency-name*="TPF"]::after,
-.line-container[data-agency-name*="fribourgeois"]::after {content: "";position: absolute;right: 14px;bottom: 3px;width: 3px;height: 3px;background-color: var(--tpf-lila);border-radius: 50%;box-shadow: 4px 0 0 var(--tpf-lila), 8px 0 0 var(--tpf-lila);}
+.line-container[data-agency-name*="TPF"i]::after,
+.line-container[data-agency-name*="fribourgeois"i]::after {content: "";position: absolute;right: 14px;bottom: 3px;width: 3px;height: 3px;background-color: var(--tpf-lila);border-radius: 50%;box-shadow: 4px 0 0 var(--tpf-lila), 8px 0 0 var(--tpf-lila);}
 /* === SOB === */
-.line-container[data-agency-name*="sob"] { background: #e10e23; color: white; } /* SOB */
+.line-container[data-agency-name*="sob"i] { background: #e10e23; color: white; } /* SOB */
 /* SOB - X */
-.line-container[data-agency-name*="sob"][data-line^="IR"],
-.line-container[data-agency-name*="sob"][data-line^="VAE"],
-.line-container[data-agency-name*="sob"][data-line="S81"] { background: #85553a; color: white; }
+.line-container[data-agency-name*="sob"i][data-line^="IR"],
+.line-container[data-agency-name*="sob"i][data-line^="VAE"],
+.line-container[data-agency-name*="sob"i][data-line="S81"] { background: #85553a; color: white; }
 
 /* === MGB === */
 .line-container[data-agency-name*="Matterhorn"][data-line="R40"] { background: #ACA425; color: white; }
@@ -736,24 +736,44 @@
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="S"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="R"] { background: white; color: black; }
 
-.line-container[data-agency-name*="SBB"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
+.line-container[data-agency-name*="SBB"][data-line^="RE"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
 
 .line-container[data-agency-name*="SBB"][data-line^="IR"],
-.line-container[data-agency-name*="SBB"][data-line^="IC"] { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IR"],
+.line-container[data-agency-name*="SBB"][data-line^="IC"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IC"]
+ { background: #eb0000; color: white; font-style: italic; }
 
 .line-container[data-agency-name*="SBB"][data-line^="EC"],
-.line-container[data-agency-name*="SBB"][data-line^="EN"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+.line-container[data-agency-name*="SBB"][data-line^="EN"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="EC"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="EN"]
+ { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
 
 .line-container[data-agency-name*="SBB"][data-line^="ICN"],
 .line-container[data-agency-name*="SBB"][data-line^="ICE"],
 .line-container[data-agency-name*="SBB"][data-line^="TGV"],
 .line-container[data-agency-name*="SBB"][data-line^="CNL"],
 .line-container[data-agency-name*="SBB"][data-line^="RJ"],
-.line-container[data-agency-name*="SBB"][data-line^="RJX"] { background: #eb0000; color: white; font-style: italic; }
-.line-container[data-agency-name*="SBB"][data-line^="RX"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+.line-container[data-agency-name*="SBB"][data-line^="RJX"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICN"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICE"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="TGV"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="CNL"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RJ"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RJX"]
+ { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name*="SBB"][data-line^="RX"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RX"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
 .line-container[data-agency-name*="SBB"][data-line*="SN"],
-.line-container[data-agency-name*="SBB"][data-line*="REN"] { background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); }
-.line-container[data-agency-name*="SBB"][data-line^="IRN"] {background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); font-style: italic; font-weight: bold; }
+.line-container[data-agency-name*="SBB"][data-line*="REN"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line*="SN"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line*="REN"]
+{ background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); }
+.line-container[data-agency-name*="SBB"][data-line^="IRN"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IRN"]
+ {background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); font-style: italic; font-weight: bold; }
 
 .line-container[data-agency-name*="SBB"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="NJ"] { font-style: italic; background: #eb0000; color: white; }
