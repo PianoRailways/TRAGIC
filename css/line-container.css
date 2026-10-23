@@ -408,6 +408,7 @@
 .line-container[data-agency-name*="TPF"][data-line^="M"] {background-color: #231F20; color: #FFDC01;}
 
 /* Aare Seeland Mobil ASM */
+.line-container[data-agency-name*="Aare Seeland"] { background: white; color: black; }
 .line-container[data-agency-name*="Aare Seeland"][data-line="5"] { background: #0FB967; color: white; }
 .line-container[data-agency-name*="Aare Seeland"][data-line="7"] { background: #892819; color: white; }
 .line-container[data-agency-name*="Aare Seeland"][data-line="51"] { background: #296E88; color: white; }
