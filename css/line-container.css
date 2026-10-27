@@ -689,6 +689,7 @@
 /* SOB - X */
 .line-container[data-agency-name*="sob"i][data-line^="IR"],
 .line-container[data-agency-name*="sob"i][data-line^="VAE"],
+.line-container[data-agency-name*="sob"i][data-line^="N"],
 .line-container[data-agency-name*="sob"i][data-line="S81"] { background: #85553a; color: white; }
 
 /* === MGB === */

@@ -964,6 +964,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'rvo': { S12: 'Regio'},
   'THURBO': { 14: 'S14', 44: 'S44', 1: 'RE1'},
   'SBB': { 75: 'IR75', N1: 'IRN1', N7: 'REN7'},
+  'SOB': { N3: 'IRN3'},
   'Wengernalpbahn': { 63: 'CC63', 64: 'CC64'},
   'Jungfraubahn': { 65: 'CC65'},
   'Gornergratbahn': { 48: 'CC48'},
