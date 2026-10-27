@@ -737,21 +737,19 @@
 .line-container[data-agency-name*="SBB"][data-line^="R"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="TER"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="S"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="R"]
+{ background: white; color: black; }
 
 .line-container[data-agency-name*="SBB"][data-line^="RE"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
-
-.line-container[data-agency-name*="SBB"][data-line^="IR"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IR"],
-.line-container[data-agency-name*="SBB"][data-line^="IC"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IC"]
- { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RE"]
+{ background: white; color: #eb0000; border: solid 1px #eb0000; }
 
 .line-container[data-agency-name*="SBB"][data-line^="EC"],
 .line-container[data-agency-name*="SBB"][data-line^="EN"],
+.line-container[data-agency-name*="SBB"][data-line^="RX"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="EC"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="EN"]
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="EN"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RX"]
  { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
 
 .line-container[data-agency-name*="SBB"][data-line^="ICN"],
@@ -760,6 +758,10 @@
 .line-container[data-agency-name*="SBB"][data-line^="CNL"],
 .line-container[data-agency-name*="SBB"][data-line^="RJ"],
 .line-container[data-agency-name*="SBB"][data-line^="RJX"],
+.line-container[data-agency-name*="SBB"][data-line^="IR"],
+.line-container[data-agency-name*="SBB"][data-line^="IC"],
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IC"]
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IR"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICN"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICE"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="TGV"],
@@ -767,13 +769,13 @@
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RJ"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RJX"]
  { background: #eb0000; color: white; font-style: italic; }
-.line-container[data-agency-name*="SBB"][data-line^="RX"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="RX"] { background: #eb0000; color: white; font-style: italic; font-weight: bold; }
+
 .line-container[data-agency-name*="SBB"][data-line*="SN"],
 .line-container[data-agency-name*="SBB"][data-line*="REN"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line*="SN"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line*="REN"]
 { background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); }
+
 .line-container[data-agency-name*="SBB"][data-line^="IRN"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IRN"]
  {background: transparent; color: var(--sbb-night); border: 0.5px solid var(--sbb-night); font-style: italic; font-weight: bold; }
@@ -816,9 +818,13 @@
 
 /* Emmentalbahn / Dampfbahn Bern */
 .line-container[data-agency-name*="Dampfbahn Bern"][data-line^="R"],
-.line-container[data-agency-name^="Emmentalbahn"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name^="Emmentalbahn"][data-line^="R"]
+{ background: white; color: black; }
+
 .line-container[data-agency-name*="Dampfbahn Bern"],
-.line-container[data-agency-name^="Emmentalbahn"] {position: relative;padding-right: 1.7rem;}
+.line-container[data-agency-name^="Emmentalbahn"]
+{position: relative;padding-right: 1.7rem;}
+
 .line-container[data-agency-name*="Dampfbahn Bern"]::after {content: "DBB";}
 .line-container[data-agency-name^="Emmentalbahn"]::after {content: "EB";}
 .line-container[data-agency-name*="Dampfbahn Bern"]::after,
