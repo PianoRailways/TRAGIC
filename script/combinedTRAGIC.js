@@ -27,4 +27,6 @@ window.combinedStations = {
     'Luino': ['Luino', 'Luino, Stazione FS (I)', 'Luino (I)', 'Luino, Marconi,Stazione FS'],
     'Luino (I)': ['Luino', 'Luino, Stazione FS (I)', 'Luino (I)', 'Luino, Marconi,Stazione FS'],
     'Luino, Marconi,Stazione FS': ['Luino', 'Luino, Stazione FS (I)', 'Luino (I)', 'Luino, Marconi,Stazione FS'],
+    'Nebikon, Bahnhof Ost': ['Nebikon, Bahnhof Ost', 'Nebikon'],
+    'Nebikon': ['Nebikon', 'Nebikon, Bahnhof Ost'],
 	};
