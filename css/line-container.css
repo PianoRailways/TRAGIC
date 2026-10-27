@@ -36,6 +36,8 @@
   --live-red:   #ff3b30;
   --plat-change:#fcbb00;
   --sbb-night: #FFDE15;
+  --oebb-nightjet: #909699;
+  --oebb-rot: #E2002A;
 }
 /* 1. Mode-basiert (niedrig spezifisch) */
 .line-container[data-mode="HIGHSPEED"]  { background: var(--sbb-red); }
@@ -1131,7 +1133,7 @@
 
 /* Österreich */
 .line-container[data-agency-name^="WESTbahn"] { background: linear-gradient( 65deg,#0085cd 0%,#0085cd 50%,#b2d200 50%,#b2d200 100% ); color: #004B87; } /* Westbahn */
-
+.line-container[data-agency-name^="OEBB"][data-line^="NJ"] { background: #1F389E; color: var(--oebb-nightjet); font-weight: 100; }
 /* Niederlanden */
 .line-container[data-agency-name="NS"] { background: #ffc917; color: #003082; }
 .line-container[data-agency-name="NS International"] { background: white; color: #003082; }
