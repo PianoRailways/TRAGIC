@@ -867,6 +867,21 @@
 .line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U8"] { background: #224F86; color: white; }
 .line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U9"] { background: #F3791D; color: white; }
 
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S1"] { background: #E26EA6; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line^="S2"] { background: #007B3D; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S3"] { background: #0065AE; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S5"] { background: #EE7203; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line^="S7"] { background: #846DAA; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line^="S8"] { background: #62AD2D; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S9"] { background: #9B2B48; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S15"] { background: #DD6CA6; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S41"] { background: #AF5937; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S42"] { background: #CB621A; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S46"] { background: #CD9C54; color: white; }
+.line-container[data-agency-name^="S-Bahn Berlin"][data-line="S47"] { background: #CD9C54; color: white; }
+
+.line-container[data-agency-name^="ODEG"][data-line^="RB"] { background: #E30613; color: white; }
+
 .line-container[data-agency-id="13796"],
 .line-container[data-agency-id="FLIXTRAIN-eu"],
 .line-container[data-agency-id="FLIXBUS-eu"]
