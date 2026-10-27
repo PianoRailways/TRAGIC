@@ -720,6 +720,7 @@
 .line-container[data-agency-name="Zentralbahn"][data-line^="S"] { background: white; color: black; }
 .line-container[data-agency-name="Zentralbahn"][data-line^="IR"],
 .line-container[data-agency-name="Zentralbahn"][data-line^="LIX"],
+.line-container[data-agency-name="Zentralbahn"][data-line^="PE"],
 .line-container[data-agency-name="Zentralbahn"][data-line^="LEX"]
  { background: #E30513; color: white; }
 .line-container[data-agency-name*="Zentralbahn"][data-line^="RE"] { background: white; color: #eb0000; border: solid 1px #eb0000; }
