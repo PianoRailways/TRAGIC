@@ -972,6 +972,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'Rothorn': { 7: 'CC7'},
   'Forchbahn': { 18: 'S18'},
   'Montreux-Oberland': { 30: 'PE30'},
+  'Zentralbahn': { 82: 'PE82'},
 };
 
 function normalizeLineDisplay(line, agencyName = '', agencyId = '') {
