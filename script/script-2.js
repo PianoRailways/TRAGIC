@@ -973,6 +973,7 @@ const LINE_DISPLAY_OVERRIDES = {
   'Forchbahn': { 18: 'S18'},
   'Montreux-Oberland': { 30: 'PE30'},
   'Zentralbahn': { 82: 'PE82'},
+  'Ferrovie Autolinee Regionali Ticinesi': { 72: 'PE72'},
 };
 
 function normalizeLineDisplay(line, agencyName = '', agencyId = '') {

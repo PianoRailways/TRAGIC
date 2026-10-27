@@ -253,8 +253,9 @@
 .line-container[data-agency-name*="FART"][data-line="8"] { background: rgb(212,218,101); color: black; }
 
 /* --- FART / CENTOVALLI --- */
-.line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"] { background: linear-gradient(135deg, #005f96 0%, #00906f 100%); color: #f2e7c9; }
-.line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"][data-line^="PE"] { background: #f4bc1e; color: #000; }
+
+.line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"][data-line^="PE"] { background: linear-gradient(135deg, #005f96 0%, #00906f 100%); color: #f2e7c9; font-style: italic; }
+
 .line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"][data-line^="R"] { background: #f2e7c9; color: #084cb9; }
 .line-container[data-agency-name="Ferrovie Autolinee Regionali Ticinesi"][data-line^="RE"] { background: #f2e7c9; color: var(--sbb-red); }
 
