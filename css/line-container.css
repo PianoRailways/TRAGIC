@@ -855,6 +855,16 @@
 .line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-mode="BUS"] { background: #95276E; color: white; } /* Bus */
 .line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-mode="FERRY"] { background: #528DBA; color: white; } /* Fähre */
 
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U1"] { background: #7DAD4C; color: white; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U2"] { background: #DA421E; color: white; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U3"] { background: #DA421E; color: white; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U4"] { background: #F0D722; color: black; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line^="U5"] { background: #7E5330; color: white; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U6"] { background: #8C6DAB; color: white; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U7"] { background: #528DBA; color: white; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U8"] { background: #224F86; color: white; }
+.line-container[data-agency-name="Berliner Verkehrsbetriebe"][data-line="U9"] { background: #F3791D; color: white; }
+
 .line-container[data-agency-id="13796"],
 .line-container[data-agency-id="FLIXTRAIN-eu"],
 .line-container[data-agency-id="FLIXBUS-eu"]
