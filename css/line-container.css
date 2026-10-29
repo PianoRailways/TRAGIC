@@ -763,7 +763,7 @@
 .line-container[data-agency-name*="SBB"][data-line^="RJX"],
 .line-container[data-agency-name*="SBB"][data-line^="IR"],
 .line-container[data-agency-name*="SBB"][data-line^="IC"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IC"]
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IC"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IR"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICN"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICE"],
