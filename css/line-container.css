@@ -413,6 +413,7 @@
 .line-container[data-agency-name*="TPF"][data-line^="M"] {background-color: #231F20; color: #FFDC01;}
 
 /* Aare Seeland Mobil ASM */
+.line-container[data-agency-name*="Aare Seeland"] { background: white; color: black; }
 .line-container[data-agency-name*="Aare Seeland"][data-line="5"] { background: #0FB967; color: white; }
 .line-container[data-agency-name*="Aare Seeland"][data-line="7"] { background: #892819; color: white; }
 .line-container[data-agency-name*="Aare Seeland"][data-line="51"] { background: #296E88; color: white; }
@@ -708,8 +709,8 @@
 .line-container[data-agency-name="Gornergratbahn"],
 .line-container[data-agency-id="121"][data-line*="48"] { background: #FFB82D; color: white; }
 /* MBC etc. */
-.line-container[data-agency-name^="Montreux-Oberland"][data-line^="R"] { background: white; color: black; }
-.line-container[data-agency-name^="Montreux-Oberland"][data-raw-line="30"] { background: #eb0000; color: white; font-style: italic; }
+.line-container[data-agency-name^="Montreux-Oberland"][data-line^="R"], .line-container[data-agency-name^="Montreux Berner"][data-line^="R"] { background: white; color: black; }
+.line-container[data-agency-name^="Montreux-Oberland"][data-raw-line="30"],.line-container[data-agency-name^="Montreux Berner"][data-raw-line="30"] { background: #eb0000; color: white; font-style: italic; }
 .line-container[data-agency-name*="Riviera"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-id="23"][data-line^="R"] { background: white; color: black; }
 .line-container[data-agency-name^="Montreux-Vevey-Riviera"] { color: #002D5B; background: white; }
@@ -764,7 +765,7 @@
 .line-container[data-agency-name*="SBB"][data-line^="RJX"],
 .line-container[data-agency-name*="SBB"][data-line^="IR"],
 .line-container[data-agency-name*="SBB"][data-line^="IC"],
-.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IC"]
+.line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IC"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="IR"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICN"],
 .line-container[data-agency-name*="Schweizerische Bundesbahnen"][data-line^="ICE"],
