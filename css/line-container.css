@@ -606,6 +606,23 @@
 .line-container[data-agency-name*="Busland"][data-line="493"] { background: rgb(129,27,78); color: white;}
 
 /* Bus Hergiswil (es fährt Auto AG Rothenbrg) */
+@keyframes auto-ag-rothenburg-colors {
+  0% {background: #FFF101;color: black;}
+  25% {background: #008FC5;color: white;}
+  50% {background: #DB3C36;color: white;}
+  75% {background: #009252;color: white;}
+  100% {background: #FFF101;color: black;}}
+
+.line-container[data-agency-name="Auto AG Rothenburg"] {animation: auto-ag-rothenburg-colors 16s infinite ease-out;}
+
+@media (prefers-reduced-motion: reduce) {
+  .line-container[data-agency-name="Auto AG Rothenburg"] {
+    animation: none;
+    background: #FFF101;
+    color: black;
+  }
+}
+
 .line-container[data-agency-name="Auto AG Rothenburg"][data-line="381"] {background: #0D92D3; color: white;}
 .line-container[data-agency-name="Auto AG Rothenburg"][data-line="382"] {background: #C73834; color: white;}
 
