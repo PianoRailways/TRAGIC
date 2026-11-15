@@ -102,12 +102,49 @@
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="317"] { background: #46398e; color: white; }
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line="325"] { background: #e82788; color: white; }
 
-.line-container[data-agency-name^="Verkehrsbetriebe Zürich"], .line-container[data-agency-name^="Verkehrsbetriebe Zürich"] { background: white; color: black; }
+.line-container[data-agency-name^="Verkehrsbetriebe Zürich"] { background: white; color: black; }
 .line-container[data-agency-name*="Zürich"][data-line="E"] { background: white; color: black; border: solid 1px rgb(144,190,227); }
 .line-container[data-agency-name^="Forchbahn"][data-line="18"] { background: #E94F35; color: white; }
 
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="N"] {color:rgb(255,242,0); background-color:rgb(0,0,0);} /* VBZ Nachtnetz */
 
+.line-container[data-line="4/11"][data-agency-name="Verkehrsbetriebe Zürich"] {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    background: linear-gradient(to top left,#008d36 50.5%, #663399 49.5%);
+    border-radius: 2px;
+    overflow: hidden;
+    padding: 0 !important;
+    vertical-align: middle;
+}
+
+.line-container[data-line="4/11"][data-agency-name="Verkehrsbetriebe Zürich"] .line {
+    display: none;
+}
+
+.line-container[data-line="4/11"][data-agency-name="Verkehrsbetriebe Zürich"]::after {
+    content: "4";
+    position: absolute;
+    top: 1px;
+    left: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.line-container[data-line="4/11"][data-agency-name="Verkehrsbetriebe Zürich"]::before {
+    content: "11";
+    position: absolute;
+    bottom: 1px;
+    right: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1;
+}
 /* Verkehrsbetriebe Glattal */
 .line-container[data-agency-name*="Glattal"] { background: #90c53e; color: white; }
 .line-container[data-agency-name^="Verkehrsbetriebe Zürich"][data-line^="91"] { background: #D0B084; color: black; } /* AZZK */
