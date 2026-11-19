@@ -451,18 +451,26 @@ async function loadAbbreviations() {
         const res = await fetch(`/didok/${country}.json`);
         if (res.ok) {
           const data = await res.json();
-          Object.entries(data).forEach(([abbrev, name]) => {
-            if (!abbrevMap[abbrev]) {
-              abbrevMap[abbrev] = [];
-            }
-            const countryCode = country.toUpperCase();
-            abbrevMap[abbrev].push({ name, country: countryCode });
+          Object.entries(data).forEach(([abbrev, value]) => {
+            // Kürzel sind nicht eindeutig: Wert darf ein Name oder eine Liste von Namen sein
+            [].concat(value).forEach(rawName => {
+              if (typeof rawName !== 'string') return;
+              // z.B. L"Aberieu -> L'Aberieu (Quellen schreiben den Apostroph teils als ")
+              const name = rawName.replace(/"/g, "'");
+              // Schlüssel immer gross: Quellen wie A-Welle liefern z.B. "RoGe"
+              const abbrevKey = abbrev.toUpperCase();
+              if (!abbrevMap[abbrevKey]) {
+                abbrevMap[abbrevKey] = [];
+              }
+              const countryCode = country.toUpperCase();
+              abbrevMap[abbrevKey].push({ name, country: countryCode });
 
-            const normName = name.trim().toLowerCase();
-            if (!nameToAbbrevMap[normName]) {
-              nameToAbbrevMap[normName] = [];
-            }
-            nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
+              const normName = name.trim().toLowerCase();
+              if (!nameToAbbrevMap[normName]) {
+                nameToAbbrevMap[normName] = [];
+              }
+              nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
+            });
           });
         }
       } catch (e) {
