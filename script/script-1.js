@@ -451,18 +451,22 @@ async function loadAbbreviations() {
         const res = await fetch(`/didok/${country}.json`);
         if (res.ok) {
           const data = await res.json();
-          Object.entries(data).forEach(([abbrev, name]) => {
-            if (!abbrevMap[abbrev]) {
-              abbrevMap[abbrev] = [];
-            }
-            const countryCode = country.toUpperCase();
-            abbrevMap[abbrev].push({ name, country: countryCode });
+          Object.entries(data).forEach(([abbrev, value]) => {
+            // Kürzel sind nicht eindeutig: Wert darf ein Name oder eine Liste von Namen sein
+            [].concat(value).forEach(name => {
+              if (typeof name !== 'string') return;
+              if (!abbrevMap[abbrev]) {
+                abbrevMap[abbrev] = [];
+              }
+              const countryCode = country.toUpperCase();
+              abbrevMap[abbrev].push({ name, country: countryCode });
 
-            const normName = name.trim().toLowerCase();
-            if (!nameToAbbrevMap[normName]) {
-              nameToAbbrevMap[normName] = [];
-            }
-            nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
+              const normName = name.trim().toLowerCase();
+              if (!nameToAbbrevMap[normName]) {
+                nameToAbbrevMap[normName] = [];
+              }
+              nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
+            });
           });
         }
       } catch (e) {

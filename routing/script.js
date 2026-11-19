@@ -42,18 +42,22 @@ async function loadAbbreviations() {
         const res = await fetch(`../didok/${country}.json`);
         if (res.ok) {
           const data = await res.json();
-          Object.entries(data).forEach(([abbrev, name]) => {
-            if (!abbrevMap[abbrev]) {
-              abbrevMap[abbrev] = [];
-            }
-            const countryCode = country.toUpperCase();
-            abbrevMap[abbrev].push({ name, country: countryCode });
+          Object.entries(data).forEach(([abbrev, value]) => {
+            // Kürzel sind nicht eindeutig: Wert darf ein Name oder eine Liste von Namen sein
+            [].concat(value).forEach(name => {
+              if (typeof name !== 'string') return;
+              if (!abbrevMap[abbrev]) {
+                abbrevMap[abbrev] = [];
+              }
+              const countryCode = country.toUpperCase();
+              abbrevMap[abbrev].push({ name, country: countryCode });
 
-            const normName = name.trim().toLowerCase();
-            if (!nameToAbbrevMap[normName]) {
-              nameToAbbrevMap[normName] = [];
-            }
-            nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
+              const normName = name.trim().toLowerCase();
+              if (!nameToAbbrevMap[normName]) {
+                nameToAbbrevMap[normName] = [];
+              }
+              nameToAbbrevMap[normName].push({ abbrev, country: countryCode });
+            });
           });
         }
       } catch (e) {
@@ -229,24 +233,28 @@ function attachStationSearch(input, suggestions, key) {
 
     try {
       let results = [];
-      let selectedAbbrev = null;
+      let abbrevResults = [];
 
       // First: Check if query matches a DIDOK abbreviation (case-insensitive)
+      // Kürzel sind nicht eindeutig: alle Haltestellen anzeigen (gleiche Namen nur einmal)
       if (query.length <= 6) { // Abbreviations are typically short
-        const abbrevMatches = getAbbrevsForStation(query);
-        if (abbrevMatches.length > 0) {
-          selectedAbbrev = abbrevMatches[0]; // Take first match
-        }
+        const seenNames = new Set();
+        abbrevResults = getAbbrevsForStation(query).filter(match => {
+          const key = match.name.trim().toLowerCase();
+          if (seenNames.has(key)) return false;
+          seenNames.add(key);
+          return true;
+        });
       }
 
-      if (selectedAbbrev) {
-        results = [{
+      if (abbrevResults.length > 0) {
+        results = abbrevResults.map(match => ({
           id: null,
-          name: selectedAbbrev.name.trim(),
+          name: match.name.trim(),
           isAbbrev: true,
           abbrev: query.toUpperCase(),
-          country: selectedAbbrev.country
-        }];
+          country: match.country
+        }));
       } else if (query.length >= 2) {
         results = await searchStations(query);
       }
