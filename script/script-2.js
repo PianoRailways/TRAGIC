@@ -19,6 +19,7 @@ let nearbySettings = loadNearbySettings();
 let customDepartures = null;
 let customStationUsesApi = false;
 let customStationCoordinates = null;
+let highlightedTripId = null;
 const DEPARTURE_BATCH_SIZE = 25;
 const FILTERED_DEPARTURE_TARGET = DEPARTURE_BATCH_SIZE;
 const MAX_FILTERED_DEPARTURE_TOP_UPS = 8;
