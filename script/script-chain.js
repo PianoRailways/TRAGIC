@@ -86,6 +86,14 @@ function stopChainPositionUpdates() {
 function startChainPositionUpdates() {
   stopChainPositionUpdates();
   updateChainPositionMarker();
+  const marker = document.querySelector('.chain-pos-marker');
+  if (marker) {
+    requestAnimationFrame(() => marker.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest'
+    }));
+  }
   chainPositionInterval = setInterval(updateChainPositionMarker, 30000);
 }
 
