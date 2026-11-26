@@ -4,7 +4,6 @@ let currentStationName = null;
 let currentMainStationId = null;
 let refreshTimer = null;
 let allDepartures = [];
-let highlightedTripId = null;
 let abbrevMap = {};
 let nameToAbbrevMap = {};
 
@@ -329,7 +328,6 @@ const destFilter = document.getElementById('destFilter');
 
 async function loadCombinedStations() {
   const urls = [
-    'https://nowe.stellwerksim.ch/combinedstations.js',
     'https://tragic.stellwerksim.ch/script/combinedTRAGIC.js',
   ];
   
