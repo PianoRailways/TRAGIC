@@ -4,6 +4,7 @@ let currentStationName = null;
 let currentMainStationId = null;
 let refreshTimer = null;
 let allDepartures = [];
+let highlightedTripId = null;
 let abbrevMap = {};
 let nameToAbbrevMap = {};
 
