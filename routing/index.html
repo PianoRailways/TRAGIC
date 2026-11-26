@@ -5,18 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>ÖV Verbindungssuche & Abfahrtstafel</title>
   <link rel="stylesheet" href="routing.css">
+  <link rel="stylesheet" href="../css/header.css">
   <link rel="stylesheet" href="../css/line-container.css">
   <link rel="icon" type="image/png" href="../tragic.png">
   <link rel="apple-touch-icon" href="../tragic.png">
 </head>
 <body>
+  <!-- Header und Menü identisch zur Startseite (css/header.css) -->
   <header id="app-header">
     <div id="header-left">
-      <button id="btn-home" onClick="window.location = '/?view=home'" title="Startseite">⌂ Home</button>
+      <button id="btn-menu-toggle" class="btn-menu-toggle" title="Menü öffnen">☰</button>
+      <a id="btn-home" href="../?view=home" class="btn-home" title="Startseite">⌂</a>
     </div>
-    <div id="live-clock" onClick="window.location = './'">18:04:69</span></div>
-    <button id="btn-refresh">Reset</button>
+    <div id="header-center"><span id="live-clock" onclick="window.location = '../'">18:04:69</span></div>
+    <div id="header-right">
+      <span id="app-title">öV OMNI</span>
+    </div>
   </header>
+
+  <div id="menu-overlay" class="menu-overlay"></div>
+  <nav id="menu-sidebar" class="menu-sidebar">
+    <div class="menu-header">
+      <button id="btn-menu-close" class="btn-menu-close" title="Menü schließen">✕</button>
+      <h2 class="menu-title">OMNI</h2>
+    </div>
+    <ul class="menu-list">
+      <li><a href="../?view=home" class="menu-link">Startseite</a></li>
+      <li><a href="../?view=stations" class="menu-link">Wichtige Bahnhöfe</a></li>
+      <li><a href="../?view=departures" class="menu-link">Abfahrten</a></li>
+      <li><a href="../?view=arrivals&arrivals=true" class="menu-link">Ankünfte</a></li>
+      <li><a href="../?view=favorites" class="menu-link">Favoriten</a></li>
+      <li><a href="../?view=bvi" class="menu-link">Ereignisse</a></li>
+
+      <li class="menu-divider"></li>
+      <li><a href="./" class="menu-link">Routing</a></li>
+      <li><a href="../?view=settings" class="menu-link">Einstellungen</a></li>
+      <li><a href="../?view=help" class="menu-link">Hilfe</a></li>
+    </ul>
+  </nav>
 
   <div class="main-wrapper">
     <section class="panel">

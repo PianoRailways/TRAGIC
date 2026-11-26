@@ -23,6 +23,7 @@ const selectedStations = new Map();
 let viaCount = 0;
 let arriveBy = false;
 let pageState = { params: null, connections: [], prev: null, next: null, selected: null };
+let searchSeq = 0; // verwirft veraltete Antworten bei schnellen Änderungen
 
 const isWalk = leg => leg.mode === 'WALK';
 
@@ -154,7 +155,7 @@ function restoreRouteFromUrl() {
   const time = params.get('time');
   if (date) routeDateInput.value = date;
   if (time) routeTimeInput.value = time;
-  setMode(params.get('mode') === 'arrive');
+  setMode(params.get('mode') === 'arrive', false);
   updateDateLabel();
 
   const viaNames = params.getAll('via');
@@ -611,6 +612,13 @@ function formatDelay(sched, live) {
   return `<span class="delay-badge ${min > 0 ? 'late' : 'early'}">${min > 0 ? '+' : '-'}${Math.abs(min)}</span>`;
 }
 
+// Textform für Tooltips: " (+3)" bzw. " (-1)"
+function plainDelay(sched, live) {
+  if (!sched || !live) return '';
+  const min = Math.round((Number(live) - Number(sched)) / 60);
+  return min ? ` (${min > 0 ? '+' : '-'}${Math.abs(min)})` : '';
+}
+
 function renderTime(sched, live) {
   return `${formatTime(sched || live)}${formatDelay(sched, live)}`;
 }
@@ -677,7 +685,7 @@ function renderTimelineBar(connection, minDeparture, maxArrival, trackPx, gridSt
     const arr = leg.to?.arrival || 0;
     const left = pct(dep);
     const width = Math.max(pct(arr) - left, 0.8);
-    const tip = `${getLineLabel(leg)}: ${formatTime(dep)} → ${formatTime(arr)}`;
+    const tip = `${getLineLabel(leg)}: ${formatTime(leg.from?.scheduled || dep)}${plainDelay(leg.from?.scheduled, dep)} → ${formatTime(leg.to?.scheduled || arr)}${plainDelay(leg.to?.scheduled, arr)}`;
     let html = '';
 
     const prevArr = legs[i - 1]?.to?.arrival;
@@ -913,8 +921,10 @@ function renderTripCourse(trip, block) {
     if (i === a || i === b) cls.push('key');
     if (s.cancelled) cls.push('cancelled');
 
-    const sched = s.departureSched || s.arrivalSched;
-    const live = s.departureLive || s.arrivalLive;
+    // Soll und Ist immer aus demselben Ereignis (Abfahrt oder Ankunft) nehmen
+    const useDep = s.departureSched || !s.arrivalSched;
+    const sched = useDep ? s.departureSched : s.arrivalSched;
+    const live = useDep ? s.departureLive : s.arrivalLive;
 
     return `
       <div class="${cls.join(' ')}">
@@ -963,6 +973,8 @@ routeTbody.addEventListener('click', async event => {
 });
 
 async function searchRoute(selected = null) {
+  const seq = ++searchSeq;
+  if (!Number.isInteger(selected)) selected = null;
   let from = selectedStations.get('from');
   let to = selectedStations.get('to');
   
@@ -1002,9 +1014,12 @@ async function searchRoute(selected = null) {
     if (station) params.append('via', station.id);
   });
 
+  if (seq !== searchSeq) return;
+  const hadResults = pageState.connections.length > 0;
   pageState = { params, connections: [], prev: null, next: null, selected };
   updateRouteUrl();
-  routeResults.style.display = 'none';
+  // Bei einer Aktualisierung bleibt die alte Liste stehen, bis die neue da ist
+  if (!hadResults) routeResults.style.display = 'none';
   await loadPage();
 }
 
@@ -1017,10 +1032,12 @@ async function loadPage(direction) {
   if (direction === 'earlier') params.set('pageCursor', pageState.prev);
   if (direction === 'later') params.set('pageCursor', pageState.next);
 
+  const seq = ++searchSeq;
   setHint(routeHint, 'Suche Verbindungen...');
   try {
     const response = await fetch(`${PROXY}?${params}`);
     const data = await response.json();
+    if (seq !== searchSeq) return;
     if (!response.ok || data.error) {
       throw new Error(data.error || `Routing fehlgeschlagen (${response.status})`);
     }
@@ -1040,6 +1057,7 @@ async function loadPage(direction) {
     const count = pageState.connections.length;
     setHint(routeHint, count ? `${count} Verbindungen gefunden.` : 'Keine Verbindung gefunden.');
   } catch (error) {
+    if (seq !== searchSeq) return;
     console.error('Routing-Fehler:', error);
     setHint(routeHint, error.message, true);
   }
@@ -1083,6 +1101,17 @@ async function loadBoard() {
   }
 }
 
+// Sobald Von und Nach gewählt sind, wird bei jeder Änderung von Zeit, Datum,
+// Modus oder Richtung sofort neu gesucht.
+function refreshRoute(delay = 0) {
+  clearTimeout(refreshRoute.timer);
+  const run = () => {
+    if (selectedStations.has('from') && selectedStations.has('to') && routeTimeInput.value) searchRoute();
+  };
+  if (delay) refreshRoute.timer = setTimeout(run, delay);
+  else run();
+}
+
 // ─── Datum und Zeit ────────────────────────────────────────────────────────
 const pad = n => String(n).padStart(2, '0');
 const toDateValue = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -1111,6 +1140,7 @@ function setRouteNow() {
   routeTimeInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   updateDateLabel();
   updateRouteUrl();
+  refreshRoute();
 }
 
 function adjustRouteDate(days) {
@@ -1119,6 +1149,7 @@ function adjustRouteDate(days) {
   routeDateInput.value = toDateValue(d);
   updateDateLabel();
   updateRouteUrl();
+  refreshRoute();
 }
 
 function getRouteDate() {
@@ -1126,11 +1157,12 @@ function getRouteDate() {
   return new Date(`${routeDateInput.value}T${routeTimeInput.value || '00:00'}`);
 }
 
-function setMode(arrive) {
+function setMode(arrive, refresh = true) {
   arriveBy = arrive;
   btnModeDep.classList.toggle('active', !arrive);
   btnModeArr.classList.toggle('active', arrive);
   updateRouteUrl();
+  if (refresh) refreshRoute();
 }
 
 function swapFromTo() {
@@ -1143,8 +1175,22 @@ function swapFromTo() {
     routeFromInput.value = to.name;
     routeToInput.value = from.name;
     updateRouteUrl();
+    refreshRoute();
   }
 }
+
+// Hamburger-Menü (wie Startseite)
+function setMenu(open) {
+  document.getElementById('menu-sidebar').classList.toggle('active', open);
+  document.getElementById('menu-overlay').classList.toggle('active', open);
+  document.documentElement.style.overflow = open ? 'hidden' : '';
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+document.getElementById('btn-menu-toggle').addEventListener('click', () =>
+  setMenu(!document.getElementById('menu-sidebar').classList.contains('active')));
+document.getElementById('btn-menu-close').addEventListener('click', () => setMenu(false));
+document.getElementById('menu-overlay').addEventListener('click', () => setMenu(false));
+document.querySelectorAll('.menu-link').forEach(link => link.addEventListener('click', () => setMenu(false)));
 
 // Load abbreviations on page load
 loadAbbreviations();
@@ -1154,9 +1200,8 @@ attachStationSearch(routeToInput, document.getElementById('to-suggestions'), 'to
 attachStationSearch(boardInput, document.getElementById('board-suggestions'), 'board');
 document.getElementById('btn-add-via').addEventListener('click', () => createViaInput());
 btnCurrentLocation.addEventListener('click', useCurrentLocationAsStart);
-document.getElementById('btn-search-route').addEventListener('click', searchRoute);
+document.getElementById('btn-search-route').addEventListener('click', () => searchRoute());
 document.getElementById('btn-load-board').addEventListener('click', loadBoard);
-document.getElementById('btn-refresh').addEventListener('click', () => location.reload());
 document.getElementById('btn-swap').addEventListener('click', swapFromTo);
 
 // Datum, Zeit, Modus
@@ -1168,8 +1213,17 @@ document.getElementById('btn-date-next').addEventListener('click', () => adjustR
 routeDateInput.addEventListener('change', () => {
   updateDateLabel();
   updateRouteUrl();
+  refreshRoute();
 });
-routeTimeInput.addEventListener('change', updateRouteUrl);
+// 'input' feuert schon beim Drehen der Zeit-Felder, 'change' beim Bestätigen
+routeTimeInput.addEventListener('input', () => {
+  updateRouteUrl();
+  refreshRoute(250);
+});
+routeTimeInput.addEventListener('change', () => {
+  updateRouteUrl();
+  refreshRoute();
+});
 
 // Früher / Später
 btnEarlier.addEventListener('click', () => loadPage('earlier'));
